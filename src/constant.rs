@@ -1,1 +1,0 @@
-pub const BROADCAST_CHANNEL_CAPACITY: usize = 32;
