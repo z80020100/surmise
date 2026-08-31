@@ -7,6 +7,8 @@
 //! two reasons.
 
 pub mod candidates;
+#[cfg(test)]
+mod fixture;
 pub mod fuzzy;
 pub mod line;
 pub mod path;
