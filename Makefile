@@ -12,6 +12,10 @@ check:
 	cargo clippy --all-targets
 	cargo test
 
+.PHONY: install
+install:
+	cargo install --path .
+
 .PHONY: clean
 clean:
 	cargo clean
