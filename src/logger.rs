@@ -6,8 +6,6 @@ use std::str::FromStr;
 
 // crates.io
 use serde::Serialize;
-#[cfg(all(feature = "tauri", debug_assertions))]
-use time::OffsetDateTime;
 use time::{UtcOffset, format_description};
 use tokio::sync::mpsc as tokio_mpsc;
 use tracing::Level;
@@ -44,69 +42,6 @@ pub struct LogRecord {
     pub message: String,
     pub target: String,
     pub timestamp: String,
-}
-
-#[cfg(all(feature = "tauri", debug_assertions))]
-struct MessageVisitor<'a>(&'a mut String);
-
-#[cfg(all(feature = "tauri", debug_assertions))]
-impl tracing::field::Visit for MessageVisitor<'_> {
-    fn record_debug(&mut self, field: &tracing::field::Field, value: &dyn std::fmt::Debug) {
-        if field.name() == "message" {
-            use std::fmt::Write;
-            write!(self.0, "{:?}", value).ok();
-        }
-    }
-}
-
-#[cfg(all(feature = "tauri", debug_assertions))]
-struct EventLayer {
-    sender: tokio_mpsc::UnboundedSender<LogRecord>,
-    utc_offset: UtcOffset,
-}
-
-#[cfg(all(feature = "tauri", debug_assertions))]
-impl EventLayer {
-    fn new(sender: tokio_mpsc::UnboundedSender<LogRecord>, utc_offset: UtcOffset) -> Self {
-        Self { sender, utc_offset }
-    }
-
-    fn format_timestamp(&self) -> String {
-        let now = OffsetDateTime::now_utc().to_offset(self.utc_offset);
-        format!(
-            "{:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:03}",
-            now.year(),
-            u8::from(now.month()),
-            now.day(),
-            now.hour(),
-            now.minute(),
-            now.second(),
-            now.millisecond()
-        )
-    }
-}
-
-#[cfg(all(feature = "tauri", debug_assertions))]
-impl<S> Layer<S> for EventLayer
-where
-    S: tracing::Subscriber + for<'a> tracing_subscriber::registry::LookupSpan<'a>,
-{
-    fn on_event(
-        &self,
-        event: &tracing::Event<'_>,
-        _ctx: tracing_subscriber::layer::Context<'_, S>,
-    ) {
-        let metadata = event.metadata();
-        let mut message = String::new();
-        event.record(&mut MessageVisitor(&mut message));
-        let record = LogRecord {
-            level: metadata.level().to_string(),
-            message,
-            target: metadata.target().to_string(),
-            timestamp: self.format_timestamp(),
-        };
-        let _ = self.sender.send(record);
-    }
 }
 
 pub struct Logger {
@@ -169,19 +104,6 @@ impl Logger {
             .with_writer(io::stderr)
             .with_filter(console_level_filter);
 
-        #[cfg(all(feature = "tauri", debug_assertions))]
-        let event_receiver = {
-            let (tx, rx) = tokio_mpsc::unbounded_channel::<LogRecord>();
-            let event_layer = EventLayer::new(tx, utc_offset);
-            tracing_subscriber::Registry::default()
-                .with(file_layer)
-                .with(stdeer_layer)
-                .with(event_layer)
-                .init();
-            Some(rx)
-        };
-
-        #[cfg(not(all(feature = "tauri", debug_assertions)))]
         let event_receiver: Option<tokio_mpsc::UnboundedReceiver<LogRecord>> = {
             tracing_subscriber::Registry::default()
                 .with(file_layer)
