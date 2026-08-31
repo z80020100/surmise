@@ -28,10 +28,13 @@ jobs:
       - name: Install system dependencies
         if: false  # TODO: Enable and configure when dependencies are needed
         run: "sudo apt update && sudo apt install -y <packages>"
+      # The toolchain goes in first. The cache action reads it to build its key,
+      # so a cache step in front of it keys on whatever the runner shipped.
+      # rust-toolchain.toml names the toolchain. rustup installs it from there.
+      - name: Show the toolchain
+        run: rustup show
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
-      - name: Update toolchain
-        run: rustup update --no-self-update stable && rustup default stable
       - name: Check Rust formatting
         run: cargo fmt --all -- --check
       - name: Run cargo clippy
@@ -48,10 +51,13 @@ jobs:
       - name: Install system dependencies
         if: false  # TODO: Enable and configure when dependencies are needed
         run: "sudo apt update && sudo apt install -y <packages>"
+      # The toolchain goes in first. The cache action reads it to build its key,
+      # so a cache step in front of it keys on whatever the runner shipped.
+      # rust-toolchain.toml names the toolchain. rustup installs it from there.
+      - name: Show the toolchain
+        run: rustup show
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
-      - name: Update toolchain
-        run: rustup update --no-self-update stable && rustup default stable
       - name: Run cargo build --release
         run: cargo build --release
 
@@ -66,9 +72,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      # The toolchain goes in first. The cache action reads it to build its key,
+      # so a cache step in front of it keys on whatever the runner shipped.
+      # rust-toolchain.toml names the toolchain. rustup installs it from there.
+      - name: Show the toolchain
+        run: rustup show
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
-      - name: Update toolchain
-        run: rustup update --no-self-update stable && rustup default stable
       - name: Run cargo build --release
         run: cargo build --release
