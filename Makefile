@@ -1,20 +1,20 @@
 .PHONY: build
 build:
-	cargo build
+	cargo build --locked
 
 .PHONY: release
 release:
-	cargo build --release
+	cargo build --locked --release
 
 .PHONY: check
 check:
 	cargo fmt --all -- --check
-	cargo clippy --all-targets
-	cargo test
+	cargo clippy --locked --all-targets
+	cargo test --locked
 
 .PHONY: install
 install:
-	cargo install --path .
+	cargo install --locked --path .
 
 .PHONY: clean
 clean:

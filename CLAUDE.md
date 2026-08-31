@@ -20,10 +20,10 @@ marked TBD is not.
 ## Build, test and lint
 
 ```sh
-make build                  # cargo build
-make release                # cargo build --release
+make build                  # cargo build --locked
+make release                # cargo build --locked --release
 make check                  # fmt check, clippy, cargo test
-make install                # cargo install --path .
+make install                # cargo install --locked --path .
 make clean                  # cargo clean
 ```
 
@@ -59,6 +59,10 @@ that sets one is not testing the pinned toolchain.
 `rust-version` in `Cargo.toml` names the pinned toolchain rather than a lower
 bound, because the pinned one is the only toolchain CI builds. Edition 2024
 needs 1.85 at the least. Lower the declaration once a CI job proves that bound.
+
+Every cargo command in the Makefile passes `--locked`. `Cargo.lock` is tracked
+and a command that quietly re-resolves it would build something other than what
+the lockfile describes. `cargo install` ignores the lockfile without that flag.
 
 ## The pre-commit hook
 
