@@ -1,144 +1,111 @@
-# rust-template
+# surmise
 
-A Rust application template with two modes: **CLI** and **Tauri GUI**. Both share a common library (`src/lib.rs`) for logging and configuration. Fork and keep the mode you need.
+TBD.
 
-> This file also provides guidance to [Claude Code](https://claude.ai/code) when working with code in this repository.
+> This file also provides guidance to [Claude Code](https://claude.ai/code) when
+> working with code in this repository. `README.md`, `AGENTS.md` and `GEMINI.md`
+> are symbolic links to it.
+
+**Nothing is here yet but the scaffolding.** This repository holds the package,
+the licence, the lint gate and CI. `src/main.rs` is a placeholder and
+`[dependencies]` is empty. The licence is settled. Everything else below that is
+marked TBD is not.
 
 ## Prerequisites
 
-- Rust 1.85+ (edition 2024)
-- Node.js LTS and npm (for Tauri GUI frontend)
+- Rust 1.98.0. `rust-toolchain.toml` pins it and rustup installs it on demand
+- Target platforms: macOS for now. That is provisional rather than a decision.
+  It is simply the only platform anything has been built on
 
-### Tauri System Dependencies
+## Build, test and lint
 
-- **Linux (Ubuntu/Debian)**: `sudo apt install libwebkit2gtk-4.1-dev build-essential libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev`
-- **macOS**: Xcode Command Line Tools (`xcode-select --install`)
-- **Windows**: Microsoft Edge WebView2 (pre-installed on Windows 10/11)
-
-## Quick Start
-
-### CLI
-
-```bash
-cargo run
+```sh
+make build                  # cargo build --locked
+make release                # cargo build --locked --release
+make check                  # the gate: fmt-check, then clippy, then test
+make install                # cargo install --locked --path .
+make uninstall              # cargo uninstall surmise
+make clean                  # cargo clean
 ```
 
-Runs a producer-consumer demo with signal handling. Reads config from `configs/main.toml`. Logs to stderr (console) and `log/` (rotating files).
+`make check` is the gate and the pre-commit hook runs it. CI calls the same
+Makefile targets as separate steps so each one gets its own result in the
+GitHub interface and the commands keep a single definition. CI then runs
+`make release` as a fourth step. The gate does not cover that step and a green
+hook therefore does not promise a green CI run.
 
-### Tauri GUI
+CI runs on macOS only, by choice. No other platform is built and no other
+platform is checked.
 
-```bash
-make tauri-dev     # Development (with hot reload)
-make tauri-build   # Production build
+## Repository conventions
+
+`.cargo/config.toml`, `.vscode/`, the cargo-husky hook and the three symbolic
+links come from the template this repository started from. Everything else in
+this section was decided here.
+
+`.cargo/config.toml` sets `rustflags = ["-Dwarnings"]`. Every warning is an
+error in local builds, in the pre-commit hook and in CI. A new clippy lint
+therefore breaks the build and has to be answered rather than ignored.
+Restructure the code where a lint is wrong rather than reach for `#[allow]`.
+Note that a `RUSTFLAGS` environment variable replaces this setting rather than
+adds to it. An empty one is enough. A shell that sets one turns the gate off
+and `make check` then passes on code that CI rejects.
+
+`rust-toolchain.toml` pins the toolchain for the same reason. A floating stable
+plus `-Dwarnings` means a new lint can turn CI red with no change to the code.
+Bump the pin deliberately and answer the new lints in the same commit. Note that
+a `RUSTUP_TOOLCHAIN` environment variable overrides the file. A local shell
+that sets one is not testing the pinned toolchain.
+
+`rust-version` in `Cargo.toml` names the pinned toolchain rather than a lower
+bound, because the pinned one is the only toolchain CI builds. Edition 2024
+needs 1.85 at the least. Lower the declaration once a CI job proves that bound.
+
+Every cargo command in the Makefile passes `--locked`. `Cargo.lock` is tracked
+and a command that quietly re-resolves it would build something other than what
+the lockfile describes. `cargo install` ignores the lockfile without that flag.
+
+`publish = false` is set on purpose. This is scaffolding rather than a release.
+Note also that `cargo package` collects every file git does not ignore. Add an
+`exclude` list before you take that line out.
+
+## The pre-commit hook
+
+The hook runs `make check` against the **staged** content rather than against
+the working tree. git runs a hook in the working tree and a gate that reads the
+working tree can pass a commit it never saw. The hook checks the index out into
+`.git/precommit` and runs there. Your working tree is never touched and a
+failing gate therefore leaves nothing to clean up.
+
+**cargo-husky** copies `.cargo-husky/hooks/pre-commit` into `.git/hooks` from a
+build script. That build script runs only when the dev-dependencies compile.
+`cargo test`, `cargo clippy --all-targets` and `cargo check --all-targets`
+install the hook and plain `cargo build` does not. A fresh clone is therefore
+ungated until one of those runs. `make check` installs it at the clippy step.
+
+**cargo-husky does not reinstall a hook that already exists.** Editing
+`.cargo-husky/hooks/pre-commit` and running `cargo test` leaves the old hook in
+place. The running gate then differs from the committed one without saying so.
+To install a changed hook:
+
+```sh
+cargo clean -p cargo-husky && cargo test
 ```
 
-Opens a GUI window with the same producer-consumer demo. In debug builds the DevTools button and backend log forwarding to the browser console are available.
+Then confirm it with `diff .git/hooks/pre-commit .cargo-husky/hooks/pre-commit`.
+The installed copy carries two extra banner lines from cargo-husky.
 
-## Fork Simplification
+Three states turn the gate off with no message. `git config core.hooksPath`
+makes git ignore `.git/hooks` altogether. The `diff` above still reports a match
+in that state and cannot detect it. `CARGO_HUSKY_DONT_INSTALL_HOOKS` in the
+environment skips the install and cargo hides the warning it prints unless you
+pass `-vv`. A `pre-commit` hook that some other tool wrote first also wins,
+because cargo-husky leaves a foreign hook alone.
 
-### Keep CLI Only
+`README.md`, `AGENTS.md` and `GEMINI.md` are symbolic links to this file. Every
+tool and every reader therefore gets the same document. GitHub follows the link
+and renders this file as the repository README.
 
-1. Delete `src/bin/`, `frontend/` and `tauri.conf.json`
-2. In `Cargo.toml`: remove the `[features]` section and `[[bin]]` section and optional dependencies (`tauri`, `serde_json`, `tauri-build`)
-3. In `build.rs`: remove the `#[cfg(feature = "tauri")]` block
-4. In `.cargo-husky/hooks/pre-commit`: remove the frontend check steps
-5. Update CI to remove the tauri variant
+## Licence
 
-### Keep Tauri GUI Only
-
-1. Move `src/bin/tauri/main.rs` logic into `src/main.rs`
-2. Delete `src/bin/`, `src/threads/` and `src/constant.rs`
-3. In `Cargo.toml`: remove `[features]` and `[[bin]]` sections. Change `tauri`, `serde_json` and `tauri-build` from optional to required
-4. Update CI to remove the default variant
-
-## Build & Test Commands
-
-```bash
-cargo build                # Debug build
-cargo build --release      # Release build
-cargo run                  # Run CLI
-cargo fmt --all -- --check # Check formatting
-cargo clippy --all-targets # Lint CLI
-cargo test                 # Run all tests
-cargo test <test_name>     # Run a single test
-
-# Tauri GUI
-cargo clippy --all-targets --features tauri  # Lint with Tauri
-cargo test --features tauri                  # Test with Tauri
-make tauri-dev                               # Dev mode (hot reload)
-make tauri-build                             # Production build
-
-# Frontend
-npm run --prefix frontend format:check  # Prettier
-npm run --prefix frontend lint          # ESLint + @html-eslint
-npm run --prefix frontend lint:css      # Stylelint
-
-# Cross-compilation (requires `cross` tool)
-make cross                              # Default: arm-unknown-linux-gnueabi
-make cross TARGET=aarch64-unknown-linux-gnu  # Specify target
-make setup                              # Show setup instructions for cross env
-```
-
-`.cargo/config.toml` sets `rustflags = ["-Dwarnings"]` — all warnings are treated as errors everywhere (local dev, CI, pre-commit hook).
-
-## Architecture
-
-This is a Rust application template built on **Tokio** async runtime with structured logging via **tracing**. The `tauri` Cargo feature gates all GUI dependencies. Without it only the CLI binary is built.
-
-### CLI Startup Flow (`src/main.rs`)
-
-1. Initialize logger with default TRACE level (console + file)
-2. Load config from `configs/main.toml`
-3. Reconfigure logger levels from loaded config
-4. Enter Tokio multi-threaded runtime → spawn threads → wait for completion
-5. Map `Result` to `ExitCode` (success → 0, error → non-zero via `ErrorCode::as_u8()`)
-
-### Tauri GUI Startup Flow (`src/bin/tauri/main.rs`)
-
-1. Initialize logger with default TRACE level (console + file + event layer in debug)
-2. Load config from `configs/main.toml` and reconfigure logger
-3. Take the event log receiver from the logger
-4. Build Tauri app: register IPC commands and set up the main window
-5. In `.setup()`: set dynamic window title and spawn a log-forwarding task with a oneshot handshake (waits for frontend `log-ready` signal before emitting)
-6. Map `Result` to `ExitCode`
-
-### Module Overview
-
-- **`configs`** — Loads `MainConfig` from TOML via `config` + `serde`. Config path is relative to the working directory.
-- **`logger`** — Dual-output logger (stderr console with ANSI colors + daily rotating file in `log/`). Both output levels are independently reloadable at runtime via `reconfig()`. The `WorkerGuard` must be held alive in `main()`. In debug builds with the `tauri` feature an `EventLayer` sends `LogRecord` structs via `tokio::sync::mpsc` for WebView forwarding.
-- **`error`** — `ErrorCode` enum (errors only, no `Success` variant). `as_u8()` maps each variant to a non-zero exit code. `main()` returns `ExitCode` by mapping `Ok(()) → SUCCESS`, `Err(e) → e.as_u8()`. Thread functions return `Result<(), ThreadErrorCode>`.
-- **`threads`** — Thread management with `JoinSet`. Three demo threads: producer (sends i32 via MPSC), consumer (receives from MPSC), signal_handler (OS signals). All threads listen on a broadcast channel for `ThreadCommand::Stop`.
-- **`constant`** — Shared constants (e.g., broadcast channel capacity).
-- **`bin/tauri/commands`** — Tauri IPC commands (`start`, `stop`, `open_devtools`). Producer and consumer run as Tokio tasks controlled via `broadcast::channel` for stop signaling.
-
-### CLI Threading Pattern
-
-- **Command channel**: `broadcast::channel<ThreadCommand>` — all threads subscribe; used to send `Stop`
-- **Data channel**: `mpsc::unbounded_channel<i32>` — producer→consumer
-- Each thread uses `tokio::select!` to concurrently await data and stop commands
-- If any thread returns an `Err(ThreadErrorCode)`, remaining threads are stopped
-
-### Tauri IPC Pattern
-
-- Frontend calls `invoke("start")` / `invoke("stop")` via `@tauri-apps/api/core`
-- Backend emits `produce` and `consume` events via `AppHandle::emit()`
-- Frontend listens with `listen()` from `@tauri-apps/api/event`
-- Debug-only log forwarding: backend `EventLayer` → `mpsc` → `emit("log")` → frontend `console.*`
-
-### Design Conventions
-
-- **Intentional duplication in thread modules**: Each thread submodule (producer, consumer, signal_handler) has its own `cmd_handler` function. These are intentionally kept separate — do NOT extract them into a shared helper. This is a template project; users will fork and customize each thread independently.
-
-### Platform-Specific Code
-
-Uses `cfg_if!` in `signal_handler.rs`: Unix signals (SIGTERM/SIGINT/SIGHUP) vs Windows control events (CTRL+C/CTRL+BREAK/CTRL+CLOSE).
-
-### Pre-commit Hook
-
-**cargo-husky** with `user-hooks` feature reads custom hooks from `.cargo-husky/hooks/` in the repo and installs them into `.git/hooks/` on first `cargo test`. The pre-commit hook runs fmt check, clippy, tests and frontend format/lint checks.
-
-### Cross-Compilation
-
-- `Cross.toml` defines custom Docker images per target (see `cross/docker/`)
-- Default cross target: `arm-unknown-linux-gnueabi` (Raspberry Pi Zero W)
-- CI runs `aarch64-unknown-linux-gnu` cross-compilation for the default variant
+MIT or Apache-2.0, at your option. See `LICENSE-MIT` and `LICENSE-APACHE`.

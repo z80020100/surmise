@@ -1,32 +1,36 @@
-PROJECT_NAME := rust-template
-TARGET := arm-unknown-linux-gnueabi
-
 .PHONY: build
 build:
-	cargo build
+	cargo build --locked
 
 .PHONY: release
 release:
-	cargo build --release
+	cargo build --locked --release
 
-.PHONY: cross
-cross:
-	cross build --target ${TARGET} --release
+# The gate. Each command is its own target so CI can report it as its own step
+# without restating the command.
+.PHONY: fmt-check
+fmt-check:
+	cargo fmt --all -- --check
 
-.PHONY: tauri-dev
-tauri-dev:
-	cargo tauri dev -f tauri -- --bin ${PROJECT_NAME}-tauri
+.PHONY: clippy
+clippy:
+	cargo clippy --locked --all-targets
 
-.PHONY: tauri-build
-tauri-build:
-	cargo tauri build
+.PHONY: test
+test:
+	cargo test --locked
+
+.PHONY: check
+check: fmt-check clippy test
+
+.PHONY: install
+install:
+	cargo install --locked --path .
+
+.PHONY: uninstall
+uninstall:
+	cargo uninstall surmise
 
 .PHONY: clean
 clean:
 	cargo clean
-	rm -rf frontend/dist
-
-.PHONY: setup
-setup:
-	@echo "Enter the following command to setup Rust and cross compilation environment"
-	@echo "source scripts/envsetup.sh"

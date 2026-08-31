@@ -2,22 +2,25 @@
 
 set -e
 
-echo "Running cargo fmt check..."
-cargo fmt --all -- --check
+if ! command -v make >/dev/null 2>&1; then
+  echo "pre-commit needs make. Install it and commit again." >&2
+  echo "To commit once without the gate: git commit --no-verify" >&2
+  exit 1
+fi
 
-echo "Running cargo clippy..."
-cargo clippy --all-targets
+# git runs a hook against the working tree rather than against the index. A
+# gate that reads the working tree can therefore pass a commit it never saw.
+# Check the staged content out on its own and run there. The working tree is
+# untouched and a failing gate leaves nothing to clean up.
+staged="$(git rev-parse --absolute-git-dir)/precommit"
+trap 'rm -rf "$staged"' EXIT
+rm -rf "$staged"
+mkdir -p "$staged"
+git checkout-index --all --prefix="$staged/"
 
-echo "Running cargo test..."
-cargo test
-
-echo "Running frontend format check..."
-npm run --prefix frontend format:check
-
-echo "Running frontend lint..."
-npm run --prefix frontend lint
-
-echo "Running frontend CSS lint..."
-npm run --prefix frontend lint:css
+# The gate is defined once in the Makefile. The target directory stays outside
+# the checkout so the build cache survives from one commit to the next.
+CARGO_TARGET_DIR="$(git rev-parse --show-toplevel)/target/precommit" \
+  make -C "$staged" check
 
 echo "All pre-commit checks passed!"
