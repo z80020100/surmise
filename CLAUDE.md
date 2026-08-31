@@ -22,17 +22,17 @@ marked TBD is not.
 ```sh
 make build                  # cargo build --locked
 make release                # cargo build --locked --release
-make check                  # fmt check, clippy, cargo test
+make check                  # the gate: fmt-check, then clippy, then test
 make install                # cargo install --locked --path .
 make uninstall              # cargo uninstall surmise
 make clean                  # cargo clean
 ```
 
-`make check` is the gate and the pre-commit hook runs it. CI runs the same
-three commands as separate steps so each one gets its own result in the
-GitHub interface. CI then runs `cargo build --release` as a fourth step.
-The gate does not cover that step and a green hook therefore does not
-promise a green CI run.
+`make check` is the gate and the pre-commit hook runs it. CI calls the same
+Makefile targets as separate steps so each one gets its own result in the
+GitHub interface and the commands keep a single definition. CI then runs
+`make release` as a fourth step. The gate does not cover that step and a green
+hook therefore does not promise a green CI run.
 
 CI runs on macOS only, by choice. No other platform is built and no other
 platform is checked.

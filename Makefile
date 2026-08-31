@@ -6,11 +6,22 @@ build:
 release:
 	cargo build --locked --release
 
-.PHONY: check
-check:
+# The gate. Each command is its own target so CI can report it as its own step
+# without restating the command.
+.PHONY: fmt-check
+fmt-check:
 	cargo fmt --all -- --check
+
+.PHONY: clippy
+clippy:
 	cargo clippy --locked --all-targets
+
+.PHONY: test
+test:
 	cargo test --locked
+
+.PHONY: check
+check: fmt-check clippy test
 
 .PHONY: install
 install:

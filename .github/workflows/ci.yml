@@ -40,11 +40,13 @@ jobs:
         run: rustup show
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
-      - name: Check Rust formatting
-        run: cargo fmt --all -- --check
-      - name: Run cargo clippy
-        run: cargo clippy --all-targets
-      - name: Run cargo test
-        run: cargo test
-      - name: Run cargo build --release
-        run: cargo build --release
+      # Every step below calls the Makefile so the commands have one definition
+      # and each one still gets its own result in the GitHub interface.
+      - name: Check formatting
+        run: make fmt-check
+      - name: Run clippy
+        run: make clippy
+      - name: Run tests
+        run: make test
+      - name: Build release
+        run: make release
