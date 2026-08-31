@@ -6,7 +6,7 @@
 
 use crate::fuzzy;
 use crate::path::expand;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 /// How many directory entries one keystroke is allowed to look at. A directory
 /// with more than this shows what came first rather than stalling the prompt.
@@ -88,7 +88,7 @@ fn subdirs(dir: &Path, want_hidden: bool) -> Vec<String> {
     out
 }
 
-fn folder(display: String, insert: String, score: i32) -> Candidate {
+pub(crate) fn folder(display: String, insert: String, score: i32) -> Candidate {
     Candidate {
         display,
         insert,
@@ -170,7 +170,7 @@ fn predict(arg: &str, cwd: &Path) -> Vec<Candidate> {
     out
 }
 
-fn generate_in(arg: &str, cwd: &Path) -> Vec<Candidate> {
+pub(crate) fn generate_in(arg: &str, cwd: &Path) -> Vec<Candidate> {
     let looks_like_path = arg.contains('/') || arg.starts_with('~') || arg.starts_with('.');
 
     let mut out = if looks_like_path {
@@ -188,12 +188,6 @@ fn generate_in(arg: &str, cwd: &Path) -> Vec<Candidate> {
     });
     out.truncate(MAX_RESULTS);
     out
-}
-
-/// Every directory `cd <arg>` could mean, best first.
-pub fn generate(arg: &str) -> Vec<Candidate> {
-    let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-    generate_in(arg, &cwd)
 }
 
 #[cfg(test)]
