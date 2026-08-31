@@ -21,10 +21,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # macOS only, by choice. No other platform is built, so no other platform is
-  # checked.
-  test:
-    name: Test on macOS
+  # macOS only, by choice. No other platform is built and no other platform is
+  # checked. The runner label floats while the toolchain is pinned. That is
+  # deliberate. A pinned label goes stale and gets dropped. The platform is what
+  # CI is meant to track.
+  check:
+    name: Check on macOS
     runs-on: macos-latest
     steps:
       - name: Checkout
