@@ -7,8 +7,8 @@ TBD.
 > are symbolic links to it.
 
 **Nothing is here yet but the scaffolding.** This repository holds the package,
-the licence, the lint gate and CI. `src/lib.rs` holds no module yet,
-`src/main.rs` is a placeholder and `[dependencies]` is empty. The licence is
+the licence, the lint gate and CI. The modules are landing one at a time. The
+binary does nothing yet, because `src/main.rs` is a placeholder. The licence is
 settled. Everything else below that is marked TBD is not.
 
 ## Prerequisites
