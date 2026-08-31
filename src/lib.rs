@@ -6,4 +6,5 @@
 //! Every module lives here rather than under the binary. `CLAUDE.md` gives the
 //! two reasons.
 
+pub mod fuzzy;
 pub mod line;
