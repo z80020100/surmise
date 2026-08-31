@@ -7,9 +7,9 @@ TBD.
 > are symbolic links to it.
 
 **Nothing is here yet but the scaffolding.** This repository holds the package,
-the licence, the lint gate and CI. `src/main.rs` is a placeholder and
-`[dependencies]` is empty. The licence is settled. Everything else below that is
-marked TBD is not.
+the licence, the lint gate and CI. `src/lib.rs` holds no module yet,
+`src/main.rs` is a placeholder and `[dependencies]` is empty. The licence is
+settled. Everything else below that is marked TBD is not.
 
 ## Prerequisites
 
@@ -50,6 +50,20 @@ Restructure the code where a lint is wrong rather than reach for `#[allow]`.
 Note that a `RUSTFLAGS` environment variable replaces this setting rather than
 adds to it. An empty one is enough. A shell that sets one turns the gate off
 and `make check` then passes on code that CI rejects.
+
+The crate has a library target as well as a binary target. `src/lib.rs` holds
+every module. There are two reasons. The first is the tests: `cargo test`
+reaches a library and a module under a binary is testable only from inside
+itself. The second is the gate. `dead_code` is a warning and `pub` does not
+exempt an item in a binary crate, because nothing outside that crate can reach
+it. A module that lands before its caller therefore turns the gate red. A
+library target makes the same items reachable.
+
+The library target also puts the library's `//!` and `///` code fences into the
+gate. `cargo test` compiles each one as Rust unless the fence is tagged `text`
+or `ignore`. An example that does not build therefore turns the gate red. A
+fence in `src/main.rs` is not collected, because doc-tests come from the
+library alone.
 
 `rust-toolchain.toml` pins the toolchain for the same reason. A floating stable
 plus `-Dwarnings` means a new lint can turn CI red with no change to the code.
