@@ -8,3 +8,4 @@
 
 pub mod fuzzy;
 pub mod line;
+pub mod shellword;
