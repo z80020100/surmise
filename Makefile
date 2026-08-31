@@ -16,6 +16,10 @@ check:
 install:
 	cargo install --locked --path .
 
+.PHONY: uninstall
+uninstall:
+	cargo uninstall surmise
+
 .PHONY: clean
 clean:
 	cargo clean

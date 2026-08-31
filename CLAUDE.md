@@ -24,6 +24,7 @@ make build                  # cargo build --locked
 make release                # cargo build --locked --release
 make check                  # fmt check, clippy, cargo test
 make install                # cargo install --locked --path .
+make uninstall              # cargo uninstall surmise
 make clean                  # cargo clean
 ```
 
