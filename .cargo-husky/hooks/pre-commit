@@ -8,7 +8,19 @@ if ! command -v make >/dev/null 2>&1; then
   exit 1
 fi
 
-# The gate is defined once in the Makefile.
-make check
+# git runs a hook against the working tree rather than against the index. A
+# gate that reads the working tree can therefore pass a commit it never saw.
+# Check the staged content out on its own and run there. The working tree is
+# untouched and a failing gate leaves nothing to clean up.
+staged="$(git rev-parse --absolute-git-dir)/precommit"
+trap 'rm -rf "$staged"' EXIT
+rm -rf "$staged"
+mkdir -p "$staged"
+git checkout-index --all --prefix="$staged/"
+
+# The gate is defined once in the Makefile. The target directory stays outside
+# the checkout so the build cache survives from one commit to the next.
+CARGO_TARGET_DIR="$(git rev-parse --show-toplevel)/target/precommit" \
+  make -C "$staged" check
 
 echo "All pre-commit checks passed!"

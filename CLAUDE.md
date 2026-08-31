@@ -60,6 +60,14 @@ that sets one is not testing the pinned toolchain.
 bound, because the pinned one is the only toolchain CI builds. Edition 2024
 needs 1.85 at the least. Lower the declaration once a CI job proves that bound.
 
+## The pre-commit hook
+
+The hook runs `make check` against the **staged** content rather than against
+the working tree. git runs a hook in the working tree and a gate that reads the
+working tree can pass a commit it never saw. The hook checks the index out into
+`.git/precommit` and runs there. Your working tree is never touched and a
+failing gate therefore leaves nothing to clean up.
+
 **cargo-husky** copies `.cargo-husky/hooks/pre-commit` into `.git/hooks` from a
 build script. That build script runs only when the dev-dependencies compile.
 `cargo test`, `cargo clippy --all-targets` and `cargo check --all-targets`
