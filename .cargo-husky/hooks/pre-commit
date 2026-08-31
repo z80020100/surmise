@@ -2,13 +2,13 @@
 
 set -e
 
-echo "Running cargo fmt check..."
-cargo fmt --all -- --check
+if ! command -v make >/dev/null 2>&1; then
+  echo "pre-commit needs make. Install it, or run the checks by hand:" >&2
+  echo "  cargo fmt --all -- --check && cargo clippy --all-targets && cargo test" >&2
+  exit 1
+fi
 
-echo "Running cargo clippy..."
-cargo clippy --all-targets
-
-echo "Running cargo test..."
-cargo test
+# The gate is defined once in the Makefile.
+make check
 
 echo "All pre-commit checks passed!"
