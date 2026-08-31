@@ -65,6 +65,10 @@ Every cargo command in the Makefile passes `--locked`. `Cargo.lock` is tracked
 and a command that quietly re-resolves it would build something other than what
 the lockfile describes. `cargo install` ignores the lockfile without that flag.
 
+`publish = false` is set on purpose. This is scaffolding rather than a release.
+Note also that `cargo package` collects every file git does not ignore. Add an
+`exclude` list before you take that line out.
+
 ## The pre-commit hook
 
 The hook runs `make check` against the **staged** content rather than against
