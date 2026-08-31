@@ -1,28 +1,24 @@
 name: CI
 
+# No path filter. One that skips a run is a filter somebody has to keep in step
+# with the tree. A skipped run never reports either and a required check would
+# wait on it forever. The gate takes seconds. Running it always is cheaper.
 on:
   push:
     branches:
       - main
-    paths:
-      - "**.rs"
-      - "**.toml"
-      - "**.sh"
-      - "Makefile"
-      - ".cargo-husky/**"
   pull_request:
     branches:
       - main
-    paths:
-      - "**.rs"
-      - "**.toml"
-      - "**.sh"
-      - "Makefile"
-      - ".cargo-husky/**"
 
 # The workflow only ever reads the repository.
 permissions:
   contents: read
+
+# A later push to the same ref makes an earlier run pointless.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # macOS only, by choice. No other platform is built, so no other platform is
