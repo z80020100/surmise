@@ -1,7 +1,8 @@
-//! surmise.
+//! surmise — completion for the directory argument of a `cd`.
 //!
-//! What this crate does is TBD. The modules are landing one at a time and the
-//! binary is still a placeholder.
+//! `pick` is the front end. `src/main.rs` reads the arguments and hands it the
+//! line a shell widget typed. Everything else here is what `pick` is built
+//! from.
 //!
 //! Every module lives here rather than under the binary. `CLAUDE.md` gives the
 //! two reasons.

@@ -1,15 +1,15 @@
 # surmise
 
-TBD.
+Completion for the directory argument of a `cd`.
 
 > This file also provides guidance to [Claude Code](https://claude.ai/code) when
 > working with code in this repository. `README.md`, `AGENTS.md` and `GEMINI.md`
 > are symbolic links to it.
 
-**Nothing is here yet but the scaffolding.** This repository holds the package,
-the licence, the lint gate and CI. The modules are landing one at a time. The
-binary does nothing yet, because `src/main.rs` is a placeholder. The licence is
-settled. Everything else below that is marked TBD is not.
+**The binary runs and the shell side is not here yet.** `surmise --pick LINE`
+answers the picker a shell widget calls. No widget is in the tree to call it
+and neither is the documentation that would tell you how to install one. The
+licence is settled. Everything else below that is marked TBD is not.
 
 ## Prerequisites
 
