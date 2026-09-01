@@ -204,10 +204,11 @@ impl Term {
     ///
     /// The screen keeps being read throughout. A program that filled the pty's
     /// buffer would otherwise block on the write and never reach its exit.
-    pub fn status(&mut self, limit: Duration) -> Option<i32> {
-        // The picker's contract is written in `i32` and its four statuses are
-        // 0 to 3. The width the pty reports one in is its own business.
-        let code = |s: portable_pty::ExitStatus| s.exit_code() as i32;
+    pub fn status(&mut self, limit: Duration) -> Option<u8> {
+        // The picker's contract is a byte and its four statuses are 0 to 3.
+        // The width the pty reports one in is its own business. `WEXITSTATUS`
+        // is a byte anyway and portable-pty answers a signalled child with 1.
+        let code = |s: portable_pty::ExitStatus| s.exit_code() as u8;
         let deadline = Instant::now() + limit;
         while Instant::now() < deadline {
             if let Ok(Some(s)) = self.child.try_wait() {

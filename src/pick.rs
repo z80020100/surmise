@@ -17,13 +17,13 @@ use std::io::{self, Write};
 use std::path::Path;
 
 /// Take the line back and leave it on the shell's editor. It is on stdout.
-pub const ACCEPTED: i32 = 0;
+pub const ACCEPTED: u8 = 0;
 /// Undo. The shell keeps the line the person started with.
-pub const CANCELLED: i32 = 1;
+pub const CANCELLED: u8 = 1;
 /// Not a line surmise completes. The shell runs its own completion instead.
-pub const PASS: i32 = 2;
+pub const PASS: u8 = 2;
 /// Take the line back and run it. It is on stdout.
-pub const RUN: i32 = 3;
+pub const RUN: u8 = 3;
 
 /// Cells the frame wants to the right of the column it starts on. A line
 /// that starts closer than this to the right edge gets a row of its own
@@ -56,7 +56,7 @@ fn head() -> Vec<ui::Seg> {
     }]
 }
 
-pub fn run(seed: &str) -> io::Result<i32> {
+pub fn run(seed: &str) -> io::Result<u8> {
     // Without a current directory there is nothing to complete against. The
     // shell's own completion is the honest answer.
     let Ok(cwd) = std::env::current_dir() else {

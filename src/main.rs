@@ -57,12 +57,6 @@ fn mode(args: &[String]) -> Mode<'_> {
     }
 }
 
-/// One of the picker's four statuses as the process's own.
-fn status(code: i32) -> ExitCode {
-    // The contract's four statuses are 0 to 3 and a status is a byte anyway.
-    ExitCode::from(code as u8)
-}
-
 /// Put the usage on `out`. A reader that stops early is not worth a panic and
 /// `surmise --help | head` is an ordinary thing to type.
 fn usage(mut out: impl Write) {
@@ -86,7 +80,7 @@ fn refuse(complaint: &str) -> ExitCode {
 /// The message goes with it. The widget owns the screen and a line on stderr
 /// would land in the middle of what it is drawing.
 fn picker(seed: &str) -> ExitCode {
-    status(pick::run(seed).unwrap_or(pick::PASS))
+    ExitCode::from(pick::run(seed).unwrap_or(pick::PASS))
 }
 
 fn main() -> ExitCode {
@@ -98,7 +92,7 @@ fn main() -> ExitCode {
         .map(OsString::into_string)
         .collect();
     let Ok(args) = read else {
-        return status(pick::PASS);
+        return ExitCode::from(pick::PASS);
     };
 
     match mode(&args) {
@@ -205,13 +199,5 @@ mod tests {
         assert!(ZSH.contains("zle -N surmise-complete"));
         assert!(ZSH.contains("zle -N surmise-space"));
         assert!(ZSH.contains("bindkey '^I' surmise-complete"));
-    }
-
-    /// `status` casts to a byte and this is the claim that makes it lossless.
-    #[test]
-    fn every_contract_status_fits_an_exit_code() {
-        for code in [pick::ACCEPTED, pick::CANCELLED, pick::PASS, pick::RUN] {
-            assert!(u8::try_from(code).is_ok());
-        }
     }
 }
