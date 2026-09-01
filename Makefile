@@ -20,8 +20,30 @@ clippy:
 test:
 	cargo test --locked
 
+# The shell gate. The POSIX scripts get shellcheck and shfmt. The zsh widgets
+# get a syntax check alone, because neither tool has a zsh dialect. A missing
+# tool fails rather than skips. `CLAUDE.md` gives the reasoning.
+SH_SCRIPTS := .cargo-husky/hooks/pre-commit
+ZSH_WIDGETS := $(wildcard shell/*.zsh)
+
+# `shell/` is a directory. Without .PHONY make calls this target up to date and
+# runs nothing.
+.PHONY: shell
+shell:
+	@for t in shellcheck shfmt; do \
+	  command -v $$t >/dev/null 2>&1 || \
+	    { echo "shell: $$t not found (brew install $$t)" >&2; exit 1; }; \
+	done
+	shellcheck $(SH_SCRIPTS)
+	shfmt -i 2 -d $(SH_SCRIPTS)
+	@[ -n "$(ZSH_WIDGETS)" ] || echo "shell: no zsh widgets matched"
+	@for f in $(ZSH_WIDGETS); do \
+	  echo "zsh -n $$f"; \
+	  zsh -n "$$f" || exit 1; \
+	done
+
 .PHONY: check
-check: fmt-check clippy test
+check: fmt-check clippy test shell
 
 .PHONY: install
 install:

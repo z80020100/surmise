@@ -22,7 +22,7 @@ settled. Everything else below that is marked TBD is not.
 ```sh
 make build                  # cargo build --locked
 make release                # cargo build --locked --release
-make check                  # the gate: fmt-check, then clippy, then test
+make check                  # the gate: fmt-check, clippy, test, then shell
 make install                # cargo install --locked --path .
 make uninstall              # cargo uninstall surmise
 make clean                  # cargo clean
@@ -31,7 +31,7 @@ make clean                  # cargo clean
 `make check` is the gate and the pre-commit hook runs it. CI calls the same
 Makefile targets as separate steps so each one gets its own result in the
 GitHub interface and the commands keep a single definition. CI then runs
-`make release` as a fourth step. The gate does not cover that step and a green
+`make release` as a fifth step. The gate does not cover that step and a green
 hook therefore does not promise a green CI run.
 
 CI runs on macOS only, by choice. No other platform is built and no other
@@ -115,6 +115,28 @@ in that state and cannot detect it. `CARGO_HUSKY_DONT_INSTALL_HOOKS` in the
 environment skips the install and cargo hides the warning it prints unless you
 pass `-vv`. A `pre-commit` hook that some other tool wrote first also wins,
 because cargo-husky leaves a foreign hook alone.
+
+The shell files have a gate of their own and `make shell` runs it as the last
+step of `make check`. The one POSIX script gets `shellcheck` and
+`shfmt -i 2 -d`. The indentation flag matches what that script already uses.
+The zsh widgets get `zsh -n` and nothing else. Neither shellcheck nor
+shfmt has a zsh dialect and both refuse the widgets outright: shfmt answers
+`nested parameter expansions are a zsh feature` and shellcheck cannot parse a
+zsh pattern inside `[[ ]]`. There is therefore no formatter for the widgets
+and the gate reads their syntax alone. `zsh -n` takes only its first file
+argument and each widget therefore gets a run of its own.
+
+A missing `shellcheck` or `shfmt` fails that gate rather than skipping it.
+`brew install shellcheck shfmt` is the fix and CI installs them the same way.
+zsh ships with macOS and needs no install. A gate that quietly checks nothing
+is worse than no gate and `make shell` therefore says so when the widget glob
+matches nothing.
+
+`shellcheck` and `shfmt` float rather than pin. A new release of either can
+turn CI red with no change to the tree and that is the failure
+`rust-toolchain.toml` exists to prevent. Homebrew has no clean way to pin a
+formula and the shell surface here is two widgets and one hook. Answer the new
+finding when it lands rather than pin against it.
 
 `README.md`, `AGENTS.md` and `GEMINI.md` are symbolic links to this file. Every
 tool and every reader therefore gets the same document. GitHub follows the link
