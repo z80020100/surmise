@@ -7,8 +7,8 @@
 use crate::candidates::{self, Candidate};
 use crate::line::Line;
 use crate::shellword;
+use crate::ui;
 use std::path::{Path, PathBuf};
-use unicode_width::UnicodeWidthStr;
 
 pub struct App {
     pub line: Line,
@@ -100,7 +100,7 @@ impl App {
     /// may put in front of `cd` can be wider than one cell.
     pub fn arg_col(&self) -> usize {
         match candidates::parse(self.line.left_of_cursor()) {
-            Some(q) => UnicodeWidthStr::width(&self.line.text()[..q.start]),
+            Some(q) => ui::cells(&self.line.text()[..q.start]),
             None => 0,
         }
     }
