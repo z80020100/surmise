@@ -6,16 +6,34 @@ Completion for the directory argument of a `cd`.
 > working with code in this repository. `README.md`, `AGENTS.md` and `GEMINI.md`
 > are symbolic links to it.
 
-**The binary runs and the shell side is not here yet.** `surmise --pick LINE`
-answers the picker a shell widget calls. No widget is in the tree to call it
-and neither is the documentation that would tell you how to install one. The
-licence is settled. Everything else below that is marked TBD is not.
+**surmise installs and runs.** What is missing is the reference. The keymap
+lives in a comment at the top of `shell/surmise.zsh` rather than anywhere a
+reader would look for it. The licence is settled. Everything else below that
+is marked TBD is not.
 
 ## Prerequisites
 
 - Rust 1.98.0. `rust-toolchain.toml` pins it and rustup installs it on demand
 - Target platforms: macOS for now. That is provisional rather than a decision.
   It is simply the only platform anything has been built on
+
+## Install
+
+```sh
+cargo install --git https://github.com/z80020100/surmise
+```
+
+Then in `~/.zshrc`, after zsh-autosuggestions and zsh-syntax-highlighting and
+after `bindkey -e` or `bindkey -v`:
+
+```sh
+eval "$(surmise init zsh)"
+```
+
+`cargo install` places a binary and has no mechanism for anything beside it.
+`shell/surmise.zsh` is therefore compiled into that binary and `init` prints
+it. The two cannot fall out of step, because they are one artifact. The
+`make shell` gate reads the same bytes the command emits.
 
 ## Build, test and lint
 
@@ -119,12 +137,15 @@ because cargo-husky leaves a foreign hook alone.
 The shell files have a gate of their own and `make shell` runs it as the last
 step of `make check`. The one POSIX script gets `shellcheck` and
 `shfmt -i 2 -d`. The indentation flag matches what that script already uses.
-The zsh widgets get `zsh -n` and nothing else. Neither shellcheck nor
-shfmt has a zsh dialect and both refuse the widgets outright: shfmt answers
-`nested parameter expansions are a zsh feature` and shellcheck cannot parse a
-zsh pattern inside `[[ ]]`. There is therefore no formatter for the widgets
-and the gate reads their syntax alone. `zsh -n` takes only its first file
-argument and each widget therefore gets a run of its own.
+The zsh widgets get `zsh -n` and nothing else. Neither shellcheck nor shfmt
+has a zsh dialect. `# shellcheck shell=zsh` is SC1103 and shellcheck then
+guesses bash. It reports SC2296 and SC2298 against a nested parameter
+expansion that is ordinary zsh. It reports SC2086 and SC2076 against a shell
+that splits no unquoted expansion and reads a quoted `=~` as a regex anyway.
+shfmt parses a widget and then asks for the bash `case` layout it does not
+use. Neither tool therefore says anything true about a widget and the gate
+reads its syntax alone. `zsh -n` takes only its first file argument and each widget therefore
+gets a run of its own.
 
 A missing `shellcheck` or `shfmt` fails that gate rather than skipping it.
 `brew install shellcheck shfmt` is the fix and CI installs them the same way.
@@ -135,7 +156,7 @@ matches nothing.
 `shellcheck` and `shfmt` float rather than pin. A new release of either can
 turn CI red with no change to the tree and that is the failure
 `rust-toolchain.toml` exists to prevent. Homebrew has no clean way to pin a
-formula and the shell surface here is two widgets and one hook. Answer the new
+formula and the shell surface here is one widget and one hook. Answer the new
 finding when it lands rather than pin against it.
 
 `README.md`, `AGENTS.md` and `GEMINI.md` are symbolic links to this file. Every
