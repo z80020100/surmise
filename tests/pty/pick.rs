@@ -4,14 +4,12 @@
 //! command a shell widget runs — `surmise --pick LINE` — inside a pty and read
 //! the screen a person would be looking at.
 
-mod term;
-
+use crate::term::{Panel, Term};
 use portable_pty::CommandBuilder;
 use std::path::Path;
 use std::time::Duration;
 use surmise::fixture::Fixture;
 use surmise::pick;
-use term::{Panel, Term};
 
 /// The glyph surmise puts on every candidate row.
 const ICON: char = '\u{f07b}';

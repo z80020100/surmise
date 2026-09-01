@@ -93,11 +93,13 @@ The program runs inside that pty rather than beside it. crossterm resolves
 `/dev/tty` for raw mode rather than reading stdin. A child spawned any other
 way would therefore put the terminal the suite was started from into raw mode.
 
-`tests/term/mod.rs` is the harness. A file directly under `tests/` becomes a
-test binary. The harness has no caller inside such a binary and `dead_code`
-then turns the gate red. The directory form keeps it a module of
-`tests/pick.rs` instead and the harness's own `#[cfg(test)]` tests still run in
-that binary.
+`tests/pty/main.rs` is the only test binary and its siblings are its modules.
+`term` is the harness and `pick` is the tests. cargo makes a target of
+`tests/<name>/main.rs` as well as of a file directly under `tests/`. The
+second form would compile `term` again for each one. `dead_code` counts the
+methods a binary never calls and turns the gate red. One binary sees every
+caller the harness has and the harness's own `#[cfg(test)]` tests still run in
+it.
 
 `src/fixture.rs` is `pub` rather than `#[cfg(test)]`. An integration test links
 the library as an ordinary crate and a `#[cfg(test)]` module is not compiled
