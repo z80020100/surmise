@@ -55,7 +55,7 @@ fn cell_of(c: char) -> usize {
 /// Drop every character that would drive the terminal rather than show up in
 /// it. A directory name can hold an escape sequence and a paste can carry one.
 /// A bidirectional override is not a control character and survives this.
-fn printable(s: &str) -> String {
+pub fn printable(s: &str) -> String {
     s.chars().filter(|c| !c.is_control()).collect()
 }
 

@@ -11,6 +11,7 @@ pub mod candidates;
 #[cfg(test)]
 mod fixture;
 pub mod fuzzy;
+pub mod keys;
 pub mod line;
 pub mod path;
 pub mod shellword;
