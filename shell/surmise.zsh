@@ -7,24 +7,7 @@
 # theirs rather than the other way round. It binds in the current keymap.
 # Put it after `bindkey -e` or `bindkey -v` for that reason.
 #
-# SURMISE_BIN names the binary. It defaults to the `surmise` on the PATH,
-# which is the one that printed this.
-#
-# Two ways in. Tab asks surmise about the line you already have. Typing `cd `
-# opens surmise on its own. `bindkey ' ' $_surmise_space` after this file
-# gives the space key back and keeps the Tab route.
-#
-# Inside the menu:
-#   Up/Down  move the highlight. Shift-Tab moves it back
-#   Tab      take the highlighted directory and keep editing
-#   Right    take the completion when the cursor is at the end of the line
-#   Enter    take it and run the line
-#   Esc      leave the menu and keep what you typed
-#   Ctrl-C   leave and restore the line you started with. Ctrl-G does too
-#
-# Every other key edits the line. Left, Home, End, Backspace, Delete and
-# Ctrl-A, Ctrl-E, Ctrl-U, Ctrl-K and Ctrl-W all do what they do in the shell.
-# Emptying the line leaves the menu as well and keeps the empty line.
+# CLAUDE.md holds the keymap and what SURMISE_BIN does.
 
 typeset -g SURMISE_BIN=${SURMISE_BIN:-surmise}
 

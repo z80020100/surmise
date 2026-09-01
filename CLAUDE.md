@@ -6,10 +6,8 @@ Completion for the directory argument of a `cd`.
 > working with code in this repository. `README.md`, `AGENTS.md` and `GEMINI.md`
 > are symbolic links to it.
 
-**surmise installs and runs.** What is missing is the reference. The keymap
-lives in a comment at the top of `shell/surmise.zsh` rather than anywhere a
-reader would look for it. The licence is settled. Everything else below that
-is marked TBD is not.
+**surmise installs, runs and has its reference.** The licence is settled. The
+platform is not.
 
 ## Prerequisites
 
@@ -34,6 +32,32 @@ eval "$(surmise init zsh)"
 `shell/surmise.zsh` is therefore compiled into that binary and `init` prints
 it. The two cannot fall out of step, because they are one artifact. The
 `make shell` gate reads the same bytes the command emits.
+
+## Use
+
+Two ways in. Tab asks surmise about the line you already have and falls through
+to the shell's own completion when surmise has nothing to offer. Typing a bare
+`cd ` opens surmise on its own. A menu of directories opens below the line.
+
+| Key | Inside the menu |
+| --- | --- |
+| Up and Down | Move the highlight |
+| Shift-Tab | Move the highlight back |
+| Tab | Take the highlighted directory and keep editing |
+| Right | Take the completion when there is one and the cursor is at the end |
+| Enter | Take the directory and run the line |
+| Esc | Leave the menu and keep what you typed |
+| Ctrl-C and Ctrl-G | Leave and restore the line you started with |
+
+Everything else is ordinary line editing. Left, Home, End, Backspace, Delete
+and Ctrl-A, Ctrl-E, Ctrl-U, Ctrl-K and Ctrl-W all do what they do in the
+shell. Emptying the line leaves the menu as well and keeps the empty line.
+
+`bindkey ' ' $_surmise_space` after the `eval` gives the space key back and
+keeps the Tab route.
+
+`SURMISE_BIN` names the binary. It defaults to the `surmise` on the PATH. That
+is the one that printed the widget.
 
 ## Build, test and lint
 

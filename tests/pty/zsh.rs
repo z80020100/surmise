@@ -34,10 +34,9 @@ const SETTLE: Duration = Duration::from_millis(400);
 /// A home directory with the widget installed in a `.zshrc` of its own.
 ///
 /// `before` goes in ahead of the widget where a person's own `bindkey` would.
-/// `after` goes behind it. That is where the widget's own comment puts the
-/// line that gives the space key back. The install line between them is the
-/// one `CLAUDE.md` tells a person to use. A change to what `init zsh` prints
-/// therefore reaches these tests.
+/// `after` goes behind it. That is where `CLAUDE.md` puts the line that gives
+/// the space key back. The install line between them is the one it names as
+/// well. A change to what `init zsh` prints therefore reaches these tests.
 fn home(before: &str, after: &str) -> Fixture {
     let f = Fixture::new(&["work", "deep"]);
     // `chpwd` is zsh's own hook for a directory change. It is how a test sees
