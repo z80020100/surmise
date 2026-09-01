@@ -29,3 +29,12 @@ unicode-width = "0.2"
 
 [dev-dependencies]
 cargo-husky = { version = "1.5.0", default-features = false, features = ["user-hooks"] }
+# The pty the integration tests run surmise inside. The child needs the slave
+# end as its controlling terminal, because crossterm resolves `/dev/tty` for
+# raw mode rather than reading stdin. A child spawned any other way would put
+# the terminal the tests were started from into raw mode.
+portable-pty = "0.9"
+# The screen those tests read. A byte stream can carry a box-drawing character
+# and still render as garbage. Every assertion therefore reads a rendered
+# screen rather than the stream.
+vt100 = "0.16"

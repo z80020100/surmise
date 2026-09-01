@@ -2,16 +2,20 @@
 //!
 //! `tempfile` does this too. A short guard here keeps the dependency list to
 //! what the program itself needs.
+//!
+//! This is public rather than `#[cfg(test)]`, because an integration test
+//! links the library as an ordinary crate and a `#[cfg(test)]` module is not
+//! compiled into that build.
 
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-pub(crate) struct Fixture(PathBuf);
+pub struct Fixture(PathBuf);
 
 impl Fixture {
     /// Make a directory holding `entries`. An entry that ends in `*` is made
     /// as a file rather than a directory.
-    pub(crate) fn new(entries: &[&str]) -> Fixture {
+    pub fn new(entries: &[&str]) -> Fixture {
         static N: AtomicUsize = AtomicUsize::new(0);
         let root = std::env::temp_dir().join(format!(
             "surmise-test-{}-{}",
@@ -28,7 +32,7 @@ impl Fixture {
         Fixture(root)
     }
 
-    pub(crate) fn path(&self) -> &Path {
+    pub fn path(&self) -> &Path {
         &self.0
     }
 }
