@@ -14,6 +14,7 @@ pub mod fuzzy;
 pub mod keys;
 pub mod line;
 pub mod path;
+pub mod pick;
 pub mod shellword;
 pub mod tty;
 pub mod ui;

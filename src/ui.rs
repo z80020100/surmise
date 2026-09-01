@@ -12,7 +12,7 @@ use crate::line::Line;
 use std::io::{self, Write};
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
-const DIM: &str = "\x1b[2m";
+pub const DIM: &str = "\x1b[2m";
 const ITALIC: &str = "\x1b[3m";
 const RESET: &str = "\x1b[0m";
 /// The panel sits on a ground of its own that is a shade off the terminal's.
