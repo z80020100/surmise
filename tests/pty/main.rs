@@ -6,3 +6,4 @@
 
 mod pick;
 mod term;
+mod zsh;

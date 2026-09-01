@@ -163,11 +163,12 @@ impl Term {
         while Instant::now() < deadline && self.drain() {}
     }
 
-    /// Wait for surmise to paint. `false` when it never does.
-    pub fn wait_panel(&mut self, limit: Duration) -> bool {
+    /// Read until `done` says the screen holds what the caller waited for.
+    /// `false` at the deadline or once the pty ends without it.
+    fn wait_for(&mut self, limit: Duration, done: impl Fn(&Term) -> bool) -> bool {
         let deadline = Instant::now() + limit;
         while Instant::now() < deadline {
-            if !self.panel().is_empty() {
+            if done(self) {
                 return true;
             }
             if !self.drain() {
@@ -175,6 +176,27 @@ impl Term {
             }
         }
         false
+    }
+
+    /// Wait for surmise to paint. `false` when it never does.
+    pub fn wait_panel(&mut self, limit: Duration) -> bool {
+        self.wait_for(limit, |t| !t.panel().is_empty())
+    }
+
+    /// Wait for surmise to stop painting. `false` while it is still there.
+    ///
+    /// The picker erases its frame on the way out. A test that reads the
+    /// screen before that lands sees the menu it just closed.
+    pub fn wait_bare(&mut self, limit: Duration) -> bool {
+        self.wait_for(limit, |t| t.panel().is_empty())
+    }
+
+    /// Wait for `text` to show on the screen. `false` when it never does.
+    ///
+    /// A shell has to start before a test can type at it and the prompt is
+    /// the only thing that says it has.
+    pub fn wait_line(&mut self, text: &str, limit: Duration) -> bool {
+        self.wait_for(limit, |t| t.lines().iter().any(|l| l.contains(text)))
     }
 
     /// The exit status, once the program has one. `None` while it is still

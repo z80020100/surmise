@@ -83,9 +83,9 @@ or `ignore`. An example that does not build therefore turns the gate red. A
 fence in `src/main.rs` is not collected, because doc-tests come from the
 library alone.
 
-`tests/` holds the integration tests. They run `surmise --pick LINE` inside a
-pty and read the screen it draws rather than the bytes it wrote. A byte stream
-can carry a box-drawing character and still render as garbage. `vt100` does the
+`tests/` holds the integration tests. They run inside a pty and read the
+screen the program draws rather than the bytes it wrote. A byte stream can
+carry a box-drawing character and still render as garbage. `vt100` does the
 rendering and `portable-pty` opens the device. Both are dev-dependencies and
 neither reaches the installed binary.
 
@@ -94,12 +94,33 @@ The program runs inside that pty rather than beside it. crossterm resolves
 way would therefore put the terminal the suite was started from into raw mode.
 
 `tests/pty/main.rs` is the only test binary and its siblings are its modules.
-`term` is the harness and `pick` is the tests. cargo makes a target of
-`tests/<name>/main.rs` as well as of a file directly under `tests/`. The
-second form would compile `term` again for each one. `dead_code` counts the
-methods a binary never calls and turns the gate red. One binary sees every
-caller the harness has and the harness's own `#[cfg(test)]` tests still run in
-it.
+`term` is the harness, `pick` runs `surmise --pick LINE` and `zsh` runs the
+widget in a real `zsh -i`. cargo makes a target of `tests/<name>/main.rs` as
+well as of a file directly under `tests/`. The second form would compile
+`term` again for each one. `dead_code` counts the methods a binary never calls
+and turns the gate red. One binary sees every caller the harness has and the
+harness's own `#[cfg(test)]` tests still run in it.
+
+`pick` covers what surmise draws. `zsh` covers the widget that reaches it.
+That widget has no other gate: `make shell` reads its syntax alone. The `zsh`
+tests write a `.zshrc` of their own and install the widget through
+`eval "$($SURMISE_BIN init zsh)"`. A change to what `init zsh` prints therefore
+reaches them. `SURMISE_BIN` points the widget at the build's own binary and
+`/bin/zsh` is the shell they run. macOS ships that.
+
+That `.zshrc` prints a marker once `surmise-space` is bound and every `zsh`
+test asserts it. Three of them claim that no menu opened and a widget that
+never loaded would satisfy all three. It also sets a `chpwd` hook, because the
+claim that Enter *ran* the line needs something the shell says on a directory
+change rather than on an accepted line.
+
+Two of the prototype's zsh cases are not here. The first loaded
+zsh-autosuggestions and zsh-syntax-highlighting. The widget's own comment names
+that pair as the reason it hangs the trigger off the space key rather than off
+`self-insert`. Neither plugin ships with macOS and a test that skips itself
+when they are absent checks nothing. The second measured how long the menu
+takes to open. That is a number rather than a claim and the gate has no place
+for it.
 
 `src/fixture.rs` is `pub` rather than `#[cfg(test)]`. An integration test links
 the library as an ordinary crate and a `#[cfg(test)]` module is not compiled
