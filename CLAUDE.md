@@ -85,14 +85,15 @@ key wants a name leading with what you typed, whatever case either is in. It
 is not a match Tab can build a prefix from either.
 
 Everything else is ordinary line editing. Left, Home, End, Backspace, Delete
-and Ctrl-A, Ctrl-E, Ctrl-U, Ctrl-K and Ctrl-W all do what they do in the
-shell. Emptying the line leaves the menu as well and keeps the empty line.
+and Ctrl-A, Ctrl-E, Ctrl-U and Ctrl-K all do what they do in the shell. Ctrl-W
+takes back one path segment where the shell would take the whole path.
+Emptying the line leaves the menu as well and keeps the empty line.
 
 `bindkey ' ' $_surmise_space` after the `eval` gives the space key back and
 keeps the Tab route.
 
-`SURMISE_BIN` names the binary. It defaults to the `surmise` on the PATH. That
-is the one that printed the widget.
+`SURMISE_BIN` names the binary. It defaults to the `surmise` on the PATH.
+That is the one that printed the widget when `init` was run from there.
 
 ## Build, test and lint
 
