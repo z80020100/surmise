@@ -1,8 +1,8 @@
 //! The line editing.
 //!
 //! Only the keys that change the line or move the highlight are here. Enter,
-//! Tab and Escape decide the outcome rather than the line and the picker
-//! answers them itself.
+//! Tab and Escape answer for the menu as a whole rather than for the line and
+//! the picker therefore holds those itself.
 
 use crate::app::App;
 use crate::ui;

@@ -191,6 +191,85 @@ impl App {
         true
     }
 
+    /// Take the prefix the directory rows in the menu share.
+    ///
+    /// Tab offers what the menu agrees on rather than the row under the
+    /// highlight and where the highlight sits does not change the answer. One
+    /// row that leads with what was typed goes in whole. A prefix that adds
+    /// nothing to the line leaves it alone.
+    pub fn accept_common(&mut self) {
+        if !self.menu_open() {
+            return;
+        }
+        let Some(q) = self.arg() else {
+            return;
+        };
+        let start = q.start;
+        let quoted = q.arg.starts_with(['\'', '"']);
+        let arg = shellword::unquote(&q.arg);
+        // A match is a subsequence and need not lead with what was typed. Only
+        // the rows that do can agree on something to add to it. The row that
+        // runs the line offers the argument back unchanged and the two places
+        // every shell can go from anywhere are not names either.
+        let agreeing: Vec<String> = self
+            .items
+            .iter()
+            .filter(|c| c.kind == Kind::Dir && starts_with_folded(&c.insert, &arg))
+            .map(|c| c.insert.clone())
+            .collect();
+        // The count is measured in `head` throughout. What was typed can be a
+        // different length from the name it reaches.
+        let (head, keep) = match agreeing.as_slice() {
+            [] => return,
+            // One row has nothing to disagree with. `quote_insert` closes a
+            // quote behind a whole name and this row therefore goes in inside
+            // one too.
+            [one] => {
+                let whole = quote_insert(one);
+                self.replace_arg(start, &whole);
+                return;
+            }
+            [head, rest @ ..] => (
+                head,
+                rest.iter().fold(head.len(), |keep, other| {
+                    keep.min(shared_bytes(head, other))
+                }),
+            ),
+        };
+        // Half a name cannot carry the quote that closes it.
+        if quoted {
+            return;
+        }
+        // Two names that fold together share the whole of one of them. A
+        // prefix that is a complete name is not a prefix and the menu has not
+        // said which of the two it means.
+        if keep == head.len() {
+            return;
+        }
+        let prefix = &head[..keep];
+        // The count was measured with the case set aside and the rows can
+        // spell that span differently. A spelling only one of them carries is
+        // not what they agreed on.
+        if agreeing.iter().any(|other| !other.starts_with(prefix)) {
+            return;
+        }
+        // Nothing left to add. The comparison is on the bytes rather than on
+        // the count, because a prefix that only corrects the case of what was
+        // typed is still something to add.
+        if prefix == arg {
+            return;
+        }
+        // A word the shell would not read as a single literal. `quote_insert`
+        // is the quoting `accept` would apply and a prefix it would quote is
+        // half a name inside a quote it cannot close. A bare `~` is the one
+        // string it leaves alone for the home row's sake rather than for half
+        // a name. Half a name is what this is.
+        if prefix == "~" || quote_insert(prefix) != prefix {
+            return;
+        }
+        self.replace_arg(start, prefix);
+    }
+
     pub fn step(&mut self, delta: isize) {
         let n = self.items.len() as isize;
         if n == 0 {
@@ -420,6 +499,179 @@ mod tests {
     }
 
     #[test]
+    fn tab_takes_the_prefix_the_rows_share() {
+        let mut a = staged("cd wo", &["work/", "worse/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd wor");
+    }
+
+    #[test]
+    fn tab_takes_a_menu_of_one_row_whole() {
+        let mut a = staged("cd wo", &["work/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd work/");
+    }
+
+    #[test]
+    fn tab_takes_a_menu_of_one_row_whole_inside_a_quote() {
+        // The one row goes in ahead of the rule that leaves a quoted argument
+        // alone. `quote_insert` has a whole name here and closes the quote
+        // behind it. There is nothing left for that rule to protect.
+        let mut a = staged("cd 'my", &["my docs/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd 'my docs/'");
+    }
+
+    #[test]
+    fn tab_leaves_the_line_alone_when_the_rows_share_nothing_more() {
+        let mut a = staged("cd wor", &["work/", "worse/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd wor");
+    }
+
+    #[test]
+    fn tab_takes_the_directory_case_over_the_typed_case() {
+        let mut a = staged("cd WO", &["work/", "worse/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd wor");
+    }
+
+    #[test]
+    fn tab_leaves_a_prefix_the_shell_would_take_apart() {
+        let mut a = staged("cd my", &["my docs/", "my drafts/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd my");
+    }
+
+    #[test]
+    fn tab_takes_a_shared_prefix_under_a_tilde() {
+        let mut a = staged("cd ~/wo", &["~/work/", "~/worse/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd ~/wor");
+    }
+
+    #[test]
+    fn tab_leaves_a_prefix_under_a_tilde_that_the_shell_would_take_apart() {
+        let mut a = staged("cd ~/my", &["~/my docs/", "~/my drafts/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd ~/my");
+    }
+
+    #[test]
+    fn tab_leaves_a_quoted_argument_alone() {
+        let mut a = staged("cd 'wo", &["work/", "worse/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd 'wo");
+    }
+
+    #[test]
+    fn tab_ignores_a_row_that_does_not_lead_with_what_was_typed() {
+        let mut a = staged("cd wk", &["work/", "weekly/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd wk");
+    }
+
+    #[test]
+    fn tab_answers_for_the_menu_while_the_row_that_runs_holds_the_highlight() {
+        // `refresh` puts the highlight on the row that runs the line after
+        // every keystroke. Tab reads the directory rows rather than the
+        // highlight and still has the one below to offer.
+        let f = Fixture::new(&["work"]);
+        let mut a = App::over(f.path(), "cd work");
+        assert!(a.runs_the_line());
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd work/");
+    }
+
+    #[test]
+    fn tab_offers_a_shared_prefix_from_under_the_row_that_runs() {
+        let f = Fixture::new(&["work/alpha", "work/alps"]);
+        let mut a = App::over(f.path(), "cd work/");
+        assert!(a.runs_the_line());
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd work/alp");
+    }
+
+    #[test]
+    fn tab_takes_the_row_that_agreed_rather_than_the_highlighted_one() {
+        // `willow/` matches `wo` as a subsequence and does not lead with it.
+        // The one row that does is `work/` and that is the one to take.
+        let mut a = staged("cd wo", &["work/", "willow/"]);
+        a.selected = 1;
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd work/");
+    }
+
+    #[test]
+    fn tab_leaves_two_real_names_that_fold_together_alone() {
+        // `İ` folds to `i` here and macOS leaves it alone. Both of these are
+        // therefore directories of their own on the volume the tests run on. A
+        // pair differing only in case cannot stand in: the filesystem would
+        // keep one of the two.
+        let f = Fixture::new(&["i-work", "\u{130}-work"]);
+        let mut a = App::over(f.path(), "cd i");
+        assert_eq!(a.items.len(), 2, "the volume kept one of the two");
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd i");
+    }
+
+    #[test]
+    fn tab_leaves_two_names_that_fold_together_alone() {
+        // The two share the whole of one of them. There is no prefix to take
+        // and nothing has said which of the two the person meant.
+        let mut a = staged("cd ", &["Work/", "work/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd ");
+    }
+
+    #[test]
+    fn tab_folds_in_every_row_past_the_second() {
+        // The third row is the restrictive one. A fold that stopped at the
+        // second would take `wab` and one of the three does not carry it.
+        let mut a = staged("cd wa", &["wabc/", "wabd/", "waxx/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd wa");
+    }
+
+    #[test]
+    fn tab_leaves_a_prefix_the_shell_would_read_as_the_home_directory() {
+        // `quote_insert` leaves a bare `~` alone for the home row's sake. Half
+        // a name is not that row and `cd ~` goes somewhere else entirely.
+        let mut a = staged("cd ", &["~alpha/", "~beta/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd ");
+    }
+
+    #[test]
+    fn tab_leaves_a_prefix_the_shell_would_read_as_a_stack_entry() {
+        // zsh reads `cd +2` as the second entry of the directory stack.
+        let mut a = staged("cd +", &["+2alpha/", "+2beta/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd +");
+    }
+
+    #[test]
+    fn tab_closes_the_quote_behind_a_whole_name_beside_a_row_that_runs() {
+        // The argument already names a directory and the row that runs the
+        // line is therefore in the menu as well. The one directory row under
+        // it is a whole name and `accept`'s quoting closes the quote behind
+        // it.
+        let f = Fixture::new(&["my docs/inner"]);
+        let mut a = App::over(f.path(), "cd 'my docs/'");
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd 'my docs/inner/'");
+    }
+
+    #[test]
+    fn tab_leaves_the_highlight_where_it_was_when_it_changes_nothing() {
+        let mut a = staged("cd wor", &["work/", "worse/"]);
+        a.step(1);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd wor");
+        assert_eq!(a.selected, 1);
+    }
+
+    #[test]
     fn a_trailing_space_ends_the_word_and_the_menu_with_it() {
         // `cd work ` is a finished word. There is nothing here to grow and no
         // menu to draw. The key falls through to the shell's own completion
@@ -431,6 +683,7 @@ mod tests {
         assert_eq!(a.ghost(), "");
         assert!(!a.adds_to_the_line());
         assert!(!a.accept());
+        a.accept_common();
         assert_eq!(a.line.text(), "cd work ");
     }
 
@@ -443,8 +696,28 @@ mod tests {
         let mut a = App::over(f.path(), "cd 'my ");
         assert_eq!(a.items.len(), 1);
         assert!(a.adds_to_the_line());
-        a.accept();
+        a.accept_common();
         assert_eq!(a.line.text(), "cd 'my docs/'");
+    }
+
+    #[test]
+    fn tab_leaves_a_prefix_only_one_row_spells_that_way() {
+        // The two agree on three folded characters and disagree on how to
+        // spell them. `Wor` is a spelling `worse` does not carry and on a
+        // case-sensitive volume it names nothing at all.
+        let mut a = staged("cd wo", &["Work/", "worse/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd wo");
+    }
+
+    #[test]
+    fn tab_corrects_the_case_when_it_adds_no_characters() {
+        // The rows share three characters and three is what was typed. The
+        // spelling is still theirs to give and the count is not what says
+        // whether there is anything left to add.
+        let mut a = staged("cd WOR", &["work/", "worse/"]);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd wor");
     }
 
     #[test]
@@ -453,13 +726,34 @@ mod tests {
         // alone. Writing `work/` in there used to strand the `k` and leave
         // `cd workk` behind. Every key that would grow the argument refuses.
         let f = Fixture::new(&["work", "workshop"]);
-        let mut a = App::over(f.path(), "cd work");
+        for take in [
+            (|a: &mut App| a.accept_common()) as fn(&mut App),
+            |a: &mut App| {
+                a.accept();
+            },
+        ] {
+            let mut a = App::over(f.path(), "cd work");
+            a.line.left();
+            assert!(a.menu_open());
+            assert_eq!(a.ghost(), "");
+            assert!(!a.adds_to_the_line());
+            take(&mut a);
+            assert_eq!(a.line.text(), "cd work");
+        }
+    }
+
+    #[test]
+    fn a_cursor_left_of_the_whole_argument_takes_nothing_either() {
+        // `willow/` matches `wo` as a subsequence. With the cursor back at the
+        // start of the argument every row leads with the empty string and the
+        // prefix they share used to go in on top of what was already there.
+        let f = Fixture::new(&["work", "willow"]);
+        let mut a = App::over(f.path(), "cd wo");
         a.line.left();
-        assert!(a.menu_open());
-        assert_eq!(a.ghost(), "");
-        assert!(!a.adds_to_the_line());
-        a.accept();
-        assert_eq!(a.line.text(), "cd work");
+        a.line.left();
+        assert_eq!(a.items.len(), 2);
+        a.accept_common();
+        assert_eq!(a.line.text(), "cd wo");
     }
 
     #[test]

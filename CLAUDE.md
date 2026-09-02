@@ -44,7 +44,7 @@ its own. A menu of directories opens below the line.
 | --- | --- |
 | Up and Down | Move the highlight |
 | Shift-Tab | Move the highlight back |
-| Tab | Take the highlighted directory and keep editing |
+| Tab | Take the prefix the directories in the menu share |
 | Right | Take what the highlighted directory adds. At the end of the line |
 | Enter | Go into the highlighted directory or run the line |
 | Esc | Leave the menu and keep what you typed |
@@ -65,6 +65,24 @@ shell's own completion. A bare `cd ..` or `cd .` is such a line and the row
 that runs it arrives with whatever else the dots in it match. A dot in front
 of the last part of the argument also turns the hidden names on. That is the
 trade the row costs.
+
+Tab reads the directories in the menu rather than the row under the highlight
+and where the highlight sits therefore does not change what it offers. That
+includes the row that runs the line: Tab looks past it to the directories
+below. One directory that leads with what you typed goes in whole, inside
+quotes as well as outside them. Past that it takes the prefix they all share.
+It leaves the line alone when that prefix adds nothing, when the shell would
+not read it as a single literal word, when what they share is the whole of
+one of the names, when they spell that shared part differently, when the
+argument is inside quotes and when the argument ends in a space. The quote is
+because half a name cannot carry the one that closes it. The space is you
+saying the word is finished. Right leaves it alone for that same reason and
+Enter runs the line, because a finished word leaves nothing to take.
+
+A match need not lead with what you typed and Tab ignores the rows that do
+not. `cd wk` reaching `work/` is a match Enter takes. Right leaves it: that
+key wants a name leading with what you typed, whatever case either is in. It
+is not a match Tab can build a prefix from either.
 
 Everything else is ordinary line editing. Left, Home, End, Backspace, Delete
 and Ctrl-A, Ctrl-E, Ctrl-U, Ctrl-K and Ctrl-W all do what they do in the

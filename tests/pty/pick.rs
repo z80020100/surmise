@@ -201,12 +201,36 @@ fn accepting_inserts_the_directory() {
 }
 
 #[test]
+fn tab_takes_the_prefix_two_rows_share_rather_than_either_row() {
+    // `work` and `worse` agree on `wor` and no further and both are therefore
+    // still on offer afterwards. Tab taking the highlighted row whole would
+    // have left the menu on what is inside `work` instead. The screen cannot
+    // tell the two apart on its own, because the ghost draws the rest of the
+    // highlighted name either way.
+    let f = Fixture::new(&["work", "worse"]);
+    let mut t = opened(f.path(), "cd wo");
+    t.send("\t");
+    t.pump(SETTLE);
+    assert_eq!(names(&t), ["work/", "worse/"]);
+}
+
+#[test]
 fn a_name_with_a_space_is_quoted_and_completion_carries_on_inside_it() {
     let f = fixture();
     let mut t = opened(f.path(), "cd my");
     t.send("\t");
     t.pump(SETTLE);
     assert!(shown(&t).contains("cd 'my docs/'"), "{:?}", t.lines());
+    // Tab again, with the quote already on the line. The one directory row
+    // under the row that runs it is a whole name and the quote closes behind
+    // it. Enter on that row reaches the same place and the two are checked
+    // separately, because only Tab looks past the highlight.
+    t.send("\t");
+    t.pump(SETTLE);
+    assert!(shown(&t).contains("cd 'my docs/inner/'"), "{:?}", t.lines());
+    let mut t = opened(f.path(), "cd my");
+    t.send("\t");
+    t.pump(SETTLE);
     t.send("\x1b[B\r");
     t.pump(SETTLE);
     assert!(shown(&t).contains("cd 'my docs/inner/'"), "{:?}", t.lines());
