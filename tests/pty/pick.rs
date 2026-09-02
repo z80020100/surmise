@@ -152,6 +152,40 @@ fn the_menu_is_a_closed_box_at_every_width() {
 }
 
 #[test]
+fn the_menu_follows_the_cursor_along_the_line() {
+    let f = fixture();
+    let mut t = opened(f.path(), "cd wo");
+    let under_the_argument = t.panel()[0].lo;
+    // Ctrl-A takes the cursor to the start of the line. The menu is open on
+    // the same argument and only the column it hangs from has moved.
+    t.send("\x01");
+    t.pump(SETTLE);
+    let panel = t.panel();
+    assert!(!panel.is_empty(), "the menu closed: {:?}", t.lines());
+    let under_the_prompt = panel[0].lo;
+    assert!(
+        under_the_prompt < under_the_argument,
+        "the panel stayed at column {under_the_argument}: {:?}",
+        t.lines()
+    );
+}
+
+#[test]
+fn the_menu_slides_in_from_the_right_edge() {
+    // The panel hangs from the cursor and this cursor sits too far right for
+    // the panel to fit under it. The width is what it keeps and the alignment
+    // is what it gives up.
+    let cols = 32;
+    let f = Fixture::new(&["one/two/three/four/five/target"]);
+    let mut t = surmise(f.path(), "cd one/two/three/four/five/", cols, 30);
+    assert!(t.wait_panel(WAIT), "nothing was drawn");
+    t.pump(SETTLE);
+    let panel = t.panel();
+    assert_eq!(intact(&panel, cols), Ok(()));
+    assert_eq!(panel[0].hi, cols - 1, "the panel is not against the edge");
+}
+
+#[test]
 fn the_menu_survives_the_bottom_of_the_screen() {
     let f = fixture();
     let mut t = surmise(f.path(), "cd ", 76, 10);

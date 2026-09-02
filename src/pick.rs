@@ -85,7 +85,6 @@ pub fn run(seed: &str) -> io::Result<u8> {
         }
     };
     let frame_col = anchor.unwrap_or(0);
-    let base = frame_col + ui::cells_of(&head);
 
     // The frame goes out through a handle of its own. `term` therefore stays
     // open for the writes that follow the loop.
@@ -95,7 +94,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
         // `App` decides whether the menu shows. `ui` only sizes it.
         let menu = app
             .menu_open()
-            .then(|| ui::menu(&app.items, app.selected, base + app.arg_col()))
+            .then(|| ui::menu(&app.items, app.selected))
             .flatten();
         ui.render(&head, &app.line, &app.ghost(), menu)?;
 

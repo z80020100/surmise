@@ -8,7 +8,6 @@ use crate::candidates::{self, Candidate, Kind};
 use crate::fuzzy::{shared_bytes, starts_with_folded};
 use crate::line::Line;
 use crate::shellword;
-use crate::ui;
 use std::path::{Path, PathBuf};
 
 pub struct App {
@@ -149,16 +148,6 @@ impl App {
         let arg = shellword::unquote(&q.arg);
         starts_with_folded(&pick.insert, &arg)
             && shared_bytes(&pick.insert, &arg) < pick.insert.len()
-    }
-
-    /// Cell offset of the argument inside the line. The menu hangs under it.
-    /// This counts cells rather than bytes, because the whitespace a person
-    /// may put in front of `cd` can be wider than one cell.
-    pub fn arg_col(&self) -> usize {
-        match candidates::parse(self.line.left_of_cursor()) {
-            Some(q) => ui::cells(&self.line.text()[..q.start]),
-            None => 0,
-        }
     }
 
     /// Whether Enter is a request to run the line rather than to grow it.
@@ -368,18 +357,6 @@ mod tests {
         let mut a = staged("cd wo", &["work/"]);
         a.dismissed = true;
         assert_eq!(a.ghost(), "");
-    }
-
-    #[test]
-    fn arg_col_counts_cells_rather_than_bytes() {
-        // An ideographic space is three bytes wide and two cells wide.
-        let a = staged("\u{3000}cd work", &["work/"]);
-        assert_eq!(a.arg_col(), 5);
-    }
-
-    #[test]
-    fn arg_col_is_zero_when_the_line_is_not_a_cd() {
-        assert_eq!(staged("ls work", &["work/"]).arg_col(), 0);
     }
 
     #[test]
