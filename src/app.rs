@@ -27,6 +27,9 @@ fn quote_insert(s: &str) -> String {
         return s.to_string();
     }
     match s.strip_prefix("~/") {
+        // Nothing behind the tilde means the name itself is `~`. Handing the
+        // shell an expansion with an empty word after it would go home.
+        Some("") => shellword::quote(s),
         Some(rest) => format!("~/{}", shellword::quote(rest)),
         None => shellword::quote(s),
     }
@@ -344,6 +347,18 @@ mod tests {
     }
 
     #[test]
+    fn a_directory_named_like_the_home_shortcut_goes_in_as_a_name() {
+        // `cd ~/''` is the home directory rather than the child named `~`.
+        // The candidate list keeps that child and the insertion has to as
+        // well.
+        let f = Fixture::new(&["~"]);
+        let mut a = App::over(f.path(), "cd ");
+        assert_eq!(a.items[0].insert, "~/");
+        a.accept();
+        assert_eq!(a.line.text(), "cd '~/'");
+    }
+
+    #[test]
     fn edited_reopens_a_menu_that_was_dismissed() {
         let f = Fixture::new(&["work"]);
         let mut a = App::over(f.path(), "cd wor");
@@ -358,6 +373,9 @@ mod tests {
         assert_eq!(quote_insert("~"), "~");
         assert_eq!(quote_insert("~/work/"), "~/work/");
         assert_eq!(quote_insert("~/my docs/"), "~/'my docs/'");
+        // The home row is the one bare `~`. A tilde with a slash and nothing
+        // else is the name of a directory in the way.
+        assert_eq!(quote_insert("~/"), "'~/'");
     }
 
     #[test]

@@ -5,18 +5,25 @@
 //! `quote` puts such a name in single quotes and `unquote` takes a person's
 //! own quoting back off.
 
-/// Characters a shell leaves alone in the middle of a word.
-const SAFE: &str = "/._-~+=:@,";
+/// Characters a shell leaves alone in the middle of a word. `=` is not one of
+/// them: `MAGIC_EQUAL_SUBST` expands what follows an `=` anywhere in the word
+/// and a name like `cache=~old` then reaches for another user's home.
+const SAFE: &str = "/._-~+:@,";
 
 /// Quote `s` so the shell reads it as one literal word.
 ///
 /// A word built only from safe characters comes back unchanged. Anything else
-/// goes in single quotes. A leading `~`, `=` or `-` counts as unsafe even
-/// though the character is safe further in: zsh expands the first two and `cd`
-/// reads the third as a flag. A caller that wants the shell to expand the word
-/// must therefore keep it away from here.
+/// goes in single quotes. A leading `~` or `-` counts as unsafe even though
+/// the character is safe further in: zsh expands the first and `cd` reads the
+/// second as a flag. A caller that wants the shell to expand the word must
+/// therefore keep it away from here.
+///
+/// Quoting does not reach `cd +2` or `cd -2`. `cd` reads its own argument
+/// after the shell has taken the quotes off and a place in the directory stack
+/// is what it sees either way. `candidates::dir_stack_spec` is where that is
+/// answered.
 pub fn quote(s: &str) -> String {
-    let expands = matches!(s.chars().next(), Some('~' | '=' | '-'));
+    let expands = s.starts_with(['~', '=', '-', '+']);
     let plain = |c: char| c.is_alphanumeric() || SAFE.contains(c);
     if !s.is_empty() && !expands && s.chars().all(plain) {
         return s.to_string();
@@ -72,11 +79,25 @@ mod tests {
     #[test]
     fn a_character_the_shell_would_expand_is_only_unsafe_in_front() {
         assert_eq!(quote("~"), "'~'");
-        assert_eq!(quote("=x/"), "'=x/'");
         assert_eq!(quote("-x/"), "'-x/'");
-        assert_eq!(quote("a=b/"), "a=b/");
+        assert_eq!(quote("+x/"), "'+x/'");
+        // `cd +2` is the second entry of the directory stack rather than a
+        // directory of that name. The quotes do not settle that and
+        // `candidates::dir_stack_spec` is what does.
+        assert_eq!(quote("+2/"), "'+2/'");
         assert_eq!(quote("a~b/"), "a~b/");
         assert_eq!(quote("a-b/"), "a-b/");
+        assert_eq!(quote("a+b/"), "a+b/");
+    }
+
+    #[test]
+    fn an_equals_sign_is_unsafe_wherever_it_sits() {
+        // `MAGIC_EQUAL_SUBST` is off by default and a `.zshrc` that sets it is
+        // ordinary. It expands what follows an `=` anywhere in the word and
+        // `cache=~old` then reaches for a user named `old`.
+        assert_eq!(quote("=x/"), "'=x/'");
+        assert_eq!(quote("a=b/"), "'a=b/'");
+        assert_eq!(quote("cache=~old/"), "'cache=~old/'");
     }
 
     #[test]
@@ -131,7 +152,9 @@ mod tests {
             "",
             "~",
             "=x",
+            "a=b",
             "-x",
+            "+2",
             "a b'c\"d",
             "好 work",
             "a*b?c[d]",
