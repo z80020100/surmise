@@ -101,6 +101,9 @@ pub(crate) fn folder(display: String, insert: String, score: i32) -> Candidate {
 fn path_mode(arg: &str, cwd: &Path) -> Vec<Candidate> {
     let (prefix, base) = match arg.rfind('/') {
         Some(i) => (&arg[..=i], &arg[i + 1..]),
+        // A bare `~` is a whole directory rather than the start of a name in
+        // this one. Nothing in the current directory is what it means.
+        None if arg == "~" => ("~/", ""),
         None => ("", arg),
     };
     // A relative prefix hangs off the directory the caller named. Resolving it
@@ -350,6 +353,29 @@ mod tests {
         let f = Fixture::new(&["work/alpha"]);
         let got = generate_in("work/", f.path());
         assert!(got.iter().all(|c| c.kind == Kind::Dir));
+    }
+
+    #[test]
+    fn a_bare_tilde_lists_what_a_tilde_slash_lists() {
+        // `path_mode` splits on the last slash and a bare `~` leaves none. The
+        // current directory used to answer for it. Scoring that directory's
+        // children against a literal `~` answered for the wrong place. `~/`
+        // was always right and the two now agree.
+        let f = Fixture::new(&["tilde-marker"]);
+        let dirs = |items: &[Candidate]| -> Vec<String> {
+            items
+                .iter()
+                .filter(|c| c.kind == Kind::Dir)
+                .map(|c| c.insert.clone())
+                .collect()
+        };
+        let bare = generate_in("~", f.path());
+        assert_eq!(dirs(&bare), dirs(&generate_in("~/", f.path())));
+        assert!(
+            !displays(&bare).contains(&"tilde-marker/"),
+            "the current directory got in: {:?}",
+            displays(&bare)
+        );
     }
 
     #[test]
