@@ -12,6 +12,26 @@ fn fold(c: char) -> char {
     c.to_lowercase().next().unwrap_or(c)
 }
 
+/// How many bytes of `s` the two share from the front with their case set
+/// aside. The count lands on a character boundary of `s`.
+///
+/// The count is in `s`'s own bytes and the pair is therefore not
+/// interchangeable: a folded character can be a different width in each of
+/// them. `shared_bytes("İ", "i")` is 2 and `shared_bytes("i", "İ")` is 1.
+pub(crate) fn shared_bytes(s: &str, other: &str) -> usize {
+    s.chars()
+        .zip(other.chars())
+        .take_while(|(a, b)| fold(*a) == fold(*b))
+        .map(|(a, _)| a.len_utf8())
+        .sum()
+}
+
+/// Does `s` start with `prefix` once the case of each is set aside? A person
+/// types a name in whichever case is to hand and the directory keeps its own.
+pub(crate) fn starts_with_folded(s: &str, prefix: &str) -> bool {
+    shared_bytes(prefix, s) == prefix.len()
+}
+
 /// Score `needle` against `haystack`. None means it is not a subsequence. A
 /// score can go negative when the match is late in a long haystack.
 pub fn score(needle: &str, haystack: &str) -> Option<i32> {
@@ -47,7 +67,7 @@ pub fn score(needle: &str, haystack: &str) -> Option<i32> {
 
 #[cfg(test)]
 mod tests {
-    use super::score;
+    use super::{score, shared_bytes, starts_with_folded};
 
     #[test]
     fn an_empty_needle_matches_everything() {
@@ -126,5 +146,22 @@ mod tests {
         assert!(score("好", "好work").is_some());
         assert!(score("w", "好work").is_some());
         assert_eq!(score("好", "work"), None);
+    }
+
+    #[test]
+    fn a_folded_prefix_ignores_the_case_and_counts_whole_characters() {
+        assert!(starts_with_folded("Work/", "wo"));
+        assert!(!starts_with_folded("work/", "wk"));
+        assert!(!starts_with_folded("wo", "work/"));
+        assert_eq!(shared_bytes("日本語", "日本"), 6);
+        assert_eq!(shared_bytes("Work/", "worse/"), 3);
+    }
+
+    #[test]
+    fn a_shared_count_is_in_the_first_arguments_own_bytes() {
+        // The pair is not interchangeable. A caller that swaps them gets an
+        // index into the wrong string and the compiler cannot say so.
+        assert_eq!(shared_bytes("İ", "i"), 2);
+        assert_eq!(shared_bytes("i", "İ"), 1);
     }
 }

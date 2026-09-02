@@ -131,7 +131,8 @@ fn prefix_bonus(arg: &str, name: &str) -> i32 {
     if arg.is_empty() {
         return 0;
     }
-    if name.to_lowercase().starts_with(&arg.to_lowercase()) {
+    // The same per-character folding the score itself is measured with.
+    if fuzzy::starts_with_folded(name, arg) {
         60
     } else {
         0
