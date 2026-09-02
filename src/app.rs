@@ -5,6 +5,7 @@
 //! acceptance rules are therefore testable on their own.
 
 use crate::candidates::{self, Candidate, Kind};
+use crate::fuzzy::{shared_bytes, starts_with_folded};
 use crate::line::Line;
 use crate::shellword;
 use crate::ui;
@@ -57,7 +58,10 @@ impl App {
 
     pub fn refresh(&mut self) {
         self.selected = 0;
-        self.items = match candidates::parse(self.line.left_of_cursor()) {
+        // `arg` rather than the parse. A word nothing here may grow is one to
+        // offer no menu for. The key then falls through to the shell's own
+        // completion instead of opening rows nothing can take.
+        self.items = match self.arg() {
             Some(q) => candidates::generate_in(&shellword::unquote(&q.arg), &self.cwd),
             None => Vec::new(),
         };
@@ -79,7 +83,34 @@ impl App {
         self.items.get(self.selected)
     }
 
+    /// The `cd` argument the menu answers for and where it starts. Every key
+    /// that would grow the argument asks this first.
+    ///
+    /// `None` when the line is not a `cd`. `None` as well in the two places
+    /// where the word on the line is not the word the menu read. The first is
+    /// an argument ending in a space. That space is the person saying the word
+    /// is finished. The second is a word that carries on to the right of the
+    /// cursor: the rows come from `left_of_cursor` and so does the range a
+    /// replacement covers. Writing one in there would leave the tail of the
+    /// old word stranded behind it.
+    fn arg(&self) -> Option<candidates::Query> {
+        let q = candidates::parse(self.line.left_of_cursor())?;
+        // A space inside a quote is a character of the name. Outside one it is
+        // the person saying the word is finished.
+        let quoted = q.arg.starts_with(['\'', '"']);
+        if !quoted && q.arg.ends_with(char::is_whitespace) {
+            return None;
+        }
+        let tail = self.line.right_of_cursor();
+        (tail.is_empty() || tail.starts_with(char::is_whitespace)).then_some(q)
+    }
+
     /// What the prediction would add to the line, drawn dim after the cursor.
+    ///
+    /// The match is case-exact here where everything else folds. A dim tail
+    /// cannot show that the name corrects the case of what was typed and a row
+    /// that only matches folded therefore shows no tail. `adds_to_the_line`
+    /// is what says whether the row has something to give.
     pub fn ghost(&self) -> String {
         if !self.line.at_end() {
             return String::new();
@@ -87,15 +118,37 @@ impl App {
         let Some(pick) = self.highlighted() else {
             return String::new();
         };
-        let Some(q) = candidates::parse(self.line.left_of_cursor()) else {
+        let Some(q) = self.arg() else {
             return String::new();
         };
-        // A quoted argument would put the ghost after the closing quote.
-        if q.arg.starts_with('\'') || q.arg.starts_with('"') {
+        // A dim tail after a quoted argument would land past the quote that
+        // closes it. `adds_to_the_line` is the question the right arrow asks
+        // and it has no such trouble: `accept` puts a whole name inside the
+        // quotes.
+        if q.arg.starts_with(['\'', '"']) {
             return String::new();
         }
         let arg = shellword::unquote(&q.arg);
         pick.insert.strip_prefix(&arg).unwrap_or("").to_string()
+    }
+
+    /// Whether the highlighted row would add anything to the line.
+    ///
+    /// The right arrow asks this rather than asking `ghost`. The ghost is empty
+    /// whenever the name corrects the case of what was typed and empty inside a
+    /// quote as well. `accept` takes the row in both of those places. The ghost
+    /// is empty on the row that runs the line too and that row really has
+    /// nothing to add.
+    pub fn adds_to_the_line(&self) -> bool {
+        let Some(pick) = self.highlighted() else {
+            return false;
+        };
+        let Some(q) = self.arg() else {
+            return false;
+        };
+        let arg = shellword::unquote(&q.arg);
+        starts_with_folded(&pick.insert, &arg)
+            && shared_bytes(&pick.insert, &arg) < pick.insert.len()
     }
 
     /// Cell offset of the argument inside the line. The menu hangs under it.
@@ -130,7 +183,7 @@ impl App {
         let Some(pick) = self.highlighted() else {
             return false;
         };
-        let Some(q) = candidates::parse(self.line.left_of_cursor()) else {
+        let Some(q) = self.arg() else {
             return false;
         };
         let insert = quote_insert(&pick.insert);
@@ -344,6 +397,95 @@ mod tests {
         let mut a = App::over(f.path(), "cd wor");
         assert!(a.accept());
         assert_eq!(a.line.text(), "cd work/");
+    }
+
+    #[test]
+    fn a_row_that_corrects_the_case_still_completes() {
+        // The ghost is empty here, because a dim tail cannot show that `WO`
+        // becomes `wo`. The right arrow asks `adds_to_the_line` for that
+        // reason.
+        let mut a = staged("cd WO", &["work/"]);
+        assert_eq!(a.ghost(), "");
+        assert!(a.adds_to_the_line());
+        a.accept();
+        assert_eq!(a.line.text(), "cd work/");
+    }
+
+    #[test]
+    fn the_row_that_runs_the_line_completes_nothing() {
+        let f = Fixture::new(&["work"]);
+        let a = App::over(f.path(), "cd work");
+        assert!(a.runs_the_line());
+        assert!(!a.adds_to_the_line());
+    }
+
+    #[test]
+    fn a_trailing_space_ends_the_word_and_the_menu_with_it() {
+        // `cd work ` is a finished word. There is nothing here to grow and no
+        // menu to draw. The key falls through to the shell's own completion
+        // rather than opening rows nothing can take.
+        let f = Fixture::new(&["work"]);
+        let mut a = App::over(f.path(), "cd work ");
+        assert!(a.items.is_empty());
+        assert!(!a.menu_open());
+        assert_eq!(a.ghost(), "");
+        assert!(!a.adds_to_the_line());
+        assert!(!a.accept());
+        assert_eq!(a.line.text(), "cd work ");
+    }
+
+    #[test]
+    fn a_space_inside_a_quote_is_a_character_of_the_name() {
+        // The finished-word rule reads a space at the end of the argument. A
+        // space inside a quote is not that: the name carries on and the
+        // closing quote has not been typed yet.
+        let f = Fixture::new(&["my docs/inner"]);
+        let mut a = App::over(f.path(), "cd 'my ");
+        assert_eq!(a.items.len(), 1);
+        assert!(a.adds_to_the_line());
+        a.accept();
+        assert_eq!(a.line.text(), "cd 'my docs/'");
+    }
+
+    #[test]
+    fn a_word_that_carries_on_past_the_cursor_is_left_whole() {
+        // The rows answer for `wor` and the replacement would cover `wor`
+        // alone. Writing `work/` in there used to strand the `k` and leave
+        // `cd workk` behind. Every key that would grow the argument refuses.
+        let f = Fixture::new(&["work", "workshop"]);
+        let mut a = App::over(f.path(), "cd work");
+        a.line.left();
+        assert!(a.menu_open());
+        assert_eq!(a.ghost(), "");
+        assert!(!a.adds_to_the_line());
+        a.accept();
+        assert_eq!(a.line.text(), "cd work");
+    }
+
+    #[test]
+    fn a_second_argument_is_still_a_word_to_grow() {
+        // The guard reads the character right of the cursor rather than asking
+        // for the end of the line. A tail behind a space is a word of its own
+        // and the argument in front of it is finished.
+        let mut a = staged("cd wo tail", &["work/"]);
+        cursor_after(&mut a, 5);
+        assert!(a.adds_to_the_line());
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "cd work/ tail");
+    }
+
+    #[test]
+    fn the_right_arrow_takes_a_row_inside_a_quote() {
+        // `accept` puts a whole name inside the quotes and closes them behind
+        // it. The ghost cannot draw that and the right arrow therefore asks
+        // `adds_to_the_line` rather than the ghost. Tab and Enter take the
+        // same row.
+        let f = Fixture::new(&["my docs/inner"]);
+        let mut a = App::over(f.path(), "cd 'my d");
+        assert_eq!(a.ghost(), "");
+        assert!(a.adds_to_the_line());
+        a.accept();
+        assert_eq!(a.line.text(), "cd 'my docs/'");
     }
 
     #[test]

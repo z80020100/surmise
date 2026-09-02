@@ -23,6 +23,12 @@ impl Line {
         &self.buf[..self.cursor]
     }
 
+    /// The rest of the line. A caller that means to replace a word has to know
+    /// whether the word carries on past the cursor.
+    pub fn right_of_cursor(&self) -> &str {
+        &self.buf[self.cursor..]
+    }
+
     pub fn is_empty(&self) -> bool {
         self.buf.is_empty()
     }

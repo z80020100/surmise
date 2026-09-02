@@ -215,6 +215,15 @@ mod tests {
     }
 
     #[test]
+    fn a_finished_word_is_left_to_the_shell() {
+        // The space says the word is done. Nothing here would grow it and the
+        // key therefore belongs to whatever the shell completes next.
+        let f = Fixture::new(&["work"]);
+        assert!(seeded("cd work ", f.path()).is_none());
+        assert!(seeded("cd wo ", f.path()).is_none());
+    }
+
+    #[test]
     fn a_cd_opens_on_the_line_the_shell_handed_over() {
         let f = Fixture::new(&["work", "other"]);
         let app = seeded("cd wo", f.path()).expect("a picker");

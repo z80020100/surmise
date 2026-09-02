@@ -45,7 +45,7 @@ its own. A menu of directories opens below the line.
 | Up and Down | Move the highlight |
 | Shift-Tab | Move the highlight back |
 | Tab | Take the highlighted directory and keep editing |
-| Right | Take the completion when there is one and the cursor is at the end |
+| Right | Take what the highlighted directory adds. At the end of the line |
 | Enter | Go into the highlighted directory or run the line |
 | Esc | Leave the menu and keep what you typed |
 | Ctrl-C and Ctrl-G | Leave and restore the line you started with |

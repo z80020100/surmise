@@ -60,7 +60,9 @@ pub fn edit(app: &mut App, k: KeyEvent) {
         KeyCode::Down => app.step(1),
         KeyCode::Right => {
             // At the end of the line the right arrow takes the completion.
-            if app.line.at_end() && !app.ghost().is_empty() {
+            // `adds_to_the_line` rather than the ghost. The ghost shows
+            // nothing when the name corrects the case of what was typed.
+            if app.line.at_end() && app.adds_to_the_line() {
                 app.accept();
             } else {
                 app.line.right();
