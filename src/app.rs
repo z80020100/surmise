@@ -4,7 +4,7 @@
 //! picker. Nothing here touches the terminal and the ranking and the
 //! acceptance rules are therefore testable on their own.
 
-use crate::candidates::{self, Candidate};
+use crate::candidates::{self, Candidate, Kind};
 use crate::line::Line;
 use crate::shellword;
 use crate::ui;
@@ -105,17 +105,34 @@ impl App {
         }
     }
 
-    pub fn accept(&mut self) {
-        let Some(pick) = self.highlighted() else {
-            return;
-        };
-        let Some(q) = candidates::parse(self.line.left_of_cursor()) else {
-            return;
-        };
-        let insert = quote_insert(&pick.insert);
-        self.line.replace_back_to(q.start, &insert);
+    /// Whether Enter is a request to run the line rather than to grow it.
+    ///
+    /// The row that runs the line says so itself. So does an empty menu: there
+    /// is nothing left to take and the line as it stands is the whole answer.
+    pub fn runs_the_line(&self) -> bool {
+        self.highlighted().is_none_or(|pick| pick.kind == Kind::Run)
+    }
+
+    /// Put `s` on the line in place of the argument and draw the menu again
+    /// for what the line now says.
+    fn replace_arg(&mut self, start: usize, s: &str) {
+        self.line.replace_back_to(start, s);
         self.dismissed = false;
         self.refresh();
+    }
+
+    /// Take the highlighted row's whole name. `false` when there was nothing
+    /// to take. That is what tells Enter the line is the whole answer.
+    pub fn accept(&mut self) -> bool {
+        let Some(pick) = self.highlighted() else {
+            return false;
+        };
+        let Some(q) = candidates::parse(self.line.left_of_cursor()) else {
+            return false;
+        };
+        let insert = quote_insert(&pick.insert);
+        self.replace_arg(q.start, &insert);
+        true
     }
 
     pub fn step(&mut self, delta: isize) {
@@ -284,6 +301,46 @@ mod tests {
         a.dismissed = true;
         a.accept();
         assert_eq!(a.line.text(), "cd wo");
+    }
+
+    #[test]
+    fn enter_runs_the_line_on_the_row_that_says_so() {
+        let f = Fixture::new(&["work"]);
+        assert!(App::over(f.path(), "cd work").runs_the_line());
+    }
+
+    #[test]
+    fn a_directory_row_is_not_a_request_to_run_the_line() {
+        let f = Fixture::new(&["work"]);
+        assert!(!App::over(f.path(), "cd wor").runs_the_line());
+    }
+
+    #[test]
+    fn an_empty_menu_leaves_enter_the_line_as_it_stands() {
+        let f = Fixture::new(&["work"]);
+        assert!(App::over(f.path(), "cd zzz").runs_the_line());
+    }
+
+    #[test]
+    fn accept_says_so_when_it_has_nothing_to_take() {
+        // The cursor has moved left of the argument the menu answers for and
+        // the parse therefore fails. Enter reads the `false` and runs the line
+        // rather than sitting there doing nothing.
+        let f = Fixture::new(&["work", "worse"]);
+        let mut a = App::over(f.path(), "cd wor");
+        a.line.home();
+        assert!(a.menu_open());
+        assert!(!a.runs_the_line());
+        assert!(!a.accept());
+        assert_eq!(a.line.text(), "cd wor");
+    }
+
+    #[test]
+    fn accept_says_so_when_it_takes_a_row() {
+        let f = Fixture::new(&["work"]);
+        let mut a = App::over(f.path(), "cd wor");
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "cd work/");
     }
 
     #[test]

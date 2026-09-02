@@ -17,14 +17,30 @@ const ITALIC: &str = "\x1b[3m";
 const RESET: &str = "\x1b[0m";
 /// The panel sits on a ground of its own that is a shade off the terminal's.
 const PANEL: &str = "\x1b[48;5;236m";
-const CHOSEN: &str = "\x1b[48;5;25m\x1b[97m";
+/// The highlighted row's ground.
+const PANEL_CHOSEN: &str = "\x1b[48;5;25m";
 const NAME: &str = "\x1b[38;5;252m";
+/// The name on the highlighted row's own ground. The glyph in front of it
+/// wears a colour of its own and this is what puts the name back.
+const NAME_CHOSEN: &str = "\x1b[97m";
 const SPECIAL: &str = "\x1b[38;5;179m";
-/// Nerd Font `nf-fa-folder`. Every candidate is a directory and one glyph
-/// therefore covers the list. A terminal without a patched font draws a blank
-/// box here.
+/// Nerd Font `nf-fa-folder`. This is the glyph on a directory row and on the
+/// two places every shell can go from anywhere. `RUN_ICON` below is the other
+/// one. A terminal without a patched font draws a blank box here.
 const ICON: &str = "\u{f07b}";
+/// The row that runs the line rather than growing it. This one is an ordinary
+/// character, because the row names an action rather than a directory and a
+/// terminal with no patched font still draws it.
+const RUN_ICON: &str = "\u{21b5}";
 const ICON_FG: &str = "\x1b[38;5;75m";
+/// The glyph on the row that runs the line. A colour apart from the folder
+/// blue is what marks that row out now that it carries no name.
+const RUN_ICON_FG: &str = "\x1b[38;5;167m";
+/// The same two glyphs on the highlighted row. That row has a ground of its
+/// own and both colours above are too close to it to read. A lighter tint of
+/// the same hue clears it and still says which sort of row this is.
+const ICON_FG_CHOSEN: &str = "\x1b[38;5;153m";
+const RUN_ICON_FG_CHOSEN: &str = "\x1b[38;5;217m";
 const NAME_MAX: usize = 32;
 const MENU_ROWS: usize = 8;
 
@@ -196,8 +212,23 @@ fn window_start(selected: usize, rows: usize, total: usize) -> usize {
 
 fn colour(k: Kind) -> &'static str {
     match k {
-        Kind::Dir => NAME,
+        // The row that runs the line carries no name and only its glyph is
+        // coloured. `glyph` below is where that happens.
+        Kind::Dir | Kind::Run => NAME,
         Kind::Special => SPECIAL,
+    }
+}
+
+/// The glyph in front of a row and the colour it wears, on the highlighted row
+/// or off it.
+fn glyph(k: Kind, chosen: bool) -> (&'static str, &'static str) {
+    // Every variant is named rather than swept into a catch-all. A new one
+    // then fails the build here the way it already does in `colour` above.
+    match (k, chosen) {
+        (Kind::Run, false) => (RUN_ICON, RUN_ICON_FG),
+        (Kind::Run, true) => (RUN_ICON, RUN_ICON_FG_CHOSEN),
+        (Kind::Dir | Kind::Special, false) => (ICON, ICON_FG),
+        (Kind::Dir | Kind::Special, true) => (ICON, ICON_FG_CHOSEN),
     }
 }
 
@@ -212,7 +243,7 @@ fn menu_rows(m: &Menu, w: usize) -> Vec<String> {
 
     // The panel is as wide as its widest row and no wider. Past that it gives
     // way to the terminal.
-    let icon_w = cells(ICON) + 1;
+    let icon_w = cells(ICON).max(cells(RUN_ICON)) + 1;
     let widest = shown
         .iter()
         .map(|c| icon_w + cells(&c.display))
@@ -233,14 +264,13 @@ fn menu_rows(m: &Menu, w: usize) -> Vec<String> {
         .enumerate()
         .map(|(r, c)| {
             let name = fit(&printable(&c.display), text_w);
-            if first + r == m.selected {
-                format!("{pad}{CHOSEN} {ICON} {name} {RESET}")
-            } else {
-                format!(
-                    "{pad}{PANEL} {ICON_FG}{ICON} {}{name} {RESET}",
-                    colour(c.kind)
-                )
-            }
+            let chosen = first + r == m.selected;
+            let ground = if chosen { PANEL_CHOSEN } else { PANEL };
+            // The glyph's own colour replaces whatever the name wanted. The
+            // name therefore names its colour again behind it.
+            let name_fg = if chosen { NAME_CHOSEN } else { colour(c.kind) };
+            let (icon, icon_fg) = glyph(c.kind, chosen);
+            format!("{pad}{ground} {icon_fg}{icon} {name_fg}{name} {RESET}")
         })
         .collect();
 
@@ -421,7 +451,7 @@ impl<W: Write> Ui<W> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::candidates::folder;
+    use crate::candidates::{folder, run_row};
 
     fn dir(display: &str) -> Candidate {
         folder(display.to_string(), display.to_string(), 0)
@@ -590,7 +620,7 @@ mod tests {
         let chosen: Vec<usize> = menu_rows(&m, 80)
             .iter()
             .enumerate()
-            .filter(|(_, r)| r.contains(CHOSEN))
+            .filter(|(_, r)| r.contains(PANEL_CHOSEN))
             .map(|(i, _)| i)
             .collect();
         assert_eq!(chosen, vec![1]);
@@ -618,8 +648,12 @@ mod tests {
         let rows = menu_rows(&m, 80);
         let row = rows.first().expect("a row");
         assert!(row.contains("[31mred"), "{row:?}");
-        // The only escapes left are the ones this module wrote itself.
-        let ours = CHOSEN.matches('\x1b').count() + RESET.matches('\x1b').count();
+        // The only escapes left are the ones this module wrote itself: the
+        // ground, the glyph's colour, the name's and the reset.
+        let ours = [PANEL_CHOSEN, NAME_CHOSEN, ICON_FG_CHOSEN, RESET]
+            .iter()
+            .map(|s| s.matches('\x1b').count())
+            .sum();
         assert_eq!(row.matches('\x1b').count(), ours, "{row:?}");
     }
 
@@ -627,6 +661,53 @@ mod tests {
     fn a_special_row_is_coloured_apart_from_a_directory() {
         assert_eq!(colour(Kind::Dir), NAME);
         assert_eq!(colour(Kind::Special), SPECIAL);
+    }
+
+    #[test]
+    fn the_row_that_runs_the_line_is_told_apart_by_its_glyph() {
+        // The row carries no name and the glyph is therefore the only thing
+        // left to tell it apart from a directory. That holds on the
+        // highlighted row as well. White there would read as a directory and
+        // would take the row's sort with it.
+        for chosen in [false, true] {
+            let (dir_icon, dir_fg) = glyph(Kind::Dir, chosen);
+            let (run_icon, run_fg) = glyph(Kind::Run, chosen);
+            assert_eq!(glyph(Kind::Special, chosen), (dir_icon, dir_fg));
+            assert_ne!(run_icon, dir_icon);
+            assert_ne!(run_fg, dir_fg);
+        }
+    }
+
+    #[test]
+    fn the_glyph_on_the_highlighted_row_is_not_the_name_colour() {
+        let items = vec![dir("alpha/")];
+        let m = menu_in(&items, 0, 1, 24).expect("a menu");
+        let row = menu_rows(&m, 80).first().expect("a row").clone();
+        // The glyph carries its own colour and the name names the ground's
+        // bright one again behind it.
+        assert_ne!(ICON_FG_CHOSEN, NAME_CHOSEN);
+        let want = format!("{ICON_FG_CHOSEN}{ICON} {NAME_CHOSEN}");
+        assert!(row.contains(&want), "{row:?}");
+    }
+
+    #[test]
+    fn the_row_that_runs_the_line_holds_no_name() {
+        let items = vec![run_row("work/".to_string()), dir("alpha/")];
+        let m = menu_in(&items, 0, 1, 24).expect("a menu");
+        let rows = menu_rows(&m, 80);
+        let row = rows.first().expect("a row");
+        assert!(row.contains(RUN_ICON), "{row:?}");
+        // `insert` is the only text this row could have drawn.
+        assert!(!row.contains("work"), "{row:?}");
+    }
+
+    #[test]
+    fn the_two_row_glyphs_are_the_same_width() {
+        // `menu_rows` measures the glyph column once from the widest glyph and
+        // the panel is therefore wide enough whatever they measure. Names line
+        // up only while the two agree, because each row spends
+        // `cells(glyph) + 1` on its own before the name starts.
+        assert_eq!(cells(ICON), cells(RUN_ICON));
     }
 
     #[test]

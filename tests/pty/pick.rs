@@ -11,8 +11,11 @@ use std::time::Duration;
 use surmise::fixture::Fixture;
 use surmise::pick;
 
-/// The glyph surmise puts on every candidate row.
+/// The glyph surmise puts on a directory row.
 const ICON: char = '\u{f07b}';
+
+/// The glyph on the row that runs the line.
+const RUN_ICON: char = '\u{21b5}';
 
 /// How long a run gets to draw and how long it gets to exit. Both are far past
 /// what the work takes and neither is a measurement.
@@ -61,15 +64,15 @@ fn opened(home: &Path, line: &str) -> Term {
     t
 }
 
-/// The candidate names, without the folder glyph or its padding. The last
-/// panel row is the footer rather than a candidate.
+/// The candidate names, without a row glyph or its padding. The last panel row
+/// is the footer rather than a candidate.
 fn names(t: &Term) -> Vec<String> {
     let panel = t.panel();
     let Some((_footer, rows)) = panel.split_last() else {
         return Vec::new();
     };
     rows.iter()
-        .map(|row| row.text.replace(ICON, "").trim().to_string())
+        .map(|row| row.text.replace([ICON, RUN_ICON], "").trim().to_string())
         .collect()
 }
 
@@ -128,7 +131,7 @@ fn a_directory_only_the_history_knows_about_does_not_get_in() {
 }
 
 #[test]
-fn every_candidate_row_carries_the_folder_glyph() {
+fn a_bare_cd_puts_the_folder_glyph_on_every_row() {
     let f = fixture();
     let t = opened(f.path(), "cd ");
     let panel = t.panel();
@@ -204,7 +207,7 @@ fn a_name_with_a_space_is_quoted_and_completion_carries_on_inside_it() {
     t.send("\t");
     t.pump(SETTLE);
     assert!(shown(&t).contains("cd 'my docs/'"), "{:?}", t.lines());
-    t.send("\t");
+    t.send("\x1b[B\r");
     t.pump(SETTLE);
     assert!(shown(&t).contains("cd 'my docs/inner/'"), "{:?}", t.lines());
 }
@@ -213,7 +216,19 @@ fn a_name_with_a_space_is_quoted_and_completion_carries_on_inside_it() {
 fn a_path_lists_only_what_that_directory_holds() {
     let f = fixture();
     let t = opened(f.path(), "cd ~/work/");
-    assert_eq!(names(&t), ["alpha/", "beta/"]);
+    // The first row runs the line and carries no name of its own.
+    assert_eq!(names(&t), ["", "alpha/", "beta/"]);
+}
+
+#[test]
+fn the_row_that_runs_the_line_carries_a_glyph_of_its_own() {
+    let f = fixture();
+    let t = opened(f.path(), "cd work/");
+    let first = t.panel().first().expect("a row").text.clone();
+    assert!(first.contains(RUN_ICON), "{first:?}");
+    // The glyph is the whole row. The line is on the screen above it and the
+    // folder glyph is not on it either.
+    assert_eq!(first.replace(RUN_ICON, "").trim(), "", "{first:?}");
 }
 
 #[test]
@@ -233,9 +248,50 @@ fn ctrl_c_gives_the_shell_its_own_line_back() {
 }
 
 #[test]
-fn enter_asks_for_the_line_to_be_run() {
+fn enter_takes_the_directory_and_a_second_enter_asks_for_the_line_to_be_run() {
     let f = fixture();
     let mut t = opened(f.path(), "cd wo");
+    t.send("\r");
+    t.pump(SETTLE);
+    // The first press took the directory rather than the line. The menu is
+    // still on the screen and that is what says the run has not ended. Reading
+    // the line alone would not: the picker prints the accepted line to stdout
+    // and in a pty that is this same screen.
+    assert!(!t.panel().is_empty(), "the menu closed: {:?}", t.lines());
+    assert!(shown(&t).contains("cd work/"), "{:?}", t.lines());
+    t.send("\r");
+    assert_eq!(t.status(WAIT), Some(pick::RUN));
+}
+
+#[test]
+fn the_menu_is_a_closed_box_with_the_row_that_runs_in_it() {
+    // The other two `intact` cases open on a bare `cd ` and that line never
+    // gets the row. This one does and the glyph and the row's empty name
+    // therefore go through the panel's own arithmetic under a check.
+    for cols in [100, 72, 40] {
+        let f = fixture();
+        let mut t = surmise(f.path(), "cd work/", cols, 30);
+        assert!(t.wait_panel(WAIT), "nothing was drawn at {cols} columns");
+        t.pump(SETTLE);
+        assert!(
+            t.panel().iter().any(|r| r.text.contains(RUN_ICON)),
+            "no row that runs the line at {cols} columns: {:?}",
+            t.lines()
+        );
+        assert_eq!(intact(&t.panel(), cols), Ok(()), "at {cols} columns");
+    }
+}
+
+#[test]
+fn enter_runs_the_line_once_the_cursor_leaves_the_argument() {
+    // Home puts the cursor left of the argument the menu answers for. The
+    // menu is still open and the highlight is still on a directory row. Enter
+    // therefore has nothing to take and the line as it stands is the answer.
+    let f = fixture();
+    let mut t = opened(f.path(), "cd wo");
+    t.send("\x01");
+    t.pump(SETTLE);
+    assert!(!t.panel().is_empty(), "the menu closed: {:?}", t.lines());
     t.send("\r");
     assert_eq!(t.status(WAIT), Some(pick::RUN));
 }

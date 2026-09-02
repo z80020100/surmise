@@ -111,10 +111,33 @@ pub fn run(seed: &str) -> io::Result<u8> {
                     // in here is the person's work and must survive.
                     KeyCode::Esc => break ACCEPTED,
                     KeyCode::Char('c' | 'g') if ctrl => break CANCELLED,
-                    KeyCode::Tab => app.accept(),
-                    KeyCode::Enter => {
+                    KeyCode::Tab => {
                         app.accept();
-                        break RUN;
+                    }
+                    // A directory row is one to go into and the menu stays
+                    // open on what is inside it. The row that runs the line
+                    // ends the run and so does a row with nothing left to
+                    // take. The second of those is what keeps Enter working
+                    // once the cursor has moved off the argument the menu
+                    // answers for.
+                    KeyCode::Enter => {
+                        // Every exit takes the row first. The line the shell is
+                        // handed has to name the directory surmise resolved and
+                        // a bare `it's` or `~root` names something else.
+                        if app.runs_the_line() {
+                            app.accept();
+                            break RUN;
+                        }
+                        if !app.accept() {
+                            break RUN;
+                        }
+                        // The descent landed somewhere with nothing to show
+                        // and nothing to go on into. A directory nobody may
+                        // read does that. Hand the line to the shell's own
+                        // editor rather than hold a frame with no menu on it.
+                        if !app.menu_open() {
+                            break ACCEPTED;
+                        }
                     }
                     _ => {
                         keys::edit(&mut app, k);
@@ -205,5 +228,17 @@ mod tests {
     fn a_bare_cd_has_something_to_offer() {
         let f = Fixture::new(&["work"]);
         assert!(seeded("cd ", f.path()).is_some());
+    }
+
+    #[test]
+    fn a_cd_that_already_names_a_directory_opens_on_the_row_that_runs_it() {
+        // `work` holds nothing. The row that runs the line is the whole menu
+        // and the shell would otherwise never see this line at all.
+        let f = Fixture::new(&["work"]);
+        assert!(
+            seeded("cd work/", f.path())
+                .expect("a picker")
+                .runs_the_line()
+        );
     }
 }

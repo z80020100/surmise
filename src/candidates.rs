@@ -1,12 +1,13 @@
 //! The `cd` completion engine.
 //!
-//! Two modes. Both stay inside the directory the argument names. A token
-//! that looks like a path is completed against that path. A bare word is
-//! matched against the children of the current directory.
+//! Two modes. Both stay inside the directory the argument names. A token that
+//! looks like a path is completed against that path. A bare word is matched
+//! against the children of the current directory. An argument that already
+//! names a directory then gets one row in front of whichever mode ran.
 
 use crate::fuzzy;
 use crate::path::expand;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// How many directory entries one keystroke is allowed to look at. A directory
 /// with more than this shows what came first rather than stalling the prompt.
@@ -14,10 +15,13 @@ const SCAN_LIMIT: usize = 400;
 /// How many rows the menu will ever be asked to hold.
 pub const MAX_RESULTS: usize = 60;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Kind {
     Dir,
     Special,
+    /// The argument as it stands. This row grows nothing and runs the line
+    /// instead.
+    Run,
 }
 
 #[derive(Clone)]
@@ -66,6 +70,14 @@ pub fn parse(left: &str) -> Option<Query> {
     })
 }
 
+/// The path `arg` reaches from `cwd`. A relative argument hangs off the
+/// directory the caller named rather than off the process's own. Whether
+/// anything is there is the caller's question.
+fn resolved_in(arg: &str, cwd: &Path) -> PathBuf {
+    let p = expand(arg);
+    if p.is_absolute() { p } else { cwd.join(p) }
+}
+
 fn subdirs(dir: &Path, want_hidden: bool) -> Vec<String> {
     let Ok(rd) = std::fs::read_dir(dir) else {
         return Vec::new();
@@ -98,6 +110,22 @@ pub(crate) fn folder(display: String, insert: String, score: i32) -> Candidate {
     }
 }
 
+/// The row that runs the line.
+///
+/// The glyph is the whole row. The line this row would run is on the screen
+/// already, one row above the menu. A name here would be that same text a
+/// second time and `label` is what says what the row does instead. `insert`
+/// is the argument as it stands and nothing therefore offers to add to it.
+pub(crate) fn run_row(insert: String) -> Candidate {
+    Candidate {
+        display: String::new(),
+        insert,
+        label: "run",
+        kind: Kind::Run,
+        score: 0,
+    }
+}
+
 fn path_mode(arg: &str, cwd: &Path) -> Vec<Candidate> {
     let (prefix, base) = match arg.rfind('/') {
         Some(i) => (&arg[..=i], &arg[i + 1..]),
@@ -111,8 +139,7 @@ fn path_mode(arg: &str, cwd: &Path) -> Vec<Candidate> {
     let dir = if prefix.is_empty() {
         cwd.to_path_buf()
     } else {
-        let p = expand(prefix);
-        if p.is_absolute() { p } else { cwd.join(p) }
+        resolved_in(prefix, cwd)
     };
     let mut out = Vec::new();
     for name in subdirs(&dir, base.starts_with('.')) {
@@ -174,6 +201,17 @@ fn predict(arg: &str, cwd: &Path) -> Vec<Candidate> {
     out
 }
 
+/// Does the shell read `arg` as a place in its directory stack rather than as
+/// a path? Quoting the word does not change that, because `cd` reads its own
+/// argument after the shell has taken the quotes off. `cd '+2'` is therefore
+/// still the second entry whatever `./+2` holds.
+fn dir_stack_spec(arg: &str) -> bool {
+    match arg.strip_prefix(['+', '-']) {
+        Some(rest) => rest.chars().all(|c| c.is_ascii_digit()),
+        None => false,
+    }
+}
+
 pub(crate) fn generate_in(arg: &str, cwd: &Path) -> Vec<Candidate> {
     let looks_like_path = arg.contains('/') || arg.starts_with('~') || arg.starts_with('.');
 
@@ -190,6 +228,14 @@ pub(crate) fn generate_in(arg: &str, cwd: &Path) -> Vec<Candidate> {
             .cmp(&a.score)
             .then_with(|| a.display.cmp(&b.display))
     });
+
+    // The row that runs the line goes in front of that order rather than into
+    // it. A line that already names a directory is the one most often meant
+    // and a score would leave that to chance. A bare `cd` goes home and the
+    // shell needs no row to say so.
+    if !arg.is_empty() && !dir_stack_spec(arg) && resolved_in(arg, cwd).is_dir() {
+        out.insert(0, run_row(arg.to_string()));
+    }
     out.truncate(MAX_RESULTS);
     out
 }
@@ -344,15 +390,54 @@ mod tests {
     fn a_path_argument_looks_inside_that_path() {
         let f = Fixture::new(&["work/alpha", "work/beta", "other/gamma"]);
         let got = generate_in("work/", f.path());
-        assert_eq!(displays(&got), ["alpha/", "beta/"]);
-        assert_eq!(got[0].insert, "work/alpha/");
+        // The run row comes first and carries no name of its own.
+        assert_eq!(displays(&got), ["", "alpha/", "beta/"]);
+        assert_eq!(got[1].insert, "work/alpha/");
     }
 
     #[test]
     fn a_path_argument_takes_no_specials() {
         let f = Fixture::new(&["work/alpha"]);
+        assert!(
+            generate_in("work/", f.path())
+                .iter()
+                .all(|c| c.kind != Kind::Special)
+        );
+    }
+
+    #[test]
+    fn an_argument_that_already_names_a_directory_gets_a_row_to_run_it() {
+        let f = Fixture::new(&["work", "workshop"]);
+        let got = generate_in("work", f.path());
+        assert_eq!(displays(&got), ["", "work/", "workshop/"]);
+        assert_eq!(got[0].kind, Kind::Run);
+        assert_eq!(got[0].label, "run");
+        assert_eq!(got[0].insert, "work");
+    }
+
+    #[test]
+    fn a_directory_holding_nothing_still_offers_the_row_that_runs() {
+        let f = Fixture::new(&["work"]);
         let got = generate_in("work/", f.path());
-        assert!(got.iter().all(|c| c.kind == Kind::Dir));
+        assert_eq!(displays(&got), [""]);
+        assert_eq!(got[0].kind, Kind::Run);
+    }
+
+    #[test]
+    fn a_directory_stack_entry_offers_no_row_to_run() {
+        // `cd +2` is the second entry of the stack whatever `./+2` holds and
+        // quoting the word does not change that. The directory row below is
+        // the way in, because its trailing slash is not a stack entry.
+        let f = Fixture::new(&["+2"]);
+        let got = generate_in("+2", f.path());
+        assert!(got.iter().all(|c| c.kind != Kind::Run));
+        assert_eq!(displays(&got), ["+2/"]);
+        assert!(dir_stack_spec("+2"));
+        assert!(dir_stack_spec("-12"));
+        assert!(dir_stack_spec("-"));
+        assert!(!dir_stack_spec("-x"));
+        assert!(!dir_stack_spec("+2a"));
+        assert!(!dir_stack_spec("work"));
     }
 
     #[test]
@@ -376,6 +461,20 @@ mod tests {
             "the current directory got in: {:?}",
             displays(&bare)
         );
+    }
+
+    #[test]
+    fn an_empty_argument_offers_no_row_to_run() {
+        // A bare `cd` goes home and the shell needs no help to say so.
+        let f = Fixture::new(&["work"]);
+        let got = generate_in("", f.path());
+        assert!(got.iter().all(|c| c.kind != Kind::Run));
+    }
+
+    #[test]
+    fn a_file_of_that_name_offers_no_row_to_run() {
+        let f = Fixture::new(&["alpha", "al*"]);
+        assert_eq!(displays(&generate_in("al", f.path())), ["alpha/"]);
     }
 
     #[test]

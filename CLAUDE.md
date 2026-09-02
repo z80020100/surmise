@@ -36,8 +36,9 @@ it. The two cannot fall out of step, because they are one artifact. The
 ## Use
 
 Two ways in. Tab asks surmise about the line you already have and falls through
-to the shell's own completion when surmise has nothing to offer. Typing a bare
-`cd ` opens surmise on its own. A menu of directories opens below the line.
+to the shell's own completion when surmise has nothing to offer. The paragraphs
+under the table say what narrows that. Typing a bare `cd ` opens surmise on
+its own. A menu of directories opens below the line.
 
 | Key | Inside the menu |
 | --- | --- |
@@ -45,9 +46,25 @@ to the shell's own completion when surmise has nothing to offer. Typing a bare
 | Shift-Tab | Move the highlight back |
 | Tab | Take the highlighted directory and keep editing |
 | Right | Take the completion when there is one and the cursor is at the end |
-| Enter | Take the directory and run the line |
+| Enter | Go into the highlighted directory or run the line |
 | Esc | Leave the menu and keep what you typed |
 | Ctrl-C and Ctrl-G | Leave and restore the line you started with |
+
+A line that already names a directory gets a row of its own at the top of the
+menu. That row runs the line rather than growing it. A `↵` in a colour of its
+own is the whole row: the line is on the screen already and a name there would
+be that same text a second time. The word under the list is what says what the
+row does. Enter on any other row takes that directory and leaves the menu open
+on what is inside it. Two presses therefore go one level down and run the line.
+Enter also runs the line when there is nothing left to take. That is what
+keeps the key working once the cursor has moved off the argument.
+
+That row is the one the highlight starts on. Any line whose argument already
+names a directory therefore opens a menu rather than falling through to the
+shell's own completion. A bare `cd ..` or `cd .` is such a line and the row
+that runs it arrives with whatever else the dots in it match. A dot in front
+of the last part of the argument also turns the hidden names on. That is the
+trade the row costs.
 
 Everything else is ordinary line editing. Left, Home, End, Backspace, Delete
 and Ctrl-A, Ctrl-E, Ctrl-U, Ctrl-K and Ctrl-W all do what they do in the

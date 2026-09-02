@@ -139,10 +139,21 @@ fn the_menu_narrows_as_the_line_grows() {
 }
 
 #[test]
-fn enter_takes_the_directory_and_runs_the_line() {
+fn enter_takes_the_directory_and_a_second_enter_runs_the_line() {
     let f = home("", "");
     let mut t = opened(f.path());
     typed(&mut t, "de");
+    // The first press takes `deep/` and leaves the menu open on it. Asserting
+    // that nothing has moved yet is what pins the two presses: a single-press
+    // Enter would already have run the line here and the second press would
+    // land on a fresh prompt and this test would never see it.
+    typed(&mut t, "\r");
+    assert!(
+        !t.lines().join("\n").contains(MOVED),
+        "the first press ran the line: {:?}",
+        t.lines()
+    );
+    assert!(!t.panel().is_empty(), "the menu closed: {:?}", t.lines());
     t.send("\r");
     // The hook fires on a directory change alone. Naming `deep` is the whole
     // of the claim: the line was taken and it was run.
