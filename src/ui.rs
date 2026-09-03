@@ -20,8 +20,8 @@ const RESET: &str = "\x1b[0m";
 /// The panel sits on a ground of its own that is a shade off the terminal's.
 const PANEL: &str = "\x1b[48;5;236m";
 /// The highlighted row's ground.
-const PANEL_CHOSEN: &str = "\x1b[48;5;25m";
-const NAME: &str = "\x1b[38;5;252m";
+const PANEL_CHOSEN: &str = "\x1b[48;5;26m";
+const NAME: &str = "\x1b[38;5;249m";
 /// The name on the highlighted row's own ground. The glyph in front of it
 /// wears a colour of its own and this is what puts the name back.
 const NAME_CHOSEN: &str = "\x1b[97m";
