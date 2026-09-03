@@ -101,8 +101,8 @@ key wants a name leading with what you typed, whatever case either is in. It
 is not a match Tab can build a prefix from either.
 
 Every name marks the characters what you typed reached. The `w` and the `k`
-carry a ground of their own in that row and the `or` between them does not.
-That is what says how a name got into the menu.
+carry a ground and a brighter name of their own in that row and the `or`
+between them does not. That is what says how a name got into the menu.
 
 What Tab would add is underlined in every row it would add it to. The rows
 Tab passes over carry no underline and neither does a line Tab would leave

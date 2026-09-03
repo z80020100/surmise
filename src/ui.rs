@@ -37,6 +37,13 @@ const MARK: &str = "\x1b[48;5;58m";
 /// The same on the highlighted row. That row's ground is a blue the olive
 /// disappears into and a lighter tint of that blue takes over.
 const MARK_CHOSEN: &str = "\x1b[48;5;68m";
+/// A marked character's own name. A brighter tint of the colour its row
+/// already wears: the ground says which characters what was typed reached and
+/// the brighter name is what makes them read first. `bright` below is what
+/// pairs one with a row. The highlighted row has none of its own, because
+/// `NAME_CHOSEN` is already as bright as a name gets.
+const NAME_MARKED: &str = "\x1b[38;5;252m";
+const SPECIAL_MARKED: &str = "\x1b[38;5;222m";
 /// The run Tab would add to the argument. An underline rather than a ground
 /// of its own: the characters what was typed reached already carry one and a
 /// second ground beside it would read as another row.
@@ -105,7 +112,7 @@ pub struct Menu<'a> {
     selected: usize,
     rows: usize,
     /// What the rows were matched against. The characters it reached in a name
-    /// carry a ground of their own.
+    /// carry a ground and a brighter name of their own.
     typed: &'a str,
     /// How many characters of a name Tab would leave on the line. The run of
     /// that past what was typed is underlined.
@@ -257,6 +264,17 @@ fn colour(k: Kind) -> &'static str {
     }
 }
 
+/// The name a marked character wears. It is a brighter tint of what `colour`
+/// gives the same row rather than one colour for every row. One colour would
+/// take away what tells a directory from one of the two places every shell
+/// can go from anywhere.
+fn bright(k: Kind) -> &'static str {
+    match k {
+        Kind::Dir | Kind::Run => NAME_MARKED,
+        Kind::Special => SPECIAL_MARKED,
+    }
+}
+
 /// The glyph in front of a row and the colour it wears, on the highlighted row
 /// or off it.
 fn glyph(k: Kind, chosen: bool) -> (&'static str, &'static str) {
@@ -283,16 +301,17 @@ fn tab_grows(k: Kind, at: &[usize]) -> bool {
     }
 }
 
-/// `name` with the characters at `at` on a ground of their own and the run at
-/// `under` underlined. Each one hands back what the row had, because a code
-/// ends the run it opened rather than the row.
-fn marked(name: &str, at: &[usize], under: &Range<usize>, ground: &str, mark: &str) -> String {
+/// `name` with the characters at `at` under `on` and the run at `under`
+/// underlined. `off` is what the row had and a mark hands it back, because a
+/// code ends the run it opened rather than the row. `on` names its ground
+/// last and what follows a mark is therefore the character itself.
+fn marked(name: &str, at: &[usize], under: &Range<usize>, off: &str, on: &str) -> String {
     let mut out = String::new();
     for (i, c) in name.chars().enumerate() {
-        let ground_of_its_own = at.contains(&i);
+        let on_a_mark = at.contains(&i);
         let underlined = under.contains(&i);
-        if ground_of_its_own {
-            out.push_str(mark);
+        if on_a_mark {
+            out.push_str(on);
         }
         if underlined {
             out.push_str(UNDER);
@@ -301,8 +320,8 @@ fn marked(name: &str, at: &[usize], under: &Range<usize>, ground: &str, mark: &s
         if underlined {
             out.push_str(UNDER_OFF);
         }
-        if ground_of_its_own {
-            out.push_str(ground);
+        if on_a_mark {
+            out.push_str(off);
         }
     }
     out
@@ -346,10 +365,15 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
             // The glyph's own colour replaces whatever the name wanted. The
             // name therefore names its colour again behind it.
             let name_fg = if chosen { NAME_CHOSEN } else { colour(c.kind) };
+            // A mark carries a ground and a name colour together.
+            let (mark, mark_fg) = if chosen {
+                (MARK_CHOSEN, NAME_CHOSEN)
+            } else {
+                (MARK, bright(c.kind))
+            };
             // The name is fitted first and a mark past the cut then lands on
             // nothing. What was cut away is not on the row to mark.
             let at = fuzzy::matched(m.typed, &text);
-            let mark = if chosen { MARK_CHOSEN } else { MARK };
             // What Tab would add. An empty range is what a row Tab passes
             // over gets and so is a reach no further than what was typed.
             let under = if tab_grows(c.kind, &at) {
@@ -357,7 +381,9 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
             } else {
                 0..0
             };
-            let name = marked(&fit(&text, text_w), &at, &under, ground, mark);
+            let off = format!("{ground}{name_fg}");
+            let on = format!("{mark_fg}{mark}");
+            let name = marked(&fit(&text, text_w), &at, &under, &off, &on);
             let (icon, icon_fg) = glyph(c.kind, chosen);
             format!("{pad}{ground} {icon_fg}{icon} {name_fg}{name} {RESET}")
         })
@@ -878,6 +904,42 @@ mod tests {
         let rows = menu_rows(&m, 80, 1, 0);
         assert_eq!(marks(&rows[0], MARK_CHOSEN), "a");
         assert_eq!(marks(&rows[1], MARK), "a");
+    }
+
+    #[test]
+    fn a_marked_character_wears_a_name_of_its_own() {
+        // The ground is not the whole mark. The character on it carries a
+        // brighter name than the rest of the row and the row's own ground and
+        // name follow it. The highlighted row has nothing brighter than the
+        // name it already wears.
+        let items = vec![dir("alpha/"), dir("beta/")];
+        let m = menu_in(&items, 0, 24, "a", 0).expect("a menu");
+        let rows = menu_rows(&m, 80, 1, 0);
+        assert!(
+            rows[0].contains(&format!(
+                "{NAME_CHOSEN}{MARK_CHOSEN}a{PANEL_CHOSEN}{NAME_CHOSEN}"
+            )),
+            "{rows:?}"
+        );
+        assert!(
+            rows[1].contains(&format!("{NAME_MARKED}{MARK}a{PANEL}{NAME}")),
+            "{rows:?}"
+        );
+    }
+
+    #[test]
+    fn a_mark_keeps_a_special_row_apart_from_a_directory() {
+        // The two places every shell can go from anywhere wear a colour of
+        // their own and a mark brightens that rather than replaces it. A mark
+        // that named one colour for every row would take the difference away
+        // on the one character the eye is drawn to.
+        let items = vec![dir("dot/"), special("..")];
+        let m = menu_in(&items, 0, 24, ".", 0).expect("a menu");
+        let rows = menu_rows(&m, 80, 1, 0);
+        assert!(
+            rows[1].contains(&format!("{SPECIAL_MARKED}{MARK}.{PANEL}{SPECIAL}")),
+            "{rows:?}"
+        );
     }
 
     #[test]
