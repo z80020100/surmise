@@ -305,11 +305,16 @@ impl App {
 
     /// Take the prefix the directory rows in the menu share. `common` is what
     /// decides and this is what puts the answer on the line.
-    pub fn accept_common(&mut self) {
+    ///
+    /// `false` when there was nothing to take. Nothing on the screen would
+    /// say so on its own: the line is the same line and the menu is the same
+    /// menu. The caller rings the bell instead.
+    pub fn accept_common(&mut self) -> bool {
         let Some(c) = self.common() else {
-            return;
+            return false;
         };
         self.replace_arg(c.start, &quote_insert(&c.name));
+        true
     }
 
     pub fn step(&mut self, delta: isize) {
@@ -560,6 +565,15 @@ mod tests {
     }
 
     #[test]
+    fn tab_says_whether_it_took_anything() {
+        let mut took = staged("cd wo", &["work/", "worse/"]);
+        assert!(took.accept_common());
+        // The rows agree on what the line already holds.
+        let mut nothing = staged("cd wor", &["work/", "worse/"]);
+        assert!(!nothing.accept_common());
+    }
+
+    #[test]
     fn the_reach_is_what_tab_would_take_measured_in_a_name() {
         // The rows share `wor` and each one draws its own name. Three
         // characters of that name are what Tab would leave on the line.
@@ -786,7 +800,9 @@ mod tests {
         // `cd workk` behind. Every key that would grow the argument refuses.
         let f = Fixture::new(&["work", "workshop"]);
         for take in [
-            (|a: &mut App| a.accept_common()) as fn(&mut App),
+            (|a: &mut App| {
+                a.accept_common();
+            }) as fn(&mut App),
             |a: &mut App| {
                 a.accept();
             },

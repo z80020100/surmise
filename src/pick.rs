@@ -112,7 +112,13 @@ pub fn run(seed: &str) -> io::Result<u8> {
                     // in here is the person's work and must survive.
                     KeyCode::Esc => break ACCEPTED,
                     KeyCode::Char('c' | 'g') if ctrl => break CANCELLED,
-                    KeyCode::Tab => app.accept_common(),
+                    // Nothing to take is an answer of its own and the line
+                    // cannot show it. The bell is what says it instead.
+                    KeyCode::Tab => {
+                        if !app.accept_common() {
+                            ui.bell()?;
+                        }
+                    }
                     // A directory row is one to go into and the menu stays
                     // open on what is inside it. The row that runs the line
                     // ends the run and so does a row with nothing left to

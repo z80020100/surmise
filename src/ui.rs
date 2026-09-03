@@ -491,6 +491,17 @@ impl<W: Write> Ui<W> {
         Ok(())
     }
 
+    /// Ring the terminal's own bell. A key that had nothing to do says so
+    /// with this and nothing on the screen would say it: the line and the menu
+    /// are the ones that were already there.
+    ///
+    /// Whether it is a sound or a flash or nothing at all is the terminal's to
+    /// decide. The person has already set that where they wanted it.
+    pub fn bell(&mut self) -> io::Result<()> {
+        self.out.write_all(b"\x07")?;
+        self.out.flush()
+    }
+
     /// Erase everything this Ui painted and leave the cursor where the frame
     /// started. The picker uses it so the shell's own line survives untouched.
     pub fn erase(&mut self) -> io::Result<()> {
@@ -568,6 +579,15 @@ mod tests {
             .render_at(&[], &line, ghost, None, w)
             .expect("a Vec always takes a write");
         String::from_utf8(buf).expect("the frame is text")
+    }
+
+    #[test]
+    fn the_bell_is_one_byte_and_nothing_else() {
+        let mut buf: Vec<u8> = Vec::new();
+        Ui::new(&mut buf, 0)
+            .bell()
+            .expect("a Vec always takes a write");
+        assert_eq!(buf, b"\x07");
     }
 
     #[test]

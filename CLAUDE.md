@@ -87,6 +87,11 @@ because half a name cannot carry the one that closes it. The space is you
 saying the word is finished. Right leaves it alone for that same reason and
 Enter runs the line, because a finished word leaves nothing to take.
 
+Tab rings the terminal's bell whenever it leaves the line alone. The line is
+the one that was already there and nothing on the screen would say the key
+had been read at all. Whether that bell is a sound or a flash or nothing is
+the terminal's own setting rather than surmise's.
+
 A match need not lead with what you typed and Tab ignores the rows that do
 not. `cd wk` reaching `work/` is a match Enter takes. Right leaves it: that
 key wants a name leading with what you typed, whatever case either is in. It

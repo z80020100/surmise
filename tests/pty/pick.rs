@@ -316,6 +316,22 @@ fn tab_takes_the_prefix_two_rows_share_rather_than_either_row() {
     t.send("\t");
     t.pump(SETTLE);
     assert_eq!(names(&t), ["work/", "worse/"]);
+    // A key that took something has nothing to say about it.
+    assert_eq!(t.bells(), 0);
+}
+
+#[test]
+fn tab_with_nothing_to_take_rings_the_bell() {
+    let f = fixture();
+    let mut t = opened(f.path(), "cd work/");
+    // The two names inside `work/` share nothing the line does not already
+    // hold. The line is therefore the same line afterwards and the bell is
+    // the only answer there is.
+    assert_eq!(t.bells(), 0);
+    t.send("\t");
+    t.pump(SETTLE);
+    assert_eq!(t.bells(), 1);
+    assert!(shown(&t).contains("cd work/"), "{:?}", t.lines());
 }
 
 #[test]

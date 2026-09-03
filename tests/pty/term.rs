@@ -19,7 +19,7 @@ const POLL: Duration = Duration::from_millis(20);
 /// How long a hangup gets before the child is killed outright.
 const REAP: Duration = Duration::from_secs(2);
 
-/// A screen that answers a cursor-position report.
+/// A screen that answers a cursor-position report and counts the bell.
 ///
 /// surmise asks where the cursor is so it can draw on the shell's own prompt
 /// row. A screen that stays silent sends it down the fallback path and the
@@ -29,9 +29,19 @@ const REAP: Duration = Duration::from_secs(2);
 /// the reply waits in the buffer until `Term` sends it, because a callback
 /// holds the screen rather than the device.
 #[derive(Default)]
-struct Answering(Vec<u8>);
+struct Answering {
+    /// What the screen owes the program.
+    reply: Vec<u8>,
+    /// How many times the program rang the bell. A bell paints no cell and a
+    /// count is the whole of what a screen can say about one.
+    bells: usize,
+}
 
 impl vt100::Callbacks for Answering {
+    fn audible_bell(&mut self, _: &mut vt100::Screen) {
+        self.bells += 1;
+    }
+
     fn unhandled_csi(
         &mut self,
         screen: &mut vt100::Screen,
@@ -48,7 +58,7 @@ impl vt100::Callbacks for Answering {
         // The report is one-based and `cursor_position` is not.
         let (row, col) = screen.cursor_position();
         let reply = format!("\x1b[{};{}R", row + 1, col + 1);
-        self.0.extend_from_slice(reply.as_bytes());
+        self.reply.extend_from_slice(reply.as_bytes());
     }
 }
 
@@ -118,7 +128,7 @@ impl Term {
     /// Send whatever the screen owes the program. A cursor-position report is
     /// the only answer it has so far.
     fn answer(&mut self) {
-        let reply = std::mem::take(&mut self.parser.callbacks_mut().0);
+        let reply = std::mem::take(&mut self.parser.callbacks_mut().reply);
         if !reply.is_empty() {
             let _ = self.writer.write_all(&reply);
             let _ = self.writer.flush();
@@ -297,6 +307,11 @@ impl Term {
     pub fn underlined(&self, at: usize) -> String {
         self.picked(at, |c, _| c.underline())
     }
+
+    /// How many times the program has rung the terminal's bell.
+    pub fn bells(&self) -> usize {
+        self.parser.callbacks().bells
+    }
 }
 
 impl Drop for Term {
@@ -330,7 +345,7 @@ mod tests {
         let mut parser = vt100::Parser::new_with_callbacks(10, 20, 0, Answering::default());
         parser.process(b"\x1b[3;5H");
         parser.process(query);
-        String::from_utf8(std::mem::take(&mut parser.callbacks_mut().0)).expect("utf-8")
+        String::from_utf8(std::mem::take(&mut parser.callbacks_mut().reply)).expect("utf-8")
     }
 
     #[test]
