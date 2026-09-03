@@ -20,7 +20,7 @@ const RESET: &str = "\x1b[0m";
 /// The panel sits on a ground of its own that is a shade off the terminal's.
 const PANEL: &str = "\x1b[48;5;236m";
 /// The highlighted row's ground.
-const PANEL_CHOSEN: &str = "\x1b[48;5;26m";
+const PANEL_CHOSEN: &str = "\x1b[48;5;25m";
 const NAME: &str = "\x1b[38;5;249m";
 /// The name on the highlighted row's own ground. The glyph in front of it
 /// wears a colour of its own and this is what puts the name back.
@@ -36,7 +36,7 @@ const FOOT: &str = NAME;
 const MARK: &str = "\x1b[48;5;58m";
 /// The same on the highlighted row. That row's ground is a blue the olive
 /// disappears into and a lighter tint of that blue takes over.
-const MARK_CHOSEN: &str = "\x1b[48;5;68m";
+const MARK_CHOSEN: &str = "\x1b[48;5;67m";
 /// A marked character's own name. A brighter tint of the colour its row
 /// already wears: the ground says which characters what was typed reached and
 /// the brighter name is what makes them read first. `bright` below is what
