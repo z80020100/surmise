@@ -371,19 +371,33 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
             } else {
                 (MARK, bright(c.kind))
             };
-            // The name is fitted first and a mark past the cut then lands on
-            // nothing. What was cut away is not on the row to mark.
-            let at = fuzzy::matched(m.typed, &text);
+            // The name is fitted first. A cut one ends in an ellipsis rather
+            // than in its own last character and padding is what follows a
+            // short one. `kept` is how far the row still shows the name
+            // itself and a mark or an underline past that would land on
+            // something the name does not own.
+            let fitted = fit(&text, text_w);
+            let shown: Vec<char> = fitted.chars().collect();
+            let source: Vec<char> = text.chars().collect();
+            let kept = (0..source.len())
+                .take_while(|&i| shown.get(i) == source.get(i))
+                .count();
+            let all = fuzzy::matched(m.typed, &text);
             // What Tab would add. An empty range is what a row Tab passes
             // over gets and so is a reach no further than what was typed.
-            let under = if tab_grows(c.kind, &at) {
-                at.len()..m.reach
+            // Whether Tab reads this row at all is asked of the whole match
+            // rather than of the part the row shows. Dropping a match past
+            // the cut first would leave a leading run behind and underline a
+            // row the key passes over.
+            let under = if tab_grows(c.kind, &all) {
+                all.len()..m.reach.min(kept)
             } else {
                 0..0
             };
+            let at: Vec<usize> = all.into_iter().filter(|&i| i < kept).collect();
             let off = format!("{ground}{name_fg}");
             let on = format!("{mark_fg}{mark}");
-            let name = marked(&fit(&text, text_w), &at, &under, &off, &on);
+            let name = marked(&fitted, &at, &under, &off, &on);
             let (icon, icon_fg) = glyph(c.kind, chosen);
             format!("{pad}{ground} {icon_fg}{icon} {name_fg}{name} {RESET}")
         })
@@ -940,6 +954,46 @@ mod tests {
             rows[1].contains(&format!("{SPECIAL_MARKED}{MARK}.{PANEL}{SPECIAL}")),
             "{rows:?}"
         );
+    }
+
+    #[test]
+    fn a_mark_on_the_cut_itself_is_not_drawn() {
+        // The character at the ellipsis is the one `fit` put there rather
+        // than the one that matched. `a_mark_past_the_cut_is_not_drawn` above
+        // covers a match well past the cut and this is the boundary: the `z`
+        // sits on the very cell the ellipsis takes.
+        let cut = PANEL_INNER - 3;
+        let items = vec![dir(&format!("{}z{}/", "a".repeat(cut), "a".repeat(5)))];
+        let m = menu_in(&items, 0, 24, "z", 0).expect("a menu");
+        let row = &menu_rows(&m, 80, 1, 0)[0];
+        assert!(row.contains('\u{2026}'), "the name was not cut: {row:?}");
+        assert!(!row.contains(MARK_CHOSEN), "{row:?}");
+    }
+
+    #[test]
+    fn a_row_tab_passes_over_carries_no_underline_past_the_cut() {
+        // The `z` is what this name is in the menu for and the cut took it
+        // away. Tab reads the whole match rather than the part the row shows,
+        // so the leading `a` left behind does not turn the underline on.
+        let items = vec![dir(&format!("a{}z/", "b".repeat(40))), dir("az/")];
+        let m = menu_in(&items, 1, 24, "az", 2).expect("a menu");
+        let rows = menu_rows(&m, 80, 1, 0);
+        assert!(
+            rows[0].contains('\u{2026}'),
+            "the name was not cut: {rows:?}"
+        );
+        assert_eq!(underlined(&rows[0]), "");
+    }
+
+    #[test]
+    fn an_underline_stops_at_the_cut() {
+        // Tab would reach past what the row shows. The run it underlines ends
+        // where the name the row holds does.
+        let items = vec![dir(&format!("{}/", "a".repeat(60)))];
+        let m = menu_in(&items, 0, 24, "a", 60).expect("a menu");
+        let row = &menu_rows(&m, 80, 1, 0)[0];
+        assert_eq!(cells_of_row(row) - pad_of(row), PANEL_INNER + 2);
+        assert!(!underlined(row).contains('\u{2026}'), "{row:?}");
     }
 
     #[test]
