@@ -42,7 +42,7 @@ const MARK_CHOSEN: &str = "\x1b[48;5;68m";
 /// the brighter name is what makes them read first. `bright` below is what
 /// pairs one with a row. The highlighted row has none of its own, because
 /// `NAME_CHOSEN` is already as bright as a name gets.
-const NAME_MARKED: &str = "\x1b[38;5;252m";
+const NAME_MARKED: &str = "\x1b[38;5;188m";
 const SPECIAL_MARKED: &str = "\x1b[38;5;222m";
 /// The run Tab would add to the argument. An underline rather than a ground
 /// of its own: the characters what was typed reached already carry one and a
