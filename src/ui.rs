@@ -47,6 +47,12 @@ const SPECIAL_MARKED: &str = "\x1b[38;5;222m";
 /// The run Tab would add to the argument. An underline rather than a ground
 /// of its own: the characters what was typed reached already carry one and a
 /// second ground beside it would read as another row.
+/// The line between the list and the word under it. A shade off the panel's
+/// own ground rather than a name's colour: it separates two things rather
+/// than saying anything of its own.
+const BORDER: &str = "\x1b[38;5;238m";
+/// What that line is drawn with.
+const RULE: char = '\u{2500}';
 const UNDER: &str = "\x1b[4m";
 const UNDER_OFF: &str = "\x1b[24m";
 /// Nerd Font `nf-fa-folder`. This is the glyph on a directory row and on the
@@ -148,11 +154,11 @@ fn menu_in<'a>(
         typed,
         reach,
         selected: selected.min(items.len() - 1),
-        // Four rows are left to the input line and to whatever the shell put
-        // above it.
+        // Five rows are left to the input line, to the line and the word
+        // under the list and to whatever the shell put above it.
         rows: MENU_ROWS
             .min(items.len())
-            .min(height.saturating_sub(4).max(1)),
+            .min(height.saturating_sub(5).max(1)),
     })
 }
 
@@ -410,6 +416,10 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
         foot.push_str(&" ".repeat(room));
         foot.push_str(&foot_r);
     }
+    rows.push(format!(
+        "{pad}{PANEL}{BORDER}{}{RESET}",
+        String::from(RULE).repeat(inner + 2)
+    ));
     rows.push(format!(
         "{pad}{PANEL}{FOOT}{ITALIC} {} {RESET}",
         fit(&foot, inner)
@@ -787,7 +797,7 @@ mod tests {
     #[test]
     fn a_short_terminal_shortens_the_menu() {
         let items = dirs(40);
-        assert_eq!(menu_in(&items, 0, 7, "", 0).expect("a menu").rows, 3);
+        assert_eq!(menu_in(&items, 0, 7, "", 0).expect("a menu").rows, 2);
         assert_eq!(menu_in(&items, 0, 1, "", 0).expect("a menu").rows, 1);
     }
 
@@ -854,10 +864,25 @@ mod tests {
     }
 
     #[test]
-    fn the_menu_draws_a_row_for_each_entry_and_one_footer() {
+    fn the_menu_draws_a_row_for_each_entry_and_two_under_them() {
         let items = dirs(3);
         let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
-        assert_eq!(menu_rows(&m, 80, 1, 0).len(), 4);
+        assert_eq!(menu_rows(&m, 80, 1, 0).len(), 5);
+    }
+
+    #[test]
+    fn a_line_separates_the_list_from_the_word_under_it() {
+        // It spends the panel's whole width and it is the row above the word
+        // rather than the last one.
+        let items = dirs(1);
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
+        let rows = menu_rows(&m, 80, 1, 0);
+        let rule = &rows[rows.len() - 2];
+        assert_eq!(rule.matches(RULE).count(), PANEL_INNER + 2, "{rule:?}");
+        assert!(
+            rows.last().expect("a footer").contains("folder"),
+            "{rows:?}"
+        );
     }
 
     #[test]
@@ -869,7 +894,7 @@ mod tests {
         // eighteenth under the mark. The names are read as well as the mark.
         // A panel taking the mark from the window and the names from the list
         // would agree on the mark alone.
-        assert_eq!(rows.len(), 7);
+        assert_eq!(rows.len(), 8);
         assert!(rows[0].contains("d12"), "{rows:?}");
         assert_eq!(chosen_rows(&rows), vec![5]);
     }
@@ -1265,8 +1290,8 @@ mod tests {
             .render_at(&[], &line, "", menu_in(&items, 0, 24, "", 0), 40)
             .expect("a Vec always takes a write");
         let out = String::from_utf8(buf).expect("the frame is text");
-        // One input row, two entries and a footer.
-        assert!(out.contains("\x1b[3A"), "{out:?}");
+        // One input row, two entries, the line under them and the footer.
+        assert!(out.contains("\x1b[4A"), "{out:?}");
         assert!(out.contains("d0") && out.contains("d1"), "{out:?}");
     }
 

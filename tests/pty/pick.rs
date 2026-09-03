@@ -68,8 +68,10 @@ fn opened(home: &Path, line: &str) -> Term {
 /// is the footer rather than a candidate.
 fn names(t: &Term) -> Vec<String> {
     let panel = t.panel();
-    let Some((_footer, rows)) = panel.split_last() else {
-        return Vec::new();
+    // The line and the word under the list are not names.
+    let rows = match panel.len() {
+        0..=2 => return Vec::new(),
+        n => &panel[..n - 2],
     };
     rows.iter()
         .map(|row| row.text.replace([ICON, RUN_ICON], "").trim().to_string())
@@ -182,7 +184,8 @@ fn a_bare_cd_puts_the_folder_glyph_on_every_row() {
     let f = fixture();
     let t = opened(f.path(), "cd ");
     let panel = t.panel();
-    for row in &panel[..panel.len() - 1] {
+    // The line and the word under the list carry no glyph and no name.
+    for row in &panel[..panel.len() - 2] {
         assert!(row.text.contains(ICON), "{:?}", row.text);
     }
 }
@@ -213,7 +216,7 @@ fn the_menu_underlines_what_tab_would_add() {
 #[test]
 fn the_menu_makes_its_own_room_at_the_bottom_of_the_screen() {
     // The shell has filled the screen and left its prompt on the last row.
-    // Nothing is left under the line and the menu wants seven rows. The
+    // Nothing is left under the line and the menu wants eight rows. The
     // terminal scrolls to make them rather than the menu shrinking or moving
     // above the line: what is above the line is the shell's own output and
     // surmise cannot read it back to put it there again.
