@@ -43,7 +43,10 @@ name sits under the cursor and the menu follows the cursor along the line. The
 menu is one width whatever it holds. Near the right edge it keeps that width
 and gives the alignment up. A terminal too narrow for that width is the one
 thing that shrinks it. Seven rows show at a time and a shorter list or a
-shorter terminal shows fewer. The menu holds still while the highlight has
+shorter terminal shows fewer. At the bottom of the screen the terminal
+scrolls to make the room rather than the menu moving above the line. What is
+above the line is the shell's own output and surmise cannot read it back to
+put it there again. The menu holds still while the highlight has
 somewhere to go inside it and follows the highlight one row at a time past
 that. Up on the first name and Down on the last wrap to the other end of the
 list and the menu follows in one step.

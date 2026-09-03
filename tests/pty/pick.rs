@@ -211,6 +211,28 @@ fn the_menu_underlines_what_tab_would_add() {
 }
 
 #[test]
+fn the_menu_makes_its_own_room_at_the_bottom_of_the_screen() {
+    // The shell has filled the screen and left its prompt on the last row.
+    // Nothing is left under the line and the menu wants eight rows. The
+    // terminal scrolls to make them rather than the menu shrinking or moving
+    // above the line: what is above the line is the shell's own output and
+    // surmise cannot read it back to put it there again.
+    let f = Fixture::new(&["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7"]);
+    let mut t = surmise(f.path(), "cd d", 40, 12);
+    t.shell_drew(&"\r\n".repeat(14));
+    t.shell_drew("~ > cd d");
+    assert!(t.wait_panel(WAIT), "nothing was drawn");
+    t.pump(SETTLE);
+    // Every row the menu asked for is on the screen.
+    assert_eq!(names(&t).len(), 7);
+    assert!(footer(&t).contains("1/8"), "{:?}", footer(&t));
+    assert_eq!(intact(&t.panel(), 40), Ok(()));
+    // The line the menu answers for scrolled with it and the shell's own
+    // prompt is still in front of it.
+    assert!(shown(&t).contains("~ > cd d"), "{:?}", t.lines());
+}
+
+#[test]
 fn the_menu_is_a_closed_box_at_every_width() {
     for cols in [100, 40, 30] {
         let f = fixture();
