@@ -133,34 +133,34 @@ fn the_menu_holds_still_to_its_edge_and_follows_the_highlight_past_it() {
     // the menu shows at once. The window therefore has somewhere to move and
     // this test is where it does.
     let f = Fixture::new(&["d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9"]);
-    let head = ["d1/", "d2/", "d3/", "d4/", "d5/", "d6/", "d7/"];
+    let head = ["d1/", "d2/", "d3/", "d4/", "d5/", "d6/"];
     let mut t = opened(f.path(), "cd ");
     assert_eq!(names(&t), head);
-    // Six presses put the highlight on the last row already on the screen.
-    t.send(&"\x1b[B".repeat(6));
+    // Five presses put the highlight on the last row already on the screen.
+    t.send(&"\x1b[B".repeat(5));
     t.pump(SETTLE);
     // The names alone cannot say the presses landed. The window has not moved
     // and nothing here reads which row the highlight is on. The footer's own
     // count is what says it and the claim rests on both halves.
     assert_eq!(names(&t), head, "{:?}", t.lines());
-    assert!(footer(&t).contains("7/11"), "{:?}", t.lines());
+    assert!(footer(&t).contains("6/11"), "{:?}", t.lines());
     // One more and the window follows it by a single row.
     t.send("\x1b[B");
     t.pump(SETTLE);
     assert_eq!(
         names(&t),
-        ["d2/", "d3/", "d4/", "d5/", "d6/", "d7/", "d8/"],
+        ["d2/", "d3/", "d4/", "d5/", "d6/", "d7/"],
         "{:?}",
         t.lines()
     );
-    assert!(footer(&t).contains("8/11"), "{:?}", t.lines());
-    // Three more take the highlight to the end of the list and the window
+    assert!(footer(&t).contains("7/11"), "{:?}", t.lines());
+    // Four more take the highlight to the end of the list and the window
     // with it. Up from there lands on a row the window already holds and the
     // window therefore holds still. A window read off the highlight alone
     // would step back a row here.
-    t.send(&"\x1b[B".repeat(3));
+    t.send(&"\x1b[B".repeat(4));
     t.pump(SETTLE);
-    let tail = ["d5/", "d6/", "d7/", "d8/", "d9/", "..", "~"];
+    let tail = ["d6/", "d7/", "d8/", "d9/", "..", "~"];
     assert_eq!(names(&t), tail, "{:?}", t.lines());
     assert!(footer(&t).contains("11/11"), "{:?}", t.lines());
     t.send("\x1b[A");
@@ -213,7 +213,7 @@ fn the_menu_underlines_what_tab_would_add() {
 #[test]
 fn the_menu_makes_its_own_room_at_the_bottom_of_the_screen() {
     // The shell has filled the screen and left its prompt on the last row.
-    // Nothing is left under the line and the menu wants eight rows. The
+    // Nothing is left under the line and the menu wants seven rows. The
     // terminal scrolls to make them rather than the menu shrinking or moving
     // above the line: what is above the line is the shell's own output and
     // surmise cannot read it back to put it there again.
@@ -224,7 +224,7 @@ fn the_menu_makes_its_own_room_at_the_bottom_of_the_screen() {
     assert!(t.wait_panel(WAIT), "nothing was drawn");
     t.pump(SETTLE);
     // Every row the menu asked for is on the screen.
-    assert_eq!(names(&t).len(), 7);
+    assert_eq!(names(&t).len(), 6);
     assert!(footer(&t).contains("1/8"), "{:?}", footer(&t));
     assert_eq!(intact(&t.panel(), 40), Ok(()));
     // The line the menu answers for scrolled with it and the shell's own

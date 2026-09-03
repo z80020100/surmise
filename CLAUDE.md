@@ -42,7 +42,7 @@ its own. A menu of directories opens below the line. The mark on the first
 name sits under the cursor and the menu follows the cursor along the line. The
 menu is one width whatever it holds. Near the right edge it keeps that width
 and gives the alignment up. A terminal too narrow for that width is the one
-thing that shrinks it. Seven rows show at a time and a shorter list or a
+thing that shrinks it. Six rows show at a time and a shorter list or a
 shorter terminal shows fewer. At the bottom of the screen the terminal
 scrolls to make the room rather than the menu moving above the line. What is
 above the line is the shell's own output and surmise cannot read it back to

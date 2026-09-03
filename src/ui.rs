@@ -71,7 +71,7 @@ const RUN_ICON_FG_CHOSEN: &str = "\x1b[38;5;217m";
 /// width and a name keeps the column the eye last found it in. A terminal
 /// with no room for all of it takes some back.
 const PANEL_INNER: usize = 40;
-const MENU_ROWS: usize = 7;
+const MENU_ROWS: usize = 6;
 
 /// The terminal's width. It is never fewer than 24 cells and the panel's
 /// layout arithmetic rests on that floor.
@@ -863,15 +863,15 @@ mod tests {
     #[test]
     fn the_panel_opens_on_the_window_rather_than_the_list() {
         let items = dirs(40);
-        let m = menu_in(&items, 18, 24, "", 0).expect("a menu");
+        let m = menu_in(&items, 17, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 12);
-        // A window opening on d12 draws seven names from there and puts the
-        // nineteenth under the mark. The names are read as well as the mark.
+        // A window opening on d12 draws six names from there and puts the
+        // eighteenth under the mark. The names are read as well as the mark.
         // A panel taking the mark from the window and the names from the list
         // would agree on the mark alone.
-        assert_eq!(rows.len(), 8);
+        assert_eq!(rows.len(), 7);
         assert!(rows[0].contains("d12"), "{rows:?}");
-        assert_eq!(chosen_rows(&rows), vec![6]);
+        assert_eq!(chosen_rows(&rows), vec![5]);
     }
 
     #[test]
@@ -1278,23 +1278,23 @@ mod tests {
         line.insert("cd d");
         let mut ui = Ui::new(&mut buf, 0);
         // The highlight on the last row the window shows moves nothing.
-        ui.render_at(&[], &line, "", menu_in(&items, 6, 30, "", 0), 40)
+        ui.render_at(&[], &line, "", menu_in(&items, 5, 30, "", 0), 40)
             .expect("a Vec always takes a write");
         assert_eq!(ui.top, 0);
         // One past it and the window follows by a single row.
-        ui.render_at(&[], &line, "", menu_in(&items, 7, 30, "", 0), 40)
+        ui.render_at(&[], &line, "", menu_in(&items, 6, 30, "", 0), 40)
             .expect("a Vec always takes a write");
         assert_eq!(ui.top, 1);
         // The end of the list takes the window with it.
         ui.render_at(&[], &line, "", menu_in(&items, 10, 30, "", 0), 40)
             .expect("a Vec always takes a write");
-        assert_eq!(ui.top, 4);
+        assert_eq!(ui.top, 5);
         // Back up to a row the window already holds. This is the frame the
         // field exists for: a window read off the highlight alone would jump
         // to 0 here rather than stay.
-        ui.render_at(&[], &line, "", menu_in(&items, 5, 30, "", 0), 40)
+        ui.render_at(&[], &line, "", menu_in(&items, 6, 30, "", 0), 40)
             .expect("a Vec always takes a write");
-        assert_eq!(ui.top, 4);
+        assert_eq!(ui.top, 5);
     }
 
     #[test]
