@@ -59,7 +59,7 @@ const RUN_ICON_FG_CHOSEN: &str = "\x1b[38;5;217m";
 /// measured from what the panel holds. Every panel is therefore the same
 /// width and a name keeps the column the eye last found it in. A terminal
 /// with no room for all of it takes some back.
-const PANEL_INNER: usize = 32;
+const PANEL_INNER: usize = 40;
 const MENU_ROWS: usize = 7;
 
 /// The terminal's width. It is never fewer than 24 cells and the panel's
@@ -800,8 +800,11 @@ mod tests {
         let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let width = cells_of_row(&menu_rows(&m, 80, 0, 0)[0]);
         // The cursor is far enough right that the panel would run off the end.
-        let rows = menu_rows(&m, 40, 38, 0);
-        assert_eq!(pad_of(&rows[0]) + width, 40);
+        // The terminal is measured from the panel rather than named, because a
+        // change to `PANEL_INNER` moves what counts as far enough.
+        let w = width + 10;
+        let rows = menu_rows(&m, w, w - 2, 0);
+        assert_eq!(pad_of(&rows[0]) + width, w);
         // It keeps the width it had against the left edge.
         assert_eq!(cells_of_row(&rows[0]) - pad_of(&rows[0]), width);
     }
