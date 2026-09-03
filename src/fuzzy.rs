@@ -32,6 +32,29 @@ pub(crate) fn starts_with_folded(s: &str, prefix: &str) -> bool {
     shared_bytes(prefix, s) == prefix.len()
 }
 
+/// Where each character of `n` lands in `h`, in order. `None` when it is not
+/// a subsequence. The characters of `n` are folded already and those of `h`
+/// are folded here.
+fn positions(n: &[char], h: &[char]) -> Option<Vec<usize>> {
+    let mut at = 0usize;
+    let mut out = Vec::with_capacity(n.len());
+    for &want in n {
+        let idx = (at..h.len()).find(|&i| fold(h[i]) == want)?;
+        at = idx + 1;
+        out.push(idx);
+    }
+    Some(out)
+}
+
+/// Where what was typed landed in `haystack`, as character indices. Empty
+/// when it is not a subsequence and empty for an empty needle. The menu marks
+/// these characters and it is the same walk the score is measured along.
+pub(crate) fn matched(needle: &str, haystack: &str) -> Vec<usize> {
+    let n: Vec<char> = needle.chars().map(fold).collect();
+    let h: Vec<char> = haystack.chars().collect();
+    positions(&n, &h).unwrap_or_default()
+}
+
 /// Score `needle` against `haystack`. None means it is not a subsequence. A
 /// score can go negative when the match is late in a long haystack.
 pub fn score(needle: &str, haystack: &str) -> Option<i32> {
@@ -41,13 +64,10 @@ pub fn score(needle: &str, haystack: &str) -> Option<i32> {
     let n: Vec<char> = needle.chars().map(fold).collect();
     let h: Vec<char> = haystack.chars().collect();
 
-    let mut at = 0usize;
     let mut total = 0i32;
     let mut prev: Option<usize> = None;
 
-    for &want in &n {
-        let idx = (at..h.len()).find(|&i| fold(h[i]) == want)?;
-        at = idx + 1;
+    for idx in positions(&n, &h)? {
         let mut points = 10;
         match prev {
             Some(p) if idx == p + 1 => points += 16,
@@ -67,7 +87,7 @@ pub fn score(needle: &str, haystack: &str) -> Option<i32> {
 
 #[cfg(test)]
 mod tests {
-    use super::{score, shared_bytes, starts_with_folded};
+    use super::{matched, score, shared_bytes, starts_with_folded};
 
     #[test]
     fn an_empty_needle_matches_everything() {
@@ -155,6 +175,32 @@ mod tests {
         assert!(!starts_with_folded("wo", "work/"));
         assert_eq!(shared_bytes("日本語", "日本"), 6);
         assert_eq!(shared_bytes("Work/", "worse/"), 3);
+    }
+
+    #[test]
+    fn a_match_says_where_each_character_landed() {
+        assert_eq!(matched("wk", "work"), [0, 3]);
+        assert_eq!(matched("work", "work"), [0, 1, 2, 3]);
+        assert_eq!(matched("W", "work"), [0]);
+    }
+
+    #[test]
+    fn nothing_typed_and_nothing_matched_both_mark_nothing() {
+        assert!(matched("", "work").is_empty());
+        assert!(matched("z", "work").is_empty());
+    }
+
+    #[test]
+    fn a_position_counts_characters_rather_than_bytes() {
+        assert_eq!(matched("w", "\u{65e5}\u{672c}work"), [2]);
+    }
+
+    #[test]
+    fn a_match_takes_the_first_character_that_will_serve() {
+        // The walk is greedy and the score is measured along this same one. A
+        // mark anywhere else would say the row scored other than it did.
+        assert_eq!(matched("o", "work"), [1]);
+        assert_eq!(matched("ok", "oook"), [0, 3]);
     }
 
     #[test]

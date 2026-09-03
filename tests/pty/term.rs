@@ -263,6 +263,27 @@ impl Term {
             })
             .collect()
     }
+
+    /// The characters in one panel row that carry a ground of their own.
+    ///
+    /// `at` counts the painted rows rather than the screen's. The row's first
+    /// cell carries the row's own ground and a mark is a cell that differs
+    /// from it. Reading the colour is the only way to see a mark: the
+    /// character under it is the same character either way.
+    pub fn marks(&self, at: usize) -> String {
+        let screen = self.parser.screen();
+        let panel = self.panel();
+        let Some(p) = panel.get(at) else {
+            return String::new();
+        };
+        let bg = |col| screen.cell(p.row, col).map(vt100::Cell::bgcolor);
+        let ground = bg(p.lo);
+        (p.lo..=p.hi)
+            .filter(|&col| bg(col) != ground)
+            .filter_map(|col| screen.cell(p.row, col))
+            .map(vt100::Cell::contents)
+            .collect()
+    }
 }
 
 impl Drop for Term {

@@ -126,14 +126,26 @@ pub(crate) fn run_row(insert: String) -> Candidate {
     }
 }
 
-fn path_mode(arg: &str, cwd: &Path) -> Vec<Candidate> {
-    let (prefix, base) = match arg.rfind('/') {
+/// The directory an argument names and what was typed into it. Everything up
+/// to the last `/` is the first and the rest is the second.
+fn split(arg: &str) -> (&str, &str) {
+    match arg.rfind('/') {
         Some(i) => (&arg[..=i], &arg[i + 1..]),
         // A bare `~` is a whole directory rather than the start of a name in
         // this one. Nothing in the current directory is what it means.
         None if arg == "~" => ("~/", ""),
         None => ("", arg),
-    };
+    }
+}
+
+/// What a name in the menu was matched against. The menu marks the characters
+/// this reached and the two modes below both match on it.
+pub fn typed(arg: &str) -> &str {
+    split(arg).1
+}
+
+fn path_mode(arg: &str, cwd: &Path) -> Vec<Candidate> {
+    let (prefix, base) = split(arg);
     // A relative prefix hangs off the directory the caller named. Resolving it
     // against the process directory instead would answer for the wrong place.
     let dir = if prefix.is_empty() {
@@ -244,6 +256,17 @@ pub(crate) fn generate_in(arg: &str, cwd: &Path) -> Vec<Candidate> {
 mod tests {
     use super::*;
     use crate::fixture::Fixture;
+
+    #[test]
+    fn what_was_typed_is_the_part_past_the_last_slash() {
+        assert_eq!(typed("wo"), "wo");
+        assert_eq!(typed("work/al"), "al");
+        assert_eq!(typed("work/"), "");
+        // A bare tilde is a whole directory rather than a name in this one.
+        // Nothing was typed into it.
+        assert_eq!(typed("~"), "");
+        assert_eq!(typed("~/pro"), "pro");
+    }
 
     fn displays(items: &[Candidate]) -> Vec<&str> {
         items.iter().map(|c| c.display.as_str()).collect()

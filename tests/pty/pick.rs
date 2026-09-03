@@ -188,6 +188,18 @@ fn a_bare_cd_puts_the_folder_glyph_on_every_row() {
 }
 
 #[test]
+fn the_menu_marks_what_the_argument_reached() {
+    let f = fixture();
+    let t = opened(f.path(), "cd wk");
+    // `work/` is a match that does not lead with what was typed. The marks
+    // are what say how it got into the menu.
+    assert_eq!(names(&t), ["work/"]);
+    assert_eq!(t.marks(0), "wk");
+    // The footer is a row of its own and carries nothing to mark.
+    assert_eq!(t.marks(1), "");
+}
+
+#[test]
 fn the_menu_is_a_closed_box_at_every_width() {
     for cols in [100, 40, 30] {
         let f = fixture();

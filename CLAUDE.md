@@ -92,6 +92,10 @@ not. `cd wk` reaching `work/` is a match Enter takes. Right leaves it: that
 key wants a name leading with what you typed, whatever case either is in. It
 is not a match Tab can build a prefix from either.
 
+Every name marks the characters what you typed reached. The `w` and the `k`
+carry a ground of their own in that row and the `or` between them does not.
+That is what says how a name got into the menu.
+
 Everything else is ordinary line editing. Left, Home, End, Backspace, Delete
 and Ctrl-A, Ctrl-E, Ctrl-U and Ctrl-K all do what they do in the shell. Ctrl-W
 takes back one path segment where the shell would take the whole path.

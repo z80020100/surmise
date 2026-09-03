@@ -104,6 +104,18 @@ impl App {
         (tail.is_empty() || tail.starts_with(char::is_whitespace)).then_some(q)
     }
 
+    /// What was typed into the directory the rows come from. The menu marks
+    /// the characters this reached in each name.
+    ///
+    /// Empty once the cursor has moved off the argument. The rows are still
+    /// the ones that word reached and the menu no longer answers for it.
+    pub fn typed(&self) -> String {
+        let Some(q) = self.arg() else {
+            return String::new();
+        };
+        candidates::typed(&shellword::unquote(&q.arg)).to_string()
+    }
+
     /// What the prediction would add to the line, drawn dim after the cursor.
     ///
     /// The match is case-exact here where everything else folds. A dim tail

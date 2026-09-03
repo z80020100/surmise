@@ -93,9 +93,10 @@ pub fn run(seed: &str) -> io::Result<u8> {
 
     let outcome = loop {
         // `App` decides whether the menu shows. `ui` only sizes it.
+        let typed = app.typed();
         let menu = app
             .menu_open()
-            .then(|| ui::menu(&app.items, app.selected))
+            .then(|| ui::menu(&app.items, app.selected, &typed))
             .flatten();
         ui.render(&head, &app.line, &app.ghost(), menu)?;
 
