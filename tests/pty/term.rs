@@ -264,25 +264,38 @@ impl Term {
             .collect()
     }
 
-    /// The characters in one panel row that carry a ground of their own.
+    /// The characters in one panel row that `want` picks out.
     ///
-    /// `at` counts the painted rows rather than the screen's. The row's first
-    /// cell carries the row's own ground and a mark is a cell that differs
-    /// from it. Reading the colour is the only way to see a mark: the
-    /// character under it is the same character either way.
-    pub fn marks(&self, at: usize) -> String {
+    /// `at` counts the painted rows rather than the screen's. `want` reads a
+    /// cell against the row's own first one, which carries whatever that row
+    /// draws its plain text with.
+    fn picked(&self, at: usize, want: impl Fn(&vt100::Cell, &vt100::Cell) -> bool) -> String {
         let screen = self.parser.screen();
         let panel = self.panel();
         let Some(p) = panel.get(at) else {
             return String::new();
         };
-        let bg = |col| screen.cell(p.row, col).map(vt100::Cell::bgcolor);
-        let ground = bg(p.lo);
+        let Some(plain) = screen.cell(p.row, p.lo) else {
+            return String::new();
+        };
         (p.lo..=p.hi)
-            .filter(|&col| bg(col) != ground)
             .filter_map(|col| screen.cell(p.row, col))
+            .filter(|&c| want(c, plain))
             .map(vt100::Cell::contents)
             .collect()
+    }
+
+    /// The characters in one panel row that carry a ground of their own.
+    ///
+    /// Reading the colour is the only way to see a mark: the character under
+    /// it is the same character either way.
+    pub fn marks(&self, at: usize) -> String {
+        self.picked(at, |c, plain| c.bgcolor() != plain.bgcolor())
+    }
+
+    /// The underlined characters in one panel row.
+    pub fn underlined(&self, at: usize) -> String {
+        self.picked(at, |c, _| c.underline())
     }
 }
 

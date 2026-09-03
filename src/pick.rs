@@ -96,7 +96,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
         let typed = app.typed();
         let menu = app
             .menu_open()
-            .then(|| ui::menu(&app.items, app.selected, &typed))
+            .then(|| ui::menu(&app.items, app.selected, &typed, app.reach()))
             .flatten();
         ui.render(&head, &app.line, &app.ghost(), menu)?;
 

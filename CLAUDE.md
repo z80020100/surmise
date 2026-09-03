@@ -96,6 +96,11 @@ Every name marks the characters what you typed reached. The `w` and the `k`
 carry a ground of their own in that row and the `or` between them does not.
 That is what says how a name got into the menu.
 
+What Tab would add is underlined in every row it would add it to. The rows
+Tab passes over carry no underline and neither does a line Tab would leave
+alone. The key and the underline read one answer and the menu therefore
+cannot promise what the key will not do.
+
 Everything else is ordinary line editing. Left, Home, End, Backspace, Delete
 and Ctrl-A, Ctrl-E, Ctrl-U and Ctrl-K all do what they do in the shell. Ctrl-W
 takes back one path segment where the shell would take the whole path.

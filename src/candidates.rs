@@ -127,8 +127,10 @@ pub(crate) fn run_row(insert: String) -> Candidate {
 }
 
 /// The directory an argument names and what was typed into it. Everything up
-/// to the last `/` is the first and the rest is the second.
-fn split(arg: &str) -> (&str, &str) {
+/// to the last `/` is the first and the rest is the second. The menu marks
+/// the characters the second reached and the two modes below both match on
+/// it.
+pub fn split(arg: &str) -> (&str, &str) {
     match arg.rfind('/') {
         Some(i) => (&arg[..=i], &arg[i + 1..]),
         // A bare `~` is a whole directory rather than the start of a name in
@@ -136,12 +138,6 @@ fn split(arg: &str) -> (&str, &str) {
         None if arg == "~" => ("~/", ""),
         None => ("", arg),
     }
-}
-
-/// What a name in the menu was matched against. The menu marks the characters
-/// this reached and the two modes below both match on it.
-pub fn typed(arg: &str) -> &str {
-    split(arg).1
 }
 
 fn path_mode(arg: &str, cwd: &Path) -> Vec<Candidate> {
@@ -258,14 +254,14 @@ mod tests {
     use crate::fixture::Fixture;
 
     #[test]
-    fn what_was_typed_is_the_part_past_the_last_slash() {
-        assert_eq!(typed("wo"), "wo");
-        assert_eq!(typed("work/al"), "al");
-        assert_eq!(typed("work/"), "");
+    fn an_argument_splits_at_the_last_slash() {
+        assert_eq!(split("wo"), ("", "wo"));
+        assert_eq!(split("work/al"), ("work/", "al"));
+        assert_eq!(split("work/"), ("work/", ""));
         // A bare tilde is a whole directory rather than a name in this one.
         // Nothing was typed into it.
-        assert_eq!(typed("~"), "");
-        assert_eq!(typed("~/pro"), "pro");
+        assert_eq!(split("~"), ("~/", ""));
+        assert_eq!(split("~/pro"), ("~/", "pro"));
     }
 
     fn displays(items: &[Candidate]) -> Vec<&str> {

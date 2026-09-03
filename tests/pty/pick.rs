@@ -200,6 +200,17 @@ fn the_menu_marks_what_the_argument_reached() {
 }
 
 #[test]
+fn the_menu_underlines_what_tab_would_add() {
+    let f = fixture();
+    let t = opened(f.path(), "cd wo");
+    // One row leads with what was typed and Tab would take the whole of it.
+    // The marks say what was typed and the underline says what the key adds.
+    assert_eq!(names(&t), ["work/"]);
+    assert_eq!(t.marks(0), "wo");
+    assert_eq!(t.underlined(0), "rk/");
+}
+
+#[test]
 fn the_menu_is_a_closed_box_at_every_width() {
     for cols in [100, 40, 30] {
         let f = fixture();

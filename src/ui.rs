@@ -11,6 +11,7 @@ use crate::candidates::{Candidate, Kind};
 use crate::fuzzy;
 use crate::line::Line;
 use std::io::{self, Write};
+use std::ops::Range;
 use unicode_width::UnicodeWidthStr;
 
 pub const DIM: &str = "\x1b[2m";
@@ -32,6 +33,11 @@ const MARK: &str = "\x1b[48;5;58m";
 /// The same on the highlighted row. That row's ground is a blue the olive
 /// disappears into and a lighter tint of that blue takes over.
 const MARK_CHOSEN: &str = "\x1b[48;5;68m";
+/// The run Tab would add to the argument. An underline rather than a ground
+/// of its own: the characters what was typed reached already carry one and a
+/// second ground beside it would read as another row.
+const UNDER: &str = "\x1b[4m";
+const UNDER_OFF: &str = "\x1b[24m";
 /// Nerd Font `nf-fa-folder`. This is the glyph on a directory row and on the
 /// two places every shell can go from anywhere. `RUN_ICON` below is the other
 /// one. A terminal without a patched font draws a blank box here.
@@ -97,15 +103,23 @@ pub struct Menu<'a> {
     /// What the rows were matched against. The characters it reached in a name
     /// carry a ground of their own.
     typed: &'a str,
+    /// How many characters of a name Tab would leave on the line. The run of
+    /// that past what was typed is underlined.
+    reach: usize,
 }
 
 /// Build the menu for a candidate list and size it to the terminal. `None`
 /// means there is nothing to show. The column the panel hangs from and the
 /// item it opens on are the renderer's to decide and `menu_rows` takes both.
-/// `typed` is not one of those: the caller is what knows what the rows
-/// answered.
-pub fn menu<'a>(items: &'a [Candidate], selected: usize, typed: &'a str) -> Option<Menu<'a>> {
-    menu_in(items, selected, height(), typed)
+/// `typed` and `reach` are not: the caller is what knows what the rows
+/// answered and what a key would take from them.
+pub fn menu<'a>(
+    items: &'a [Candidate],
+    selected: usize,
+    typed: &'a str,
+    reach: usize,
+) -> Option<Menu<'a>> {
+    menu_in(items, selected, height(), typed, reach)
 }
 
 fn menu_in<'a>(
@@ -113,6 +127,7 @@ fn menu_in<'a>(
     selected: usize,
     height: usize,
     typed: &'a str,
+    reach: usize,
 ) -> Option<Menu<'a>> {
     if items.is_empty() {
         return None;
@@ -120,6 +135,7 @@ fn menu_in<'a>(
     Some(Menu {
         items,
         typed,
+        reach,
         selected: selected.min(items.len() - 1),
         // Four rows are left to the input line and to whatever the shell put
         // above it.
@@ -250,18 +266,39 @@ fn glyph(k: Kind, chosen: bool) -> (&'static str, &'static str) {
     }
 }
 
-/// `name` with the characters at `at` on a ground of their own. Each mark
-/// hands the row's own `ground` back, because a colour code ends the run it
-/// opened rather than the row.
-fn marked(name: &str, at: &[usize], ground: &str, mark: &str) -> String {
+/// Whether Tab would grow this row's name. `common` reads the menu the same
+/// way and the underline therefore covers what the key would take.
+fn tab_grows(k: Kind, at: &[usize]) -> bool {
+    match k {
+        // The row that runs the line grows nothing and the two places every
+        // shell can go from anywhere are not names Tab reads.
+        Kind::Run | Kind::Special => false,
+        // A match is a subsequence. Only a name whose match is the front of it
+        // can take a prefix the menu agreed on.
+        Kind::Dir => at.iter().enumerate().all(|(i, &j)| i == j),
+    }
+}
+
+/// `name` with the characters at `at` on a ground of their own and the run at
+/// `under` underlined. Each one hands back what the row had, because a code
+/// ends the run it opened rather than the row.
+fn marked(name: &str, at: &[usize], under: &Range<usize>, ground: &str, mark: &str) -> String {
     let mut out = String::new();
     for (i, c) in name.chars().enumerate() {
-        if at.contains(&i) {
+        let ground_of_its_own = at.contains(&i);
+        let underlined = under.contains(&i);
+        if ground_of_its_own {
             out.push_str(mark);
-            out.push(c);
+        }
+        if underlined {
+            out.push_str(UNDER);
+        }
+        out.push(c);
+        if underlined {
+            out.push_str(UNDER_OFF);
+        }
+        if ground_of_its_own {
             out.push_str(ground);
-        } else {
-            out.push(c);
         }
     }
     out
@@ -309,7 +346,14 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
             // nothing. What was cut away is not on the row to mark.
             let at = fuzzy::matched(m.typed, &text);
             let mark = if chosen { MARK_CHOSEN } else { MARK };
-            let name = marked(&fit(&text, text_w), &at, ground, mark);
+            // What Tab would add. An empty range is what a row Tab passes
+            // over gets and so is a reach no further than what was typed.
+            let under = if tab_grows(c.kind, &at) {
+                at.len()..m.reach
+            } else {
+                0..0
+            };
+            let name = marked(&fit(&text, text_w), &at, &under, ground, mark);
             let (icon, icon_fg) = glyph(c.kind, chosen);
             format!("{pad}{ground} {icon_fg}{icon} {name_fg}{name} {RESET}")
         })
@@ -658,26 +702,29 @@ mod tests {
 
     #[test]
     fn an_empty_list_has_no_menu() {
-        assert!(menu_in(&[], 0, 24, "").is_none());
+        assert!(menu_in(&[], 0, 24, "", 0).is_none());
     }
 
     #[test]
     fn a_selection_past_the_end_is_pulled_back() {
         let items = dirs(3);
-        assert_eq!(menu_in(&items, 99, 24, "").expect("a menu").selected, 2);
+        assert_eq!(menu_in(&items, 99, 24, "", 0).expect("a menu").selected, 2);
     }
 
     #[test]
     fn the_menu_never_grows_past_its_own_cap() {
         let items = dirs(40);
-        assert_eq!(menu_in(&items, 0, 40, "").expect("a menu").rows, MENU_ROWS);
+        assert_eq!(
+            menu_in(&items, 0, 40, "", 0).expect("a menu").rows,
+            MENU_ROWS
+        );
     }
 
     #[test]
     fn a_short_terminal_shortens_the_menu() {
         let items = dirs(40);
-        assert_eq!(menu_in(&items, 0, 7, "").expect("a menu").rows, 3);
-        assert_eq!(menu_in(&items, 0, 1, "").expect("a menu").rows, 1);
+        assert_eq!(menu_in(&items, 0, 7, "", 0).expect("a menu").rows, 3);
+        assert_eq!(menu_in(&items, 0, 1, "", 0).expect("a menu").rows, 1);
     }
 
     /// Cells of empty space in front of a panel row.
@@ -703,10 +750,26 @@ mod tests {
             .collect()
     }
 
+    /// The underlined characters of `row`.
+    fn underlined(row: &str) -> String {
+        marks(row, UNDER)
+    }
+
+    /// One of the two places every shell can go from anywhere.
+    fn special(display: &str) -> Candidate {
+        Candidate {
+            display: display.to_string(),
+            insert: format!("{display}/"),
+            label: "parent",
+            kind: Kind::Special,
+            score: 0,
+        }
+    }
+
     #[test]
     fn the_panel_starts_one_column_before_the_cursor() {
         let items = dirs(1);
-        let m = menu_in(&items, 0, 24, "").expect("a menu");
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         assert_eq!(pad_of(&menu_rows(&m, 80, 10, 0)[0]), 9);
         assert_eq!(pad_of(&menu_rows(&m, 80, 0, 0)[0]), 0);
     }
@@ -714,7 +777,7 @@ mod tests {
     #[test]
     fn the_panel_slides_left_of_a_cursor_near_the_edge() {
         let items = dirs(1);
-        let m = menu_in(&items, 0, 24, "").expect("a menu");
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let width = cells_of_row(&menu_rows(&m, 80, 0, 0)[0]);
         // The cursor is far enough right that the panel would run off the end.
         let rows = menu_rows(&m, 40, 38, 0);
@@ -726,14 +789,14 @@ mod tests {
     #[test]
     fn the_menu_draws_a_row_for_each_entry_and_one_footer() {
         let items = dirs(3);
-        let m = menu_in(&items, 0, 24, "").expect("a menu");
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         assert_eq!(menu_rows(&m, 80, 1, 0).len(), 4);
     }
 
     #[test]
     fn the_panel_opens_on_the_window_rather_than_the_list() {
         let items = dirs(40);
-        let m = menu_in(&items, 18, 24, "").expect("a menu");
+        let m = menu_in(&items, 18, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 12);
         // A window opening on d12 draws seven names from there and puts the
         // nineteenth under the mark. The names are read as well as the mark.
@@ -747,7 +810,7 @@ mod tests {
     #[test]
     fn the_footer_carries_the_position_in_the_list() {
         let items = dirs(3);
-        let m = menu_in(&items, 1, 24, "").expect("a menu");
+        let m = menu_in(&items, 1, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         assert!(rows.last().expect("a footer").contains("2/3"));
     }
@@ -755,14 +818,14 @@ mod tests {
     #[test]
     fn one_row_is_drawn_as_chosen_and_it_is_the_selected_one() {
         let items = dirs(3);
-        let m = menu_in(&items, 1, 24, "").expect("a menu");
+        let m = menu_in(&items, 1, 24, "", 0).expect("a menu");
         assert_eq!(chosen_rows(&menu_rows(&m, 80, 1, 0)), vec![1]);
     }
 
     #[test]
     fn the_characters_what_was_typed_reached_are_marked() {
         let items = vec![dir("work/")];
-        let m = menu_in(&items, 0, 24, "wk").expect("a menu");
+        let m = menu_in(&items, 0, 24, "wk", 0).expect("a menu");
         assert_eq!(marks(&menu_rows(&m, 80, 1, 0)[0], MARK_CHOSEN), "wk");
     }
 
@@ -772,7 +835,7 @@ mod tests {
         // row has a ground of its own. Neither name leads with what was typed
         // in the second row's case.
         let items = vec![dir("alpha/"), dir("beta/")];
-        let m = menu_in(&items, 0, 24, "a").expect("a menu");
+        let m = menu_in(&items, 0, 24, "a", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         assert_eq!(marks(&rows[0], MARK_CHOSEN), "a");
         assert_eq!(marks(&rows[1], MARK), "a");
@@ -781,7 +844,7 @@ mod tests {
     #[test]
     fn nothing_typed_marks_nothing() {
         let items = dirs(2);
-        let m = menu_in(&items, 0, 24, "").expect("a menu");
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         for row in menu_rows(&m, 80, 1, 0) {
             assert!(!row.contains(MARK), "{row:?}");
             assert!(!row.contains(MARK_CHOSEN), "{row:?}");
@@ -793,7 +856,7 @@ mod tests {
         // The row that runs the line carries no name. Nothing there answered
         // what was typed and nothing there is marked.
         let items = vec![run_row("work".into()), dir("work/")];
-        let m = menu_in(&items, 1, 24, "wo").expect("a menu");
+        let m = menu_in(&items, 1, 24, "wo", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         assert!(!rows[0].contains(MARK), "{rows:?}");
         assert_eq!(marks(&rows[1], MARK_CHOSEN), "wo");
@@ -804,19 +867,63 @@ mod tests {
         // `fit` cut this name down. A mark on a character the row no longer
         // holds would land on whatever took its place.
         let items = vec![dir(&format!("{}z/", "a".repeat(60)))];
-        let m = menu_in(&items, 0, 24, "z").expect("a menu");
+        let m = menu_in(&items, 0, 24, "z", 0).expect("a menu");
         let row = &menu_rows(&m, 80, 1, 0)[0];
         assert!(!row.contains(MARK_CHOSEN), "{row:?}");
     }
 
     #[test]
-    fn the_marks_leave_the_width_alone() {
+    fn the_run_tab_would_add_is_underlined() {
+        // Two characters are typed and the three the rows share reach one
+        // past them.
+        let items = vec![dir("work/"), dir("worse/")];
+        let m = menu_in(&items, 0, 24, "wo", 3).expect("a menu");
+        let rows = menu_rows(&m, 80, 1, 0);
+        assert_eq!(underlined(&rows[0]), "r");
+        assert_eq!(underlined(&rows[1]), "r");
+    }
+
+    #[test]
+    fn a_row_tab_passes_over_carries_no_underline() {
+        // `beta/` holds an `a` and is in the menu for it. It does not lead
+        // with what was typed and Tab reads the rows that do.
+        let items = vec![dir("alpha/"), dir("beta/")];
+        let m = menu_in(&items, 0, 24, "a", 2).expect("a menu");
+        let rows = menu_rows(&m, 80, 1, 0);
+        assert_eq!(underlined(&rows[0]), "l");
+        assert_eq!(underlined(&rows[1]), "");
+    }
+
+    #[test]
+    fn a_row_that_is_not_a_name_carries_no_underline() {
+        // Nothing is typed and every name leads with that. The row that runs
+        // the line and the two places every shell can go from anywhere are
+        // still not names Tab reads.
+        let items = vec![run_row("x".into()), dir("work/"), special("..")];
+        let m = menu_in(&items, 1, 24, "", 1).expect("a menu");
+        let rows = menu_rows(&m, 80, 1, 0);
+        assert_eq!(underlined(&rows[0]), "");
+        assert_eq!(underlined(&rows[1]), "w");
+        assert_eq!(underlined(&rows[2]), "");
+    }
+
+    #[test]
+    fn a_reach_no_further_than_what_was_typed_underlines_nothing() {
+        // Tab has nothing to add here. The run would start past its own end
+        // and an empty one is what that has to draw.
         let items = vec![dir("work/")];
-        let plain = menu_in(&items, 0, 24, "").expect("a menu");
-        let marked = menu_in(&items, 0, 24, "wk").expect("a menu");
+        let m = menu_in(&items, 0, 24, "work/", 5).expect("a menu");
+        assert_eq!(underlined(&menu_rows(&m, 80, 1, 0)[0]), "");
+    }
+
+    #[test]
+    fn a_mark_and_an_underline_leave_the_width_alone() {
+        let items = vec![dir("work/")];
+        let plain = menu_in(&items, 0, 24, "", 0).expect("a menu");
+        let picked = menu_in(&items, 0, 24, "wo", 5).expect("a menu");
         assert_eq!(
             cells_of_row(&menu_rows(&plain, 80, 1, 0)[0]),
-            cells_of_row(&menu_rows(&marked, 80, 1, 0)[0])
+            cells_of_row(&menu_rows(&picked, 80, 1, 0)[0])
         );
     }
 
@@ -825,7 +932,7 @@ mod tests {
         // A short name does not shrink the panel and a long one does not grow
         // it. The test below is where the terminal takes the width back.
         for items in [vec![dir("a")], vec![dir(&"n".repeat(60))]] {
-            let m = menu_in(&items, 0, 24, "").expect("a menu");
+            let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
             let row = &menu_rows(&m, 80, 5, 0)[0];
             assert_eq!(cells_of_row(row) - pad_of(row), PANEL_INNER + 2);
         }
@@ -837,7 +944,7 @@ mod tests {
         // whole terminal and still has a name column.
         let w = 24;
         let items = dirs(1);
-        let m = menu_in(&items, 0, 24, "").expect("a menu");
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let row = &menu_rows(&m, w, 1, 0)[0];
         assert_eq!(cells_of_row(row), w);
         assert!(row.contains("d0"), "{row:?}");
@@ -846,7 +953,7 @@ mod tests {
     #[test]
     fn every_menu_row_is_the_same_width() {
         let items = vec![dir("short"), dir("a-much-longer-directory-name")];
-        let m = menu_in(&items, 0, 24, "").expect("a menu");
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let widths: Vec<usize> = menu_rows(&m, 80, 5, 0)
             .iter()
             .map(|r| cells_of_row(r))
@@ -864,7 +971,7 @@ mod tests {
     #[test]
     fn an_escape_in_a_directory_name_is_dropped_from_the_panel() {
         let items = vec![dir("\x1b[31mred")];
-        let m = menu_in(&items, 0, 24, "").expect("a menu");
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         let row = rows.first().expect("a row");
         assert!(row.contains("[31mred"), "{row:?}");
@@ -901,7 +1008,7 @@ mod tests {
     #[test]
     fn the_glyph_on_the_highlighted_row_is_not_the_name_colour() {
         let items = vec![dir("alpha/")];
-        let m = menu_in(&items, 0, 24, "").expect("a menu");
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let row = menu_rows(&m, 80, 1, 0).first().expect("a row").clone();
         // The glyph carries its own colour and the name names the ground's
         // bright one again behind it.
@@ -913,7 +1020,7 @@ mod tests {
     #[test]
     fn the_row_that_runs_the_line_holds_no_name() {
         let items = vec![run_row("work/".to_string()), dir("alpha/")];
-        let m = menu_in(&items, 0, 24, "").expect("a menu");
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         let row = rows.first().expect("a row");
         assert!(row.contains(RUN_ICON), "{row:?}");
@@ -951,7 +1058,7 @@ mod tests {
     #[test]
     fn a_terminal_too_narrow_for_a_panel_gets_none() {
         let items = dirs(3);
-        let m = menu_in(&items, 0, 24, "").expect("a menu");
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         assert!(menu_rows(&m, 3, 1, 0).is_empty());
     }
 
@@ -1000,7 +1107,7 @@ mod tests {
         let mut line = Line::new();
         line.insert("cd d");
         Ui::new(&mut buf, 0)
-            .render_at(&[], &line, "", menu_in(&items, 0, 24, ""), 40)
+            .render_at(&[], &line, "", menu_in(&items, 0, 24, "", 0), 40)
             .expect("a Vec always takes a write");
         let out = String::from_utf8(buf).expect("the frame is text");
         // One input row, two entries and a footer.
@@ -1016,21 +1123,21 @@ mod tests {
         line.insert("cd d");
         let mut ui = Ui::new(&mut buf, 0);
         // The highlight on the last row the window shows moves nothing.
-        ui.render_at(&[], &line, "", menu_in(&items, 6, 30, ""), 40)
+        ui.render_at(&[], &line, "", menu_in(&items, 6, 30, "", 0), 40)
             .expect("a Vec always takes a write");
         assert_eq!(ui.top, 0);
         // One past it and the window follows by a single row.
-        ui.render_at(&[], &line, "", menu_in(&items, 7, 30, ""), 40)
+        ui.render_at(&[], &line, "", menu_in(&items, 7, 30, "", 0), 40)
             .expect("a Vec always takes a write");
         assert_eq!(ui.top, 1);
         // The end of the list takes the window with it.
-        ui.render_at(&[], &line, "", menu_in(&items, 10, 30, ""), 40)
+        ui.render_at(&[], &line, "", menu_in(&items, 10, 30, "", 0), 40)
             .expect("a Vec always takes a write");
         assert_eq!(ui.top, 4);
         // Back up to a row the window already holds. This is the frame the
         // field exists for: a window read off the highlight alone would jump
         // to 0 here rather than stay.
-        ui.render_at(&[], &line, "", menu_in(&items, 5, 30, ""), 40)
+        ui.render_at(&[], &line, "", menu_in(&items, 5, 30, "", 0), 40)
             .expect("a Vec always takes a write");
         assert_eq!(ui.top, 4);
     }

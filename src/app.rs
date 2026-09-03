@@ -35,6 +35,33 @@ fn quote_insert(s: &str) -> String {
     }
 }
 
+/// What Tab would do to the line.
+struct Common {
+    /// Byte offset in the line where the argument starts.
+    start: usize,
+    /// The name the argument would spell. It is unquoted and `accept_common`
+    /// is what quotes it.
+    name: String,
+    /// How many characters of a row's own name `name` covers. The menu
+    /// underlines the run of that past what was typed.
+    reach: usize,
+}
+
+impl Common {
+    /// `name` in place of the argument that starts at `start`. The reach is
+    /// what is left of `name` once the directory the rows come from is taken
+    /// off the front of it. Every row draws that directory's children and the
+    /// name each one holds is the part the reach is measured in.
+    fn new(start: usize, name: String, arg: &str) -> Common {
+        let dir = candidates::split(arg).0.chars().count();
+        Common {
+            reach: name.chars().count().saturating_sub(dir),
+            start,
+            name,
+        }
+    }
+}
+
 impl App {
     pub fn new(cwd: PathBuf) -> App {
         App {
@@ -113,7 +140,8 @@ impl App {
         let Some(q) = self.arg() else {
             return String::new();
         };
-        candidates::typed(&shellword::unquote(&q.arg)).to_string()
+        let arg = shellword::unquote(&q.arg);
+        candidates::split(&arg).1.to_string()
     }
 
     /// What the prediction would add to the line, drawn dim after the cursor.
@@ -192,44 +220,48 @@ impl App {
         true
     }
 
-    /// Take the prefix the directory rows in the menu share.
+    /// How far into a row's own name Tab would reach. 0 when Tab would leave
+    /// the line alone.
+    ///
+    /// The menu underlines the run past what was typed. The key and the
+    /// underline read the same answer and the line therefore cannot promise
+    /// what the key will not do.
+    pub fn reach(&self) -> usize {
+        self.common().map_or(0, |c| c.reach)
+    }
+
+    /// The name Tab would leave the argument spelling. `None` when Tab would
+    /// leave the line alone.
     ///
     /// Tab offers what the menu agrees on rather than the row under the
     /// highlight and where the highlight sits does not change the answer. One
     /// row that leads with what was typed goes in whole. A prefix that adds
     /// nothing to the line leaves it alone.
-    pub fn accept_common(&mut self) {
+    fn common(&self) -> Option<Common> {
         if !self.menu_open() {
-            return;
+            return None;
         }
-        let Some(q) = self.arg() else {
-            return;
-        };
-        let start = q.start;
+        let q = self.arg()?;
         let quoted = q.arg.starts_with(['\'', '"']);
         let arg = shellword::unquote(&q.arg);
         // A match is a subsequence and need not lead with what was typed. Only
         // the rows that do can agree on something to add to it. The row that
         // runs the line offers the argument back unchanged and the two places
         // every shell can go from anywhere are not names either.
-        let agreeing: Vec<String> = self
+        let agreeing: Vec<&str> = self
             .items
             .iter()
             .filter(|c| c.kind == Kind::Dir && starts_with_folded(&c.insert, &arg))
-            .map(|c| c.insert.clone())
+            .map(|c| c.insert.as_str())
             .collect();
         // The count is measured in `head` throughout. What was typed can be a
         // different length from the name it reaches.
         let (head, keep) = match agreeing.as_slice() {
-            [] => return,
+            [] => return None,
             // One row has nothing to disagree with. `quote_insert` closes a
             // quote behind a whole name and this row therefore goes in inside
             // one too.
-            [one] => {
-                let whole = quote_insert(one);
-                self.replace_arg(start, &whole);
-                return;
-            }
+            [one] => return Some(Common::new(q.start, (*one).to_string(), &arg)),
             [head, rest @ ..] => (
                 head,
                 rest.iter().fold(head.len(), |keep, other| {
@@ -239,26 +271,26 @@ impl App {
         };
         // Half a name cannot carry the quote that closes it.
         if quoted {
-            return;
+            return None;
         }
         // Two names that fold together share the whole of one of them. A
         // prefix that is a complete name is not a prefix and the menu has not
         // said which of the two it means.
         if keep == head.len() {
-            return;
+            return None;
         }
         let prefix = &head[..keep];
         // The count was measured with the case set aside and the rows can
         // spell that span differently. A spelling only one of them carries is
         // not what they agreed on.
         if agreeing.iter().any(|other| !other.starts_with(prefix)) {
-            return;
+            return None;
         }
         // Nothing left to add. The comparison is on the bytes rather than on
         // the count, because a prefix that only corrects the case of what was
         // typed is still something to add.
         if prefix == arg {
-            return;
+            return None;
         }
         // A word the shell would not read as a single literal. `quote_insert`
         // is the quoting `accept` would apply and a prefix it would quote is
@@ -266,9 +298,18 @@ impl App {
         // string it leaves alone for the home row's sake rather than for half
         // a name. Half a name is what this is.
         if prefix == "~" || quote_insert(prefix) != prefix {
-            return;
+            return None;
         }
-        self.replace_arg(start, prefix);
+        Some(Common::new(q.start, prefix.to_string(), &arg))
+    }
+
+    /// Take the prefix the directory rows in the menu share. `common` is what
+    /// decides and this is what puts the answer on the line.
+    pub fn accept_common(&mut self) {
+        let Some(c) = self.common() else {
+            return;
+        };
+        self.replace_arg(c.start, &quote_insert(&c.name));
     }
 
     pub fn step(&mut self, delta: isize) {
@@ -516,6 +557,35 @@ mod tests {
         let mut a = staged("cd wor", &["work/", "worse/"]);
         a.accept_common();
         assert_eq!(a.line.text(), "cd wor");
+    }
+
+    #[test]
+    fn the_reach_is_what_tab_would_take_measured_in_a_name() {
+        // The rows share `wor` and each one draws its own name. Three
+        // characters of that name are what Tab would leave on the line.
+        let a = staged("cd wo", &["work/", "worse/"]);
+        assert_eq!(a.reach(), 3);
+    }
+
+    #[test]
+    fn one_row_reaches_the_whole_of_its_name() {
+        let a = staged("cd wo", &["work/"]);
+        assert_eq!(a.reach(), 5);
+    }
+
+    #[test]
+    fn a_tab_that_would_leave_the_line_alone_reaches_nothing() {
+        let a = staged("cd wor", &["work/", "worse/"]);
+        assert_eq!(a.reach(), 0);
+    }
+
+    #[test]
+    fn the_reach_counts_the_name_rather_than_the_argument() {
+        let f = Fixture::new(&["work/alpha"]);
+        let a = App::over(f.path(), "cd work/al");
+        // The one row draws `alpha/`. The `work/` in front of it on the line
+        // is the directory that row came from rather than part of its name.
+        assert_eq!(a.reach(), 6);
     }
 
     #[test]
