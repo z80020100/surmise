@@ -10,7 +10,7 @@
 use crate::candidates::{Candidate, Kind};
 use crate::line::Line;
 use std::io::{self, Write};
-use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
+use unicode_width::UnicodeWidthStr;
 
 pub const DIM: &str = "\x1b[2m";
 const ITALIC: &str = "\x1b[3m";
@@ -64,10 +64,6 @@ pub fn cells(s: &str) -> usize {
     UnicodeWidthStr::width(s)
 }
 
-fn cell_of(c: char) -> usize {
-    UnicodeWidthChar::width(c).unwrap_or(0)
-}
-
 /// Drop every character that would drive the terminal rather than show up in
 /// it. A directory name can hold an escape sequence and a paste can carry one.
 /// A bidirectional override is not a control character and survives this.
@@ -119,19 +115,20 @@ fn fit(s: &str, w: usize) -> String {
     if w == 0 {
         return String::new();
     }
-    // One cell is held back for the ellipsis.
+    // One cell is held back for the ellipsis. Each character is measured
+    // against the string it makes rather than added to a running total. A
+    // character can join the one in front of it and the pair then takes more
+    // cells together than the two apart.
     let mut out = String::new();
-    let mut used = 0;
     for c in s.chars() {
-        let cw = cell_of(c);
-        if used + cw > w - 1 {
+        out.push(c);
+        if cells(&out) > w - 1 {
+            out.pop();
             break;
         }
-        out.push(c);
-        used += cw;
     }
     out.push('…');
-    format!("{out}{}", " ".repeat(w - used - 1))
+    format!("{out}{}", " ".repeat(w.saturating_sub(cells(&out))))
 }
 
 /// Break styled segments into physical rows of at most `w` cells. The active
@@ -142,24 +139,28 @@ fn fit(s: &str, w: usize) -> String {
 fn wrap(segs: &[Seg], w: usize, indent: usize) -> Vec<String> {
     let mut rows = Vec::new();
     let mut row = String::new();
-    let mut used = indent;
+    // What shows on the row being built. It is measured whole for the same
+    // reason `fit` measures its prefix whole.
+    let mut visible = String::new();
+    let mut room = w.saturating_sub(indent);
     for seg in segs {
         row.push_str(seg.style);
         let text = printable(&seg.text);
         for c in text.chars() {
-            let cw = cell_of(c);
+            visible.push(c);
             // A character that will not fit moves whole to the next row and
             // leaves the cell behind it empty.
-            if used + cw > w {
+            if cells(&visible) > room {
                 if !seg.style.is_empty() {
                     row.push_str(RESET);
                 }
                 rows.push(std::mem::take(&mut row));
                 row.push_str(seg.style);
-                used = 0;
+                visible.clear();
+                visible.push(c);
+                room = w;
             }
             row.push(c);
-            used += cw;
         }
         if !seg.style.is_empty() {
             row.push_str(RESET);
@@ -171,7 +172,7 @@ fn wrap(segs: &[Seg], w: usize, indent: usize) -> Vec<String> {
 
 /// Display width of a rendered row. The escape sequences do not count.
 fn cells_of_row(row: &str) -> usize {
-    let mut total = 0;
+    let mut visible = String::new();
     let mut chars = row.chars();
     while let Some(c) = chars.next() {
         if c == '\x1b' {
@@ -182,10 +183,10 @@ fn cells_of_row(row: &str) -> usize {
                 }
             }
         } else {
-            total += cell_of(c);
+            visible.push(c);
         }
     }
-    total
+    cells(&visible)
 }
 
 fn window_start(selected: usize, rows: usize, total: usize) -> usize {
@@ -487,6 +488,31 @@ mod tests {
     #[test]
     fn fit_cuts_a_long_name_and_marks_the_cut() {
         assert_eq!(fit("abcdef", 4), "abc…");
+    }
+
+    #[test]
+    fn a_character_that_joins_the_one_in_front_of_it_is_measured_with_it() {
+        // The width of a string is not the sum of its characters' widths. An
+        // emoji and the selector behind it take two cells together and one
+        // apart.
+        let pair = "\u{2764}\u{FE0F}";
+        assert_eq!(cells(pair), 2);
+        assert_eq!(cells_of_row(&format!("{DIM}{pair}{RESET}")), 2);
+    }
+
+    #[test]
+    fn fit_cuts_to_the_width_a_terminal_will_draw() {
+        // Summing the characters leaves this one cell over the width. The row
+        // then wraps and tears the panel in half.
+        let name = format!("\u{2764}\u{FE0F}{}", "a".repeat(40));
+        assert_eq!(cells(&fit(&name, 30)), 30);
+    }
+
+    #[test]
+    fn wrap_breaks_at_the_width_a_terminal_will_draw() {
+        let rows = wrap(&[seg("\u{2764}\u{FE0F}aaa")], 4, 0);
+        assert!(rows.iter().all(|r| cells_of_row(r) <= 4), "{rows:?}");
+        assert_eq!(rows.len(), 2);
     }
 
     #[test]
