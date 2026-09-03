@@ -89,8 +89,8 @@ pub struct Menu<'a> {
 }
 
 /// Build the menu for a candidate list and size it to the terminal. `None`
-/// means there is nothing to show. The column the panel hangs from is the
-/// renderer's to decide and `menu_rows` takes it.
+/// means there is nothing to show. The column the panel hangs from and the
+/// item it opens on are the renderer's to decide and `menu_rows` takes both.
 pub fn menu(items: &[Candidate], selected: usize) -> Option<Menu<'_>> {
     menu_in(items, selected, height())
 }
@@ -193,11 +193,20 @@ fn cells_of_row(row: &str) -> usize {
     cells(&visible)
 }
 
-fn window_start(selected: usize, rows: usize, total: usize) -> usize {
+/// The first item the panel shows. `top` is what the last frame showed and
+/// the window moves as little as it can from there. The highlight therefore
+/// stays on the row the eye last found it on and the list moves one row for
+/// one press once the highlight reaches an edge. The last clamp answers a
+/// `top` with no full window left under it. A list that got shorter or a
+/// panel that got taller leaves one. `rows` is never 0. `menu_in` floors it
+/// at one and turns an empty list away.
+fn window_start(top: usize, selected: usize, rows: usize, total: usize) -> usize {
     if total <= rows {
         return 0;
     }
-    selected.saturating_sub(rows / 2).min(total - rows)
+    top.min(selected)
+        .max(selected.saturating_sub(rows - 1))
+        .min(total - rows)
 }
 
 fn colour(k: Kind) -> &'static str {
@@ -224,12 +233,13 @@ fn glyph(k: Kind, chosen: bool) -> (&'static str, &'static str) {
 
 /// The panel for `m` in a terminal `w` cells wide. `col` is where the cursor
 /// sits and the first name lands there. The panel therefore follows the
-/// cursor.
-fn menu_rows(m: &Menu, w: usize, col: usize) -> Vec<String> {
+/// cursor. `first` is the item the panel opens on and `window_start` is
+/// where it comes from. A `first` from anywhere else can draw a panel with
+/// the highlight outside it.
+fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
     let Some(current) = m.items.get(m.selected) else {
         return Vec::new();
     };
-    let first = window_start(m.selected, m.rows, m.items.len());
     let last = (first + m.rows).min(m.items.len());
     let shown = &m.items[first..last];
     let foot_r = format!("{}/{}", m.selected + 1, m.items.len());
@@ -291,6 +301,9 @@ pub struct Ui<W> {
     /// belongs to the shell. It is never written to and never cleared. Every
     /// row below starts at the left edge and is the frame's own to use.
     anchor: usize,
+    /// First item the last menu showed. A menu that opens again starts on the
+    /// first item and the selection alone therefore pulls this back to 0.
+    top: usize,
 }
 
 impl<W: Write> Ui<W> {
@@ -299,6 +312,7 @@ impl<W: Write> Ui<W> {
             out,
             cursor_row: None,
             anchor,
+            top: 0,
         }
     }
 
@@ -368,7 +382,8 @@ impl<W: Write> Ui<W> {
             rows.push(String::new());
         }
         if let Some(m) = menu {
-            rows.extend(menu_rows(&m, w, cursor_col));
+            self.top = window_start(self.top, m.selected, m.rows, m.items.len());
+            rows.extend(menu_rows(&m, w, cursor_col, self.top));
         }
         self.paint(&rows, cursor_row, cursor_col)
     }
@@ -567,19 +582,37 @@ mod tests {
         assert_eq!(cells_of_row(&format!("{PANEL} 日 {RESET}")), 4);
     }
 
+    // window_start(top, selected, rows, total)
+
     #[test]
     fn a_list_that_fits_starts_at_the_top() {
-        assert_eq!(window_start(3, 8, 5), 0);
+        assert_eq!(window_start(0, 3, 8, 5), 0);
+        // A whole list on the screen goes back to the top rather than staying
+        // wherever the last window left off.
+        assert_eq!(window_start(9, 3, 8, 5), 0);
     }
 
     #[test]
-    fn a_longer_list_keeps_the_selection_in_the_middle() {
-        assert_eq!(window_start(10, 4, 40), 8);
+    fn the_window_holds_still_while_the_selection_shows() {
+        assert_eq!(window_start(4, 5, 4, 40), 4);
+    }
+
+    #[test]
+    fn the_window_follows_the_selection_one_row_at_a_time() {
+        assert_eq!(window_start(4, 8, 4, 40), 5);
+        assert_eq!(window_start(4, 3, 4, 40), 3);
+    }
+
+    #[test]
+    fn a_wrap_to_the_far_end_takes_the_window_with_it() {
+        assert_eq!(window_start(0, 39, 4, 40), 36);
+        assert_eq!(window_start(36, 0, 4, 40), 0);
     }
 
     #[test]
     fn the_window_stops_at_the_end_of_the_list() {
-        assert_eq!(window_start(39, 4, 40), 36);
+        assert_eq!(window_start(36, 39, 4, 40), 36);
+        assert_eq!(window_start(99, 39, 4, 40), 36);
     }
 
     #[test]
@@ -611,21 +644,30 @@ mod tests {
         row.chars().take_while(|&c| c == ' ').count()
     }
 
+    /// Which rows the panel drew as the chosen one.
+    fn chosen_rows(rows: &[String]) -> Vec<usize> {
+        rows.iter()
+            .enumerate()
+            .filter(|(_, r)| r.contains(PANEL_CHOSEN))
+            .map(|(i, _)| i)
+            .collect()
+    }
+
     #[test]
     fn the_panel_starts_one_column_before_the_cursor() {
         let items = dirs(1);
         let m = menu_in(&items, 0, 24).expect("a menu");
-        assert_eq!(pad_of(&menu_rows(&m, 80, 10)[0]), 9);
-        assert_eq!(pad_of(&menu_rows(&m, 80, 0)[0]), 0);
+        assert_eq!(pad_of(&menu_rows(&m, 80, 10, 0)[0]), 9);
+        assert_eq!(pad_of(&menu_rows(&m, 80, 0, 0)[0]), 0);
     }
 
     #[test]
     fn the_panel_slides_left_of_a_cursor_near_the_edge() {
         let items = dirs(1);
         let m = menu_in(&items, 0, 24).expect("a menu");
-        let width = cells_of_row(&menu_rows(&m, 80, 0)[0]);
+        let width = cells_of_row(&menu_rows(&m, 80, 0, 0)[0]);
         // The cursor is far enough right that the panel would run off the end.
-        let rows = menu_rows(&m, 40, 38);
+        let rows = menu_rows(&m, 40, 38, 0);
         assert_eq!(pad_of(&rows[0]) + width, 40);
         // It keeps the width it had against the left edge.
         assert_eq!(cells_of_row(&rows[0]) - pad_of(&rows[0]), width);
@@ -635,14 +677,28 @@ mod tests {
     fn the_menu_draws_a_row_for_each_entry_and_one_footer() {
         let items = dirs(3);
         let m = menu_in(&items, 0, 24).expect("a menu");
-        assert_eq!(menu_rows(&m, 80, 1).len(), 4);
+        assert_eq!(menu_rows(&m, 80, 1, 0).len(), 4);
+    }
+
+    #[test]
+    fn the_panel_opens_on_the_window_rather_than_the_list() {
+        let items = dirs(40);
+        let m = menu_in(&items, 18, 24).expect("a menu");
+        let rows = menu_rows(&m, 80, 1, 12);
+        // A window opening on d12 draws seven names from there and puts the
+        // nineteenth under the mark. The names are read as well as the mark.
+        // A panel taking the mark from the window and the names from the list
+        // would agree on the mark alone.
+        assert_eq!(rows.len(), 8);
+        assert!(rows[0].contains("d12"), "{rows:?}");
+        assert_eq!(chosen_rows(&rows), vec![6]);
     }
 
     #[test]
     fn the_footer_carries_the_position_in_the_list() {
         let items = dirs(3);
         let m = menu_in(&items, 1, 24).expect("a menu");
-        let rows = menu_rows(&m, 80, 1);
+        let rows = menu_rows(&m, 80, 1, 0);
         assert!(rows.last().expect("a footer").contains("2/3"));
     }
 
@@ -650,13 +706,7 @@ mod tests {
     fn one_row_is_drawn_as_chosen_and_it_is_the_selected_one() {
         let items = dirs(3);
         let m = menu_in(&items, 1, 24).expect("a menu");
-        let chosen: Vec<usize> = menu_rows(&m, 80, 1)
-            .iter()
-            .enumerate()
-            .filter(|(_, r)| r.contains(PANEL_CHOSEN))
-            .map(|(i, _)| i)
-            .collect();
-        assert_eq!(chosen, vec![1]);
+        assert_eq!(chosen_rows(&menu_rows(&m, 80, 1, 0)), vec![1]);
     }
 
     #[test]
@@ -665,7 +715,7 @@ mod tests {
         // it. The test below is where the terminal takes the width back.
         for items in [vec![dir("a")], vec![dir(&"n".repeat(60))]] {
             let m = menu_in(&items, 0, 24).expect("a menu");
-            let row = &menu_rows(&m, 80, 5)[0];
+            let row = &menu_rows(&m, 80, 5, 0)[0];
             assert_eq!(cells_of_row(row) - pad_of(row), PANEL_INNER + 2);
         }
     }
@@ -677,7 +727,7 @@ mod tests {
         let w = 24;
         let items = dirs(1);
         let m = menu_in(&items, 0, 24).expect("a menu");
-        let row = &menu_rows(&m, w, 1)[0];
+        let row = &menu_rows(&m, w, 1, 0)[0];
         assert_eq!(cells_of_row(row), w);
         assert!(row.contains("d0"), "{row:?}");
     }
@@ -686,7 +736,7 @@ mod tests {
     fn every_menu_row_is_the_same_width() {
         let items = vec![dir("short"), dir("a-much-longer-directory-name")];
         let m = menu_in(&items, 0, 24).expect("a menu");
-        let widths: Vec<usize> = menu_rows(&m, 80, 5)
+        let widths: Vec<usize> = menu_rows(&m, 80, 5, 0)
             .iter()
             .map(|r| cells_of_row(r))
             .collect();
@@ -704,7 +754,7 @@ mod tests {
     fn an_escape_in_a_directory_name_is_dropped_from_the_panel() {
         let items = vec![dir("\x1b[31mred")];
         let m = menu_in(&items, 0, 24).expect("a menu");
-        let rows = menu_rows(&m, 80, 1);
+        let rows = menu_rows(&m, 80, 1, 0);
         let row = rows.first().expect("a row");
         assert!(row.contains("[31mred"), "{row:?}");
         // The only escapes left are the ones this module wrote itself: the
@@ -741,7 +791,7 @@ mod tests {
     fn the_glyph_on_the_highlighted_row_is_not_the_name_colour() {
         let items = vec![dir("alpha/")];
         let m = menu_in(&items, 0, 24).expect("a menu");
-        let row = menu_rows(&m, 80, 1).first().expect("a row").clone();
+        let row = menu_rows(&m, 80, 1, 0).first().expect("a row").clone();
         // The glyph carries its own colour and the name names the ground's
         // bright one again behind it.
         assert_ne!(ICON_FG_CHOSEN, NAME_CHOSEN);
@@ -753,7 +803,7 @@ mod tests {
     fn the_row_that_runs_the_line_holds_no_name() {
         let items = vec![run_row("work/".to_string()), dir("alpha/")];
         let m = menu_in(&items, 0, 24).expect("a menu");
-        let rows = menu_rows(&m, 80, 1);
+        let rows = menu_rows(&m, 80, 1, 0);
         let row = rows.first().expect("a row");
         assert!(row.contains(RUN_ICON), "{row:?}");
         // `insert` is the only text this row could have drawn.
@@ -791,7 +841,7 @@ mod tests {
     fn a_terminal_too_narrow_for_a_panel_gets_none() {
         let items = dirs(3);
         let m = menu_in(&items, 0, 24).expect("a menu");
-        assert!(menu_rows(&m, 3, 1).is_empty());
+        assert!(menu_rows(&m, 3, 1, 0).is_empty());
     }
 
     #[test]
@@ -845,6 +895,33 @@ mod tests {
         // One input row, two entries and a footer.
         assert!(out.contains("\x1b[3A"), "{out:?}");
         assert!(out.contains("d0") && out.contains("d1"), "{out:?}");
+    }
+
+    #[test]
+    fn the_window_the_last_frame_showed_is_the_one_the_next_moves_from() {
+        let items = dirs(11);
+        let mut buf: Vec<u8> = Vec::new();
+        let mut line = Line::new();
+        line.insert("cd d");
+        let mut ui = Ui::new(&mut buf, 0);
+        // The highlight on the last row the window shows moves nothing.
+        ui.render_at(&[], &line, "", menu_in(&items, 6, 30), 40)
+            .expect("a Vec always takes a write");
+        assert_eq!(ui.top, 0);
+        // One past it and the window follows by a single row.
+        ui.render_at(&[], &line, "", menu_in(&items, 7, 30), 40)
+            .expect("a Vec always takes a write");
+        assert_eq!(ui.top, 1);
+        // The end of the list takes the window with it.
+        ui.render_at(&[], &line, "", menu_in(&items, 10, 30), 40)
+            .expect("a Vec always takes a write");
+        assert_eq!(ui.top, 4);
+        // Back up to a row the window already holds. This is the frame the
+        // field exists for: a window read off the highlight alone would jump
+        // to 0 here rather than stay.
+        ui.render_at(&[], &line, "", menu_in(&items, 5, 30), 40)
+            .expect("a Vec always takes a write");
+        assert_eq!(ui.top, 4);
     }
 
     #[test]
