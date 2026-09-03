@@ -26,6 +26,10 @@ const NAME: &str = "\x1b[38;5;249m";
 /// wears a colour of its own and this is what puts the name back.
 const NAME_CHOSEN: &str = "\x1b[97m";
 const SPECIAL: &str = "\x1b[38;5;179m";
+/// The word under the list. It reads at the weight a name does and italic
+/// alone is what sets it apart. What the row says is worth reading rather
+/// than worth fading out.
+const FOOT: &str = NAME;
 /// The ground under a character what was typed reached. A dark olive rather
 /// than a tint of the panel's own grey. A mark then reads as a mark rather
 /// than as another row.
@@ -367,7 +371,7 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
         foot.push_str(&foot_r);
     }
     rows.push(format!(
-        "{pad}{PANEL}{DIM}{ITALIC} {} {RESET}",
+        "{pad}{PANEL}{FOOT}{ITALIC} {} {RESET}",
         fit(&foot, inner)
     ));
     rows
@@ -836,6 +840,18 @@ mod tests {
         let m = menu_in(&items, 1, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         assert!(rows.last().expect("a footer").contains("2/3"));
+    }
+
+    #[test]
+    fn the_footer_is_not_dimmed() {
+        // Italic alone is what sets it apart from the names above it. It reads
+        // at the weight they do.
+        let items = dirs(1);
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
+        let rows = menu_rows(&m, 80, 1, 0);
+        let foot = rows.last().expect("a footer");
+        assert!(!foot.contains(DIM), "{foot:?}");
+        assert!(foot.contains(ITALIC), "{foot:?}");
     }
 
     #[test]
