@@ -142,7 +142,7 @@ fn a_bare_cd_puts_the_folder_glyph_on_every_row() {
 
 #[test]
 fn the_menu_is_a_closed_box_at_every_width() {
-    for cols in [100, 72, 40] {
+    for cols in [100, 40, 30] {
         let f = fixture();
         let mut t = surmise(f.path(), "cd ", cols, 30);
         assert!(t.wait_panel(WAIT), "nothing was drawn at {cols} columns");
@@ -175,7 +175,7 @@ fn the_menu_slides_in_from_the_right_edge() {
     // The panel hangs from the cursor and this cursor sits too far right for
     // the panel to fit under it. The width is what it keeps and the alignment
     // is what it gives up.
-    let cols = 32;
+    let cols = 40;
     let f = Fixture::new(&["one/two/three/four/five/target"]);
     let mut t = surmise(f.path(), "cd one/two/three/four/five/", cols, 30);
     assert!(t.wait_panel(WAIT), "nothing was drawn");
@@ -326,7 +326,7 @@ fn the_menu_is_a_closed_box_with_the_row_that_runs_in_it() {
     // The other two `intact` cases open on a bare `cd ` and that line never
     // gets the row. This one does and the glyph and the row's empty name
     // therefore go through the panel's own arithmetic under a check.
-    for cols in [100, 72, 40] {
+    for cols in [100, 40, 30] {
         let f = fixture();
         let mut t = surmise(f.path(), "cd work/", cols, 30);
         assert!(t.wait_panel(WAIT), "nothing was drawn at {cols} columns");

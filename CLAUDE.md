@@ -38,9 +38,11 @@ it. The two cannot fall out of step, because they are one artifact. The
 Two ways in. Tab asks surmise about the line you already have and falls through
 to the shell's own completion when surmise has nothing to offer. The paragraphs
 under the table say what narrows that. Typing a bare `cd ` opens surmise on
-its own. A menu of directories opens below the line. The first name in it sits
-under the cursor and follows the cursor along the line. Near the right edge the
-menu keeps its width and gives that alignment up.
+its own. A menu of directories opens below the line. The mark on the first
+name sits under the cursor and the menu follows the cursor along the line. The
+menu is one width whatever it holds. Near the right edge it keeps that width
+and gives the alignment up. A terminal too narrow for that width is the one
+thing that shrinks it.
 
 | Key | Inside the menu |
 | --- | --- |

@@ -25,9 +25,10 @@ pub const PASS: u8 = 2;
 /// Take the line back and run it. It is on stdout.
 pub const RUN: u8 = 3;
 
-/// Cells the frame wants to the right of the column it starts on. A line
-/// that starts closer than this to the right edge gets a row of its own
-/// instead.
+/// Cells the line wants to the right of the column it starts on. A line that
+/// starts closer than this to the right edge gets a row of its own instead.
+/// The panel asks for nothing here. It slides left of the cursor rather than
+/// run off the edge.
 const MIN_ROOM: usize = 8;
 
 /// The column the shell's line starts on, worked back from where it left the

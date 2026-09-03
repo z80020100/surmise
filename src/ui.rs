@@ -41,7 +41,11 @@ const RUN_ICON_FG: &str = "\x1b[38;5;167m";
 /// the same hue clears it and still says which sort of row this is.
 const ICON_FG_CHOSEN: &str = "\x1b[38;5;153m";
 const RUN_ICON_FG_CHOSEN: &str = "\x1b[38;5;217m";
-const NAME_MAX: usize = 32;
+/// Cells inside the panel's own two edge spaces. It is fixed rather than
+/// measured from what the panel holds. Every panel is therefore the same
+/// width and a name keeps the column the eye last found it in. A terminal
+/// with no room for all of it takes some back.
+const PANEL_INNER: usize = 32;
 const MENU_ROWS: usize = 8;
 
 /// The terminal's width. It is never fewer than 24 cells and the panel's
@@ -230,23 +234,15 @@ fn menu_rows(m: &Menu, w: usize, col: usize) -> Vec<String> {
     let shown = &m.items[first..last];
     let foot_r = format!("{}/{}", m.selected + 1, m.items.len());
 
-    // The panel is as wide as its widest row and no wider. Past that it gives
-    // way to the terminal.
-    let icon_w = cells(ICON).max(cells(RUN_ICON)) + 1;
-    let widest = shown
-        .iter()
-        .map(|c| icon_w + cells(&c.display))
-        .chain(std::iter::once(cells(current.label) + cells(&foot_r) + 2))
-        .max()
-        .unwrap_or(10);
-    // The width comes first. It is the panel's own and the terminal is the
-    // only thing that takes it back.
-    let inner = widest.clamp(8, NAME_MAX).min(w.saturating_sub(2));
+    // The width comes first. Nothing below holds a floor under it and `width`
+    // is what keeps one.
+    let inner = PANEL_INNER.min(w.saturating_sub(2));
     // The panel opens with a space of its own. Starting one column early puts
-    // the first name under the cursor rather than past it. It keeps the width
-    // above and slides left of the cursor when the right edge is nearer than
-    // that.
+    // the first row's glyph under the cursor rather than past it. It keeps the
+    // width above and slides left of the cursor when the right edge is nearer
+    // than that.
     let indent = col.saturating_sub(1).min(w.saturating_sub(inner + 2));
+    let icon_w = cells(ICON).max(cells(RUN_ICON)) + 1;
     // A terminal too narrow for the icon and a name gets no panel at all.
     let Some(text_w) = inner.checked_sub(icon_w) else {
         return Vec::new();
@@ -664,6 +660,29 @@ mod tests {
     }
 
     #[test]
+    fn the_panel_is_the_same_width_whatever_it_holds() {
+        // A short name does not shrink the panel and a long one does not grow
+        // it. The test below is where the terminal takes the width back.
+        for items in [vec![dir("a")], vec![dir(&"n".repeat(60))]] {
+            let m = menu_in(&items, 0, 24).expect("a menu");
+            let row = &menu_rows(&m, 80, 5)[0];
+            assert_eq!(cells_of_row(row) - pad_of(row), PANEL_INNER + 2);
+        }
+    }
+
+    #[test]
+    fn a_narrow_terminal_takes_the_width_back() {
+        // The one thing the constant gives way to. The panel then spends the
+        // whole terminal and still has a name column.
+        let w = 24;
+        let items = dirs(1);
+        let m = menu_in(&items, 0, 24).expect("a menu");
+        let row = &menu_rows(&m, w, 1)[0];
+        assert_eq!(cells_of_row(row), w);
+        assert!(row.contains("d0"), "{row:?}");
+    }
+
+    #[test]
     fn every_menu_row_is_the_same_width() {
         let items = vec![dir("short"), dir("a-much-longer-directory-name")];
         let m = menu_in(&items, 0, 24).expect("a menu");
@@ -743,10 +762,10 @@ mod tests {
 
     #[test]
     fn the_two_row_glyphs_are_the_same_width() {
-        // `menu_rows` measures the glyph column once from the widest glyph and
-        // the panel is therefore wide enough whatever they measure. Names line
-        // up only while the two agree, because each row spends
-        // `cells(glyph) + 1` on its own before the name starts.
+        // `menu_rows` takes the glyph column out of the panel's inner width
+        // once and measures it from the widest glyph. Names line up only while
+        // the two agree, because each row spends `cells(glyph) + 1` on its own
+        // before the name starts.
         assert_eq!(cells(ICON), cells(RUN_ICON));
     }
 
