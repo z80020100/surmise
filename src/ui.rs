@@ -46,7 +46,7 @@ const RUN_ICON_FG_CHOSEN: &str = "\x1b[38;5;217m";
 /// width and a name keeps the column the eye last found it in. A terminal
 /// with no room for all of it takes some back.
 const PANEL_INNER: usize = 32;
-const MENU_ROWS: usize = 8;
+const MENU_ROWS: usize = 7;
 
 /// The terminal's width. It is never fewer than 24 cells and the panel's
 /// layout arithmetic rests on that floor.
