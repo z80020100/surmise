@@ -58,5 +58,10 @@ jobs:
         run: make clippy
       - name: Run tests
         run: make test
+      # Neither tool is on the runner. zsh ships with macOS and needs no step.
+      - name: Install the shell tools
+        run: brew install shellcheck shfmt
+      - name: Check the shell scripts
+        run: make shell
       - name: Build release
         run: make release

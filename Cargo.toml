@@ -5,15 +5,36 @@ edition = "2024"
 # The pinned toolchain, which is the only one CI builds. Edition 2024 needs
 # 1.85 at the least. This can drop once a job proves the lower bound.
 rust-version = "1.98.0"
-description = "TBD"
+description = "Completion for the directory argument of a cd"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/z80020100/surmise"
 # Nothing here is ready to ship. Before removing this, add an `exclude` list,
 # because `cargo package` collects every file git does not ignore.
 publish = false
 
-# TBD. The template's dependencies are gone. Nothing has replaced them yet.
 [dependencies]
+# The terminal's modes, its key events and its size. `events` carries the
+# reader and `bracketed-paste` carries the paste event. The default set adds
+# `derive-more` on top for `is_variant` derives that nothing here calls.
+crossterm = { version = "0.29", default-features = false, features = [
+  "bracketed-paste",
+  "events",
+  "windows",
+] }
+# The terminal device. Resolving one by name and polling it are libc calls with
+# no equivalent in std.
+libc = "0.2"
+# Display width. A line can hold a character that is wider than one cell.
+unicode-width = "0.2"
 
 [dev-dependencies]
 cargo-husky = { version = "1.5.0", default-features = false, features = ["user-hooks"] }
+# The pty the integration tests run surmise inside. The child needs the slave
+# end as its controlling terminal, because crossterm resolves `/dev/tty` for
+# raw mode rather than reading stdin. A child spawned any other way would put
+# the terminal the tests were started from into raw mode.
+portable-pty = "0.9"
+# The screen those tests read. A byte stream can carry a box-drawing character
+# and still render as garbage. Every assertion therefore reads a rendered
+# screen rather than the stream.
+vt100 = "0.16"
