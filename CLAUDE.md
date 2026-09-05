@@ -96,6 +96,12 @@ the one that was already there and nothing on the screen would say the key
 had been read at all. Whether that bell is a sound or a flash or nothing is
 the terminal's own setting rather than surmise's.
 
+Under the row that runs the line the names come in an order of their own. The
+name that is what you typed leads and the case either is in makes no
+difference. Names leading with what you typed come next and the rest follow.
+Inside each of those the closer match comes first and names that tie hold
+their alphabetical order between keystrokes.
+
 A match need not lead with what you typed and Tab ignores the rows that do
 not. `cd wk` reaching `work/` is a match Enter takes. Right leaves it: that
 key wants a name leading with what you typed, whatever case either is in. It
