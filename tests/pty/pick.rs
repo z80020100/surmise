@@ -123,6 +123,47 @@ fn dedup(values: impl Iterator<Item = u16>) -> Vec<u16> {
 }
 
 #[test]
+fn history_keeps_a_literal_tilde_child_separate_from_the_home_directory() {
+    // The first two rows are the halves of the bug. A visit to the child named
+    // `~` has to reach that child and a visit to the home directory must not
+    // reach it. The third is the control: `cd ~/` does mean home and the fix
+    // has to leave that expansion alone. The empty name in it is the row that
+    // runs the line.
+    for (target, line, expected) in [
+        ("source/~", "cd ", vec!["~/", "alpha/", "..", "~"]),
+        ("home", "cd ", vec!["alpha/", "~/", "..", "~"]),
+        ("home/beta", "cd ~/", vec!["", "beta/", "alpha/"]),
+    ] {
+        let f = Fixture::new(&["source/alpha", "source/~", "home/alpha", "home/beta"]);
+        let source = f.path().join("source");
+        let home = f.path().join("home");
+        let data = f.path().join("data");
+        let recorded = std::process::Command::new(env!("CARGO_BIN_EXE_surmise"))
+            .arg("--record")
+            .arg(&source)
+            .arg(f.path().join(target))
+            .env_clear()
+            .env("HOME", &home)
+            .env("XDG_DATA_HOME", &data)
+            .output()
+            .unwrap();
+        assert!(recorded.status.success());
+
+        let mut cmd = CommandBuilder::new(env!("CARGO_BIN_EXE_surmise"));
+        cmd.args(["--pick", line]);
+        cmd.env_clear();
+        cmd.env("HOME", &home);
+        cmd.env("XDG_DATA_HOME", &data);
+        cmd.env("TERM", "xterm-256color");
+        cmd.cwd(&source);
+        let mut t = Term::new(cmd, 100, 30);
+        assert!(t.wait_panel(WAIT), "nothing was drawn");
+        t.pump(SETTLE);
+        assert_eq!(names(&t), expected, "visit to {target} with {line}");
+    }
+}
+
+#[test]
 fn the_current_directory_is_the_whole_list() {
     let f = fixture();
     let t = opened(f.path(), "cd ");
