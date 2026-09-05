@@ -99,8 +99,37 @@ the terminal's own setting rather than surmise's.
 Under the row that runs the line the names come in an order of their own. The
 name that is what you typed leads and the case either is in makes no
 difference. Names leading with what you typed come next and the rest follow.
-Inside each of those the closer match comes first and names that tie hold
-their alphabetical order between keystrokes.
+Inside each group the history of successful directory changes comes first.
+The closer text match follows and names that tie keep their alphabetical order.
+Each source directory has preferences of its own. The menu reads those
+preferences once when it opens and keeps them while you type.
+
+The zsh directory hook records successful changes from manual commands and
+from surmise. Selecting a name does not record a visit. Executing the change
+does. Returning to the same physical directory records nothing. Quiet changes
+such as `cd -q` suppress the hook. An earlier hook that fails can prevent it
+from running too. Shell command history is not read.
+
+The records stay in `$XDG_DATA_HOME/surmise/history.sqlite3`. Without an
+absolute `XDG_DATA_HOME` the path is `~/.local/share/surmise/history.sqlite3`.
+Without either an absolute data directory or an absolute home directory the
+history is unavailable. Opening the menu does not create a database.
+The first recorded change creates it. Each record holds physical source and
+target paths plus a visit count, the last visit time and a decaying weight.
+Symbolic links to the same directory share that record. No command text is stored.
+
+Each visit adds one to the weight. Existing weight halves every 30 days.
+Records unused for more than 180 days no longer affect sorting.
+The next write removes those records. History only reorders directories the
+menu already found. It does not add destinations or expand the scan limit.
+The parent and home rows keep their positions after the directory rows.
+
+SQLite serializes writes from concurrent shells. A write waits up to 50 ms
+for a lock before giving up. A read does not wait for a lock.
+A failed write loses that visit. Missing, locked or unreadable history leaves
+the text order in place. Storage errors do not print at the prompt.
+SQLite is compiled into the binary through `rusqlite`.
+No SQLite command or service needs to be installed.
 
 A match need not lead with what you typed and Tab ignores the rows that do
 not. `cd wk` reaching `work/` is a match Enter takes. Right leaves it: that
@@ -175,8 +204,8 @@ or `ignore`. An example that does not build therefore turns the gate red. A
 fence in `src/main.rs` is not collected, because doc-tests come from the
 library alone.
 
-`tests/` holds the integration tests. They run inside a pty and read the
-screen the program draws rather than the bytes it wrote. A byte stream can
+`tests/` holds the integration tests. Most of them run inside a pty and read
+the screen the program draws rather than the bytes it wrote. A byte stream can
 carry a box-drawing character and still render as garbage. `vt100` does the
 rendering and `portable-pty` opens the device. Both are dev-dependencies and
 neither reaches the installed binary.
@@ -186,12 +215,13 @@ The program runs inside that pty rather than beside it. crossterm resolves
 way would therefore put the terminal the suite was started from into raw mode.
 
 `tests/pty/main.rs` is the only test binary and its siblings are its modules.
-`term` is the harness, `pick` runs `surmise --pick LINE` and `zsh` runs the
-widget in a real `zsh -i`. cargo makes a target of `tests/<name>/main.rs` as
-well as of a file directly under `tests/`. The second form would compile
-`term` again for each one. `dead_code` counts the methods a binary never calls
-and turns the gate red. One binary sees every caller the harness has and the
-harness's own `#[cfg(test)]` tests still run in it.
+`term` is the harness, `pick` runs `surmise --pick LINE`, `zsh` runs the
+widget in a real `zsh -i` and `history` runs the directory hook. cargo makes a
+target of `tests/<name>/main.rs` as well as of a file directly under `tests/`.
+The second form would compile `term` again for each one. `dead_code` counts
+the methods a binary never calls and turns the gate red. One binary sees every
+caller the harness has and the harness's own `#[cfg(test)]` tests still run in
+it.
 
 `pick` covers what surmise draws. `zsh` covers the widget that reaches it.
 That widget has no other gate: `make shell` reads its syntax alone. The `zsh`
@@ -213,6 +243,11 @@ that pair as the reason it hangs the trigger off the space key rather than off
 when they are absent checks nothing. The second measured how long the menu
 takes to open. That is a number rather than a claim and the gate has no place
 for it.
+
+`history` covers the directory hook and the storage behind it. It needs no
+pty: the claim is what the hook wrote rather than what a screen shows. It runs
+`/bin/zsh -fc` with the widget sourced into it and then reads the database
+back.
 
 `src/fixture.rs` is `pub` rather than `#[cfg(test)]`. An integration test links
 the library as an ordinary crate and a `#[cfg(test)]` module is not compiled

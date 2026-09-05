@@ -6,6 +6,7 @@
 
 use crate::candidates::{self, Candidate, Kind};
 use crate::fuzzy::{shared_bytes, starts_with_folded};
+use crate::history::History;
 use crate::line::Line;
 use crate::shellword;
 use std::path::{Path, PathBuf};
@@ -17,6 +18,7 @@ pub struct App {
     pub dismissed: bool,
     /// The directory the candidates are drawn from.
     pub cwd: PathBuf,
+    history: History,
 }
 
 /// Quote a candidate's insertion for the shell. A leading `~` is a deliberate
@@ -70,6 +72,7 @@ impl App {
             selected: 0,
             dismissed: false,
             cwd,
+            history: History::default(),
         }
     }
 
@@ -82,13 +85,21 @@ impl App {
         a
     }
 
+    pub fn with_history(mut self, history: History) -> Self {
+        self.history = history;
+        self.refresh();
+        self
+    }
+
     pub fn refresh(&mut self) {
         self.selected = 0;
         // `arg` rather than the parse. A word nothing here may grow is one to
         // offer no menu for. The key then falls through to the shell's own
         // completion instead of opening rows nothing can take.
         self.items = match self.arg() {
-            Some(q) => candidates::generate_in(&shellword::unquote(&q.arg), &self.cwd),
+            Some(q) => {
+                candidates::generate_in(&shellword::unquote(&q.arg), &self.cwd, &self.history)
+            }
             None => Vec::new(),
         };
     }

@@ -7,14 +7,16 @@
 
 use std::ffi::OsString;
 use std::io::{self, Write};
+use std::path::Path;
 use std::process::ExitCode;
 use surmise::{pick, ui};
 
 const USAGE: &str = "\
 surmise — complete the directory argument of a `cd`.
 
-  surmise init zsh     the shell widget, for `eval \"$(surmise init zsh)\"`
-  surmise --pick LINE  the picker that widget calls, result on stdout
+  surmise init zsh                the shell widget, for `eval \"$(surmise init zsh)\"`
+  surmise --pick LINE             the picker that widget calls, result on stdout
+  surmise --record SOURCE TARGET  record a successful directory change
 ";
 
 /// The zsh widget, compiled in. `cargo install` places a binary and has no
@@ -84,13 +86,25 @@ fn picker(seed: &str) -> ExitCode {
 }
 
 fn main() -> ExitCode {
+    let raw: Vec<OsString> = std::env::args_os().skip(1).collect();
+    // Paths are OS strings. A directory change can reach a name the line
+    // editor cannot represent and the record must still keep its bytes.
+    if raw.first().is_some_and(|arg| arg == "--record") {
+        return match raw.as_slice() {
+            [_, source, target] => {
+                if surmise::history::record(Path::new(source), Path::new(target)) {
+                    ExitCode::SUCCESS
+                } else {
+                    ExitCode::FAILURE
+                }
+            }
+            _ => refuse("--record requires a source directory and a target directory"),
+        };
+    }
     // `args` panics on an argument that is not UTF-8 and a shell line can hold
     // one. surmise cannot complete what it cannot read and `PASS` hands the key
     // back. A panic would put its own report on the row the widget is drawing.
-    let read: Result<Vec<String>, _> = std::env::args_os()
-        .skip(1)
-        .map(OsString::into_string)
-        .collect();
+    let read: Result<Vec<String>, _> = raw.into_iter().map(OsString::into_string).collect();
     let Ok(args) = read else {
         return ExitCode::from(pick::PASS);
     };

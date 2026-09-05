@@ -11,6 +11,7 @@ pub mod app;
 pub mod candidates;
 pub mod fixture;
 pub mod fuzzy;
+pub mod history;
 pub mod keys;
 pub mod line;
 pub mod path;
