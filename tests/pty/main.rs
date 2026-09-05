@@ -4,6 +4,7 @@
 //! `term` again and `dead_code` would turn the gate red. `CLAUDE.md` gives
 //! the whole of it.
 
+mod history;
 mod pick;
 mod term;
 mod zsh;

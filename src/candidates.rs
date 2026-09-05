@@ -6,6 +6,7 @@
 //! names a directory then gets one row in front of whichever mode ran.
 
 use crate::fuzzy;
+use crate::history::History;
 use crate::path::expand;
 use std::path::{Path, PathBuf};
 
@@ -230,26 +231,41 @@ fn dir_stack_spec(arg: &str) -> bool {
     }
 }
 
-pub(crate) fn generate_in(arg: &str, cwd: &Path) -> Vec<Candidate> {
+pub(crate) fn generate_in(arg: &str, cwd: &Path, history: &History) -> Vec<Candidate> {
     let looks_like_path = arg.contains('/') || arg.starts_with('~') || arg.starts_with('.');
 
-    let mut out = if looks_like_path {
+    let out = if looks_like_path {
         path_mode(arg, cwd)
     } else {
         predict(arg, cwd)
     };
 
-    // Exact names precede prefixes. Prefixes precede other matches. Equal
-    // ranks use the score and then the name. That last key is what holds the
-    // menu still between keystrokes. `read_dir` answers in no order of its
-    // own.
+    // History orders names inside their match rank. Resolve each path once
+    // rather than on each comparison. The snapshot stays fixed between keys.
+    let mut weighted: Vec<_> = out
+        .into_iter()
+        .map(|c| {
+            let weight = if c.kind == Kind::Dir {
+                history.weight(&resolved_in(&c.insert, cwd))
+            } else {
+                0.0
+            };
+            (c, weight)
+        })
+        .collect();
     let (_, base) = split(arg);
-    out.sort_by(|a, b| {
+    // Exact names precede prefixes. Prefixes precede other matches. History
+    // ranks the names inside each of those. Equal weights use the score and
+    // then the name. That last key is what holds the menu still between
+    // keystrokes. `read_dir` answers in no order of its own.
+    weighted.sort_by(|(a, aw), (b, bw)| {
         match_rank(base, &b.display)
             .cmp(&match_rank(base, &a.display))
+            .then_with(|| bw.total_cmp(aw))
             .then_with(|| b.score.cmp(&a.score))
             .then_with(|| a.display.cmp(&b.display))
     });
+    let mut out: Vec<_> = weighted.into_iter().map(|(c, _)| c).collect();
 
     // The row that runs the line goes in front of that order rather than into
     // it. A line that already names a directory is the one most often meant
@@ -266,6 +282,10 @@ pub(crate) fn generate_in(arg: &str, cwd: &Path) -> Vec<Candidate> {
 mod tests {
     use super::*;
     use crate::fixture::Fixture;
+
+    fn generate_in(arg: &str, cwd: &Path) -> Vec<Candidate> {
+        super::generate_in(arg, cwd, &History::default())
+    }
 
     #[test]
     fn an_argument_splits_at_the_last_slash() {

@@ -11,6 +11,18 @@
 
 typeset -g SURMISE_BIN=${SURMISE_BIN:-surmise}
 
+# OLDPWD belongs to this change even when a quiet cd skipped an earlier hook.
+# A failed write must not stop the other directory hooks or print at the prompt.
+_surmise_chpwd() {
+  emulate -L zsh
+  [[ -n $OLDPWD && $OLDPWD != $PWD ]] &&
+    command $SURMISE_BIN --record "$OLDPWD" "$PWD" </dev/null >/dev/null 2>&1
+  return 0
+}
+
+autoload -Uz add-zsh-hook
+add-zsh-hook chpwd _surmise_chpwd
+
 # Whatever Tab did before this file was sourced stays Tab's job for every line
 # surmise does not complete. `bindkey` quotes the key it reports back and a
 # quoted key can split into several words. The widget name is the last word.

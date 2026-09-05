@@ -2,8 +2,8 @@
 //!
 //! `pick` runs the command the widget runs. These run the widget itself. zsh
 //! holds the line, the key bindings and the plugins. surmise is only what one
-//! key reaches. Nothing below asserts on what the menu holds, because
-//! `pick` already does. These say the widget drives it and gets out of the way.
+//! key reaches. These tests cover the widget and the directory hook that
+//! changes the next menu's order. `pick` covers the rest of what the menu draws.
 
 use crate::term::Term;
 use portable_pty::CommandBuilder;
@@ -154,6 +154,11 @@ fn enter_takes_the_directory_and_a_second_enter_runs_the_line() {
         t.lines()
     );
     assert!(!t.panel().is_empty(), "the menu closed: {:?}", t.lines());
+    assert!(
+        !f.path()
+            .join(".local/share/surmise/history.sqlite3")
+            .exists()
+    );
     t.send("\r");
     // The hook fires on a directory change alone. Naming `deep` is the whole
     // of the claim: the line was taken and it was run.
@@ -161,6 +166,12 @@ fn enter_takes_the_directory_and_a_second_enter_runs_the_line() {
         t.wait_line(&format!("{MOVED}:deep"), WAIT),
         "the cd never ran: {:?}",
         t.lines()
+    );
+    t.pump(SETTLE);
+    assert!(
+        f.path()
+            .join(".local/share/surmise/history.sqlite3")
+            .exists()
     );
 }
 
@@ -172,6 +183,33 @@ fn escape_leaves_the_menu_and_keeps_what_was_typed() {
     t.send("\x1b");
     closed(&mut t);
     assert!(line(&t).starts_with("❯ cd de"), "{:?}", t.lines());
+    assert!(
+        !f.path()
+            .join(".local/share/surmise/history.sqlite3")
+            .exists()
+    );
+}
+
+#[test]
+fn a_manual_visit_changes_the_order_in_the_next_picker() {
+    let f = home("", "bindkey ' ' $_surmise_space");
+    let mut t = ready(f.path());
+    // The order before any visit is the alphabetical one. Without this the
+    // claim below would hold just as well for a menu that never changed.
+    t.send("cd \t");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    assert!(t.panel()[0].text.contains("deep"), "{:?}", t.lines());
+    t.send("\x15");
+    closed(&mut t);
+    typed(&mut t, "cd work\r");
+    assert!(t.lines().join("\n").contains("MOVED:work"));
+    typed(&mut t, "cd ..\r");
+    typed(&mut t, "\x0c");
+    t.send("cd \t");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    assert!(t.panel()[0].text.contains("work"), "{:?}", t.lines());
 }
 
 #[test]

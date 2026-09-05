@@ -67,6 +67,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
     let Some(mut app) = seeded(seed, &cwd) else {
         return Ok(PASS);
     };
+    app = app.with_history(crate::history::History::load(&cwd));
 
     let mut term = tty::claim()?;
     let _raw = tty::Raw::on(term.try_clone()?)?;
