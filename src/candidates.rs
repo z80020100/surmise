@@ -163,17 +163,28 @@ fn path_mode(arg: &str, cwd: &Path) -> Vec<Candidate> {
     out
 }
 
-/// A name that starts with what was typed is almost always the one meant. It
-/// therefore outranks a match that merely holds those characters in order.
-fn prefix_bonus(arg: &str, name: &str) -> i32 {
-    if arg.is_empty() {
+/// How well a name answers what was typed. A name that is exactly what was
+/// typed outranks one that merely starts with it and both outrank one that
+/// holds those characters scattered through it. A name leading with what was
+/// typed is almost always the one meant and the sort therefore reads this
+/// before it reads the score. A bonus added to the score could be outweighed
+/// by a longer name scoring well elsewhere and a rank cannot.
+///
+/// Both checks fold the case the same way the score itself is measured. Each
+/// being a prefix of the other is what says the two are the same name.
+fn match_rank(base: &str, display: &str) -> u8 {
+    let name = display.strip_suffix('/').unwrap_or(display);
+    // Nothing typed reached nothing. Every name would otherwise hold the
+    // empty string at its front and rank alike. The sort reads the same
+    // either way and what this guard keeps right is the answer rather than
+    // the order.
+    if base.is_empty() || !fuzzy::starts_with_folded(name, base) {
         return 0;
     }
-    // The same per-character folding the score itself is measured with.
-    if fuzzy::starts_with_folded(name, arg) {
-        60
+    if fuzzy::starts_with_folded(base, name) {
+        2
     } else {
-        0
+        1
     }
 }
 
@@ -181,11 +192,10 @@ fn predict(arg: &str, cwd: &Path) -> Vec<Candidate> {
     let mut out: Vec<Candidate> = Vec::new();
 
     for name in subdirs(cwd, arg.starts_with('.')) {
-        let Some(base) = fuzzy::score(arg, &name) else {
+        let Some(score) = fuzzy::score(arg, &name) else {
             continue;
         };
-        let score = base + 40 + prefix_bonus(arg, &name);
-        out.push(folder(format!("{name}/"), format!("{name}/"), score));
+        out.push(folder(format!("{name}/"), format!("{name}/"), score + 40));
     }
 
     // The two places every shell can go from anywhere. They come last on an
@@ -229,11 +239,15 @@ pub(crate) fn generate_in(arg: &str, cwd: &Path) -> Vec<Candidate> {
         predict(arg, cwd)
     };
 
-    // Highest score first, then alphabetical so equal scores hold still
-    // between keystrokes.
+    // Exact names precede prefixes. Prefixes precede other matches. Equal
+    // ranks use the score and then the name. That last key is what holds the
+    // menu still between keystrokes. `read_dir` answers in no order of its
+    // own.
+    let (_, base) = split(arg);
     out.sort_by(|a, b| {
-        b.score
-            .cmp(&a.score)
+        match_rank(base, &b.display)
+            .cmp(&match_rank(base, &a.display))
+            .then_with(|| b.score.cmp(&a.score))
             .then_with(|| a.display.cmp(&b.display))
     });
 
@@ -337,14 +351,6 @@ mod tests {
     }
 
     #[test]
-    fn a_prefix_outranks_a_scattered_match() {
-        assert_eq!(prefix_bonus("wo", "work"), 60);
-        assert_eq!(prefix_bonus("WO", "work"), 60);
-        assert_eq!(prefix_bonus("wo", "awork"), 0);
-        assert_eq!(prefix_bonus("", "work"), 0);
-    }
-
-    #[test]
     fn subdirs_lists_directories_and_nothing_else() {
         let f = Fixture::new(&["alpha", "beta", "readme*"]);
         let mut got = subdirs(f.path(), false);
@@ -389,6 +395,45 @@ mod tests {
         let f = Fixture::new(&["awork", "work"]);
         let got = generate_in("wor", f.path());
         assert_eq!(displays(&got)[0], "work/");
+    }
+
+    #[test]
+    fn bare_and_path_arguments_rank_exact_then_prefix_then_fuzzy_matches() {
+        // The padding drives the long name's score under `a_wo`'s and rank is
+        // then the only thing holding it above the scattered matches. The two
+        // path prefixes are what prove that: the score bonus this replaced
+        // never ran in path mode and 255 is too short a name for the bare
+        // argument to tell the two apart.
+        let long = format!("wo{}", "x".repeat(240));
+        let f = Fixture::new(&["wo", &long, "a_wo", "z_w_x_o"]);
+        let absolute = format!("{}/", f.path().display());
+        let long_display = format!("{long}/");
+        for prefix in ["", "./", absolute.as_str()] {
+            for base in ["wo", "WO"] {
+                let got = generate_in(&format!("{prefix}{base}"), f.path());
+                let dirs: Vec<_> = got.iter().filter(|c| c.kind == Kind::Dir).collect();
+                let names: Vec<_> = dirs.iter().map(|c| c.display.as_str()).collect();
+                assert_eq!(names, ["wo/", &long_display, "a_wo/", "z_w_x_o/"]);
+            }
+        }
+    }
+
+    #[test]
+    fn an_exact_name_outranks_a_longer_one_that_ties_on_score() {
+        // `work` and `Worka` both score 112 against `Work` and the name key
+        // would then put `Worka/` first. `W` sorts below `w`. The exact rank
+        // is the only thing holding the name that was typed above the one
+        // that merely starts with it. A case-insensitive filesystem also
+        // gives `Work` a row that runs the line and the filter is what leaves
+        // that row out.
+        let f = Fixture::new(&["work", "Worka"]);
+        let got = generate_in("Work", f.path());
+        let dirs: Vec<&str> = got
+            .iter()
+            .filter(|c| c.kind == Kind::Dir)
+            .map(|c| c.display.as_str())
+            .collect();
+        assert_eq!(dirs, ["work/", "Worka/"]);
     }
 
     #[test]
