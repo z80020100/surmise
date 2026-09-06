@@ -130,9 +130,9 @@ fn history_keeps_a_literal_tilde_child_separate_from_the_home_directory() {
     // has to leave that expansion alone. The empty name in it is the row that
     // runs the line.
     for (target, line, expected) in [
-        ("source/~", "cd ", vec!["~/", "alpha/", "..", "~"]),
-        ("home", "cd ", vec!["alpha/", "~/", "..", "~"]),
-        ("home/beta", "cd ~/", vec!["", "beta/", "alpha/"]),
+        ("source/~", "cd ", vec!["~/", "alpha/", "../", "~"]),
+        ("home", "cd ", vec!["alpha/", "~/", "../", "~"]),
+        ("home/beta", "cd ~/", vec!["", "beta/", "alpha/", "../"]),
     ] {
         let f = Fixture::new(&["source/alpha", "source/~", "home/alpha", "home/beta"]);
         let source = f.path().join("source");
@@ -167,7 +167,7 @@ fn history_keeps_a_literal_tilde_child_separate_from_the_home_directory() {
 fn the_current_directory_is_the_whole_list() {
     let f = fixture();
     let t = opened(f.path(), "cd ");
-    assert_eq!(names(&t), ["deep/", "my docs/", "work/", "..", "~"]);
+    assert_eq!(names(&t), ["deep/", "my docs/", "work/", "../", "~"]);
 }
 
 #[test]
@@ -203,7 +203,7 @@ fn the_menu_holds_still_to_its_edge_and_follows_the_highlight_past_it() {
     // would step back a row here.
     t.send(&"\x1b[B".repeat(4));
     t.pump(SETTLE);
-    let tail = ["d6/", "d7/", "d8/", "d9/", "..", "~"];
+    let tail = ["d6/", "d7/", "d8/", "d9/", "../", "~"];
     assert_eq!(names(&t), tail, "{:?}", t.lines());
     assert!(footer(&t).contains("11/11"), "{:?}", t.lines());
     t.send("\x1b[A");
@@ -427,7 +427,7 @@ fn a_path_lists_only_what_that_directory_holds() {
     let f = fixture();
     let t = opened(f.path(), "cd ~/work/");
     // The first row runs the line and carries no name of its own.
-    assert_eq!(names(&t), ["", "alpha/", "beta/"]);
+    assert_eq!(names(&t), ["", "alpha/", "beta/", "../"]);
 }
 
 #[test]

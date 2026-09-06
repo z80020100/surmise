@@ -262,8 +262,8 @@ impl App {
         let arg = shellword::unquote(&q.arg);
         // A match is a subsequence and need not lead with what was typed. Only
         // the rows that do can agree on something to add to it. The row that
-        // runs the line offers the argument back unchanged and the two places
-        // every shell can go from anywhere are not names either.
+        // runs the line offers the argument back unchanged. Navigation rows
+        // do not take part in the prefix the children share.
         let agreeing: Vec<&str> = self
             .items
             .iter()
@@ -373,6 +373,15 @@ mod tests {
         let a = App::over(f.path(), "cd wor");
         assert_eq!(a.items.len(), 1);
         assert_eq!(a.items[0].insert, "work/");
+    }
+
+    #[test]
+    fn a_parent_row_does_not_limit_the_prefix_of_child_directories() {
+        let f = Fixture::new(&["level/alpha", "level/alps"]);
+        let mut a = App::over(f.path(), "cd level/");
+        assert!(a.items.iter().any(|c| c.insert == "level/../"));
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "cd level/alp");
     }
 
     #[test]

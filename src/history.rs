@@ -359,6 +359,22 @@ mod tests {
     }
 
     #[test]
+    fn parent_visits_do_not_move_navigation_above_child_directories() {
+        let f = Fixture::new(&["level/child", "level/peer"]);
+        let db = f.path().join("history.sqlite3");
+        let source = f.path().join("level");
+        record_at(&db, &source, f.path(), AT).unwrap();
+        let h = History::read(&db, &source, AT).unwrap();
+        for arg in ["", "./"] {
+            let items = candidates::generate_in(arg, &source, &h, &mut candidates::Scan::default());
+            let rows: Vec<_> = items.iter().filter(|c| c.kind != Kind::Run).collect();
+            assert_eq!(rows[0].display, "child/");
+            assert_eq!(rows[1].display, "peer/");
+            assert_eq!(rows[2].kind, Kind::Parent);
+        }
+    }
+
+    #[test]
     fn symlinks_share_physical_paths_and_path_bytes_survive() {
         let f = Fixture::new(&["source", "target"]);
         let db = f.path().join("history.sqlite3");
