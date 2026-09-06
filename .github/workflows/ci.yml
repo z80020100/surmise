@@ -21,13 +21,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # macOS only, by choice. No other platform is built and no other platform is
-  # checked. The runner label floats while the toolchain is pinned. That is
-  # deliberate. A pinned label goes stale and gets dropped. The platform is what
-  # CI is meant to track.
+  # macOS is where this is developed and Linux is what says the code is not
+  # quietly tied to it. A failure on one does not cancel the other, because
+  # which platform failed is the answer a matrix exists to give.
+  #
+  # Each entry carries a platform name as well as a runner label. The label is
+  # what the job runs on and the name is what the job is called. A label in the
+  # name would put `macos-latest` in front of every reader and would move the
+  # status check's own name whenever the label moved.
+  #
+  # The labels float while the toolchain is pinned. That is deliberate. A pinned
+  # label goes stale and gets dropped. The platform is what CI is meant to
+  # track.
   check:
-    name: Check on macOS
-    runs-on: macos-latest
+    name: Check on ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            os: macos-latest
+          - name: Linux
+            os: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -50,6 +66,18 @@ jobs:
           cargo --version
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
+      # These go in ahead of the tests rather than ahead of `make shell`. The
+      # pty tests run the widget in a real zsh and a Linux runner has to install
+      # one. macOS ships zsh and needs the other two alone. Each platform gets
+      # its own step so the interface says which install ran.
+      - name: Install the shell tools
+        if: runner.os == 'macOS'
+        run: brew install shellcheck shfmt
+      - name: Install the shell tools and zsh
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck shfmt zsh
       # Every step below calls the Makefile so the commands have one definition
       # and each one still gets its own result in the GitHub interface.
       - name: Check formatting
@@ -58,9 +86,6 @@ jobs:
         run: make clippy
       - name: Run tests
         run: make test
-      # Neither tool is on the runner. zsh ships with macOS and needs no step.
-      - name: Install the shell tools
-        run: brew install shellcheck shfmt
       - name: Check the shell scripts
         run: make shell
       - name: Build release

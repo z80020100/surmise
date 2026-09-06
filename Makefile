@@ -31,8 +31,10 @@ ZSH_WIDGETS := $(wildcard shell/*.zsh)
 .PHONY: shell
 shell:
 	@for t in shellcheck shfmt; do \
-	  command -v $$t >/dev/null 2>&1 || \
-	    { echo "shell: $$t not found (brew install $$t)" >&2; exit 1; }; \
+	  command -v $$t >/dev/null 2>&1 || { \
+	    echo "shell: $$t not found (brew or apt-get install $$t)" >&2; \
+	    exit 1; \
+	  }; \
 	done
 	shellcheck $(SH_SCRIPTS)
 	shfmt -i 2 -d $(SH_SCRIPTS)

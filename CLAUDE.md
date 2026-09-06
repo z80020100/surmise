@@ -12,8 +12,8 @@ platform is not.
 ## Prerequisites
 
 - Rust 1.98.0. `rust-toolchain.toml` pins it and rustup installs it on demand
-- Target platforms: macOS for now. That is provisional rather than a decision.
-  It is simply the only platform anything has been built on
+- Target platforms: macOS and Linux. CI builds and checks both. Nothing else
+  has been built and nothing else is claimed
 
 ## Install
 
@@ -178,8 +178,9 @@ GitHub interface and the commands keep a single definition. CI then runs
 `make release` as a fifth step. The gate does not cover that step and a green
 hook therefore does not promise a green CI run.
 
-CI runs on macOS only, by choice. No other platform is built and no other
-platform is checked.
+CI runs the same gate on macOS and on Linux. A failure on one does not cancel
+the other, because which platform failed is the answer a matrix exists to give.
+No other platform is built and no other platform is checked.
 
 ## Repository conventions
 
@@ -233,7 +234,8 @@ That widget has no other gate: `make shell` reads its syntax alone. The `zsh`
 tests write a `.zshrc` of their own and install the widget through
 `eval "$($SURMISE_BIN init zsh)"`. A change to what `init zsh` prints therefore
 reaches them. `SURMISE_BIN` points the widget at the build's own binary and
-`/bin/zsh` is the shell they run. macOS ships that.
+`/bin/zsh` is the shell they run. macOS ships that and a Linux runner installs
+it.
 
 That `.zshrc` prints a marker once `surmise-space` is bound and every `zsh`
 test asserts it. Three of them claim that no menu opened and a widget that
@@ -323,10 +325,13 @@ reads its syntax alone. `zsh -n` takes only its first file argument and each wid
 gets a run of its own.
 
 A missing `shellcheck` or `shfmt` fails that gate rather than skipping it.
-`brew install shellcheck shfmt` is the fix and CI installs them the same way.
-zsh ships with macOS and needs no install. A gate that quietly checks nothing
-is worse than no gate and `make shell` therefore says so when the widget glob
-matches nothing.
+`brew install shellcheck shfmt` is the fix on macOS and
+`apt-get install shellcheck shfmt` is the one on Linux. CI installs them the
+same way. zsh ships with macOS and a Linux runner installs it beside the other
+two, because the pty tests run the widget in a real one. That install therefore
+goes in ahead of `make test` rather than ahead of `make shell`. A gate that
+quietly checks nothing is worse than no gate and `make shell` therefore says so
+when the widget glob matches nothing.
 
 `shellcheck` and `shfmt` float rather than pin. A new release of either can
 turn CI red with no change to the tree and that is the failure
