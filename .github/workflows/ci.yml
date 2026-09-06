@@ -90,3 +90,51 @@ jobs:
         run: make shell
       - name: Build release
         run: make release
+
+  # `rust-version` in Cargo.toml is a claim about a toolchain the job above does
+  # not build. This is what makes it a checked claim rather than a number
+  # somebody wrote down. The version is read out of Cargo.toml so that
+  # declaration stays the one place it is written.
+  msrv:
+    name: Check the declared minimum
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      # The shape is checked as well as the presence. A declaration this step
+      # cannot read is a gate that would otherwise install whatever it found.
+      # Cargo takes `1.91` as readily as `1.91.0` so this counts the characters
+      # rather than the components. Keeping a substituted value from ending the
+      # command it belongs to is the next step's job rather than this one's.
+      - name: Read the declared minimum
+        id: msrv
+        run: |
+          version=$(sed -n 's/^rust-version = "\(.*\)"$/\1/p' Cargo.toml)
+          case "$version" in
+          ''|*[!0-9.]*)
+            echo "rust-version is not a version: $version" >&2
+            exit 1
+            ;;
+          esac
+          echo "version=$version" >>"$GITHUB_OUTPUT"
+      # The version reaches every step below through the environment rather than
+      # through the script text. A value substituted into the script is a value
+      # that can end the command it was meant to be an argument to. A pull
+      # request carries a Cargo.toml of its own.
+      - name: Install the toolchain
+        env:
+          MSRV: ${{ steps.msrv.outputs.version }}
+        run: |
+          rustup toolchain install "$MSRV" --profile minimal
+          rustc "+$MSRV" --version
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: msrv-${{ steps.msrv.outputs.version }}
+      # `cargo check` is the whole of the claim. Neither clippy nor the tests
+      # belong here. A lint set moves between releases and answering a new lint
+      # is the pinned toolchain's job.
+      - name: Check
+        env:
+          MSRV: ${{ steps.msrv.outputs.version }}
+        run: cargo "+$MSRV" check --locked --all-targets

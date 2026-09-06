@@ -266,9 +266,19 @@ Bump the pin deliberately and answer the new lints in the same commit. Note that
 a `RUSTUP_TOOLCHAIN` environment variable overrides the file. A local shell
 that sets one is not testing the pinned toolchain.
 
-`rust-version` in `Cargo.toml` names the pinned toolchain rather than a lower
-bound, because the pinned one is the only toolchain CI builds. Edition 2024
-needs 1.85 at the least. Lower the declaration once a CI job proves that bound.
+`rust-version` in `Cargo.toml` is the lowest toolchain this crate compiles on
+and the `msrv` CI job is what proves it. That job reads the version out of
+`Cargo.toml` so the declaration stays the one place it is written. Edition 2024
+sets the floor at 1.85 and two things here sit above it. A `let` chain needs
+1.88 and `floor_char_boundary` needs 1.91.
+
+`cargo check` is the whole of that job. A lint set moves between releases and
+answering a new lint belongs to the pinned toolchain rather than to this one.
+Clippy on the pinned toolchain already reads `rust-version` and its
+`incompatible_msrv` lint therefore turns the gate red on a library call newer
+than the declaration. That covers the calls and not the language. A `let` chain
+compiles on the pinned toolchain whatever the declaration says and only a build
+on the declared toolchain catches it.
 
 Every cargo command in the Makefile passes `--locked`. `Cargo.lock` is tracked
 and a command that quietly re-resolves it would build something other than what
