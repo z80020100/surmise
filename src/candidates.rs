@@ -10,8 +10,16 @@ use crate::history::History;
 use crate::path::expand;
 use std::path::{Path, PathBuf};
 
-/// How many directory entries one keystroke is allowed to look at. A directory
-/// with more than this shows what came first rather than stalling the prompt.
+/// How many directories one keystroke is allowed to come back with. A
+/// directory holding more than this shows what came first rather than stalling
+/// the prompt.
+///
+/// The count is of the directories the menu can use rather than of everything
+/// the walk steps over. A limit on the entries would be spent on names no `cd`
+/// can take and a directory full of files would then open an empty menu. The
+/// walk itself is therefore unbounded. What that costs is one pass over a
+/// directory holding hundreds of thousands of files and what it buys is a
+/// menu that is not silently empty.
 const SCAN_LIMIT: usize = 400;
 /// How many rows the menu will ever be asked to hold.
 pub const MAX_RESULTS: usize = 60;
@@ -83,22 +91,25 @@ fn subdirs(dir: &Path, want_hidden: bool) -> Vec<String> {
     let Ok(rd) = std::fs::read_dir(dir) else {
         return Vec::new();
     };
-    let mut out = Vec::new();
-    for entry in rd.flatten().take(SCAN_LIMIT) {
-        let name = entry.file_name().to_string_lossy().to_string();
-        if name.starts_with('.') && !want_hidden {
-            continue;
-        }
-        let Ok(kind) = entry.file_type() else {
-            continue;
-        };
-        // A symlink to a directory is still a directory to `cd`. Only a
-        // symlink needs the second look. That look is a syscall of its own.
-        if kind.is_dir() || (kind.is_symlink() && entry.path().is_dir()) {
-            out.push(name);
-        }
-    }
-    out
+    // The limit sits behind the filter rather than in front of it. That is
+    // what makes it a count of directories. The name is borrowed until a row
+    // is going to hold it, because a directory full of files would otherwise
+    // allocate one string for every name the walk throws away.
+    rd.flatten()
+        .filter_map(|entry| {
+            let raw = entry.file_name();
+            let name = raw.to_string_lossy();
+            if name.starts_with('.') && !want_hidden {
+                return None;
+            }
+            let kind = entry.file_type().ok()?;
+            // A symlink to a directory is still a directory to `cd`. Only a
+            // symlink needs the second look. That look is a syscall of its own.
+            (kind.is_dir() || (kind.is_symlink() && entry.path().is_dir()))
+                .then(|| name.into_owned())
+        })
+        .take(SCAN_LIMIT)
+        .collect()
 }
 
 pub(crate) fn folder(display: String, insert: String, score: i32) -> Candidate {
@@ -387,6 +398,18 @@ mod tests {
         let mut all = subdirs(f.path(), true);
         all.sort();
         assert_eq!(all, [".hidden", "alpha"]);
+    }
+
+    #[test]
+    fn subdirs_counts_directories_rather_than_entries() {
+        // The limit is what one keystroke comes back with rather than what it
+        // steps over. Spending it on files is what left a directory holding
+        // thousands of them with no menu at all.
+        let mut entries: Vec<String> = (0..SCAN_LIMIT).map(|i| format!("file-{i}*")).collect();
+        entries.extend((0..SCAN_LIMIT).map(|i| format!("dir-{i}")));
+        let names: Vec<&str> = entries.iter().map(String::as_str).collect();
+        let f = Fixture::new(&names);
+        assert_eq!(subdirs(f.path(), false).len(), SCAN_LIMIT);
     }
 
     #[test]
