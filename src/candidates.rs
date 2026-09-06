@@ -242,18 +242,20 @@ pub(crate) fn generate_in(arg: &str, cwd: &Path, history: &History) -> Vec<Candi
 
     // History orders names inside their match rank. Resolve each path once
     // rather than on each comparison. The snapshot stays fixed between keys.
+    // Only the directory prefix expands. A child named `~` stays literal.
+    let (prefix, base) = split(arg);
+    let dir = resolved_in(prefix, cwd);
     let mut weighted: Vec<_> = out
         .into_iter()
         .map(|c| {
             let weight = if c.kind == Kind::Dir {
-                history.weight(&resolved_in(&c.insert, cwd))
+                history.weight(&dir.join(&c.display))
             } else {
                 0.0
             };
             (c, weight)
         })
         .collect();
-    let (_, base) = split(arg);
     // Exact names precede prefixes. Prefixes precede other matches. History
     // ranks the names inside each of those. Equal weights use the score and
     // then the name. That last key is what holds the menu still between
