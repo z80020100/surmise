@@ -513,3 +513,40 @@ fn a_line_that_is_not_a_cd_never_reaches_the_terminal() {
     assert_eq!(t.status(WAIT), Some(pick::PASS));
     assert!(t.lines().is_empty(), "{:?}", t.lines());
 }
+
+#[test]
+fn a_parent_can_be_browsed_repeatedly_with_tab_and_enter() {
+    let f = Fixture::new(&["base/level/inner", "base/sibling", "other"]);
+    let mut t = opened(f.path(), "cd base/level/..");
+    assert_eq!(names(&t), ["", "../"]);
+    t.send("\t");
+    t.pump(SETTLE);
+    assert_eq!(t.bells(), 1);
+    assert_eq!(t.underlined(1), "");
+    t.send("\x1b[B");
+    t.pump(SETTLE);
+    assert_eq!(t.underlined(1), "/");
+    t.send("\t");
+    t.pump(SETTLE);
+    assert!(shown(&t).contains("cd base/level/../"));
+    assert_eq!(names(&t), ["", "level/", "sibling/", "../"]);
+    t.send(&"\x1b[B".repeat(3));
+    t.pump(SETTLE);
+    assert_eq!(t.underlined(1), "");
+    assert_eq!(t.underlined(2), "");
+    assert_eq!(t.underlined(3), "../");
+    t.send("\r");
+    t.pump(SETTLE);
+    assert!(shown(&t).contains("cd base/level/../../"));
+    assert_eq!(names(&t), ["", "base/", "other/", "../"]);
+    t.send("\r");
+    assert_eq!(t.status(WAIT), Some(pick::RUN));
+}
+
+#[test]
+fn enter_on_the_initial_two_dot_row_runs_the_line() {
+    let f = Fixture::new(&["base/level"]);
+    let mut t = opened(f.path(), "cd base/level/..");
+    t.send("\r");
+    assert_eq!(t.status(WAIT), Some(pick::RUN));
+}

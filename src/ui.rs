@@ -295,14 +295,21 @@ fn glyph(k: Kind, chosen: bool) -> (&'static str, &'static str) {
 
 /// Whether Tab would grow this row's name. `common` reads the menu the same
 /// way and the underline therefore covers what the key would take.
-fn tab_grows(k: Kind, at: &[usize]) -> bool {
+/// `highlighted` is the kind the highlight sits on, because that is what says
+/// which rows the key reads.
+fn tab_grows(k: Kind, highlighted: Kind, at: &[usize]) -> bool {
+    // A match is a subsequence. Only a name whose match is the front of it
+    // can take a prefix the menu agreed on.
+    if !at.iter().enumerate().all(|(i, &j)| i == j) {
+        return false;
+    }
     match k {
-        // The row that runs the line grows nothing. Tab skips the row that
-        // goes up and the home shortcut beside it.
-        Kind::Run | Kind::Parent | Kind::Special => false,
-        // A match is a subsequence. Only a name whose match is the front of it
-        // can take a prefix the menu agreed on.
-        Kind::Dir => at.iter().enumerate().all(|(i, &j)| i == j),
+        // The row that runs the line grows nothing. Tab skips the home shortcut.
+        Kind::Run | Kind::Special => false,
+        // Tab takes a highlighted parent row whole and reads the child
+        // directories under every other highlight.
+        Kind::Parent => highlighted == Kind::Parent,
+        Kind::Dir => highlighted != Kind::Parent,
     }
 }
 
@@ -394,7 +401,7 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
             // rather than of the part the row shows. Dropping a match past
             // the cut first would leave a leading run behind and underline a
             // row the key passes over.
-            let under = if tab_grows(c.kind, &all) {
+            let under = if tab_grows(c.kind, current.kind, &all) {
                 all.len()..m.reach.min(kept)
             } else {
                 0..0
@@ -840,6 +847,18 @@ mod tests {
         }
     }
 
+    /// The row that goes up. It reads as a directory rather than as a
+    /// shortcut and the highlight is what decides whether Tab reads it.
+    fn parent(insert: &str) -> Candidate {
+        Candidate {
+            display: "../".into(),
+            insert: insert.to_string(),
+            label: "parent",
+            kind: Kind::Parent,
+            score: 0,
+        }
+    }
+
     #[test]
     fn the_panel_starts_one_column_before_the_cursor() {
         let items = dirs(1);
@@ -1084,6 +1103,21 @@ mod tests {
         assert_eq!(underlined(&rows[0]), "");
         assert_eq!(underlined(&rows[1]), "w");
         assert_eq!(underlined(&rows[2]), "");
+    }
+
+    #[test]
+    fn the_highlight_decides_whether_tab_reads_the_parent_or_the_children() {
+        // Tab takes a highlighted parent row whole and reads the child
+        // directories under every other highlight. The underline reads that
+        // same answer, so one of the two carries it and never both.
+        let items = vec![dir("work/"), parent("../")];
+        let under = |selected| {
+            let m = menu_in(&items, selected, 24, "", 3).expect("a menu");
+            let rows = menu_rows(&m, 80, 1, 0);
+            [underlined(&rows[0]), underlined(&rows[1])]
+        };
+        assert_eq!(under(0), ["wor", ""]);
+        assert_eq!(under(1), ["", "../"]);
     }
 
     #[test]
