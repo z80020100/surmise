@@ -104,6 +104,11 @@ The closer text match follows and names that tie keep their alphabetical order.
 Each source directory has preferences of its own. The menu reads those
 preferences once when it opens and keeps them while you type.
 
+The names themselves are read the same way. Each directory the argument
+reaches is walked once and the menu answers every later key from what that
+walk found. A directory made while the menu is open therefore arrives with the
+next menu rather than with the next key.
+
 The zsh directory hook records successful changes from manual commands and
 from surmise. Selecting a name does not record a visit. Executing the change
 does. Returning to the same physical directory records nothing. Quiet changes

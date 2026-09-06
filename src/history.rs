@@ -206,7 +206,7 @@ mod tests {
     }
 
     fn names(history: &History, cwd: &Path, arg: &str) -> Vec<String> {
-        candidates::generate_in(arg, cwd, history)
+        candidates::generate_in(arg, cwd, history, &mut candidates::Scan::default())
             .into_iter()
             .filter(|c| c.kind == Kind::Dir)
             .map(|c| c.display)
@@ -332,7 +332,7 @@ mod tests {
                 ["wo/", "workshop/", "work/", "a_wo/"]
             );
         }
-        let items = candidates::generate_in("wo", f.path(), &h);
+        let items = candidates::generate_in("wo", f.path(), &h, &mut candidates::Scan::default());
         assert_eq!(items[0].kind, Kind::Run);
         std::fs::remove_dir(f.path().join("workshop")).unwrap();
         assert!(!names(&h, f.path(), "wo").contains(&"workshop/".to_string()));

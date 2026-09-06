@@ -4,7 +4,7 @@
 //! picker. Nothing here touches the terminal and the ranking and the
 //! acceptance rules are therefore testable on their own.
 
-use crate::candidates::{self, Candidate, Kind};
+use crate::candidates::{self, Candidate, Kind, Scan};
 use crate::fuzzy::{shared_bytes, starts_with_folded};
 use crate::history::History;
 use crate::line::Line;
@@ -19,6 +19,7 @@ pub struct App {
     /// The directory the candidates are drawn from.
     pub cwd: PathBuf,
     history: History,
+    scan: Scan,
 }
 
 /// Quote a candidate's insertion for the shell. A leading `~` is a deliberate
@@ -73,6 +74,7 @@ impl App {
             dismissed: false,
             cwd,
             history: History::default(),
+            scan: Scan::default(),
         }
     }
 
@@ -97,9 +99,12 @@ impl App {
         // offer no menu for. The key then falls through to the shell's own
         // completion instead of opening rows nothing can take.
         self.items = match self.arg() {
-            Some(q) => {
-                candidates::generate_in(&shellword::unquote(&q.arg), &self.cwd, &self.history)
-            }
+            Some(q) => candidates::generate_in(
+                &shellword::unquote(&q.arg),
+                &self.cwd,
+                &self.history,
+                &mut self.scan,
+            ),
             None => Vec::new(),
         };
     }
@@ -368,6 +373,20 @@ mod tests {
         let a = App::over(f.path(), "cd wor");
         assert_eq!(a.items.len(), 1);
         assert_eq!(a.items[0].insert, "work/");
+    }
+
+    #[test]
+    fn refresh_reads_the_directory_once_and_types_against_what_it_read() {
+        let f = Fixture::new(&["alpha"]);
+        let mut a = App::over(f.path(), "cd a");
+        assert_eq!(a.items.len(), 1);
+        // A menu already open is answering from the walk it opened with. A
+        // directory made after that arrives with the next menu.
+        std::fs::create_dir(f.path().join("alps")).unwrap();
+        a.line.insert("l");
+        a.edited();
+        assert_eq!(a.items.len(), 1);
+        assert_eq!(a.items[0].insert, "alpha/");
     }
 
     #[test]

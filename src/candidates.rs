@@ -8,10 +8,19 @@
 use crate::fuzzy;
 use crate::history::History;
 use crate::path::expand;
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
-/// How many directory entries one keystroke is allowed to look at. A directory
-/// with more than this shows what came first rather than stalling the prompt.
+/// How many directories one keystroke is allowed to come back with. A
+/// directory holding more than this shows what came first rather than stalling
+/// the prompt.
+///
+/// The count is of the directories the menu can use rather than of everything
+/// the walk steps over. A limit on the entries would be spent on names no `cd`
+/// can take and a directory full of files would then open an empty menu. The
+/// walk itself is therefore unbounded. What that costs is one pass over a
+/// directory holding hundreds of thousands of files and what it buys is a
+/// menu that is not silently empty. `Scan` is what keeps that pass to one.
 const SCAN_LIMIT: usize = 400;
 /// How many rows the menu will ever be asked to hold.
 pub const MAX_RESULTS: usize = 60;
@@ -83,22 +92,51 @@ fn subdirs(dir: &Path, want_hidden: bool) -> Vec<String> {
     let Ok(rd) = std::fs::read_dir(dir) else {
         return Vec::new();
     };
-    let mut out = Vec::new();
-    for entry in rd.flatten().take(SCAN_LIMIT) {
-        let name = entry.file_name().to_string_lossy().to_string();
-        if name.starts_with('.') && !want_hidden {
-            continue;
-        }
-        let Ok(kind) = entry.file_type() else {
-            continue;
-        };
-        // A symlink to a directory is still a directory to `cd`. Only a
-        // symlink needs the second look. That look is a syscall of its own.
-        if kind.is_dir() || (kind.is_symlink() && entry.path().is_dir()) {
-            out.push(name);
-        }
+    // The limit sits behind the filter rather than in front of it. That is
+    // what makes it a count of directories. The name is borrowed until a row
+    // is going to hold it, because a directory full of files would otherwise
+    // allocate one string for every name the walk throws away.
+    rd.flatten()
+        .filter_map(|entry| {
+            let raw = entry.file_name();
+            let name = raw.to_string_lossy();
+            if name.starts_with('.') && !want_hidden {
+                return None;
+            }
+            let kind = entry.file_type().ok()?;
+            // A symlink to a directory is still a directory to `cd`. Only a
+            // symlink needs the second look. That look is a syscall of its own.
+            (kind.is_dir() || (kind.is_symlink() && entry.path().is_dir()))
+                .then(|| name.into_owned())
+        })
+        .take(SCAN_LIMIT)
+        .collect()
+}
+
+/// The listings one menu has already read.
+///
+/// `refresh` runs on every key and the names in a directory do not change
+/// while you type into them. Walking it again for each key asks the kernel a
+/// question this already holds the answer to. The history snapshot is read
+/// once when the menu opens for that same reason and this is the trade for
+/// the walk.
+///
+/// What it costs is a directory made while the menu is open. That name arrives
+/// with the next menu rather than with the next key.
+#[derive(Default)]
+pub(crate) struct Scan {
+    /// The hidden names are a listing of their own rather than a filter over
+    /// one. A key that left the flag out would answer a `cd .` from a walk
+    /// that never looked for them.
+    walked: HashMap<(PathBuf, bool), Vec<String>>,
+}
+
+impl Scan {
+    fn names(&mut self, dir: &Path, want_hidden: bool) -> &[String] {
+        self.walked
+            .entry((dir.to_path_buf(), want_hidden))
+            .or_insert_with(|| subdirs(dir, want_hidden))
     }
-    out
 }
 
 pub(crate) fn folder(display: String, insert: String, score: i32) -> Candidate {
@@ -141,7 +179,7 @@ pub fn split(arg: &str) -> (&str, &str) {
     }
 }
 
-fn path_mode(arg: &str, cwd: &Path) -> Vec<Candidate> {
+fn path_mode(arg: &str, cwd: &Path, scan: &mut Scan) -> Vec<Candidate> {
     let (prefix, base) = split(arg);
     // A relative prefix hangs off the directory the caller named. Resolving it
     // against the process directory instead would answer for the wrong place.
@@ -151,8 +189,8 @@ fn path_mode(arg: &str, cwd: &Path) -> Vec<Candidate> {
         resolved_in(prefix, cwd)
     };
     let mut out = Vec::new();
-    for name in subdirs(&dir, base.starts_with('.')) {
-        let Some(score) = fuzzy::score(base, &name) else {
+    for name in scan.names(&dir, base.starts_with('.')) {
+        let Some(score) = fuzzy::score(base, name) else {
             continue;
         };
         out.push(folder(
@@ -189,11 +227,11 @@ fn match_rank(base: &str, display: &str) -> u8 {
     }
 }
 
-fn predict(arg: &str, cwd: &Path) -> Vec<Candidate> {
+fn predict(arg: &str, cwd: &Path, scan: &mut Scan) -> Vec<Candidate> {
     let mut out: Vec<Candidate> = Vec::new();
 
-    for name in subdirs(cwd, arg.starts_with('.')) {
-        let Some(score) = fuzzy::score(arg, &name) else {
+    for name in scan.names(cwd, arg.starts_with('.')) {
+        let Some(score) = fuzzy::score(arg, name) else {
             continue;
         };
         out.push(folder(format!("{name}/"), format!("{name}/"), score + 40));
@@ -231,13 +269,18 @@ fn dir_stack_spec(arg: &str) -> bool {
     }
 }
 
-pub(crate) fn generate_in(arg: &str, cwd: &Path, history: &History) -> Vec<Candidate> {
+pub(crate) fn generate_in(
+    arg: &str,
+    cwd: &Path,
+    history: &History,
+    scan: &mut Scan,
+) -> Vec<Candidate> {
     let looks_like_path = arg.contains('/') || arg.starts_with('~') || arg.starts_with('.');
 
     let out = if looks_like_path {
-        path_mode(arg, cwd)
+        path_mode(arg, cwd, scan)
     } else {
-        predict(arg, cwd)
+        predict(arg, cwd, scan)
     };
 
     // History orders names inside their match rank. Resolve each path once
@@ -286,7 +329,7 @@ mod tests {
     use crate::fixture::Fixture;
 
     fn generate_in(arg: &str, cwd: &Path) -> Vec<Candidate> {
-        super::generate_in(arg, cwd, &History::default())
+        super::generate_in(arg, cwd, &History::default(), &mut Scan::default())
     }
 
     #[test]
@@ -385,6 +428,37 @@ mod tests {
         let f = Fixture::new(&["alpha", ".hidden"]);
         assert_eq!(subdirs(f.path(), false), ["alpha"]);
         let mut all = subdirs(f.path(), true);
+        all.sort();
+        assert_eq!(all, [".hidden", "alpha"]);
+    }
+
+    #[test]
+    fn subdirs_counts_directories_rather_than_entries() {
+        // The limit is what one keystroke comes back with rather than what it
+        // steps over. Spending it on files is what left a directory holding
+        // thousands of them with no menu at all.
+        let mut entries: Vec<String> = (0..SCAN_LIMIT).map(|i| format!("file-{i}*")).collect();
+        entries.extend((0..SCAN_LIMIT).map(|i| format!("dir-{i}")));
+        let names: Vec<&str> = entries.iter().map(String::as_str).collect();
+        let f = Fixture::new(&names);
+        assert_eq!(subdirs(f.path(), false).len(), SCAN_LIMIT);
+    }
+
+    #[test]
+    fn a_scan_walks_a_directory_once_and_keeps_what_it_found() {
+        let f = Fixture::new(&["alpha"]);
+        let mut scan = Scan::default();
+        assert_eq!(scan.names(f.path(), false), ["alpha"]);
+        std::fs::create_dir(f.path().join("beta")).unwrap();
+        assert_eq!(scan.names(f.path(), false), ["alpha"]);
+    }
+
+    #[test]
+    fn a_scan_holds_the_hidden_names_apart_from_the_plain_ones() {
+        let f = Fixture::new(&["alpha", ".hidden"]);
+        let mut scan = Scan::default();
+        assert_eq!(scan.names(f.path(), false), ["alpha"]);
+        let mut all = scan.names(f.path(), true).to_vec();
         all.sort();
         assert_eq!(all, [".hidden", "alpha"]);
     }
