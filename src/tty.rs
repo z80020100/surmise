@@ -68,7 +68,14 @@ pub fn claim() -> io::Result<File> {
 }
 
 /// How long to wait for a terminal to say where the cursor is.
-const DSR_WAIT: Duration = Duration::from_millis(120);
+///
+/// A terminal that answers ends the wait when its reply lands and pays none of
+/// this. The first open in a window is the one that answers slowly. A bound
+/// tight enough to cut that answer off puts the menu on a row of its own for a
+/// reason nothing on the screen explains. Only a terminal that never answers
+/// waits the whole of this out and the keys pressed inside that wait are what
+/// it costs.
+const DSR_WAIT: Duration = Duration::from_millis(500);
 
 fn was_interrupted() -> bool {
     io::Error::last_os_error().kind() == io::ErrorKind::Interrupted
@@ -114,8 +121,8 @@ fn parse_dsr(buf: &[u8]) -> Option<usize> {
 /// and then waits forever on a terminal that never replies. This exists for
 /// that reason.
 ///
-/// A key pressed inside the wait is lost. That window is 120 ms and it opens
-/// before there is anything on screen to type at.
+/// A key pressed inside the wait is lost. That window is `DSR_WAIT` and it
+/// opens before there is anything on screen to type at.
 pub fn column(out: &mut File) -> Option<usize> {
     out.write_all(b"\x1b[6n").ok()?;
     out.flush().ok()?;
