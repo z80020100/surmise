@@ -12,8 +12,8 @@ platform is not.
 ## Prerequisites
 
 - Rust 1.98.0. `rust-toolchain.toml` pins it and rustup installs it on demand
-- Target platforms: macOS for now. That is provisional rather than a decision.
-  It is simply the only platform anything has been built on
+- Target platforms: macOS and Linux. CI builds and checks both. Nothing else
+  has been built and nothing else is claimed
 
 ## Install
 
@@ -178,8 +178,9 @@ GitHub interface and the commands keep a single definition. CI then runs
 `make release` as a fifth step. The gate does not cover that step and a green
 hook therefore does not promise a green CI run.
 
-CI runs on macOS only, by choice. No other platform is built and no other
-platform is checked.
+CI runs the same gate on macOS and on Linux. A failure on one does not cancel
+the other, because which platform failed is the answer a matrix exists to give.
+No other platform is built and no other platform is checked.
 
 ## Repository conventions
 
@@ -233,13 +234,22 @@ That widget has no other gate: `make shell` reads its syntax alone. The `zsh`
 tests write a `.zshrc` of their own and install the widget through
 `eval "$($SURMISE_BIN init zsh)"`. A change to what `init zsh` prints therefore
 reaches them. `SURMISE_BIN` points the widget at the build's own binary and
-`/bin/zsh` is the shell they run. macOS ships that.
+`/bin/zsh` is the shell they run. macOS ships that and a Linux runner installs
+it.
 
 That `.zshrc` prints a marker once `surmise-space` is bound and every `zsh`
 test asserts it. Three of them claim that no menu opened and a widget that
 never loaded would satisfy all three. It also sets a `chpwd` hook, because the
 claim that Enter *ran* the line needs something the shell says on a directory
 change rather than on an accepted line.
+
+That shell starts with `-d` as well as `-i`. `ZDOTDIR` gives it the `.zshrc`
+above and `-d` is what keeps the machine's own `/etc/zsh/zshrc` from running in
+front of it. Debian and Ubuntu ship one that calls `compinit` with no flag, and
+on a machine whose completion directories are group writable that call asks the
+terminal whether to continue. The question lands before the prompt does and
+every test then waits for a prompt that is never drawn. The `history` tests
+need no such flag, because `-f` already drops every startup file.
 
 Two of the prototype's zsh cases are not here. The first loaded
 zsh-autosuggestions and zsh-syntax-highlighting. The widget's own comment names
@@ -264,9 +274,19 @@ Bump the pin deliberately and answer the new lints in the same commit. Note that
 a `RUSTUP_TOOLCHAIN` environment variable overrides the file. A local shell
 that sets one is not testing the pinned toolchain.
 
-`rust-version` in `Cargo.toml` names the pinned toolchain rather than a lower
-bound, because the pinned one is the only toolchain CI builds. Edition 2024
-needs 1.85 at the least. Lower the declaration once a CI job proves that bound.
+`rust-version` in `Cargo.toml` is the lowest toolchain this crate compiles on
+and the `msrv` CI job is what proves it. That job reads the version out of
+`Cargo.toml` so the declaration stays the one place it is written. Edition 2024
+sets the floor at 1.85 and two things here sit above it. A `let` chain needs
+1.88 and `floor_char_boundary` needs 1.91.
+
+`cargo check` is the whole of that job. A lint set moves between releases and
+answering a new lint belongs to the pinned toolchain rather than to this one.
+Clippy on the pinned toolchain already reads `rust-version` and its
+`incompatible_msrv` lint therefore turns the gate red on a library call newer
+than the declaration. That covers the calls and not the language. A `let` chain
+compiles on the pinned toolchain whatever the declaration says and only a build
+on the declared toolchain catches it.
 
 Every cargo command in the Makefile passes `--locked`. `Cargo.lock` is tracked
 and a command that quietly re-resolves it would build something other than what
@@ -323,10 +343,13 @@ reads its syntax alone. `zsh -n` takes only its first file argument and each wid
 gets a run of its own.
 
 A missing `shellcheck` or `shfmt` fails that gate rather than skipping it.
-`brew install shellcheck shfmt` is the fix and CI installs them the same way.
-zsh ships with macOS and needs no install. A gate that quietly checks nothing
-is worse than no gate and `make shell` therefore says so when the widget glob
-matches nothing.
+`brew install shellcheck shfmt` is the fix on macOS and
+`apt-get install shellcheck shfmt` is the one on Linux. CI installs them the
+same way. zsh ships with macOS and a Linux runner installs it beside the other
+two, because the pty tests run the widget in a real one. That install therefore
+goes in ahead of `make test` rather than ahead of `make shell`. A gate that
+quietly checks nothing is worse than no gate and `make shell` therefore says so
+when the widget glob matches nothing.
 
 `shellcheck` and `shfmt` float rather than pin. A new release of either can
 turn CI red with no change to the tree and that is the failure
