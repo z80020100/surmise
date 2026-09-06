@@ -59,6 +59,14 @@ fn home(before: &str, after: &str) -> Fixture {
 fn ready(home: &Path) -> Term {
     let mut cmd = CommandBuilder::new("/bin/zsh");
     cmd.arg("-i");
+    // `-d` drops the global startup files. `ZDOTDIR` below points zsh at the
+    // `.zshrc` above and that alone is what a machine can put in front of the
+    // widget. Debian and Ubuntu ship an `/etc/zsh/zshrc` that runs `compinit`
+    // with no flag, and on a machine whose completion directories are group
+    // writable that call asks the terminal whether to continue. The question
+    // arrives before the prompt does and every test here then waits for a
+    // prompt that is never drawn.
+    cmd.arg("-d");
     // A test machine's own environment is not the one under test. zsh reads
     // `ZDOTDIR` for the `.zshrc` above and the widget reads nothing else.
     cmd.env_clear();

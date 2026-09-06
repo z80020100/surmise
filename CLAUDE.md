@@ -243,6 +243,14 @@ never loaded would satisfy all three. It also sets a `chpwd` hook, because the
 claim that Enter *ran* the line needs something the shell says on a directory
 change rather than on an accepted line.
 
+That shell starts with `-d` as well as `-i`. `ZDOTDIR` gives it the `.zshrc`
+above and `-d` is what keeps the machine's own `/etc/zsh/zshrc` from running in
+front of it. Debian and Ubuntu ship one that calls `compinit` with no flag, and
+on a machine whose completion directories are group writable that call asks the
+terminal whether to continue. The question lands before the prompt does and
+every test then waits for a prompt that is never drawn. The `history` tests
+need no such flag, because `-f` already drops every startup file.
+
 Two of the prototype's zsh cases are not here. The first loaded
 zsh-autosuggestions and zsh-syntax-highlighting. The widget's own comment names
 that pair as the reason it hangs the trigger off the space key rather than off
