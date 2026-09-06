@@ -83,6 +83,7 @@ it. An empty last part offers it after the children. Typing `cd ..` starts
 on the row that runs the line. Enter there goes up and Tab leaves the line
 alone. Select `../` and Enter or Tab instead adds the slash and opens the
 parent's children. That menu also offers `../` so you can continue up.
+The parent row remains available when the children fill the menu's limit.
 
 Tab takes a highlighted `../` row whole. Otherwise it reads the child
 directories and skips the parent and home shortcuts. Except for a `..`

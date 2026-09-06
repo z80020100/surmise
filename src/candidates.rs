@@ -331,6 +331,12 @@ pub(crate) fn generate_in(
     if !arg.is_empty() && !dir_stack_spec(arg) && resolved_in(arg, cwd).is_dir() {
         out.insert(0, run_row(arg.to_string()));
     }
+    // Keep a way up even when the children fill the menu.
+    if let Some(parent) = out.iter().position(|c| c.kind == Kind::Parent)
+        && parent >= MAX_RESULTS
+    {
+        out.swap(MAX_RESULTS - 1, parent);
+    }
     out.truncate(MAX_RESULTS);
     out
 }
@@ -680,6 +686,19 @@ mod tests {
         let refs: Vec<&str> = names.iter().map(String::as_str).collect();
         let f = Fixture::new(&refs);
         assert_eq!(generate_in("dir", f.path()).len(), MAX_RESULTS);
+    }
+
+    #[test]
+    fn a_full_menu_keeps_its_parent_row() {
+        let names: Vec<String> = (0..MAX_RESULTS + 5).map(|i| format!("dir{i:03}")).collect();
+        let refs: Vec<&str> = names.iter().map(String::as_str).collect();
+        let f = Fixture::new(&refs);
+        for arg in ["", "./"] {
+            let got = generate_in(arg, f.path());
+            assert_eq!(got.len(), MAX_RESULTS);
+            assert_eq!(got.last().unwrap().kind, Kind::Parent);
+            assert_eq!(got.last().unwrap().insert, format!("{arg}../"));
+        }
     }
 
     #[test]
