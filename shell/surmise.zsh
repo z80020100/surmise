@@ -36,6 +36,32 @@ if [[ -z $_surmise_fallback ]]; then
   esac
 fi
 
+# Put the line surmise wrote on the screen with a suggestion that fits it.
+#
+# zsh-autosuggestions asks for a new suggestion after a widget it wrapped
+# changes the line. It wraps what `zle -la` listed when it bound. Under
+# ZSH_AUTOSUGGEST_MANUAL_REBIND that binding happens once and the first prompt
+# is the one that gets it. A surmise sourced after that is on no list of its
+# own and the suggestion the old line earned would sit on the screen behind the
+# new one.
+#
+# `autosuggest-clear` and `autosuggest-fetch` are two of the widgets the
+# plugin's README names. The fetch alone would do while the plugin answers in
+# line. An asynchronous one forks and leaves the old suggestion up until its
+# answer lands. The clear is what takes that suggestion down meanwhile.
+#
+# `_zsh_autosuggest_bind_widgets` would add surmise to the list instead. That
+# walk rewraps every widget in the shell rather than surmise's two and a widget
+# aliased to a builtin does not survive it. The comment on the space key below
+# is what that costs. It would also undo the saving that setting exists to make.
+_surmise_redraw() {
+  if (( $+widgets[autosuggest-clear] && $+widgets[autosuggest-fetch] )); then
+    zle autosuggest-clear -w
+    zle autosuggest-fetch -w
+  fi
+  zle reset-prompt
+}
+
 # A first argument says the key was not a completion request. zle hands a
 # widget none of its own and only `surmise-space` passes one.
 surmise-complete() {
@@ -50,12 +76,13 @@ surmise-complete() {
   result=$(SURMISE_TTY=$TTY command $SURMISE_BIN --pick "$LBUFFER" </dev/null)
   ret=$?
   case $ret in
-    0) LBUFFER=$result; zle reset-prompt ;;
+    0) LBUFFER=$result; _surmise_redraw ;;
+    # Nothing was written. The suggestion on the screen still fits the line.
     1) zle reset-prompt ;;
     # Enter runs the line. surmise was handed the half in front of the cursor
     # alone and running the rest of it unseen is not what Enter offered. Take
     # the completion and leave the running to the person.
-    3) LBUFFER=$result; zle reset-prompt; [[ -n $RBUFFER ]] || zle accept-line ;;
+    3) LBUFFER=$result; _surmise_redraw; [[ -n $RBUFFER ]] || zle accept-line ;;
     # 2 is PASS: nothing surmise completes. Tab hands the key back to whatever
     # held it. A space is already typed and completing it is not what was
     # asked for. Any other status is a surmise that never ran and the same

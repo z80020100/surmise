@@ -33,6 +33,13 @@ eval "$(surmise init zsh)"
 it. The two cannot fall out of step, because they are one artifact. The
 `make shell` gate reads the same bytes the command emits.
 
+zsh-autosuggestions asks for a new suggestion after a widget it wrapped
+changes the line. It wraps the widgets `zle -la` lists when it binds. Under
+`ZSH_AUTOSUGGEST_MANUAL_REBIND` that binding happens once and the first prompt
+is the one that gets it. A surmise sourced at the prompt after that is on no
+list of its own. surmise asks for the suggestion itself whenever it writes the
+line and the ghost text follows the line either way.
+
 ## Use
 
 Two ways in. Tab asks surmise about the line you already have and falls through
