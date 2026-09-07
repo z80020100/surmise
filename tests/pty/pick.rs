@@ -14,6 +14,10 @@ use surmise::pick;
 /// The glyph surmise puts on a directory row.
 const ICON: char = '\u{f07b}';
 
+/// The glyph on the home shortcut. A directory row's colour with a shape of
+/// its own.
+const HOME_ICON: char = '\u{f015}';
+
 /// The glyph on the row that runs the line.
 const RUN_ICON: char = '\u{21b5}';
 
@@ -83,7 +87,12 @@ fn names(t: &Term) -> Vec<String> {
     t.panel()
         .iter()
         .take_while(|row| is_name(row))
-        .map(|row| row.text.replace([ICON, RUN_ICON], "").trim().to_string())
+        .map(|row| {
+            row.text
+                .replace([ICON, HOME_ICON, RUN_ICON], "")
+                .trim()
+                .to_string()
+        })
         .collect()
 }
 
@@ -230,16 +239,28 @@ fn a_directory_only_the_history_knows_about_does_not_get_in() {
 }
 
 #[test]
-fn a_bare_cd_puts_the_folder_glyph_on_every_row() {
+fn a_bare_cd_puts_a_folder_glyph_on_every_row() {
     let f = fixture();
     let t = opened(f.path(), "cd ");
     // A `take_while` over an empty list would claim this with no row read.
     assert!(!names(&t).is_empty());
     // The line under the list is where the names stop. What is below it
     // carries no glyph and no name.
-    for row in t.panel().iter().take_while(|row| is_name(row)) {
-        assert!(row.text.contains(ICON), "{:?}", row.text);
+    let panel = t.panel();
+    let rows: Vec<&str> = panel
+        .iter()
+        .take_while(|row| is_name(row))
+        .map(|row| row.text.as_str())
+        .collect();
+    for text in &rows {
+        assert!(text.contains(ICON) || text.contains(HOME_ICON), "{text:?}");
     }
+    // One of them is the home shortcut and its own shape is what says so.
+    assert_eq!(
+        rows.iter().filter(|text| text.contains(HOME_ICON)).count(),
+        1,
+        "{rows:?}"
+    );
 }
 
 #[test]
