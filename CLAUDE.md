@@ -52,6 +52,13 @@ somewhere to go inside it and follows the highlight one row at a time past
 that. Up on the first name and Down on the last wrap to the other end of the
 list and the menu follows in one step.
 
+A selected name that does not fit its row also appears below the separator.
+The name wraps within the panel's width and the label and count remain below
+it. The wrapped name carries no marks and no underline. The row in the list
+is what says how the name got in and what Tab would take. A short terminal
+limits the extra rows and an ellipsis marks any text that still does not fit.
+Without spare rows the menu shows only the list and its label.
+
 | Key | Inside the menu |
 | --- | --- |
 | Up and Down | Move the highlight |

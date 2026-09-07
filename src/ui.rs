@@ -78,6 +78,9 @@ const RUN_ICON_FG_CHOSEN: &str = "\x1b[38;5;217m";
 /// with no room for all of it takes some back.
 const PANEL_INNER: usize = 40;
 const MENU_ROWS: usize = 6;
+/// Rows the menu never takes. They are left to the input line, to the line
+/// and the word under the list and to whatever the shell put above it.
+const RESERVED_ROWS: usize = 5;
 
 /// The terminal's width. It is never fewer than 24 cells and the panel's
 /// layout arithmetic rests on that floor.
@@ -117,6 +120,9 @@ pub struct Menu<'a> {
     items: &'a [Candidate],
     selected: usize,
     rows: usize,
+    /// Rows the menu may take. It opens as the terminal's height and the
+    /// renderer takes back whatever a wrapped input line spends.
+    height: usize,
     /// What the rows were matched against. The characters it reached in a name
     /// carry a ground and a brighter name of their own.
     typed: &'a str,
@@ -153,12 +159,11 @@ fn menu_in<'a>(
         items,
         typed,
         reach,
+        height,
         selected: selected.min(items.len() - 1),
-        // Five rows are left to the input line, to the line and the word
-        // under the list and to whatever the shell put above it.
         rows: MENU_ROWS
             .min(items.len())
-            .min(height.saturating_sub(5).max(1)),
+            .min(height.saturating_sub(RESERVED_ROWS).max(1)),
     })
 }
 
@@ -426,6 +431,23 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
         "{pad}{PANEL}{BORDER}{}{RESET}",
         String::from(RULE).repeat(inner + 2)
     ));
+    let text = printable(&current.display);
+    let spare = m.height.saturating_sub(RESERVED_ROWS + m.rows);
+    if cells(&text) > text_w && spare > 0 {
+        let mut detail = wrap(&[Seg { style: "", text }], inner, 0);
+        if detail.len() > spare {
+            detail.truncate(spare);
+            // `fit` below is what cuts this back to the panel's width.
+            if let Some(last) = detail.last_mut() {
+                last.push('…');
+            }
+        }
+        rows.extend(
+            detail
+                .iter()
+                .map(|row| format!("{pad}{PANEL}{NAME} {} {RESET}", fit(row, inner))),
+        );
+    }
     rows.push(format!(
         "{pad}{PANEL}{FOOT}{ITALIC} {} {RESET}",
         fit(&foot, inner)
@@ -526,7 +548,8 @@ impl<W: Write> Ui<W> {
         while rows.len() <= cursor_row {
             rows.push(String::new());
         }
-        if let Some(m) = menu {
+        if let Some(mut m) = menu {
+            m.height = m.height.saturating_sub(rows.len().saturating_sub(1));
             self.top = window_start(self.top, m.selected, m.rows, m.items.len());
             rows.extend(menu_rows(&m, w, cursor_col, self.top));
         }
@@ -887,6 +910,42 @@ mod tests {
         let items = dirs(3);
         let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         assert_eq!(menu_rows(&m, 80, 1, 0).len(), 5);
+    }
+
+    #[test]
+    fn the_detail_preserves_wide_characters_and_removes_controls() {
+        // The name holds no space. `trim_end` below is there for the padding
+        // and it would take a space off a row that ended on one.
+        let name = format!("{}\n\x1b-suffix/", "日本語".repeat(12));
+        let items = vec![dir(&name)];
+        for width in [24, 40, 80] {
+            let m = menu_in(&items, 0, 30, "", 0).expect("a menu");
+            let rows = menu_rows(&m, width, 1, 0);
+            let detail: String = rows[2..rows.len() - 1]
+                .iter()
+                .map(|row| {
+                    row.strip_prefix(&format!("{PANEL}{NAME} "))
+                        .unwrap()
+                        .strip_suffix(&format!(" {RESET}"))
+                        .unwrap()
+                        .trim_end()
+                })
+                .collect();
+            assert_eq!(detail, printable(&name));
+            assert!(rows.iter().all(|row| cells_of_row(row) <= width));
+        }
+    }
+
+    #[test]
+    fn a_short_terminal_bounds_the_detail_and_marks_missing_text() {
+        let items = vec![dir(&"x".repeat(200))];
+        let m = menu_in(&items, 0, 8, "", 0).expect("a menu");
+        let rows = menu_rows(&m, 24, 1, 0);
+        assert_eq!(rows.len(), 5);
+        assert!(rows[3].contains('…'));
+        assert!(rows.last().unwrap().contains("folder"));
+        let m = menu_in(&items, 0, 6, "", 0).expect("a menu");
+        assert_eq!(menu_rows(&m, 24, 1, 0).len(), 3);
     }
 
     #[test]
@@ -1334,6 +1393,32 @@ mod tests {
         // One input row, two entries, the line under them and the footer.
         assert!(out.contains("\x1b[4A"), "{out:?}");
         assert!(out.contains("d0") && out.contains("d1"), "{out:?}");
+    }
+
+    #[test]
+    fn a_wrapped_line_takes_its_rows_out_of_the_detail() {
+        // Ten rows, one long name and a panel that spends what is left on
+        // the detail. The frame is the same height whether the line wraps or
+        // not. The rows a second input row costs come off the detail.
+        let items = vec![dir(&"x".repeat(120))];
+        let walk_up = |text: &str| {
+            let mut buf: Vec<u8> = Vec::new();
+            let mut line = Line::new();
+            line.insert(text);
+            Ui::new(&mut buf, 0)
+                .render_at(&[], &line, "", menu_in(&items, 0, 10, "", 0), 24)
+                .expect("a Vec always takes a write");
+            String::from_utf8(buf).expect("the frame is text")
+        };
+        // One input row, one entry, the line under it, four detail rows and
+        // the footer.
+        let out = walk_up("cd abc");
+        assert!(out.contains("\x1b[7A"), "{out:?}");
+        // This line wraps onto a second row and the cursor sits on it. One
+        // detail row pays for that row and the walk back up is shorter by
+        // the one the cursor gained.
+        let out = walk_up("cd abcdefghijklmnopqrstuvwxy");
+        assert!(out.contains("\x1b[6A"), "{out:?}");
     }
 
     #[test]
