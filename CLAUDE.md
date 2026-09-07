@@ -1,6 +1,6 @@
 # surmise
 
-Completion for the directory argument of a `cd`.
+Completion for `cd` directories and Git subcommands.
 
 > This file also provides guidance to [Claude Code](https://claude.ai/code) when
 > working with code in this repository. `README.md`, `AGENTS.md` and `GEMINI.md`
@@ -175,6 +175,32 @@ keeps the Tab route.
 `SURMISE_BIN` names the binary. It defaults to the `surmise` on the PATH.
 That is the one that printed the widget when `init` was run from there.
 
+## Git
+
+Typing a bare `git ` opens a subcommand menu. Tab also opens it on a partial
+subcommand such as `git stat`. Exact names lead. Prefixes follow and fuzzy
+matches come last. The menu includes high-level Git commands and configured
+alias names. It reads the installed Git once per menu. It does not run aliases.
+
+Enter accepts the highlighted subcommand and adds a space. Right does the same
+when the name starts with what you typed. Tab accepts the shared prefix or a
+single prefix match. A complete subcommand returns the line to the shell for
+further editing. A word no subcommand matches returns the line as well. Tab on
+such a word opens no menu and the shell completes it instead. Accepting a
+subcommand does not execute it. Esc keeps the edited line. Ctrl-C and Ctrl-G
+restore the line that opened the menu.
+
+Subcommand arguments and Git global options use the shell's existing completion.
+This includes branches, paths and command options. Quoted subcommands and
+compound shell commands also stay with the shell. Git candidates use text
+ranking alone. Directory history does not affect them.
+
+Git must be on PATH. The command query allows 250 ms and at most 64 KiB of
+output. A missing Git, a failed query or a query that exceeds either limit
+leaves completion to the shell. Errors do not print at the prompt.
+The query uses Git's experimental `--list-cmds` interface. A Git version that
+does not support this interface also falls back to the shell.
+
 ## Build, test and lint
 
 ```sh
@@ -252,8 +278,8 @@ reaches them. `SURMISE_BIN` points the widget at the build's own binary and
 it.
 
 That `.zshrc` prints a marker once `surmise-space` is bound and every `zsh`
-test asserts it. Three of them claim that no menu opened and a widget that
-never loaded would satisfy all three. It also sets a `chpwd` hook, because the
+test asserts it. Five of them claim that no menu opened and a widget that
+never loaded would satisfy all five. It also sets a `chpwd` hook, because the
 claim that Enter *ran* the line needs something the shell says on a directory
 change rather than on an accepted line.
 

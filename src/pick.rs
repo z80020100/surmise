@@ -67,7 +67,9 @@ pub fn run(seed: &str) -> io::Result<u8> {
     let Some(mut app) = seeded(seed, &cwd) else {
         return Ok(PASS);
     };
-    app = app.with_history(crate::history::History::load(&cwd));
+    if !app.completes_git() {
+        app = app.with_history(crate::history::History::load(&cwd));
+    }
 
     let mut term = tty::claim()?;
     let _raw = tty::Raw::on(term.try_clone()?)?;
@@ -101,6 +103,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
             .flatten();
         ui.render(&head, &app.line, &app.ghost(), menu)?;
 
+        let completing_git = app.completes_git();
         match event::read()? {
             Event::Paste(s) => {
                 app.line.insert(&keys::pasted(&s));
@@ -158,6 +161,9 @@ pub fn run(seed: &str) -> io::Result<u8> {
             // A resize needs no answer of its own. The next frame measures the
             // terminal again.
             _ => {}
+        }
+        if completing_git && !app.menu_open() {
+            break ACCEPTED;
         }
     };
 

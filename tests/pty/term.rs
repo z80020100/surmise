@@ -64,6 +64,16 @@ impl vt100::Callbacks for Answering {
 
 /// A run of painted cells on one row: where it starts, where it ends and what
 /// it holds.
+/// The `PATH` a harness child gets. The rest of the environment is cleared,
+/// because a test machine's own environment is not the one under test. This
+/// one variable is the exception. The Git menu asks the installed Git for its
+/// subcommands and installed means a name this lookup finds. A directory
+/// named here would be a guess about the machine rather than an answer, and a
+/// runner keeps its own Git somewhere other than `/usr/bin`.
+pub fn path() -> String {
+    std::env::var("PATH").expect("a PATH to find git on")
+}
+
 pub struct Panel {
     pub row: u16,
     pub lo: u16,
@@ -338,7 +348,32 @@ impl Drop for Term {
 
 #[cfg(test)]
 mod tests {
-    use super::Answering;
+    use super::{Answering, path};
+
+    /// Every claim about a Git menu rests on this machine having a Git that
+    /// answers the query at all. `CLAUDE.md` says a Git without that
+    /// interface leaves completion to the shell, which is what a menu test
+    /// then reads as an empty menu. This says which of the two broke.
+    #[test]
+    fn the_harness_reaches_a_git_that_answers() {
+        let out = std::process::Command::new("git")
+            .env_clear()
+            .env("PATH", path())
+            .arg("--list-cmds=list-mainporcelain")
+            .output()
+            .expect("a git on the harness PATH");
+        let names = String::from_utf8_lossy(&out.stdout);
+        assert!(
+            out.status.success(),
+            "that Git refused --list-cmds: {:?} {:?}",
+            out.status,
+            String::from_utf8_lossy(&out.stderr)
+        );
+        assert!(
+            names.lines().any(|name| name == "status"),
+            "that Git answered without `status`: {names:?}"
+        );
+    }
 
     /// What `Answering` replies to `query`, asked from row 3 column 5.
     fn reply(query: &[u8]) -> String {
