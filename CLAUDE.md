@@ -56,7 +56,7 @@ list and the menu follows in one step.
 | --- | --- |
 | Up and Down | Move the highlight |
 | Shift-Tab | Move the highlight back |
-| Tab | Take the prefix the directories in the menu share |
+| Tab | Take a highlighted `../` whole or the prefix the directories share |
 | Right | Take what the highlighted directory adds. At the end of the line |
 | Enter | Go into the highlighted directory or run the line |
 | Esc | Leave the menu and keep what you typed |
@@ -78,18 +78,25 @@ that runs it arrives with whatever else the dots in it match. A dot in front
 of the last part of the argument also turns the hidden names on. That is the
 trade the row costs.
 
-Tab reads the directories in the menu rather than the row under the highlight
-and where the highlight sits therefore does not change what it offers. That
-includes the row that runs the line: Tab looks past it to the directories
-below. One directory that leads with what you typed goes in whole, inside
-quotes as well as outside them. Past that it takes the prefix they all share.
-It leaves the line alone when that prefix adds nothing, when the shell would
-not read it as a single literal word, when what they share is the whole of
-one of the names, when they spell that shared part differently, when the
-argument is inside quotes and when the argument ends in a space. The quote is
-because half a name cannot carry the one that closes it. The space is you
-saying the word is finished. Right leaves it alone for that same reason and
-Enter runs the line, because a finished word leaves nothing to take.
+Each directory also offers `../` when the last part of the argument matches
+it. An empty last part offers it after the children. Typing `cd ..` starts
+on the row that runs the line. Enter there goes up and Tab leaves the line
+alone. Select `../` and Enter or Tab instead adds the slash and opens the
+parent's children. That menu also offers `../` so you can continue up.
+The parent row remains available when the children fill the menu's limit.
+
+Tab takes a highlighted `../` row whole. Otherwise it reads the child
+directories and skips the parent and home shortcuts. Except for a `..`
+argument it also looks past the row that runs the line. One directory that
+leads with what you typed goes in whole, inside quotes as well as outside
+them. Past that it takes the prefix they all share. It leaves the line alone
+when that prefix adds nothing, when the shell would not read it as a single
+literal word, when what they share is the whole of one of the names, when they
+spell that shared part differently, when the argument is inside quotes and
+when the argument ends in a space. The quote is because half a name cannot
+carry the one that closes it. The space is you saying the word is finished.
+Right leaves it alone for that same reason and Enter runs the line, because a
+finished word leaves nothing to take.
 
 Tab rings the terminal's bell whenever it leaves the line alone. The line is
 the one that was already there and nothing on the screen would say the key
@@ -127,7 +134,7 @@ Each visit adds one to the weight. Existing weight halves every 30 days.
 Records unused for more than 180 days no longer affect sorting.
 The next write removes those records. History only reorders directories the
 menu already found. It does not add destinations or expand the scan limit.
-The parent and home rows keep their positions after the directory rows.
+The parent and home rows do not use history weights.
 
 SQLite serializes writes from concurrent shells. A write waits up to 50 ms
 for a lock before giving up. A read does not wait for a lock.

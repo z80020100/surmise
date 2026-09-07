@@ -249,21 +249,24 @@ impl App {
     /// The name Tab would leave the argument spelling. `None` when Tab would
     /// leave the line alone.
     ///
-    /// Tab offers what the menu agrees on rather than the row under the
-    /// highlight and where the highlight sits does not change the answer. One
-    /// row that leads with what was typed goes in whole. A prefix that adds
-    /// nothing to the line leaves it alone.
+    /// Tab takes a highlighted parent row whole. Otherwise it offers what the
+    /// child directories agree on. One row that leads with what was typed goes
+    /// in whole. A prefix that adds nothing to the line leaves it alone.
     fn common(&self) -> Option<Common> {
-        if !self.menu_open() {
-            return None;
-        }
+        let selected = self.highlighted()?;
         let q = self.arg()?;
         let quoted = q.arg.starts_with(['\'', '"']);
         let arg = shellword::unquote(&q.arg);
+        if selected.kind == Kind::Parent {
+            return Some(Common::new(q.start, selected.insert.clone(), &arg));
+        }
+        if selected.kind == Kind::Run && candidates::split(&arg).1 == ".." {
+            return None;
+        }
         // A match is a subsequence and need not lead with what was typed. Only
         // the rows that do can agree on something to add to it. The row that
-        // runs the line offers the argument back unchanged and the two places
-        // every shell can go from anywhere are not names either.
+        // runs the line offers the argument back unchanged. Navigation rows
+        // do not take part in the prefix the children share.
         let agreeing: Vec<&str> = self
             .items
             .iter()
@@ -373,6 +376,41 @@ mod tests {
         let a = App::over(f.path(), "cd wor");
         assert_eq!(a.items.len(), 1);
         assert_eq!(a.items[0].insert, "work/");
+    }
+
+    #[test]
+    fn two_dots_offer_execution_and_a_parent_to_browse() {
+        let f = Fixture::new(&["level/inner", "level/..cache", "sibling"]);
+        let mut a = App::over(&f.path().join("level"), "cd ..");
+        assert!(a.runs_the_line());
+        assert!(!a.accept_common());
+        assert_eq!(a.items[1].insert, "../");
+        a.step(1);
+        assert!(!a.runs_the_line());
+        assert_eq!(a.reach(), 3);
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "cd ../");
+        assert!(a.items.iter().any(|c| c.insert == "../sibling/"));
+        assert!(a.items.iter().any(|c| c.insert == "../../"));
+    }
+
+    #[test]
+    fn a_parent_row_does_not_limit_the_prefix_of_child_directories() {
+        let f = Fixture::new(&["level/alpha", "level/alps"]);
+        let mut a = App::over(f.path(), "cd level/");
+        assert!(a.items.iter().any(|c| c.insert == "level/../"));
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "cd level/alp");
+    }
+
+    #[test]
+    fn a_parent_row_keeps_the_quote_around_a_path_with_spaces() {
+        let f = Fixture::new(&["my docs/inner", "other"]);
+        let mut a = App::over(f.path(), "cd 'my docs/..");
+        a.step(1);
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "cd 'my docs/../'");
+        assert!(a.items.iter().any(|c| c.insert == "my docs/../other/"));
     }
 
     #[test]
@@ -677,8 +715,8 @@ mod tests {
     #[test]
     fn tab_answers_for_the_menu_while_the_row_that_runs_holds_the_highlight() {
         // `refresh` puts the highlight on the row that runs the line after
-        // every keystroke. Tab reads the directory rows rather than the
-        // highlight and still has the one below to offer.
+        // every keystroke. Tab looks past that row to the directory rows and
+        // still has the one below to offer.
         let f = Fixture::new(&["work"]);
         let mut a = App::over(f.path(), "cd work");
         assert!(a.runs_the_line());

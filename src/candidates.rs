@@ -28,6 +28,7 @@ pub const MAX_RESULTS: usize = 60;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Kind {
     Dir,
+    Parent,
     Special,
     /// The argument as it stands. This row grows nothing and runs the line
     /// instead.
@@ -237,16 +238,9 @@ fn predict(arg: &str, cwd: &Path, scan: &mut Scan) -> Vec<Candidate> {
         out.push(folder(format!("{name}/"), format!("{name}/"), score + 40));
     }
 
-    // The two places every shell can go from anywhere. They come last on an
-    // empty argument and not at all once something is typed.
+    // Home comes last on an empty argument and not at all once something
+    // is typed.
     if arg.is_empty() {
-        out.push(Candidate {
-            display: "..".into(),
-            insert: "../".into(),
-            label: "parent",
-            kind: Kind::Special,
-            score: 20,
-        });
         out.push(Candidate {
             display: "~".into(),
             insert: "~".into(),
@@ -277,7 +271,7 @@ pub(crate) fn generate_in(
 ) -> Vec<Candidate> {
     let looks_like_path = arg.contains('/') || arg.starts_with('~') || arg.starts_with('.');
 
-    let out = if looks_like_path {
+    let mut out = if looks_like_path {
         path_mode(arg, cwd, scan)
     } else {
         predict(arg, cwd, scan)
@@ -288,6 +282,24 @@ pub(crate) fn generate_in(
     // Only the directory prefix expands. A child named `~` stays literal.
     let (prefix, base) = split(arg);
     let dir = resolved_in(prefix, cwd);
+    if let Some(score) = fuzzy::score(base, "..")
+        && dir.is_dir()
+    {
+        out.push(Candidate {
+            display: "../".into(),
+            insert: format!("{prefix}../"),
+            label: "parent",
+            kind: Kind::Parent,
+            // Nothing typed puts this row behind the children and ahead of
+            // home. `predict` scores a child 40 and home 15. `path_mode`
+            // scores a child 0 and offers no home row to sit above.
+            score: if base.is_empty() {
+                if looks_like_path { -1 } else { 20 }
+            } else {
+                score
+            },
+        });
+    }
     let mut weighted: Vec<_> = out
         .into_iter()
         .map(|c| {
@@ -318,6 +330,12 @@ pub(crate) fn generate_in(
     // shell needs no row to say so.
     if !arg.is_empty() && !dir_stack_spec(arg) && resolved_in(arg, cwd).is_dir() {
         out.insert(0, run_row(arg.to_string()));
+    }
+    // Keep a way up even when the children fill the menu.
+    if let Some(parent) = out.iter().position(|c| c.kind == Kind::Parent)
+        && parent >= MAX_RESULTS
+    {
+        out.swap(MAX_RESULTS - 1, parent);
     }
     out.truncate(MAX_RESULTS);
     out
@@ -536,7 +554,7 @@ mod tests {
     fn an_empty_argument_offers_the_parent_and_home_last() {
         let f = Fixture::new(&["work"]);
         let got = generate_in("", f.path());
-        assert_eq!(displays(&got), ["work/", "..", "~"]);
+        assert_eq!(displays(&got), ["work/", "../", "~"]);
     }
 
     #[test]
@@ -551,7 +569,7 @@ mod tests {
         let f = Fixture::new(&["work/alpha", "work/beta", "other/gamma"]);
         let got = generate_in("work/", f.path());
         // The run row comes first and carries no name of its own.
-        assert_eq!(displays(&got), ["", "alpha/", "beta/"]);
+        assert_eq!(displays(&got), ["", "alpha/", "beta/", "../"]);
         assert_eq!(got[1].insert, "work/alpha/");
     }
 
@@ -579,7 +597,7 @@ mod tests {
     fn a_directory_holding_nothing_still_offers_the_row_that_runs() {
         let f = Fixture::new(&["work"]);
         let got = generate_in("work/", f.path());
-        assert_eq!(displays(&got), [""]);
+        assert_eq!(displays(&got), ["", "../"]);
         assert_eq!(got[0].kind, Kind::Run);
     }
 
@@ -653,7 +671,7 @@ mod tests {
         // a shortcut and therefore comes first.
         let f = Fixture::new(&["~"]);
         let got = generate_in("", f.path());
-        assert_eq!(displays(&got), ["~/", "..", "~"]);
+        assert_eq!(displays(&got), ["~/", "../", "~"]);
     }
 
     #[test]
@@ -668,5 +686,25 @@ mod tests {
         let refs: Vec<&str> = names.iter().map(String::as_str).collect();
         let f = Fixture::new(&refs);
         assert_eq!(generate_in("dir", f.path()).len(), MAX_RESULTS);
+    }
+
+    #[test]
+    fn a_full_menu_keeps_its_parent_row() {
+        let names: Vec<String> = (0..MAX_RESULTS + 5).map(|i| format!("dir{i:03}")).collect();
+        let refs: Vec<&str> = names.iter().map(String::as_str).collect();
+        let f = Fixture::new(&refs);
+        for arg in ["", "./"] {
+            let got = generate_in(arg, f.path());
+            assert_eq!(got.len(), MAX_RESULTS);
+            assert_eq!(got.last().unwrap().kind, Kind::Parent);
+            assert_eq!(got.last().unwrap().insert, format!("{arg}../"));
+        }
+    }
+
+    #[test]
+    fn a_missing_directory_offers_no_parent_row() {
+        let f = Fixture::new(&[]);
+        assert!(generate_in("missing/", f.path()).is_empty());
+        assert!(generate_in("missing/..", f.path()).is_empty());
     }
 }

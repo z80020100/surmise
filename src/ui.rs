@@ -55,9 +55,9 @@ const BORDER: &str = "\x1b[38;5;238m";
 const RULE: char = '\u{2500}';
 const UNDER: &str = "\x1b[4m";
 const UNDER_OFF: &str = "\x1b[24m";
-/// Nerd Font `nf-fa-folder`. This is the glyph on a directory row and on the
-/// two places every shell can go from anywhere. `RUN_ICON` below is the other
-/// one. A terminal without a patched font draws a blank box here.
+/// Nerd Font `nf-fa-folder`. This is the glyph on a directory row, on the row
+/// that goes up and on the home shortcut. `RUN_ICON` below is the other one. A
+/// terminal without a patched font draws a blank box here.
 const ICON: &str = "\u{f07b}";
 /// The row that runs the line rather than growing it. This one is an ordinary
 /// character, because the row names an action rather than a directory and a
@@ -265,18 +265,17 @@ fn colour(k: Kind) -> &'static str {
     match k {
         // The row that runs the line carries no name and only its glyph is
         // coloured. `glyph` below is where that happens.
-        Kind::Dir | Kind::Run => NAME,
+        Kind::Dir | Kind::Parent | Kind::Run => NAME,
         Kind::Special => SPECIAL,
     }
 }
 
 /// The name a marked character wears. It is a brighter tint of what `colour`
 /// gives the same row rather than one colour for every row. One colour would
-/// take away what tells a directory from one of the two places every shell
-/// can go from anywhere.
+/// take away what tells a directory from the home shortcut.
 fn bright(k: Kind) -> &'static str {
     match k {
-        Kind::Dir | Kind::Run => NAME_MARKED,
+        Kind::Dir | Kind::Parent | Kind::Run => NAME_MARKED,
         Kind::Special => SPECIAL_MARKED,
     }
 }
@@ -289,21 +288,28 @@ fn glyph(k: Kind, chosen: bool) -> (&'static str, &'static str) {
     match (k, chosen) {
         (Kind::Run, false) => (RUN_ICON, RUN_ICON_FG),
         (Kind::Run, true) => (RUN_ICON, RUN_ICON_FG_CHOSEN),
-        (Kind::Dir | Kind::Special, false) => (ICON, ICON_FG),
-        (Kind::Dir | Kind::Special, true) => (ICON, ICON_FG_CHOSEN),
+        (Kind::Dir | Kind::Parent | Kind::Special, false) => (ICON, ICON_FG),
+        (Kind::Dir | Kind::Parent | Kind::Special, true) => (ICON, ICON_FG_CHOSEN),
     }
 }
 
 /// Whether Tab would grow this row's name. `common` reads the menu the same
 /// way and the underline therefore covers what the key would take.
-fn tab_grows(k: Kind, at: &[usize]) -> bool {
+/// `highlighted` is the kind the highlight sits on, because that is what says
+/// which rows the key reads.
+fn tab_grows(k: Kind, highlighted: Kind, at: &[usize]) -> bool {
+    // A match is a subsequence. Only a name whose match is the front of it
+    // can take a prefix the menu agreed on.
+    if !at.iter().enumerate().all(|(i, &j)| i == j) {
+        return false;
+    }
     match k {
-        // The row that runs the line grows nothing and the two places every
-        // shell can go from anywhere are not names Tab reads.
+        // The row that runs the line grows nothing. Tab skips the home shortcut.
         Kind::Run | Kind::Special => false,
-        // A match is a subsequence. Only a name whose match is the front of it
-        // can take a prefix the menu agreed on.
-        Kind::Dir => at.iter().enumerate().all(|(i, &j)| i == j),
+        // Tab takes a highlighted parent row whole and reads the child
+        // directories under every other highlight.
+        Kind::Parent => highlighted == Kind::Parent,
+        Kind::Dir => highlighted != Kind::Parent,
     }
 }
 
@@ -395,7 +401,7 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
             // rather than of the part the row shows. Dropping a match past
             // the cut first would leave a leading run behind and underline a
             // row the key passes over.
-            let under = if tab_grows(c.kind, &all) {
+            let under = if tab_grows(c.kind, current.kind, &all) {
                 all.len()..m.reach.min(kept)
             } else {
                 0..0
@@ -829,13 +835,26 @@ mod tests {
         marks(row, UNDER)
     }
 
-    /// One of the two places every shell can go from anywhere.
-    fn special(display: &str) -> Candidate {
+    /// The home shortcut. It is the one row left that is neither a directory
+    /// nor an action.
+    fn home() -> Candidate {
         Candidate {
-            display: display.to_string(),
-            insert: format!("{display}/"),
-            label: "parent",
+            display: "~".into(),
+            insert: "~".into(),
+            label: "home",
             kind: Kind::Special,
+            score: 0,
+        }
+    }
+
+    /// The row that goes up. It reads as a directory rather than as a
+    /// shortcut and the highlight is what decides whether Tab reads it.
+    fn parent(insert: &str) -> Candidate {
+        Candidate {
+            display: "../".into(),
+            insert: insert.to_string(),
+            label: "parent",
+            kind: Kind::Parent,
             score: 0,
         }
     }
@@ -968,15 +987,15 @@ mod tests {
 
     #[test]
     fn a_mark_keeps_a_special_row_apart_from_a_directory() {
-        // The two places every shell can go from anywhere wear a colour of
-        // their own and a mark brightens that rather than replaces it. A mark
-        // that named one colour for every row would take the difference away
-        // on the one character the eye is drawn to.
-        let items = vec![dir("dot/"), special("..")];
-        let m = menu_in(&items, 0, 24, ".", 0).expect("a menu");
+        // The home shortcut wears a colour of its own and a mark brightens
+        // that rather than replaces it. A mark that named one colour for every
+        // row would take the difference away on the one character the eye is
+        // drawn to.
+        let items = vec![dir("~work/"), home()];
+        let m = menu_in(&items, 0, 24, "~", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         assert!(
-            rows[1].contains(&format!("{SPECIAL_MARKED}{MARK}.{PANEL}{SPECIAL}")),
+            rows[1].contains(&format!("{SPECIAL_MARKED}{MARK}~{PANEL}{SPECIAL}")),
             "{rows:?}"
         );
     }
@@ -1077,14 +1096,28 @@ mod tests {
     #[test]
     fn a_row_that_is_not_a_name_carries_no_underline() {
         // Nothing is typed and every name leads with that. The row that runs
-        // the line and the two places every shell can go from anywhere are
-        // still not names Tab reads.
-        let items = vec![run_row("x".into()), dir("work/"), special("..")];
+        // the line and the home shortcut are still not names Tab reads.
+        let items = vec![run_row("x".into()), dir("work/"), home()];
         let m = menu_in(&items, 1, 24, "", 1).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         assert_eq!(underlined(&rows[0]), "");
         assert_eq!(underlined(&rows[1]), "w");
         assert_eq!(underlined(&rows[2]), "");
+    }
+
+    #[test]
+    fn the_highlight_decides_whether_tab_reads_the_parent_or_the_children() {
+        // Tab takes a highlighted parent row whole and reads the child
+        // directories under every other highlight. The underline reads that
+        // same answer, so one of the two carries it and never both.
+        let items = vec![dir("work/"), parent("../")];
+        let under = |selected| {
+            let m = menu_in(&items, selected, 24, "", 3).expect("a menu");
+            let rows = menu_rows(&m, 80, 1, 0);
+            [underlined(&rows[0]), underlined(&rows[1])]
+        };
+        assert_eq!(under(0), ["wor", ""]);
+        assert_eq!(under(1), ["", "../"]);
     }
 
     #[test]
@@ -1166,8 +1199,15 @@ mod tests {
 
     #[test]
     fn a_special_row_is_coloured_apart_from_a_directory() {
+        // The row that goes up is a directory rather than a shortcut and
+        // wears the directory's colour on both counts. Only home is left on
+        // the other side of that line.
         assert_eq!(colour(Kind::Dir), NAME);
+        assert_eq!(colour(Kind::Parent), NAME);
         assert_eq!(colour(Kind::Special), SPECIAL);
+        assert_eq!(bright(Kind::Dir), NAME_MARKED);
+        assert_eq!(bright(Kind::Parent), NAME_MARKED);
+        assert_eq!(bright(Kind::Special), SPECIAL_MARKED);
     }
 
     #[test]
@@ -1179,6 +1219,7 @@ mod tests {
         for chosen in [false, true] {
             let (dir_icon, dir_fg) = glyph(Kind::Dir, chosen);
             let (run_icon, run_fg) = glyph(Kind::Run, chosen);
+            assert_eq!(glyph(Kind::Parent, chosen), (dir_icon, dir_fg));
             assert_eq!(glyph(Kind::Special, chosen), (dir_icon, dir_fg));
             assert_ne!(run_icon, dir_icon);
             assert_ne!(run_fg, dir_fg);
