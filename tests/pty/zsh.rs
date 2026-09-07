@@ -73,7 +73,7 @@ fn ready(home: &Path) -> Term {
     cmd.env("HOME", home);
     cmd.env("ZDOTDIR", home);
     cmd.env("TERM", "xterm-256color");
-    cmd.env("PATH", "/usr/bin:/bin");
+    cmd.env("PATH", crate::term::path());
     // The widget defaults to the `surmise` on the PATH. The one under test is
     // the build's own binary and this is the hook the widget documents for it.
     cmd.env("SURMISE_BIN", env!("CARGO_BIN_EXE_surmise"));

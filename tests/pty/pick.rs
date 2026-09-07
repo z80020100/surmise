@@ -57,10 +57,7 @@ fn surmise(home: &Path, line: &str, cols: u16, rows: u16) -> Term {
     cmd.env_clear();
     cmd.env("HOME", home);
     cmd.env("TERM", "xterm-256color");
-    // The Git menu asks the installed Git for its subcommands and `git` is a
-    // name on the PATH. A cleared environment leaves that lookup to whatever
-    // the platform falls back to and this is what pins it.
-    cmd.env("PATH", "/usr/bin:/bin");
+    cmd.env("PATH", crate::term::path());
     cmd.cwd(home);
     Term::new(cmd, cols, rows)
 }
