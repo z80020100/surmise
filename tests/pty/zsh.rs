@@ -21,7 +21,7 @@ const MOVED: &str = "MOVED";
 
 /// What the `.zshrc` prints once the widget is really bound.
 ///
-/// Three of the tests below assert that no menu opened. A widget that never
+/// Five of the tests below assert that no menu opened. A widget that never
 /// loaded would satisfy every one of them. This is what stops that.
 const LOADED: &str = "LOADED";
 
@@ -133,6 +133,91 @@ fn typing_a_bare_cd_opens_the_menu() {
     // it. A row of surmise's own would put the line on screen twice.
     assert!(line(&t).starts_with("❯ cd"), "{:?}", t.lines());
     assert_eq!(t.panel()[0].row, 1, "{:?}", t.lines());
+}
+
+#[test]
+fn git_subcommands_return_to_editing_without_running() {
+    for key in ["\r", "\t", "\x1b[C"] {
+        let f = home("git() { print -r -- GIT-RAN }", "");
+        let mut t = ready(f.path());
+        t.send("git ");
+        assert!(t.wait_panel(WAIT), "no Git menu: {:?}", t.lines());
+        typed(&mut t, "stat");
+        assert!(t.panel().iter().any(|row| row.text.contains("status")));
+        t.send(key);
+        closed(&mut t);
+        assert!(line(&t).starts_with("❯ git status"), "{:?}", t.lines());
+        assert!(!t.lines().join("\n").contains("GIT-RAN"));
+        typed(&mut t, "--short");
+        assert!(
+            line(&t).starts_with("❯ git status --short"),
+            "{:?}",
+            t.lines()
+        );
+        t.send("\r");
+        assert!(t.wait_line("GIT-RAN", WAIT), "{:?}", t.lines());
+    }
+}
+
+#[test]
+fn git_tab_opens_the_menu_and_cancel_restores_the_seed() {
+    let f = home("", "bindkey ' ' $_surmise_space");
+    let mut t = ready(f.path());
+    t.send("git stat\t");
+    assert!(t.wait_panel(WAIT), "no Git menu: {:?}", t.lines());
+    typed(&mut t, "u");
+    t.send("\x03");
+    closed(&mut t);
+    assert_eq!(line(&t).trim(), "❯ git stat");
+}
+
+#[test]
+fn git_arguments_keep_the_shells_completion() {
+    let f = home(
+        "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
+        "bindkey ' ' $_surmise_space",
+    );
+    let mut t = ready(f.path());
+    typed(&mut t, "git switch \t");
+    assert_eq!(line(&t).trim(), "❯ git switch SAMPLE");
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+}
+
+#[test]
+fn a_word_no_subcommand_matches_keeps_the_shells_completion() {
+    let f = home(
+        "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
+        "bindkey ' ' $_surmise_space",
+    );
+    let mut t = ready(f.path());
+    // No subcommand holds four of one letter and surmise therefore answers
+    // PASS. Tab is the shell's own again and the menu never opens.
+    typed(&mut t, "git zzzz\t");
+    assert_eq!(line(&t).trim(), "❯ git zzzzSAMPLE");
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+}
+
+#[test]
+fn git_alias_names_are_completed_without_running_the_alias() {
+    let f = home("", "");
+    std::fs::write(
+        f.path().join(".gitconfig"),
+        "[alias]\n sample-alias = !touch ALIAS-RAN\n",
+    )
+    .unwrap();
+    let mut t = ready(f.path());
+    t.send("git ");
+    assert!(t.wait_panel(WAIT), "no Git menu: {:?}", t.lines());
+    typed(&mut t, "sample-al");
+    assert!(
+        t.panel()
+            .iter()
+            .any(|row| row.text.contains("sample-alias"))
+    );
+    t.send("\r");
+    closed(&mut t);
+    assert_eq!(line(&t).trim(), "❯ git sample-alias");
+    assert!(!f.path().join("ALIAS-RAN").exists());
 }
 
 #[test]

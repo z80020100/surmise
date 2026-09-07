@@ -17,6 +17,9 @@ const ICON: char = '\u{f07b}';
 /// The glyph on the row that runs the line.
 const RUN_ICON: char = '\u{21b5}';
 
+/// The glyph on a Git subcommand row.
+const CMD_ICON: char = '#';
+
 /// How long a run gets to draw and how long it gets to exit. Both are far past
 /// what the work takes and neither is a measurement.
 const WAIT: Duration = Duration::from_secs(5);
@@ -50,6 +53,10 @@ fn surmise(home: &Path, line: &str, cols: u16, rows: u16) -> Term {
     cmd.env_clear();
     cmd.env("HOME", home);
     cmd.env("TERM", "xterm-256color");
+    // The Git menu asks the installed Git for its subcommands and `git` is a
+    // name on the PATH. A cleared environment leaves that lookup to whatever
+    // the platform falls back to and this is what pins it.
+    cmd.env("PATH", "/usr/bin:/bin");
     cmd.cwd(home);
     Term::new(cmd, cols, rows)
 }
@@ -232,6 +239,28 @@ fn a_bare_cd_puts_the_folder_glyph_on_every_row() {
     // carries no glyph and no name.
     for row in t.panel().iter().take_while(|row| is_name(row)) {
         assert!(row.text.contains(ICON), "{:?}", row.text);
+    }
+}
+
+#[test]
+fn a_bare_git_puts_a_subcommand_glyph_on_every_row() {
+    let f = fixture();
+    let t = opened(f.path(), "git ");
+    // The line under the list is where the names stop. `names` strips the
+    // directory glyphs alone and a Git row is read here as it was drawn.
+    let panel = t.panel();
+    let rows: Vec<&str> = panel
+        .iter()
+        .take_while(|row| is_name(row))
+        .map(|row| row.text.as_str())
+        .collect();
+    // A `take_while` over an empty list would claim the rest with no row read.
+    assert!(!rows.is_empty());
+    // Every row above that line names a subcommand and none of them names a
+    // directory. The shape is what says which of the two the menu is holding.
+    for text in &rows {
+        assert!(text.contains(CMD_ICON), "{text:?}");
+        assert!(!text.contains(ICON), "{text:?}");
     }
 }
 

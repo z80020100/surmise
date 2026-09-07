@@ -56,22 +56,30 @@ const RULE: char = '\u{2500}';
 const UNDER: &str = "\x1b[4m";
 const UNDER_OFF: &str = "\x1b[24m";
 /// Nerd Font `nf-fa-folder`. This is the glyph on a directory row, on the row
-/// that goes up and on the home shortcut. `RUN_ICON` below is the other one. A
+/// that goes up and on the home shortcut. The two below are the others. A
 /// terminal without a patched font draws a blank box here.
 const ICON: &str = "\u{f07b}";
 /// The row that runs the line rather than growing it. This one is an ordinary
 /// character, because the row names an action rather than a directory and a
 /// terminal with no patched font still draws it.
 const RUN_ICON: &str = "\u{21b5}";
+/// A Git subcommand row. An ordinary character for the same reason as
+/// `RUN_ICON`: the row names a command rather than a directory.
+const CMD_ICON: &str = "#";
 const ICON_FG: &str = "\x1b[38;5;75m";
 /// The glyph on the row that runs the line. A colour apart from the folder
 /// blue is what marks that row out now that it carries no name.
 const RUN_ICON_FG: &str = "\x1b[38;5;167m";
-/// The same two glyphs on the highlighted row. That row has a ground of its
-/// own and both colours above are too close to it to read. A lighter tint of
+/// The glyph on a Git subcommand row. A magenta of its own. The folder blue
+/// says a directory and the red above says an action. A subcommand is
+/// neither and it carries a name where the action row does not.
+const CMD_ICON_FG: &str = "\x1b[38;5;169m";
+/// The same three glyphs on the highlighted row. That row has a ground of its
+/// own and every colour above is too close to it to read. A lighter tint of
 /// the same hue clears it and still says which sort of row this is.
 const ICON_FG_CHOSEN: &str = "\x1b[38;5;153m";
 const RUN_ICON_FG_CHOSEN: &str = "\x1b[38;5;217m";
+const CMD_ICON_FG_CHOSEN: &str = "\x1b[38;5;218m";
 /// Cells inside the panel's own two edge spaces. It is fixed rather than
 /// measured from what the panel holds. Every panel is therefore the same
 /// width and a name keeps the column the eye last found it in. A terminal
@@ -270,7 +278,7 @@ fn colour(k: Kind) -> &'static str {
     match k {
         // The row that runs the line carries no name and only its glyph is
         // coloured. `glyph` below is where that happens.
-        Kind::Dir | Kind::Parent | Kind::Run => NAME,
+        Kind::Dir | Kind::Parent | Kind::Run | Kind::Command => NAME,
         Kind::Special => SPECIAL,
     }
 }
@@ -280,7 +288,7 @@ fn colour(k: Kind) -> &'static str {
 /// take away what tells a directory from the home shortcut.
 fn bright(k: Kind) -> &'static str {
     match k {
-        Kind::Dir | Kind::Parent | Kind::Run => NAME_MARKED,
+        Kind::Dir | Kind::Parent | Kind::Run | Kind::Command => NAME_MARKED,
         Kind::Special => SPECIAL_MARKED,
     }
 }
@@ -291,6 +299,8 @@ fn glyph(k: Kind, chosen: bool) -> (&'static str, &'static str) {
     // Every variant is named rather than swept into a catch-all. A new one
     // then fails the build here the way it already does in `colour` above.
     match (k, chosen) {
+        (Kind::Command, false) => (CMD_ICON, CMD_ICON_FG),
+        (Kind::Command, true) => (CMD_ICON, CMD_ICON_FG_CHOSEN),
         (Kind::Run, false) => (RUN_ICON, RUN_ICON_FG),
         (Kind::Run, true) => (RUN_ICON, RUN_ICON_FG_CHOSEN),
         (Kind::Dir | Kind::Parent | Kind::Special, false) => (ICON, ICON_FG),
@@ -314,7 +324,7 @@ fn tab_grows(k: Kind, highlighted: Kind, at: &[usize]) -> bool {
         // Tab takes a highlighted parent row whole and reads the child
         // directories under every other highlight.
         Kind::Parent => highlighted == Kind::Parent,
-        Kind::Dir => highlighted != Kind::Parent,
+        Kind::Dir | Kind::Command => highlighted != Kind::Parent,
     }
 }
 
@@ -365,7 +375,7 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
     // width above and slides left of the cursor when the right edge is nearer
     // than that.
     let indent = col.saturating_sub(1).min(w.saturating_sub(inner + 2));
-    let icon_w = cells(ICON).max(cells(RUN_ICON)) + 1;
+    let icon_w = cells(ICON).max(cells(RUN_ICON)).max(cells(CMD_ICON)) + 1;
     // A terminal too narrow for the icon and a name gets no panel at all.
     let Some(text_w) = inner.checked_sub(icon_w) else {
         return Vec::new();
@@ -1286,6 +1296,20 @@ mod tests {
     }
 
     #[test]
+    fn a_subcommand_row_is_told_apart_by_its_glyph() {
+        // A subcommand and a directory both carry a name. The glyph is what
+        // says which sort of row it is and its colour therefore has to differ
+        // from the folder blue and from the action row's red alike.
+        for chosen in [false, true] {
+            let (icon, fg) = glyph(Kind::Command, chosen);
+            assert_ne!(icon, glyph(Kind::Dir, chosen).0);
+            assert_ne!(icon, glyph(Kind::Run, chosen).0);
+            assert_ne!(fg, glyph(Kind::Dir, chosen).1);
+            assert_ne!(fg, glyph(Kind::Run, chosen).1);
+        }
+    }
+
+    #[test]
     fn the_glyph_on_the_highlighted_row_is_not_the_name_colour() {
         let items = vec![dir("alpha/")];
         let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
@@ -1309,12 +1333,13 @@ mod tests {
     }
 
     #[test]
-    fn the_two_row_glyphs_are_the_same_width() {
+    fn the_row_glyphs_are_all_the_same_width() {
         // `menu_rows` takes the glyph column out of the panel's inner width
         // once and measures it from the widest glyph. Names line up only while
-        // the two agree, because each row spends `cells(glyph) + 1` on its own
-        // before the name starts.
+        // every glyph agrees, because each row spends `cells(glyph) + 1` on
+        // its own before the name starts.
         assert_eq!(cells(ICON), cells(RUN_ICON));
+        assert_eq!(cells(ICON), cells(CMD_ICON));
     }
 
     #[test]

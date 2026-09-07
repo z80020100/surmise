@@ -27,6 +27,7 @@ pub const MAX_RESULTS: usize = 60;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Kind {
+    Command,
     Dir,
     Parent,
     Special,
@@ -212,7 +213,7 @@ fn path_mode(arg: &str, cwd: &Path, scan: &mut Scan) -> Vec<Candidate> {
 ///
 /// Both checks fold the case the same way the score itself is measured. Each
 /// being a prefix of the other is what says the two are the same name.
-fn match_rank(base: &str, display: &str) -> u8 {
+pub(crate) fn match_rank(base: &str, display: &str) -> u8 {
     let name = display.strip_suffix('/').unwrap_or(display);
     // Nothing typed reached nothing. Every name would otherwise hold the
     // empty string at its front and rank alike. The sort reads the same

@@ -67,9 +67,8 @@ surmise-complete() {
 zle -N surmise-complete
 bindkey '^I' surmise-complete
 
-# Open on its own the moment the line becomes a bare `cd `. surmise then holds
-# the keys until you leave it. That costs one process for the whole `cd`
-# rather than one per keystroke.
+# Open when the line becomes a bare `cd ` or `git `. The picker keeps the
+# keys until it returns the line to the shell.
 #
 # The trigger hangs off the space key rather than off `self-insert`. Wrapping
 # `self-insert` does not survive zsh-autosuggestions. That plugin walks every
@@ -88,7 +87,7 @@ surmise-space() {
   # surmise's. `emulate` waits until after it for that reason.
   zle $_surmise_space
   emulate -L zsh
-  [[ -z $RBUFFER && $LBUFFER =~ '^[[:blank:]]*cd[[:blank:]]$' ]] || return
+  [[ -z $RBUFFER && $LBUFFER =~ '^[[:blank:]]*(cd|git)[[:blank:]]$' ]] || return
   surmise-complete from-space
 }
 

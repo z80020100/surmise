@@ -1,4 +1,4 @@
-//! surmise — completion for the directory argument of a `cd`.
+//! surmise — completion for `cd` directories and Git subcommands.
 //!
 //! `pick` is the front end. `src/main.rs` reads the arguments and hands it the
 //! line a shell widget typed. Everything else here is what `pick` is built
@@ -11,6 +11,7 @@ pub mod app;
 pub mod candidates;
 pub mod fixture;
 pub mod fuzzy;
+pub mod git;
 pub mod history;
 pub mod keys;
 pub mod line;
