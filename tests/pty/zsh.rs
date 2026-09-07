@@ -160,6 +160,59 @@ fn git_subcommands_return_to_editing_without_running() {
 }
 
 #[test]
+fn the_line_surmise_writes_gets_a_suggestion_of_its_own() {
+    // zsh-autosuggestions asks for a suggestion after a widget it wrapped
+    // runs. A surmise it never wrapped has to ask itself and these two stand
+    // in for the widgets its README names. What `autosuggest-fetch` reads is
+    // the line surmise wrote. A call before the write would show the old one.
+    //
+    // The clear leaves a word of its own and the fetch adds to what it finds.
+    // Both calls are therefore in the answer and so is the order they ran in.
+    // A fetch that ran alone would read the same line and say nothing of the
+    // suggestion left on the screen while an asynchronous one is still out.
+    let f = home(
+        "autosuggest-clear() { POSTDISPLAY=CLEARED }\nautosuggest-fetch() { POSTDISPLAY=\"$POSTDISPLAY<$BUFFER>\" }\nzle -N autosuggest-clear\nzle -N autosuggest-fetch",
+        "",
+    );
+    let mut t = ready(f.path());
+    t.send("git ");
+    assert!(t.wait_panel(WAIT), "no Git menu: {:?}", t.lines());
+    typed(&mut t, "stat");
+    t.send("\r");
+    closed(&mut t);
+    assert_eq!(
+        line(&t).trim(),
+        "❯ git status CLEARED<git status >",
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
+fn the_line_that_runs_also_gets_its_suggestion_asked_for() {
+    // The arm above accepts the line. This one hands it to the shell and the
+    // suggestion goes with the prompt it was drawn on. A file is what outlasts
+    // that. `cd ..` opens on the row that runs the line and Enter there is the
+    // whole of the arm. Without this a lost call on that arm keeps the suite
+    // green. The row it would have drawn on is already gone by then.
+    let f = home(
+        "autosuggest-clear() { : }\nautosuggest-fetch() { print -r -- $BUFFER >> $HOME/FETCHED }\nzle -N autosuggest-clear\nzle -N autosuggest-fetch",
+        "",
+    );
+    let mut t = opened(f.path());
+    typed(&mut t, "..");
+    t.send("\r");
+    assert!(
+        t.wait_line(MOVED, WAIT),
+        "the cd never ran: {:?}",
+        t.lines()
+    );
+    t.pump(SETTLE);
+    let got = std::fs::read_to_string(f.path().join("FETCHED")).expect("a fetch");
+    assert_eq!(got.trim(), "cd ..", "{got:?}");
+}
+
+#[test]
 fn a_whole_subcommand_gives_the_keys_back_to_the_shell() {
     // Tab and Right accept a subcommand outside the arm Enter breaks out of.
     // Only the end of the run puts the keys back and nothing on the screen
