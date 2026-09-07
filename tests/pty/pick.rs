@@ -64,16 +64,18 @@ fn opened(home: &Path, line: &str) -> Term {
     t
 }
 
-/// The candidate names, without a row glyph or its padding. The last panel row
-/// is the footer rather than a candidate.
+/// Whether `row` carries a candidate name. The line under the list is what
+/// ends it and a blank row is no name either.
+fn is_name(row: &Panel) -> bool {
+    row.text.trim().chars().any(|c| c != '─')
+}
+
+/// The candidate names, without a row glyph or its padding. The list ends at
+/// the line under it.
 fn names(t: &Term) -> Vec<String> {
-    let panel = t.panel();
-    // The line and the word under the list are not names.
-    let rows = match panel.len() {
-        0..=2 => return Vec::new(),
-        n => &panel[..n - 2],
-    };
-    rows.iter()
+    t.panel()
+        .iter()
+        .take_while(|row| is_name(row))
         .map(|row| row.text.replace([ICON, RUN_ICON], "").trim().to_string())
         .collect()
 }
@@ -224,9 +226,11 @@ fn a_directory_only_the_history_knows_about_does_not_get_in() {
 fn a_bare_cd_puts_the_folder_glyph_on_every_row() {
     let f = fixture();
     let t = opened(f.path(), "cd ");
-    let panel = t.panel();
-    // The line and the word under the list carry no glyph and no name.
-    for row in &panel[..panel.len() - 2] {
+    // A `take_while` over an empty list would claim this with no row read.
+    assert!(!names(&t).is_empty());
+    // The line under the list is where the names stop. What is below it
+    // carries no glyph and no name.
+    for row in t.panel().iter().take_while(|row| is_name(row)) {
         assert!(row.text.contains(ICON), "{:?}", row.text);
     }
 }
@@ -285,6 +289,54 @@ fn the_menu_is_a_closed_box_at_every_width() {
         t.pump(SETTLE);
         assert_eq!(intact(&t.panel(), cols), Ok(()), "at {cols} columns");
     }
+}
+
+#[test]
+fn a_long_selected_name_is_readable_below_the_list() {
+    let prefix = "example-directory-with-a-shared-prefix-";
+    let alpha = format!("{prefix}alpha");
+    let beta = format!("{prefix}beta");
+    let f = Fixture::new(&[&alpha, &beta, "short"]);
+    let mut t = opened(f.path(), "cd ");
+    let detail = |t: &Term| -> String {
+        let panel = t.panel();
+        panel[..panel.len() - 1]
+            .iter()
+            .skip_while(|row| is_name(row))
+            .skip(1)
+            .map(|row| row.text.trim())
+            .collect()
+    };
+    assert_eq!(detail(&t), format!("{alpha}/"));
+    assert_eq!(names(&t)[0], names(&t)[1]);
+    assert_eq!(intact(&t.panel(), 100), Ok(()));
+    t.send("\x1b[B");
+    t.pump(SETTLE);
+    assert_eq!(detail(&t), format!("{beta}/"));
+    t.send("\x1b[B");
+    t.pump(SETTLE);
+    assert_eq!(detail(&t), "");
+    assert!(!shown(&t).contains("beta/"));
+    assert_eq!(intact(&t.panel(), 100), Ok(()));
+}
+
+#[test]
+fn a_long_detail_keeps_the_prompt_visible_in_a_short_terminal() {
+    let name = format!("example-{}-tail", "x".repeat(170));
+    let f = Fixture::new(&[&name]);
+    let mut t = surmise(f.path(), "cd xt", 24, 10);
+    t.shell_drew(&"\r\n".repeat(12));
+    t.shell_drew("~ > cd xt");
+    assert!(t.wait_panel(WAIT), "nothing was drawn");
+    t.pump(SETTLE);
+    let panel = t.panel();
+    assert_eq!(panel.len(), 7);
+    assert!(panel[panel.len() - 2].text.contains('…'));
+    assert!(shown(&t).contains("~ > cd xt"));
+    assert_eq!(intact(&panel, 24), Ok(()));
+    t.send("\x1b");
+    assert!(t.wait_bare(WAIT));
+    assert!(!shown(&t).contains("example-"));
 }
 
 #[test]
