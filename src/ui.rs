@@ -869,6 +869,17 @@ mod tests {
         }
     }
 
+    /// A Git subcommand. Tab reads one the way it reads a directory.
+    fn command(name: &str) -> Candidate {
+        Candidate {
+            display: name.into(),
+            insert: name.into(),
+            label: "command",
+            kind: Kind::Command,
+            score: 0,
+        }
+    }
+
     /// The row that goes up. It reads as a directory rather than as a
     /// shortcut and the highlight is what decides whether Tab reads it.
     fn parent(insert: &str) -> Candidate {
@@ -1138,6 +1149,18 @@ mod tests {
         let rows = menu_rows(&m, 80, 1, 0);
         assert_eq!(underlined(&rows[0]), "r");
         assert_eq!(underlined(&rows[1]), "r");
+    }
+
+    #[test]
+    fn the_run_tab_would_add_is_underlined_on_a_subcommand_row() {
+        // Tab reads a subcommand row the way it reads a directory. The key
+        // and the underline answer together, and a menu that underlined
+        // nothing here would promise less than the key does.
+        let items = vec![command("switch"), command("swap")];
+        let m = menu_in(&items, 0, 24, "s", 2).expect("a menu");
+        let rows = menu_rows(&m, 80, 1, 0);
+        assert_eq!(underlined(&rows[0]), "w");
+        assert_eq!(underlined(&rows[1]), "w");
     }
 
     #[test]

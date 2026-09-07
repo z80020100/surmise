@@ -160,6 +160,38 @@ fn git_subcommands_return_to_editing_without_running() {
 }
 
 #[test]
+fn a_whole_subcommand_gives_the_keys_back_to_the_shell() {
+    // Tab and Right accept a subcommand outside the arm Enter breaks out of.
+    // Only the end of the run puts the keys back and nothing on the screen
+    // says which side of that the line is on. The shell's own Tab says it:
+    // surmise answers PASS on a finished word and the widget hands the key to
+    // whatever held it. surmise's own Tab on a closed menu rings the bell and
+    // leaves the line alone.
+    for key in ["\t", "\x1b[C"] {
+        let f = home(
+            "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
+            "",
+        );
+        let mut t = ready(f.path());
+        t.send("git ");
+        assert!(t.wait_panel(WAIT), "no Git menu: {:?}", t.lines());
+        // `statu` reaches `status` and nothing else. Tab therefore takes the
+        // whole of one name rather than a prefix two of them share.
+        typed(&mut t, "statu");
+        t.send(key);
+        closed(&mut t);
+        assert_eq!(line(&t).trim(), "\u{276f} git status", "{:?}", t.lines());
+        typed(&mut t, "\t");
+        assert_eq!(
+            line(&t).trim(),
+            "\u{276f} git status SAMPLE",
+            "the keys never went back: {:?}",
+            t.lines()
+        );
+    }
+}
+
+#[test]
 fn git_tab_opens_the_menu_and_cancel_restores_the_seed() {
     let f = home("", "bindkey ' ' $_surmise_space");
     let mut t = ready(f.path());
