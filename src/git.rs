@@ -11,12 +11,25 @@ use std::os::fd::OwnedFd;
 use std::os::unix::net::UnixStream;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, ExitStatus, Stdio};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 
 /// What the prompt allows the query. `read_commands` takes its patience as an
 /// argument rather than reading this, because a test measured against the
-/// prompt's own budget fails on a loaded machine rather than on the code.
-const TIMEOUT: Duration = Duration::from_millis(250);
+/// prompt's own budget fails on a loaded machine rather than on the code. The
+/// file and branch readers are reached through `App` rather than called
+/// directly, so a test moves this rather than passing an argument.
+static TIMEOUT_MS: AtomicU64 = AtomicU64::new(250);
+
+fn timeout() -> Duration {
+    Duration::from_millis(TIMEOUT_MS.load(Ordering::Relaxed))
+}
+
+/// Give the readers longer than a prompt would. `Fixture::new` is the one
+/// caller and the installed binary keeps the prompt's own budget.
+pub(crate) fn widen_timeout() {
+    TIMEOUT_MS.store(10_000, Ordering::Relaxed);
+}
 const OUTPUT_LIMIT: usize = 64 * 1024;
 /// The groups the menu offers. `nohelpers` drops the names that exist for
 /// Git's own scripts. `alias` adds the ones this machine configured.
@@ -590,7 +603,7 @@ fn read_branches(cwd: &Path) -> Option<Vec<String>> {
     let mut query = |args: &[&str], absent_ok: bool| {
         let (status, output) = read_output(
             Command::new("git").current_dir(cwd).args(args),
-            TIMEOUT.checked_sub(start.elapsed())?,
+            timeout().checked_sub(start.elapsed())?,
         )?;
         remaining_bytes = remaining_bytes.checked_sub(output.len())?;
         (status.success() || (absent_ok && status.code() == Some(1))).then_some(output)
@@ -671,7 +684,7 @@ fn read_files_with(cwd: &Path, mode: FileMode) -> Option<Vec<String>> {
     }
     args.extend(["-z", "--"]);
     let (status, output) =
-        read_output_bytes(Command::new("git").current_dir(cwd).args(args), TIMEOUT)?;
+        read_output_bytes(Command::new("git").current_dir(cwd).args(args), timeout())?;
     status.success().then(|| {
         file_names(&output)
             .into_iter()
@@ -954,8 +967,11 @@ impl Completions {
             ),
             _ => (
                 self.names.get_or_insert_with(|| {
-                    read_commands(Command::new("git").current_dir(cwd).arg(LIST_CMDS), TIMEOUT)
-                        .unwrap_or_default()
+                    read_commands(
+                        Command::new("git").current_dir(cwd).arg(LIST_CMDS),
+                        timeout(),
+                    )
+                    .unwrap_or_default()
                 }),
                 "command",
             ),

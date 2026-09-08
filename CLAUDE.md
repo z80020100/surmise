@@ -405,6 +405,15 @@ back.
 the library as an ordinary crate and a `#[cfg(test)]` module is not compiled
 into that build.
 
+`Fixture::new` also widens the query budget. A prompt is what the 250 ms is for
+and a test has no prompt waiting on it. A fixture-backed test spawns Git
+several times over and a loaded runner can spend that whole budget on the fork
+alone, so a test measured against it fails on the machine rather than on the
+code. `read_commands` takes its patience as an argument for the same reason.
+The file and branch readers are reached through `App` rather than called
+directly and the fixture is what moves the budget for them. The installed
+binary keeps the prompt's own.
+
 `rust-toolchain.toml` pins the toolchain for the same reason. A floating stable
 plus `-Dwarnings` means a new lint can turn CI red with no change to the code.
 Bump the pin deliberately and answer the new lints in the same commit. Note that

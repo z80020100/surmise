@@ -17,6 +17,9 @@ impl Fixture {
     /// Make a directory holding `entries`. An entry that ends in `*` is made
     /// as a file rather than a directory.
     pub fn new(entries: &[&str]) -> Fixture {
+        // No prompt is waiting on a test and every fixture-backed one spawns
+        // Git more than once.
+        crate::git::widen_timeout();
         static N: AtomicUsize = AtomicUsize::new(0);
         let root = std::env::temp_dir().join(format!(
             "surmise-test-{}-{}",
