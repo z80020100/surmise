@@ -29,6 +29,7 @@ pub const MAX_RESULTS: usize = 60;
 pub enum Kind {
     Command,
     Branch,
+    File,
     Dir,
     Parent,
     Special,
@@ -39,7 +40,7 @@ pub enum Kind {
 
 impl Kind {
     pub fn is_git(self) -> bool {
-        matches!(self, Kind::Command | Kind::Branch)
+        matches!(self, Kind::Command | Kind::Branch | Kind::File)
     }
 }
 

@@ -1,7 +1,8 @@
-//! Git subcommand and branch completion from the installed Git.
+//! Git subcommand, branch and file completion from the installed Git.
 
 use crate::candidates::{Candidate, Kind, MAX_RESULTS, Query, match_rank};
 use crate::fuzzy;
+use std::borrow::Cow;
 use std::collections::{BTreeSet, HashMap};
 use std::io::Read;
 use std::os::fd::OwnedFd;
@@ -36,8 +37,8 @@ pub(crate) struct Target {
     pub kind: Kind,
 }
 
-/// Read the subcommand or the first branch argument. Options and shell syntax
-/// stay with the shell's completion.
+/// Read the subcommand or its first supported argument. Options and shell
+/// syntax stay with the shell's completion.
 pub(crate) fn parse(left: &str) -> Option<Target> {
     let trimmed = left.trim_start_matches([' ', '\t']);
     let rest = trimmed.strip_prefix("git")?;
@@ -46,7 +47,7 @@ pub(crate) fn parse(left: &str) -> Option<Target> {
     }
     let word = rest.trim_start_matches([' ', '\t']);
     let (arg, kind) = match word.split_once([' ', '\t']) {
-        Some(("switch" | "checkout", rest)) => {
+        Some((command @ ("switch" | "checkout" | "add"), rest)) => {
             let arg = rest.trim_start_matches([' ', '\t']);
             if arg.starts_with('-')
                 || !arg
@@ -55,7 +56,14 @@ pub(crate) fn parse(left: &str) -> Option<Target> {
             {
                 return None;
             }
-            (arg, Kind::Branch)
+            if command == "add" {
+                if arg.starts_with('/') || arg.split('/').any(|part| part == "..") {
+                    return None;
+                }
+                (arg, Kind::File)
+            } else {
+                (arg, Kind::Branch)
+            }
         }
         None if plain_name(word) => (word, Kind::Command),
         _ => return None,
@@ -90,7 +98,17 @@ fn read_commands(command: &mut Command, patience: Duration) -> Option<Vec<String
     Some(names)
 }
 
+/// The child's output as text. `None` when a byte of it is not UTF-8, because
+/// a caller here reads the whole answer as one string and has no name of its
+/// own to drop.
 fn read_output(command: &mut Command, patience: Duration) -> Option<(ExitStatus, String)> {
+    let (status, bytes) = read_output_bytes(command, patience)?;
+    Some((status, String::from_utf8(bytes).ok()?))
+}
+
+/// The child's output as it stands. A caller that can drop one name rather
+/// than the whole answer reads this instead.
+fn read_output_bytes(command: &mut Command, patience: Duration) -> Option<(ExitStatus, Vec<u8>)> {
     let (mut reader, writer) = UnixStream::pair().ok()?;
     // The wait goes on before the child can close its end. macOS refuses this
     // option on a pair whose peer has gone and a command that finished ahead
@@ -120,7 +138,7 @@ fn collect_output(
     reader: &mut UnixStream,
     patience: Duration,
     start: Instant,
-) -> Option<(ExitStatus, String)> {
+) -> Option<(ExitStatus, Vec<u8>)> {
     let mut bytes = Vec::new();
     let mut buffer = [0; 4096];
     loop {
@@ -154,7 +172,7 @@ fn collect_output(
         }
         std::thread::sleep(Duration::from_millis(1));
     };
-    Some((status, String::from_utf8(bytes).ok()?))
+    Some((status, bytes))
 }
 
 /// Map a fetched ref to the branch name Git can infer from it.
@@ -279,39 +297,99 @@ fn read_branches(cwd: &Path) -> Option<Vec<String>> {
     Some(branch_names(&refs, &config, guess))
 }
 
-/// Cache command names and branch names separately for one menu.
+/// The names in one `ls-files -z` answer, sorted and unique. A name the query
+/// did not spell in UTF-8 costs that name rather than the whole answer, and so
+/// does a name the terminal would read as something else.
+fn file_names(output: &[u8]) -> Vec<String> {
+    output
+        .split(|byte| *byte == 0)
+        .filter_map(|name| std::str::from_utf8(name).ok())
+        .filter(|name| {
+            !name.is_empty() && !name.ends_with('/') && !name.chars().any(char::is_control)
+        })
+        .map(str::to_string)
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect()
+}
+
+/// The paths `git add` would take, relative to `cwd`. The unstaged changes and
+/// the untracked files below it, with Git's own ignore rules in force. The
+/// query has the menu's own time and output budgets.
+fn read_files(cwd: &Path) -> Option<Vec<String>> {
+    let (status, output) = read_output_bytes(
+        Command::new("git").current_dir(cwd).args([
+            "ls-files",
+            "--modified",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+        ]),
+        TIMEOUT,
+    )?;
+    status.success().then(|| file_names(&output))
+}
+
+/// Quote a whole file name for both Git's pathspec rules and the shell.
+pub(crate) fn quote_file(name: &str) -> String {
+    let pathspec = if name.starts_with(':') || name.contains(['*', '?', '[', '\\']) {
+        format!(":(literal){name}")
+    } else if name.starts_with('-') {
+        format!("./{name}")
+    } else {
+        name.to_string()
+    };
+    crate::shellword::quote(&pathspec)
+}
+
+/// Cache command names, branch names and file names separately for one menu.
 /// An empty result stays empty until the next menu.
 #[derive(Default)]
 pub(crate) struct Completions {
     names: Option<Vec<String>>,
     branches: Option<Vec<String>>,
+    files: Option<Vec<String>>,
 }
 
 impl Completions {
     pub(crate) fn candidates(&mut self, arg: &str, cwd: &Path, kind: Kind) -> Vec<Candidate> {
-        let names = if kind == Kind::Branch {
-            self.branches
-                .get_or_insert_with(|| read_branches(cwd).unwrap_or_default())
-        } else {
-            self.names.get_or_insert_with(|| {
-                read_commands(Command::new("git").current_dir(cwd).arg(LIST_CMDS), TIMEOUT)
-                    .unwrap_or_default()
-            })
+        let (names, label) = match kind {
+            Kind::File => (
+                self.files
+                    .get_or_insert_with(|| read_files(cwd).unwrap_or_default()),
+                "file",
+            ),
+            Kind::Branch => (
+                self.branches
+                    .get_or_insert_with(|| read_branches(cwd).unwrap_or_default()),
+                "branch",
+            ),
+            _ => (
+                self.names.get_or_insert_with(|| {
+                    read_commands(Command::new("git").current_dir(cwd).arg(LIST_CMDS), TIMEOUT)
+                        .unwrap_or_default()
+                }),
+                "command",
+            ),
         };
-        let label = if kind == Kind::Branch {
-            "branch"
-        } else {
-            "command"
-        };
+        // A `./` the person typed is theirs to keep. Git prints none and the
+        // word the line already carries is the one the rows have to match.
+        let dotted = kind == Kind::File && arg.starts_with("./");
         let mut out: Vec<_> = names
             .iter()
             .filter_map(|name| {
+                let name = if dotted {
+                    Cow::Owned(format!("./{name}"))
+                } else {
+                    Cow::Borrowed(name.as_str())
+                };
                 // The score decides before the name is cloned. Most names
                 // reach nothing on a word with anything typed into it.
-                let score = fuzzy::score(arg, name)?;
+                let score = fuzzy::score(arg, &name)?;
                 Some(Candidate {
-                    display: name.clone(),
-                    insert: name.clone(),
+                    display: name.to_string(),
+                    insert: name.into_owned(),
                     label,
                     kind,
                     score,
@@ -332,6 +410,15 @@ impl Completions {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// `Fixture::git` runs with no user configuration. The readers under test
+    /// run with the machine's own, because a person's ignore rules are theirs
+    /// to keep. `--exclude-standard` would otherwise read whatever
+    /// `core.excludesFile` this machine names. A repository setting outranks
+    /// both that and the system's.
+    fn no_global_excludes(f: &crate::fixture::Fixture) {
+        f.git(&["config", "core.excludesFile", "/dev/null"]);
+    }
 
     /// Long enough that a loaded machine cannot turn a success into a timeout.
     const PATIENT: Duration = Duration::from_secs(10);
@@ -467,6 +554,133 @@ mod tests {
         ] {
             assert!(parse(line).is_none(), "{line:?}");
         }
+    }
+
+    #[test]
+    fn add_completes_only_the_first_plain_relative_file_argument() {
+        for line in ["git add ", "git add sample/file", " git\tadd\t./範例"] {
+            let target = parse(line).unwrap();
+            assert_eq!(target.kind, Kind::File);
+            assert_eq!(&line[target.word.start..], target.word.arg);
+        }
+        for arg in [
+            "--",
+            "-f sample",
+            "one two",
+            "sample ",
+            "'sample",
+            "a\\ b",
+            "*.rs",
+            ":(top)sample",
+            "/sample",
+            "../sample",
+            "sample/../other",
+            "sample;false",
+        ] {
+            assert!(parse(&format!("git add {arg}")).is_none(), "{arg:?}");
+        }
+    }
+
+    #[test]
+    fn a_name_that_is_not_utf8_costs_that_name_rather_than_the_answer() {
+        assert_eq!(file_names(b"keep\0caf\xe9\0also\0"), ["also", "keep"]);
+        assert!(file_names(b"").is_empty());
+    }
+
+    #[test]
+    fn files_are_unstaged_changes_and_untracked_paths_with_standard_exclusions() {
+        use crate::fixture::Fixture;
+        use std::fs;
+        let f = Fixture::new(&[
+            "sample", "fresh", "clean*", "changed*", "deleted*", "staged*",
+        ]);
+        f.init_git(&[]);
+        no_global_excludes(&f);
+        fs::write(f.path().join(".gitignore"), "ignored\n").unwrap();
+        fs::write(f.path().join("sample/.gitignore"), "hidden\n").unwrap();
+        f.git(&["add", "."]);
+        fs::write(f.path().join("changed"), "sample").unwrap();
+        fs::remove_file(f.path().join("deleted")).unwrap();
+        for name in [
+            "fresh/file",
+            "sample/new",
+            "ignored",
+            "sample/hidden",
+            "info-ignored",
+        ] {
+            fs::write(f.path().join(name), "sample").unwrap();
+        }
+        fs::create_dir_all(f.path().join(".git/info")).unwrap();
+        fs::write(f.path().join(".git/info/exclude"), "info-ignored\n").unwrap();
+        let index = fs::read(f.path().join(".git/index")).unwrap();
+        assert_eq!(
+            read_files(f.path()).unwrap(),
+            ["changed", "deleted", "fresh/file", "sample/new"]
+        );
+        assert_eq!(read_files(&f.path().join("sample")).unwrap(), ["new"]);
+        assert_eq!(fs::read(f.path().join(".git/index")).unwrap(), index);
+        assert!(!f.path().join(".git/index.lock").exists());
+    }
+
+    #[test]
+    fn file_names_keep_spaces_and_shell_syntax_but_drop_terminal_controls() {
+        use crate::fixture::Fixture;
+        let f = Fixture::new(&[]);
+        f.git(&[
+            "init",
+            "--quiet",
+            "--template=",
+            "--initial-branch=sample-main",
+        ]);
+        no_global_excludes(&f);
+        let mut names = vec![
+            "sample file",
+            "sample$(false)'suffix",
+            "-sample",
+            "sample[1]",
+            "範例",
+        ];
+        for name in names
+            .iter()
+            .chain(["sample\nline", "sample\u{1b}[31m"].iter())
+        {
+            std::fs::write(f.path().join(name), "sample").unwrap();
+        }
+        names.sort();
+        assert_eq!(read_files(f.path()).unwrap(), names);
+        assert!(read_files(Fixture::new(&[]).path()).is_none());
+    }
+
+    #[test]
+    fn file_candidates_rank_whole_paths_and_keep_one_snapshot() {
+        use crate::fixture::Fixture;
+        let f = Fixture::new(&["sample", "sample/top*", "sample/topic*", "sample/a_top*"]);
+        f.init_git(&[]);
+        no_global_excludes(&f);
+        let mut completions = Completions::default();
+        let rows = completions.candidates("sample/top", f.path(), Kind::File);
+        assert_eq!(
+            rows.iter().map(|c| c.display.as_str()).collect::<Vec<_>>(),
+            ["sample/top", "sample/topic", "sample/a_top"]
+        );
+        assert!(
+            rows.iter()
+                .all(|c| c.kind == Kind::File && c.label == "file")
+        );
+        std::fs::write(f.path().join("sample/new"), "sample").unwrap();
+        assert!(
+            completions
+                .candidates("sample/new", f.path(), Kind::File)
+                .is_empty()
+        );
+        let rows = completions.candidates("./sample/top", f.path(), Kind::File);
+        assert_eq!(rows[0].insert, "./sample/top");
+        assert_eq!(
+            Completions::default()
+                .candidates("sample/new", f.path(), Kind::File)
+                .len(),
+            1
+        );
     }
 
     #[test]

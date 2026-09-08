@@ -94,7 +94,7 @@ surmise-complete() {
 zle -N surmise-complete
 bindkey '^I' surmise-complete
 
-# Open after `cd`, `git`, `git switch` or `git checkout` and a space.
+# Open after `cd`, `git`, `git switch`, `git checkout` or `git add` and a space.
 # The picker keeps the keys until it returns the line to the shell.
 #
 # The trigger hangs off the space key rather than off `self-insert`. Wrapping
@@ -114,7 +114,7 @@ surmise-space() {
   # surmise's. `emulate` waits until after it for that reason.
   zle $_surmise_space
   emulate -L zsh
-  [[ -z $RBUFFER && $LBUFFER =~ '^[[:blank:]]*(cd|git|git[[:blank:]]+(switch|checkout))[[:blank:]]$' ]] || return
+  [[ -z $RBUFFER && $LBUFFER =~ '^[[:blank:]]*(cd|git|git[[:blank:]]+(switch|checkout|add))[[:blank:]]$' ]] || return
   surmise-complete from-space
 }
 
