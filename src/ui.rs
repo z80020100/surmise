@@ -280,7 +280,7 @@ fn window_start(top: usize, selected: usize, rows: usize, total: usize) -> usize
 /// or off it.
 fn glyph(k: Kind, chosen: bool) -> (&'static str, &'static str) {
     // Every variant is named rather than swept into a catch-all. A new one
-    // then fails the build here the way it already does in `colour` above.
+    // then fails the build here the way it does in `tab_grows` below.
     match (k, chosen) {
         (Kind::Command | Kind::Branch, false) => (CMD_ICON, CMD_ICON_FG),
         (Kind::Command | Kind::Branch, true) => (CMD_ICON, CMD_ICON_FG_CHOSEN),
