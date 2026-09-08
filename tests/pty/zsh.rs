@@ -300,6 +300,148 @@ fn git_branch_acceptance_returns_to_editing_for_enter_tab_and_right() {
 }
 
 #[test]
+fn git_add_acceptance_returns_to_editing_for_enter_tab_and_right() {
+    for key in ["\r", "\t", "\x1b[C"] {
+        let f = home(
+            "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
+            "bindkey ' ' $_surmise_space",
+        );
+        f.init_git(&[]);
+        std::fs::write(f.path().join("sample file"), "sample").unwrap();
+        let mut t = ready(f.path());
+        t.send("git add samp\t");
+        assert!(t.wait_panel(WAIT), "no file menu: {:?}", t.lines());
+        t.send(key);
+        closed(&mut t);
+        assert_eq!(line(&t).trim(), "❯ git add 'sample file'");
+        assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
+        typed(&mut t, "\t");
+        assert_eq!(line(&t).trim(), "❯ git add 'sample file' SAMPLE");
+    }
+}
+
+#[test]
+fn accepting_add_or_typing_its_space_opens_files() {
+    for key in ["\r", "\t", "\x1b[C", "\x1b "] {
+        let f = home("", "");
+        f.init_git(&[]);
+        std::fs::write(f.path().join("sample file"), "sample").unwrap();
+        let mut t = ready(f.path());
+        t.send("git ");
+        assert!(t.wait_panel(WAIT), "no command menu: {:?}", t.lines());
+        typed(&mut t, "add");
+        if key == "\x1b " {
+            t.send("\x1b");
+            closed(&mut t);
+            t.send(" ");
+        } else {
+            t.send(key);
+        }
+        assert!(t.wait_panel(WAIT), "no file menu: {:?}", t.lines());
+        t.pump(SETTLE);
+        assert!(
+            t.panel().iter().any(|row| row.text.contains("sample file")),
+            "{:?}",
+            t.lines()
+        );
+        assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
+    }
+}
+
+#[test]
+fn git_add_cancel_restores_the_seed_and_escape_keeps_edits() {
+    for key in ["\x03", "\x07", "\x1b"] {
+        let f = home("", "bindkey ' ' $_surmise_space");
+        f.init_git(&[]);
+        std::fs::write(f.path().join("sample file"), "sample").unwrap();
+        let mut t = ready(f.path());
+        t.send("git add sa\t");
+        assert!(t.wait_panel(WAIT), "no file menu: {:?}", t.lines());
+        typed(&mut t, "mp");
+        t.send(key);
+        closed(&mut t);
+        assert_eq!(
+            line(&t).trim(),
+            if key == "\x1b" {
+                "❯ git add samp"
+            } else {
+                "❯ git add sa"
+            }
+        );
+        assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
+    }
+}
+
+#[test]
+fn git_add_paths_reach_git_literally_after_a_separate_enter() {
+    for (name, expected, key) in [
+        ("sample*", "':(literal)sample*'", "\r"),
+        (
+            "sample$(touch SAMPLE-RAN)'suffix",
+            "'sample$(touch SAMPLE-RAN)'\\''suffix'",
+            "\t",
+        ),
+        ("-sample", "./-sample", "\r"),
+        (":sample", "':(literal):sample'", "\r"),
+    ] {
+        let f = home("", "bindkey ' ' $_surmise_space");
+        f.init_git(&[]);
+        std::fs::write(f.path().join(name), "sample").unwrap();
+        if name == "sample*" {
+            std::fs::write(f.path().join("sample-other"), "sample").unwrap();
+        }
+        let mut t = ready(f.path());
+        t.send("git add sample\t");
+        assert!(t.wait_panel(WAIT), "no file menu: {:?}", t.lines());
+        t.send(key);
+        closed(&mut t);
+        assert_eq!(line(&t).trim(), format!("❯ git add {expected}"));
+        assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
+        t.send("\r");
+        t.pump(SETTLE);
+        assert_eq!(
+            f.git(&["diff", "--cached", "--name-only", "-z"]),
+            format!("{name}\0")
+        );
+        assert!(!f.path().join("SAMPLE-RAN").exists());
+    }
+}
+
+#[test]
+fn unsupported_git_add_arguments_keep_the_shells_completion() {
+    let f = home(
+        "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
+        "bindkey ' ' $_surmise_space",
+    );
+    f.init_git(&[]);
+    std::fs::write(f.path().join("sample"), "sample").unwrap();
+    for arg in ["-f ", "-- ", "sample ", "'sample", "../", "/", "zzzz"] {
+        let mut t = ready(f.path());
+        typed(&mut t, &format!("git add {arg}\t"));
+        assert_eq!(line(&t).trim(), format!("❯ git add {arg}SAMPLE"));
+        assert!(t.panel().is_empty());
+    }
+}
+
+#[test]
+fn enter_after_leaving_the_file_argument_does_not_run_or_replace_the_command() {
+    let f = home(
+        "git() { print -r -- GIT-RAN }",
+        "bindkey ' ' $_surmise_space",
+    );
+    f.init_git(&[]);
+    std::fs::write(f.path().join("sample"), "sample").unwrap();
+    let mut t = ready(f.path());
+    t.send("git add samp\t");
+    assert!(t.wait_panel(WAIT), "no file menu: {:?}", t.lines());
+    typed(&mut t, &"\x1b[D".repeat(" samp".len()));
+    t.send("\r");
+    closed(&mut t);
+    assert_eq!(line(&t).trim(), "❯ git add samp");
+    assert!(!t.lines().join("\n").contains("GIT-RAN"));
+}
+
+#[test]
 fn accepting_switch_or_checkout_opens_the_branch_menu() {
     for (prefix, key) in [("swit", "\r"), ("checko", "\t"), ("swit", "\x1b[C")] {
         let f = home("git() { print -r -- GIT-RAN }", "");

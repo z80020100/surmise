@@ -39,6 +39,17 @@ fn quote_insert(s: &str) -> String {
     }
 }
 
+/// Quote a row's insertion the way the row's own kind asks. A file name is a
+/// Git pathspec as well as a shell word. `None` is the prefix several rows
+/// share and therefore no row's whole name.
+fn quote_kind(kind: Option<Kind>, s: &str) -> String {
+    if kind == Some(Kind::File) {
+        crate::git::quote_file(s)
+    } else {
+        quote_insert(s)
+    }
+}
+
 /// What Tab would do to the line.
 struct Common {
     /// Byte offset in the line where the argument starts.
@@ -103,7 +114,7 @@ impl App {
     pub fn refresh(&mut self) {
         self.selected = 0;
         // Which provider read the line. `arg` tries both and hands back the
-        // word alone. A Git query selects commands or branches.
+        // word alone. A Git query selects commands, branches or files.
         let git = crate::git::parse(self.line.left_of_cursor());
         // `arg` rather than the parse. A word nothing here may grow is one to
         // offer no menu for. The key then falls through to the shell's own
@@ -216,6 +227,12 @@ impl App {
         if q.arg.starts_with(['\'', '"']) {
             return String::new();
         }
+        // A name the shell would not take as it stands goes on the line inside
+        // quotes or behind a pathspec prefix. A dim tail can draw neither and
+        // the row therefore shows none. `accept` still takes the whole name.
+        if quote_kind(Some(pick.kind), &pick.insert) != pick.insert {
+            return String::new();
+        }
         let arg = shellword::unquote(&q.arg);
         pick.insert.strip_prefix(&arg).unwrap_or("").to_string()
     }
@@ -264,7 +281,7 @@ impl App {
         let Some(q) = self.arg() else {
             return false;
         };
-        let mut insert = quote_insert(&pick.insert);
+        let mut insert = quote_kind(Some(pick.kind), &pick.insert);
         if pick.kind.is_git() && self.line.right_of_cursor().is_empty() {
             insert.push(' ');
         }
@@ -371,12 +388,12 @@ impl App {
         if prefix == arg {
             return None;
         }
-        // A word the shell would not read as a single literal. `quote_insert`
+        // A word the shell would not read as a single literal. `quote_kind`
         // is the quoting `accept` would apply and a prefix it would quote is
         // half a name inside a quote it cannot close. A bare `~` is the one
         // string it leaves alone for the home row's sake rather than for half
         // a name. Half a name is what this is.
-        if prefix == "~" || quote_insert(prefix) != prefix {
+        if prefix == "~" || quote_kind(Some(selected.kind), prefix) != prefix {
             return None;
         }
         Some(Common::new(q.start, prefix.to_string(), dir, None))
@@ -392,7 +409,7 @@ impl App {
         let Some(c) = self.common() else {
             return false;
         };
-        let mut insert = quote_insert(&c.name);
+        let mut insert = quote_kind(c.whole, &c.name);
         if c.whole.is_some_and(Kind::is_git) && self.line.right_of_cursor().is_empty() {
             insert.push(' ');
         }
@@ -461,6 +478,71 @@ mod tests {
             item.label = "branch";
         }
         a
+    }
+
+    fn files(line: &str, names: &[&str]) -> App {
+        let mut a = staged(line, names);
+        for item in &mut a.items {
+            item.kind = candidates::Kind::File;
+            item.label = "file";
+        }
+        a
+    }
+
+    #[test]
+    fn file_acceptance_quotes_whole_names_for_the_shell_and_git() {
+        for (name, expected) in [
+            ("sample file", "'sample file'"),
+            ("sample$(false)'suffix", "'sample$(false)'\\''suffix'"),
+            ("sample[1]", "':(literal)sample[1]'"),
+            ("sample*", "':(literal)sample*'"),
+            ("sample?", "':(literal)sample?'"),
+            ("sample\\name", "':(literal)sample\\name'"),
+            (":sample", "':(literal):sample'"),
+            ("-sample", "./-sample"),
+            ("~/sample", "'~/sample'"),
+        ] {
+            for tab in [false, true] {
+                let mut a = files("git add ", &[name]);
+                assert!(a.adds_to_the_line());
+                assert!(if tab { a.accept_common() } else { a.accept() });
+                assert_eq!(a.line.text(), format!("git add {expected} "));
+                assert!(!a.menu_open());
+            }
+        }
+    }
+
+    #[test]
+    fn file_prefixes_cover_whole_paths_without_expanding_them() {
+        let mut a = files("git add sample/t", &["sample/topic", "sample/topaz"]);
+        assert_eq!(a.typed(), "sample/t");
+        assert_eq!(a.reach(), "sample/top".len());
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "git add sample/top");
+        for names in [
+            ["~/sample/a", "~/sample/b"],
+            [":sample/a", ":sample/b"],
+            ["sample[1]a", "sample[1]b"],
+        ] {
+            let mut a = files("git add ", &names);
+            assert_eq!(a.reach(), 0);
+            assert!(!a.accept_common());
+            assert_eq!(a.line.text(), "git add ");
+        }
+    }
+
+    #[test]
+    fn file_acceptance_preserves_the_tail_and_refuses_a_stale_command_position() {
+        let mut a = files("git add samp second", &["sample file"]);
+        cursor_after(&mut a, "git add samp".len());
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "git add 'sample file' second");
+        let mut a = files("git add samp", &["sample"]);
+        cursor_after(&mut a, "git add".len());
+        assert!(a.completes_git());
+        assert!(!a.accept());
+        assert!(!a.accept_common());
+        assert_eq!(a.line.text(), "git add samp");
     }
 
     #[test]
@@ -609,6 +691,23 @@ mod tests {
     fn ghost_says_nothing_for_a_quoted_argument() {
         assert_eq!(staged("cd 'wo", &["work/"]).ghost(), "");
         assert_eq!(staged("cd \"wo", &["work/"]).ghost(), "");
+    }
+
+    #[test]
+    fn ghost_says_nothing_for_a_name_that_needs_quoting() {
+        // `accept` puts such a name inside quotes or behind a pathspec prefix
+        // and a dim tail can draw neither. The right arrow asks
+        // `adds_to_the_line` and takes the row whole.
+        let mut a = staged("cd my", &["my docs/"]);
+        assert_eq!(a.ghost(), "");
+        assert!(a.adds_to_the_line());
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "cd 'my docs/'");
+        let mut a = files("git add sam", &["sample*"]);
+        assert_eq!(a.ghost(), "");
+        assert!(a.adds_to_the_line());
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "git add ':(literal)sample*' ");
     }
 
     #[test]

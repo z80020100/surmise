@@ -193,9 +193,10 @@ It does not run aliases.
 Enter accepts the highlighted subcommand and adds a space. Right does the same
 when the name starts with what you typed. Tab accepts the shared prefix or a
 single prefix match. Accepting `switch` or `checkout` opens the branch menu
-when branches are available. Other complete subcommands return the line to the
-shell for further editing. A word no subcommand matches returns the line as
-well. Tab on such a word opens no menu and the shell completes it instead. Accepting a
+when branches are available. Accepting `add` opens the file menu when files
+are available. Other complete subcommands return the line to the shell for
+further editing. A word no subcommand matches returns the line as well. Tab
+on such a word opens no menu and the shell completes it instead. Accepting a
 subcommand does not execute it. Esc keeps the edited line. Ctrl-C and Ctrl-G
 restore the line that opened the menu.
 
@@ -215,20 +216,43 @@ Esc keeps the edited line. Ctrl-C and Ctrl-G restore the line that opened the
 menu. The menu reads branches and their settings once when it first needs
 them. Branches created later appear in the next menu.
 
-Only the first branch argument without preceding options uses this menu.
-Other arguments and Git global options use the shell's existing completion.
-These include paths, command options and new branch names after `switch -c`
-or `checkout -b`. Quoted arguments and compound shell commands also stay with
-the shell. Git candidates use text ranking alone. Directory history does not
-affect them. A directory outside a repository or a query with no matching
-branches also leaves completion to the shell.
+Typing `git add ` opens the file menu. Tab opens it on a partial file name.
+The menu includes unstaged modifications, unstaged deletions and untracked
+files below the current directory. It excludes ignored untracked files and
+files with no changes since their last staging. Git reads its standard ignore
+rules. Each candidate shows its full path relative to the current directory.
+Nested files appear individually. A leading `./` stays on the completed path.
+
+File matching uses the whole path. Enter accepts the highlighted file.
+Right accepts a prefix match. Tab accepts a shared prefix or a single prefix
+match. Accepting a whole file adds a space and returns the line to the shell.
+It does not stage the file or execute the command. Esc keeps the edited line.
+Ctrl-C and Ctrl-G restore the line that opened the menu. The file list stays
+fixed until the next menu.
+
+Accepted file names receive shell quoting when needed. Git wildcard
+characters and a leading `:` also receive a literal pathspec prefix. A
+leading `-` receives `./` so Git reads a path. Names with control characters
+are omitted and so are names that are not UTF-8.
+
+Only the first branch or file argument without preceding options uses these
+menus. Other arguments and Git global options use the shell's existing
+completion. These include command options and new branch names after
+`switch -c` or `checkout -b`. File arguments with absolute paths or `..`
+components also use shell completion. Quoted arguments and compound shell
+commands stay with the shell. Git candidates use text ranking alone.
+Directory history does not affect them. A directory outside a repository or
+a query with no matching branches or files also leaves completion to the
+shell.
 
 Git must be on PATH. The command query allows 250 ms and at most 64 KiB of
 output. The branch and configuration queries share a separate budget with
-the same limits. A missing Git, a failed query or a query that exceeds either
-limit leaves completion to the shell. Errors do not print at the prompt.
+the same limits. The file query has its own budget with these limits. A
+missing Git, a failed query or a query that exceeds either limit leaves
+completion to the shell. Errors do not print at the prompt.
 The command query uses Git's experimental `--list-cmds` interface.
 The branch query uses `for-each-ref` and reads `refs/heads` and `refs/remotes`.
+The file query uses `ls-files --modified --others --exclude-standard -z`.
 A Git version that does not support a query leaves that completion to the shell.
 
 ## Build, test and lint
