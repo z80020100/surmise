@@ -6,7 +6,7 @@ use std::io::Read;
 use std::os::fd::OwnedFd;
 use std::os::unix::net::UnixStream;
 use std::path::Path;
-use std::process::{Child, Command, Stdio};
+use std::process::{Child, Command, ExitStatus, Stdio};
 use std::time::{Duration, Instant};
 
 /// What the prompt allows the query. `read_commands` takes its patience as an
@@ -57,6 +57,21 @@ pub(crate) fn parse(left: &str) -> Option<Query> {
 /// The child writes into one end of a socket pair rather than into a pipe.
 /// `std::process` has no deadline of its own and a socket is what carries one.
 fn read_commands(command: &mut Command, patience: Duration) -> Option<Vec<String>> {
+    let (status, output) = read_output(command, patience)?;
+    if !status.success() {
+        return None;
+    }
+    let mut names: Vec<String> = output
+        .lines()
+        .filter(|name| !name.is_empty() && plain_name(name))
+        .map(str::to_string)
+        .collect();
+    names.sort();
+    names.dedup();
+    Some(names)
+}
+
+fn read_output(command: &mut Command, patience: Duration) -> Option<(ExitStatus, String)> {
     let (mut reader, writer) = UnixStream::pair().ok()?;
     // The wait goes on before the child can close its end. macOS refuses this
     // option on a pair whose peer has gone and a command that finished ahead
@@ -71,7 +86,7 @@ fn read_commands(command: &mut Command, patience: Duration) -> Option<Vec<String
         .ok()?;
     // The command builder must release its copy before the reader can see EOF.
     command.stdout(Stdio::null());
-    let result = collect_names(&mut child, &mut reader, patience, start);
+    let result = collect_output(&mut child, &mut reader, patience, start);
     if result.is_none() {
         let _ = child.kill();
         let _ = child.wait();
@@ -79,15 +94,14 @@ fn read_commands(command: &mut Command, patience: Duration) -> Option<Vec<String
     result
 }
 
-/// The names `child` writes, under `patience` measured from `start`. Every
-/// `?` here is a reason for the caller to kill that child and one exit is
-/// what gives them all the same one.
-fn collect_names(
+/// Read the child's output and exit status within `patience` measured from `start`.
+/// The caller kills the child when this function returns `None`.
+fn collect_output(
     child: &mut Child,
     reader: &mut UnixStream,
     patience: Duration,
     start: Instant,
-) -> Option<Vec<String>> {
+) -> Option<(ExitStatus, String)> {
     let mut bytes = Vec::new();
     let mut buffer = [0; 4096];
     loop {
@@ -112,27 +126,16 @@ fn collect_names(
         }
         bytes.extend_from_slice(&buffer[..count]);
     }
-    loop {
+    let status = loop {
         if let Some(status) = child.try_wait().ok()? {
-            if !status.success() {
-                return None;
-            }
-            break;
+            break status;
         }
         if start.elapsed() >= patience {
             return None;
         }
         std::thread::sleep(Duration::from_millis(1));
-    }
-    let output = String::from_utf8(bytes).ok()?;
-    let mut names: Vec<String> = output
-        .lines()
-        .filter(|name| !name.is_empty() && plain_name(name))
-        .map(str::to_string)
-        .collect();
-    names.sort();
-    names.dedup();
-    Some(names)
+    };
+    Some((status, String::from_utf8(bytes).ok()?))
 }
 
 /// The names this machine's Git offers. The menu asks Git once and answers
