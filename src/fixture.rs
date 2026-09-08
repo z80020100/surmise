@@ -73,6 +73,11 @@ impl Fixture {
             "--template=",
             "--initial-branch=sample-main",
         ]);
+        // The machine's own excludes file reaches this repository through any
+        // Git the code under test runs for itself. The `env_clear` above speaks
+        // for these calls alone and cannot speak for those. A name a developer
+        // ignores at home would otherwise go missing from a menu a test reads.
+        self.git(&["config", "core.excludesFile", "/dev/null"]);
         let tree = self.git(&["hash-object", "-t", "tree", "-w", "--stdin"]);
         let commit = self.git(&["commit-tree", &tree, "-m", "Sample"]);
         self.git(&["update-ref", "refs/heads/sample-main", &commit]);
