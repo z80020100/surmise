@@ -516,6 +516,23 @@ mod tests {
     }
 
     #[test]
+    fn a_name_the_shell_or_the_terminal_would_read_as_something_else_is_dropped() {
+        // Git's own `check-ref-format` refuses all three of these and no
+        // repository a test can build will offer one. This function reads
+        // strings rather than a repository and a ref written by hand reaches
+        // it either way. A leading `-` would arrive at Git as an option and an
+        // escape would be the terminal's to obey rather than the menu's to
+        // draw.
+        let refs = concat!(
+            "refs/heads/sample-main\t\n",
+            "refs/heads/\t\n",
+            "refs/heads/-sample\t\n",
+            "refs/heads/sam\u{1b}[31mple\t\n",
+        );
+        assert_eq!(branch_names(refs, "", false), ["sample-main"]);
+    }
+
+    #[test]
     fn branch_ranking_uses_the_whole_name_and_a_cached_snapshot() {
         let mut completions = Completions {
             branches: Some(vec![
