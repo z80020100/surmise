@@ -7,7 +7,7 @@
 //! the cursor breaks the moment a paint scrolls the screen. A cursor-position
 //! query hangs on a terminal that does not answer.
 
-use crate::candidates::{Candidate, Kind};
+use crate::candidates::{Candidate, FOLDER, Kind};
 use crate::fuzzy;
 use crate::line::Line;
 use std::io::{self, Write};
@@ -282,8 +282,12 @@ fn glyph(k: Kind, chosen: bool) -> (&'static str, &'static str) {
     // Every variant is named rather than swept into a catch-all. A new one
     // then fails the build here the way it does in `tab_grows` below.
     match (k, chosen) {
-        (Kind::Command | Kind::Branch | Kind::File, false) => (CMD_ICON, CMD_ICON_FG),
-        (Kind::Command | Kind::Branch | Kind::File, true) => (CMD_ICON, CMD_ICON_FG_CHOSEN),
+        (Kind::Command | Kind::Branch | Kind::File | Kind::Option | Kind::Path, false) => {
+            (CMD_ICON, CMD_ICON_FG)
+        }
+        (Kind::Command | Kind::Branch | Kind::File | Kind::Option | Kind::Path, true) => {
+            (CMD_ICON, CMD_ICON_FG_CHOSEN)
+        }
         (Kind::Run, false) => (RUN_ICON, RUN_ICON_FG),
         (Kind::Run, true) => (RUN_ICON, RUN_ICON_FG_CHOSEN),
         (Kind::Special, false) => (HOME_ICON, ICON_FG),
@@ -309,7 +313,8 @@ fn tab_grows(k: Kind, highlighted: Kind, at: &[usize]) -> bool {
         // Tab takes a highlighted parent row whole and reads the child
         // directories under every other highlight.
         Kind::Parent => highlighted == Kind::Parent,
-        Kind::Dir | Kind::Command | Kind::Branch | Kind::File => highlighted != Kind::Parent,
+        Kind::Dir => highlighted != Kind::Parent,
+        Kind::Command | Kind::Branch | Kind::File | Kind::Option | Kind::Path => k == highlighted,
     }
 }
 
@@ -414,7 +419,12 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
             let off = format!("{ground}{name_fg}");
             let on = format!("{mark_fg}{mark}");
             let name = marked(&fitted, &at, &under, &off, &on);
-            let (icon, icon_fg) = glyph(c.kind, chosen);
+            let icon_kind = if matches!(c.kind, Kind::File | Kind::Path) && c.label == FOLDER {
+                Kind::Dir
+            } else {
+                c.kind
+            };
+            let (icon, icon_fg) = glyph(icon_kind, chosen);
             format!("{pad}{ground} {icon_fg}{icon} {name_fg}{name} {RESET}")
         })
         .collect();

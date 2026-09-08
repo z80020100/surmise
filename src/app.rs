@@ -21,6 +21,7 @@ pub struct App {
     history: History,
     scan: Scan,
     git: crate::git::Completions,
+    git_start: Option<usize>,
 }
 
 /// Quote a candidate's insertion for the shell. A leading `~` is a deliberate
@@ -43,10 +44,19 @@ fn quote_insert(s: &str) -> String {
 /// Git pathspec as well as a shell word. `None` is the prefix several rows
 /// share and therefore no row's whole name.
 fn quote_kind(kind: Option<Kind>, s: &str) -> String {
-    if kind == Some(Kind::File) {
-        crate::git::quote_file(s)
-    } else {
-        quote_insert(s)
+    match kind {
+        Some(Kind::File) => crate::git::quote_file(s),
+        Some(Kind::Option) => s.to_string(),
+        Some(Kind::Path) => shellword::quote(s),
+        _ => quote_insert(s),
+    }
+}
+
+fn finishes_word(kind: Kind, name: &str, arg: &str) -> bool {
+    match kind {
+        Kind::Option => !name.ends_with('='),
+        Kind::File | Kind::Path => !name.ends_with('/') || name == arg,
+        _ => kind.is_git(),
     }
 }
 
@@ -93,6 +103,7 @@ impl App {
             history: History::default(),
             scan: Scan::default(),
             git: crate::git::Completions::default(),
+            git_start: None,
         }
     }
 
@@ -115,12 +126,16 @@ impl App {
         self.selected = 0;
         // Which provider read the line. `arg` tries both and hands back the
         // word alone. A Git query selects commands, branches or files.
-        let git = crate::git::parse(self.line.left_of_cursor());
+        let mut git = crate::git::parse(self.line.left_of_cursor());
+        if let Some(target) = &mut git {
+            target.exclude_tail(self.line.right_of_cursor());
+        }
+        self.git_start = git.as_ref().map(|q| q.word.start);
         // `arg` rather than the parse. A word nothing here may grow is one to
         // offer no menu for. The key then falls through to the shell's own
         // completion instead of opening rows nothing can take.
         self.items = match (self.arg(), git) {
-            (Some(q), Some(git)) => self.git.candidates(&q.arg, &self.cwd, git.kind),
+            (Some(_), Some(git)) => self.git.complete(&git, &self.cwd),
             (Some(q), None) => candidates::generate_in(
                 &shellword::unquote(&q.arg),
                 &self.cwd,
@@ -146,7 +161,9 @@ impl App {
         }
         let pick = self.items.get(self.selected)?;
         if pick.kind.is_git()
-            && crate::git::parse(self.line.left_of_cursor()).is_none_or(|q| q.kind != pick.kind)
+            && crate::git::parse(self.line.left_of_cursor()).is_none_or(|q| {
+                !q.accepts(pick.kind) || self.git_start.is_some_and(|start| start != q.word.start)
+            })
         {
             return None;
         }
@@ -282,7 +299,9 @@ impl App {
             return false;
         };
         let mut insert = quote_kind(Some(pick.kind), &pick.insert);
-        if pick.kind.is_git() && self.line.right_of_cursor().is_empty() {
+        if finishes_word(pick.kind, &pick.insert, &shellword::unquote(&q.arg))
+            && self.line.right_of_cursor().is_empty()
+        {
             insert.push(' ');
         }
         self.replace_arg(q.start, &insert);
@@ -334,7 +353,9 @@ impl App {
             .items
             .iter()
             .filter(|c| {
-                (c.kind == Kind::Dir || c.kind.is_git()) && starts_with_folded(&c.insert, &arg)
+                (c.kind == Kind::Dir || c.kind.is_git())
+                    && (!selected.kind.is_git() || c.kind == selected.kind)
+                    && starts_with_folded(&c.insert, &arg)
             })
             .collect();
         // The count is measured in `head` throughout. What was typed can be a
@@ -409,8 +430,16 @@ impl App {
         let Some(c) = self.common() else {
             return false;
         };
-        let mut insert = quote_kind(c.whole, &c.name);
-        if c.whole.is_some_and(Kind::is_git) && self.line.right_of_cursor().is_empty() {
+        let kind = c.whole.or_else(|| {
+            self.highlighted()
+                .filter(|pick| pick.kind == Kind::Option)
+                .map(|pick| pick.kind)
+        });
+        let mut insert = quote_kind(kind, &c.name);
+        if c.whole
+            .is_some_and(|kind| finishes_word(kind, &c.name, &self.typed()))
+            && self.line.right_of_cursor().is_empty()
+        {
             insert.push(' ');
         }
         self.replace_arg(c.start, &insert);
@@ -490,6 +519,120 @@ mod tests {
     }
 
     #[test]
+    fn add_keeps_remaining_files_available_and_reopens_after_a_quoted_word() {
+        let f = Fixture::new(&["sample one*", "sample two*"]);
+        f.init_git(&[]);
+        let mut a = App::over(f.path(), "git add sample o");
+        // The unquoted space starts another argument.
+        assert_eq!(a.typed(), "o");
+        a = App::over(f.path(), "git add 'sample o");
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "git add 'sample one' ");
+        assert!(a.menu_open());
+        assert_eq!(
+            a.items
+                .iter()
+                .filter(|c| c.kind == candidates::Kind::File)
+                .count(),
+            1
+        );
+        assert_eq!(a.items[0].insert, "sample two");
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "git add 'sample one' 'sample two' ");
+        assert!(a.items.iter().all(|c| c.kind == candidates::Kind::Option));
+        let reopened = App::over(f.path(), "git add 'sample one' ");
+        assert_eq!(
+            reopened
+                .items
+                .iter()
+                .filter(|c| c.kind == candidates::Kind::File)
+                .count(),
+            1
+        );
+        assert_eq!(reopened.items[0].insert, "sample two");
+        assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
+    }
+
+    #[test]
+    fn moving_to_an_earlier_file_does_not_take_a_stale_row() {
+        let f = Fixture::new(&["sample-one*", "sample-two*"]);
+        f.init_git(&[]);
+        let mut a = App::over(f.path(), "git add sample-one sample-t");
+        cursor_after(&mut a, "git add sample-one".len());
+        assert!(!a.accept());
+        assert_eq!(a.line.text(), "git add sample-one sample-t");
+    }
+
+    #[test]
+    fn add_excludes_files_on_both_sides_of_the_cursor() {
+        let f = Fixture::new(&["sample-one*", "sample-two*", "sample-three*"]);
+        f.init_git(&[]);
+        let mut a = App::over(f.path(), "git add sample-one samp sample-two");
+        cursor_after(&mut a, "git add sample-one samp".len());
+        a.refresh();
+        assert_eq!(a.items.len(), 1);
+        assert_eq!(a.items[0].insert, "sample-three");
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "git add sample-one sample-three sample-two");
+    }
+
+    #[test]
+    fn add_does_not_exclude_a_path_named_by_an_option_value_after_the_cursor() {
+        let f = Fixture::new(&["sample-one*", "sample-two*"]);
+        f.init_git(&[]);
+        let mut a = App::over(f.path(), "git add samp --pathspec-from-file sample-one");
+        cursor_after(&mut a, "git add samp".len());
+        a.refresh();
+        assert!(a.items.iter().any(|c| c.insert == "sample-one"));
+        assert!(a.items.iter().any(|c| c.insert == "sample-two"));
+    }
+
+    #[test]
+    fn add_descends_into_a_folder_and_accepts_the_whole_folder_on_a_second_enter() {
+        let f = Fixture::new(&["sample dir/inner", "sample dir/file*", "other*"]);
+        f.init_git(&[]);
+        let mut a = App::over(f.path(), "git add 'sample d");
+        a.selected = a
+            .items
+            .iter()
+            .position(|c| c.insert == "sample dir/")
+            .unwrap();
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "git add 'sample dir/'");
+        assert_eq!(a.items[0].insert, "sample dir/");
+        assert!(a.items.iter().any(|c| c.insert == "sample dir/inner/"));
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "git add 'sample dir/' ");
+        assert!(a.items.iter().all(|c| !c.insert.starts_with("sample dir/")));
+        assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
+    }
+
+    #[test]
+    fn add_option_acceptance_preserves_separators_and_quotes_option_file_values() {
+        let f = Fixture::new(&["sample list*", "sample*"]);
+        f.init_git(&[]);
+        let mut a = App::over(f.path(), "git add --chm");
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "git add --chmod=");
+        assert!(a.items.iter().any(|c| c.insert == "--chmod=+x"));
+        a.selected = a
+            .items
+            .iter()
+            .position(|c| c.insert == "--chmod=+x")
+            .unwrap();
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "git add --chmod=+x ");
+        assert!(a.items.iter().any(|c| c.insert == "sample"));
+        let mut a = App::over(f.path(), "git add --pathspec-from-file='sample l");
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "git add '--pathspec-from-file=sample list' ");
+        assert!(a.items.iter().all(|c| c.kind == candidates::Kind::Option));
+        let mut a = App::over(f.path(), "git add --ignore");
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "git add --ignore-");
+    }
+
+    #[test]
     fn file_acceptance_quotes_whole_names_for_the_shell_and_git() {
         for (name, expected) in [
             ("sample file", "'sample file'"),
@@ -507,7 +650,7 @@ mod tests {
                 assert!(a.adds_to_the_line());
                 assert!(if tab { a.accept_common() } else { a.accept() });
                 assert_eq!(a.line.text(), format!("git add {expected} "));
-                assert!(!a.menu_open());
+                assert!(a.items.iter().all(|c| c.kind == candidates::Kind::Option));
             }
         }
     }

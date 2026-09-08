@@ -300,7 +300,7 @@ fn git_branch_acceptance_returns_to_editing_for_enter_tab_and_right() {
 }
 
 #[test]
-fn git_add_acceptance_returns_to_editing_for_enter_tab_and_right() {
+fn git_add_acceptance_keeps_editing_for_enter_tab_and_right() {
     for key in ["\r", "\t", "\x1b[C"] {
         let f = home(
             "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
@@ -312,11 +312,14 @@ fn git_add_acceptance_returns_to_editing_for_enter_tab_and_right() {
         t.send("git add samp\t");
         assert!(t.wait_panel(WAIT), "no file menu: {:?}", t.lines());
         t.send(key);
+        t.pump(SETTLE);
+        assert!(line(&t).starts_with("❯ git add 'sample file' "));
+        t.send("\x1b");
         closed(&mut t);
         assert_eq!(line(&t).trim(), "❯ git add 'sample file'");
         assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
-        typed(&mut t, "\t");
-        assert_eq!(line(&t).trim(), "❯ git add 'sample file' SAMPLE");
+        typed(&mut t, "zzzz\t");
+        assert_eq!(line(&t).trim(), "❯ git add 'sample file' zzzzSAMPLE");
     }
 }
 
@@ -394,6 +397,8 @@ fn git_add_paths_reach_git_literally_after_a_separate_enter() {
         t.send("git add sample\t");
         assert!(t.wait_panel(WAIT), "no file menu: {:?}", t.lines());
         t.send(key);
+        t.pump(SETTLE);
+        t.send("\x1b");
         closed(&mut t);
         assert_eq!(line(&t).trim(), format!("❯ git add {expected}"));
         assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
@@ -408,6 +413,142 @@ fn git_add_paths_reach_git_literally_after_a_separate_enter() {
 }
 
 #[test]
+fn git_add_selects_multiple_files_without_staging_and_cancel_restores_the_seed() {
+    for cancel in [false, true] {
+        let f = home("", "bindkey ' ' $_surmise_space");
+        f.init_git(&[]);
+        for name in ["sample one", "sample*", "sample-other"] {
+            std::fs::write(f.path().join(name), "sample").unwrap();
+        }
+        let mut t = ready(f.path());
+        t.send("git add 'sample o\t");
+        assert!(t.wait_panel(WAIT), "no file menu: {:?}", t.lines());
+        typed(&mut t, "\r");
+        assert!(line(&t).starts_with("❯ git add 'sample one' "));
+        assert!(t.panel().iter().all(|row| !row.text.contains("sample one")));
+        typed(&mut t, "'sample*\t");
+        assert!(line(&t).starts_with("❯ git add 'sample one' ':(literal)sample*' "));
+        assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
+        t.send(if cancel { "\x03" } else { "\x1b" });
+        closed(&mut t);
+        if cancel {
+            assert_eq!(line(&t).trim(), "❯ git add 'sample o");
+        } else {
+            t.send("\r");
+            t.pump(SETTLE);
+            assert_eq!(
+                f.git(&["diff", "--cached", "--name-only", "-z"]),
+                "sample one\0sample*\0"
+            );
+        }
+    }
+}
+
+#[test]
+fn git_add_folder_selection_stages_the_subtree_only_after_leaving_the_menu() {
+    let f = home("", "bindkey ' ' $_surmise_space");
+    f.init_git(&[]);
+    std::fs::create_dir_all(f.path().join("sample dir/inner")).unwrap();
+    for name in ["sample dir/one", "sample dir/inner/two", "sample-other"] {
+        std::fs::write(f.path().join(name), "sample").unwrap();
+    }
+    let mut t = ready(f.path());
+    t.send("git add 'sample d\t");
+    assert!(t.wait_panel(WAIT), "no folder menu: {:?}", t.lines());
+    typed(&mut t, "\r");
+    assert!(line(&t).starts_with("❯ git add 'sample dir/'"));
+    typed(&mut t, "\r");
+    assert!(line(&t).starts_with("❯ git add 'sample dir/' "));
+    assert!(
+        t.panel()
+            .iter()
+            .all(|row| !row.text.contains("sample dir/"))
+    );
+    assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
+    t.send("\x1b");
+    closed(&mut t);
+    t.send("\r");
+    t.pump(SETTLE);
+    assert_eq!(
+        f.git(&["diff", "--cached", "--name-only", "-z"]),
+        "sample dir/inner/two\0sample dir/one\0"
+    );
+}
+
+#[test]
+fn git_add_options_and_chmod_values_reach_git_without_early_execution() {
+    let f = home("", "bindkey ' ' $_surmise_space");
+    f.init_git(&[]);
+    std::fs::write(f.path().join("sample"), "sample").unwrap();
+    let mut t = ready(f.path());
+    t.send("git add --chm\t");
+    assert!(t.wait_panel(WAIT), "no option menu: {:?}", t.lines());
+    typed(&mut t, "\t");
+    assert!(line(&t).starts_with("❯ git add --chmod="));
+    typed(&mut t, "+x\t");
+    assert!(line(&t).starts_with("❯ git add --chmod=+x "));
+    typed(&mut t, "samp\t");
+    assert!(line(&t).starts_with("❯ git add --chmod=+x sample "));
+    assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
+    t.send("\x1b");
+    closed(&mut t);
+    assert_eq!(line(&t).trim(), "❯ git add --chmod=+x sample");
+    t.send("\r");
+    t.pump(SETTLE);
+    assert!(
+        f.git(&["ls-files", "--stage", "sample"])
+            .starts_with("100755 ")
+    );
+}
+
+#[test]
+fn git_add_completes_after_options_and_after_the_option_separator() {
+    for (prefix, name, expected) in [
+        ("-nf ", "sample", "sample"),
+        ("-- ", "-sample", "./-sample"),
+    ] {
+        let f = home("", "bindkey ' ' $_surmise_space");
+        f.init_git(&[]);
+        std::fs::write(f.path().join(name), "sample").unwrap();
+        let mut t = ready(f.path());
+        t.send(&format!("git add {prefix}samp\t"));
+        assert!(t.wait_panel(WAIT), "no file menu: {:?}", t.lines());
+        typed(&mut t, "\r");
+        t.send("\x1b");
+        closed(&mut t);
+        assert_eq!(line(&t).trim(), format!("❯ git add {prefix}{expected}"));
+        assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
+    }
+}
+
+#[test]
+fn git_add_pathspec_file_completion_reads_the_selected_file_literally() {
+    for attached in [false, true] {
+        let f = home("", "bindkey ' ' $_surmise_space");
+        f.init_git(&[]);
+        std::fs::write(f.path().join("sample"), "sample").unwrap();
+        std::fs::write(f.path().join("sample list*"), "sample\n").unwrap();
+        let mut t = ready(f.path());
+        let separator = if attached { "=" } else { " " };
+        t.send(&format!(
+            "git add --pathspec-from-file{separator}'sample l\t"
+        ));
+        assert!(t.wait_panel(WAIT), "no path menu: {:?}", t.lines());
+        typed(&mut t, "\t");
+        assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
+        t.send("\x1b");
+        closed(&mut t);
+        assert!(!line(&t).contains(":(literal)"));
+        t.send("\r");
+        t.pump(SETTLE);
+        assert_eq!(
+            f.git(&["diff", "--cached", "--name-only", "-z"]),
+            "sample\0"
+        );
+    }
+}
+
+#[test]
 fn unsupported_git_add_arguments_keep_the_shells_completion() {
     let f = home(
         "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
@@ -415,7 +556,7 @@ fn unsupported_git_add_arguments_keep_the_shells_completion() {
     );
     f.init_git(&[]);
     std::fs::write(f.path().join("sample"), "sample").unwrap();
-    for arg in ["-f ", "-- ", "sample ", "'sample", "../", "/", "zzzz"] {
+    for arg in ["--unknown ", "../", "/", "zzzz"] {
         let mut t = ready(f.path());
         typed(&mut t, &format!("git add {arg}\t"));
         assert_eq!(line(&t).trim(), format!("❯ git add {arg}SAMPLE"));
