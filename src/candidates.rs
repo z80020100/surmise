@@ -28,12 +28,19 @@ pub const MAX_RESULTS: usize = 60;
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Kind {
     Command,
+    Branch,
     Dir,
     Parent,
     Special,
     /// The argument as it stands. This row grows nothing and runs the line
     /// instead.
     Run,
+}
+
+impl Kind {
+    pub fn is_git(self) -> bool {
+        matches!(self, Kind::Command | Kind::Branch)
+    }
 }
 
 #[derive(Clone)]

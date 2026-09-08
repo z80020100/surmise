@@ -135,10 +135,10 @@ pub fn run(seed: &str) -> io::Result<u8> {
                         // a bare `it's` or `~root` names something else.
                         if app.runs_the_line() {
                             app.accept();
-                            break RUN;
+                            break if completing_git { ACCEPTED } else { RUN };
                         }
                         if !app.accept() {
-                            break RUN;
+                            break if completing_git { ACCEPTED } else { RUN };
                         }
                         // The descent landed somewhere with nothing to show
                         // and nothing to go on into. A directory nobody may

@@ -1,12 +1,13 @@
-//! Git subcommand completion from the installed Git.
+//! Git subcommand and branch completion from the installed Git.
 
 use crate::candidates::{Candidate, Kind, MAX_RESULTS, Query, match_rank};
 use crate::fuzzy;
+use std::collections::{BTreeSet, HashMap};
 use std::io::Read;
 use std::os::fd::OwnedFd;
 use std::os::unix::net::UnixStream;
 use std::path::Path;
-use std::process::{Child, Command, Stdio};
+use std::process::{Child, Command, ExitStatus, Stdio};
 use std::time::{Duration, Instant};
 
 /// What the prompt allows the query. `read_commands` takes its patience as an
@@ -30,23 +31,41 @@ fn plain_name(word: &str) -> bool {
             .all(|c| c.is_ascii_alphanumeric() || b"-_.".contains(&c))
 }
 
-/// Recognise the subcommand word of a `git` left of the cursor. Anything that
-/// is not a plain name predicts nothing. An option, a quote and every piece of
-/// shell syntax belong to the shell's own completion. So does a word with a
-/// second one behind it.
-pub(crate) fn parse(left: &str) -> Option<Query> {
+pub(crate) struct Target {
+    pub word: Query,
+    pub kind: Kind,
+}
+
+/// Read the subcommand or the first branch argument. Options and shell syntax
+/// stay with the shell's completion.
+pub(crate) fn parse(left: &str) -> Option<Target> {
     let trimmed = left.trim_start_matches([' ', '\t']);
     let rest = trimmed.strip_prefix("git")?;
     if !rest.starts_with([' ', '\t']) {
         return None;
     }
-    let arg = rest.trim_start_matches([' ', '\t']);
-    if !plain_name(arg) {
-        return None;
-    }
-    Some(Query {
-        start: left.len() - arg.len(),
-        arg: arg.to_string(),
+    let word = rest.trim_start_matches([' ', '\t']);
+    let (arg, kind) = match word.split_once([' ', '\t']) {
+        Some(("switch" | "checkout", rest)) => {
+            let arg = rest.trim_start_matches([' ', '\t']);
+            if arg.starts_with('-')
+                || !arg
+                    .chars()
+                    .all(|c| c.is_alphanumeric() || "/._-+@,".contains(c))
+            {
+                return None;
+            }
+            (arg, Kind::Branch)
+        }
+        None if plain_name(word) => (word, Kind::Command),
+        _ => return None,
+    };
+    Some(Target {
+        word: Query {
+            start: left.len() - arg.len(),
+            arg: arg.to_string(),
+        },
+        kind,
     })
 }
 
@@ -57,6 +76,21 @@ pub(crate) fn parse(left: &str) -> Option<Query> {
 /// The child writes into one end of a socket pair rather than into a pipe.
 /// `std::process` has no deadline of its own and a socket is what carries one.
 fn read_commands(command: &mut Command, patience: Duration) -> Option<Vec<String>> {
+    let (status, output) = read_output(command, patience)?;
+    if !status.success() {
+        return None;
+    }
+    let mut names: Vec<String> = output
+        .lines()
+        .filter(|name| !name.is_empty() && plain_name(name))
+        .map(str::to_string)
+        .collect();
+    names.sort();
+    names.dedup();
+    Some(names)
+}
+
+fn read_output(command: &mut Command, patience: Duration) -> Option<(ExitStatus, String)> {
     let (mut reader, writer) = UnixStream::pair().ok()?;
     // The wait goes on before the child can close its end. macOS refuses this
     // option on a pair whose peer has gone and a command that finished ahead
@@ -71,7 +105,7 @@ fn read_commands(command: &mut Command, patience: Duration) -> Option<Vec<String
         .ok()?;
     // The command builder must release its copy before the reader can see EOF.
     command.stdout(Stdio::null());
-    let result = collect_names(&mut child, &mut reader, patience, start);
+    let result = collect_output(&mut child, &mut reader, patience, start);
     if result.is_none() {
         let _ = child.kill();
         let _ = child.wait();
@@ -79,15 +113,14 @@ fn read_commands(command: &mut Command, patience: Duration) -> Option<Vec<String
     result
 }
 
-/// The names `child` writes, under `patience` measured from `start`. Every
-/// `?` here is a reason for the caller to kill that child and one exit is
-/// what gives them all the same one.
-fn collect_names(
+/// Read the child's output and exit status within `patience` measured from `start`.
+/// The caller kills the child when this function returns `None`.
+fn collect_output(
     child: &mut Child,
     reader: &mut UnixStream,
     patience: Duration,
     start: Instant,
-) -> Option<Vec<String>> {
+) -> Option<(ExitStatus, String)> {
     let mut bytes = Vec::new();
     let mut buffer = [0; 4096];
     loop {
@@ -112,41 +145,164 @@ fn collect_names(
         }
         bytes.extend_from_slice(&buffer[..count]);
     }
-    loop {
+    let status = loop {
         if let Some(status) = child.try_wait().ok()? {
-            if !status.success() {
-                return None;
-            }
-            break;
+            break status;
         }
         if start.elapsed() >= patience {
             return None;
         }
         std::thread::sleep(Duration::from_millis(1));
-    }
-    let output = String::from_utf8(bytes).ok()?;
-    let mut names: Vec<String> = output
-        .lines()
-        .filter(|name| !name.is_empty() && plain_name(name))
-        .map(str::to_string)
-        .collect();
-    names.sort();
-    names.dedup();
-    Some(names)
+    };
+    Some((status, String::from_utf8(bytes).ok()?))
 }
 
-/// The names this machine's Git offers. The menu asks Git once and answers
-/// every later key from the same list. A query that came back with nothing
-/// keeps that answer rather than asking again at the next keystroke.
-#[derive(Default)]
-pub(crate) struct Commands(Option<Vec<String>>);
+/// Map a fetched ref to the branch name Git can infer from it.
+fn fetched_branch(spec: &str, reference: &str) -> Option<String> {
+    let (source, destination) = spec.trim_start_matches('+').split_once(':')?;
+    let source = source.strip_prefix("refs/heads/")?;
+    match (source.split_once('*'), destination.split_once('*')) {
+        (Some((before, after)), Some((prefix, suffix))) => {
+            let middle = reference.strip_prefix(prefix)?.strip_suffix(suffix)?;
+            Some(format!("{before}{middle}{after}"))
+        }
+        (None, None) if reference == destination => Some(source.to_string()),
+        _ => None,
+    }
+}
 
-impl Commands {
-    pub(crate) fn candidates(&mut self, arg: &str, cwd: &Path) -> Vec<Candidate> {
-        let names = self.0.get_or_insert_with(|| {
-            read_commands(Command::new("git").current_dir(cwd).arg(LIST_CMDS), TIMEOUT)
-                .unwrap_or_default()
-        });
+fn excluded_branch(spec: &str, branch: &str) -> bool {
+    let Some(pattern) = spec.strip_prefix("^refs/heads/") else {
+        return false;
+    };
+    match pattern.split_once('*') {
+        Some((prefix, suffix)) => branch
+            .strip_prefix(prefix)
+            .is_some_and(|rest| rest.ends_with(suffix)),
+        None => pattern == branch,
+    }
+}
+
+fn branch_names(refs: &str, config: &str, guess: bool) -> Vec<String> {
+    let entries: Vec<_> = config
+        .split('\0')
+        .filter_map(|s| s.split_once('\n'))
+        .collect();
+    let default_remote = entries
+        .iter()
+        .rev()
+        .find_map(|(key, value)| (*key == "checkout.defaultremote").then_some(*value));
+    let fetches: Vec<_> = entries
+        .iter()
+        .filter_map(|(key, value)| {
+            Some((key.strip_prefix("remote.")?.strip_suffix(".fetch")?, *value))
+        })
+        .collect();
+    let mut local = BTreeSet::new();
+    let mut remote: HashMap<String, BTreeSet<&str>> = HashMap::new();
+    for line in refs.lines() {
+        let Some((reference, "")) = line.split_once('\t') else {
+            continue;
+        };
+        if let Some(name) = reference.strip_prefix("refs/heads/") {
+            local.insert(name.to_string());
+        } else if guess {
+            for (name, spec) in &fetches {
+                if let Some(branch) = fetched_branch(spec, reference)
+                    && !fetches.iter().any(|(other, excluded)| {
+                        name == other && excluded_branch(excluded, &branch)
+                    })
+                {
+                    remote.entry(branch).or_default().insert(name);
+                }
+            }
+        }
+    }
+    for (branch, remotes) in remote {
+        if remotes.len() == 1 || default_remote.is_some_and(|name| remotes.contains(name)) {
+            local.insert(branch);
+        }
+    }
+    local
+        .into_iter()
+        .filter(|name| {
+            !name.is_empty() && !name.starts_with('-') && !name.chars().any(char::is_control)
+        })
+        .collect()
+}
+
+/// All reads share the menu's time and output budgets. No query contacts a remote.
+fn read_branches(cwd: &Path) -> Option<Vec<String>> {
+    let start = Instant::now();
+    let mut remaining_bytes = OUTPUT_LIMIT;
+    let mut query = |args: &[&str], absent_ok: bool| {
+        let (status, output) = read_output(
+            Command::new("git").current_dir(cwd).args(args),
+            TIMEOUT.checked_sub(start.elapsed())?,
+        )?;
+        remaining_bytes = remaining_bytes.checked_sub(output.len())?;
+        (status.success() || (absent_ok && status.code() == Some(1))).then_some(output)
+    };
+    let refs = query(
+        &[
+            "for-each-ref",
+            "--format=%(refname)%09%(symref)",
+            "refs/heads",
+            "refs/remotes",
+        ],
+        false,
+    )?;
+    let guess = query(
+        &[
+            "config",
+            "--type=bool",
+            "--default=true",
+            "--get",
+            "checkout.guess",
+        ],
+        false,
+    )?;
+    let guess = guess.trim() == "true";
+    let config = if guess {
+        query(
+            &[
+                "config",
+                "--null",
+                "--get-regexp",
+                r"^(checkout\.defaultremote|remote\..*\.fetch)$",
+            ],
+            true,
+        )?
+    } else {
+        String::new()
+    };
+    Some(branch_names(&refs, &config, guess))
+}
+
+/// Cache command names and branch names separately for one menu.
+/// An empty result stays empty until the next menu.
+#[derive(Default)]
+pub(crate) struct Completions {
+    names: Option<Vec<String>>,
+    branches: Option<Vec<String>>,
+}
+
+impl Completions {
+    pub(crate) fn candidates(&mut self, arg: &str, cwd: &Path, kind: Kind) -> Vec<Candidate> {
+        let names = if kind == Kind::Branch {
+            self.branches
+                .get_or_insert_with(|| read_branches(cwd).unwrap_or_default())
+        } else {
+            self.names.get_or_insert_with(|| {
+                read_commands(Command::new("git").current_dir(cwd).arg(LIST_CMDS), TIMEOUT)
+                    .unwrap_or_default()
+            })
+        };
+        let label = if kind == Kind::Branch {
+            "branch"
+        } else {
+            "command"
+        };
         let mut out: Vec<_> = names
             .iter()
             .filter_map(|name| {
@@ -156,8 +312,8 @@ impl Commands {
                 Some(Candidate {
                     display: name.clone(),
                     insert: name.clone(),
-                    label: "command",
-                    kind: Kind::Command,
+                    label,
+                    kind,
                     score,
                 })
             })
@@ -185,14 +341,15 @@ mod tests {
     #[test]
     fn only_a_plain_first_subcommand_is_completed() {
         for line in ["git ", "git sw", "  git\tsw"] {
-            let q = parse(line).unwrap();
+            let target = parse(line).unwrap();
+            let q = target.word;
+            assert_eq!(target.kind, Kind::Command);
             assert_eq!(&line[q.start..], q.arg);
         }
         for line in [
             "git",
             "github ",
             "git -C ",
-            "git switch ",
             "git sw ",
             "git 'sw",
             "git $(echo)",
@@ -262,17 +419,141 @@ mod tests {
 
     #[test]
     fn a_snapshot_ranks_exact_then_prefix_then_fuzzy_names() {
-        let mut commands = Commands(Some(vec![
-            "sample".into(),
-            "sw".into(),
-            "switch".into(),
-            "show".into(),
-        ]));
-        let rows = commands.candidates("sw", Path::new("/no-such-directory-here"));
+        let mut commands = Completions {
+            names: Some(vec![
+                "sample".into(),
+                "sw".into(),
+                "switch".into(),
+                "show".into(),
+            ]),
+            ..Default::default()
+        };
+        let rows = commands.candidates("sw", Path::new("/no-such-directory-here"), Kind::Command);
         assert_eq!(
             rows.iter().map(|c| c.display.as_str()).collect::<Vec<_>>(),
             ["sw", "switch", "show"]
         );
-        assert!(commands.candidates("zzz", Path::new(".")).is_empty());
+        assert!(
+            commands
+                .candidates("zzz", Path::new("."), Kind::Command)
+                .is_empty()
+        );
+    }
+
+    #[test]
+    fn only_the_first_plain_switch_or_checkout_argument_is_completed() {
+        for line in [
+            "git switch ",
+            "git checkout sample/topic",
+            "  git\tswitch\t\t範例/一",
+        ] {
+            let target = parse(line).unwrap();
+            assert_eq!(target.kind, Kind::Branch);
+            assert_eq!(&line[target.word.start..], target.word.arg);
+        }
+        for line in [
+            "git switch -",
+            "git switch -c ",
+            "git checkout -- ",
+            "git checkout sample file",
+            "git switch sample ",
+            "git -C sample switch ",
+            "git checkout 'sample",
+            "git switch sample;",
+            "git switch sample$(false)",
+            "git checkout sample\n",
+            "git checkout sample\\",
+            "git merge sample",
+        ] {
+            assert!(parse(line).is_none(), "{line:?}");
+        }
+    }
+
+    #[test]
+    fn branches_merge_local_names_and_unambiguous_remote_names() {
+        let refs = concat!(
+            "refs/heads/sample-main\t\n",
+            "refs/heads/sample/topic\t\n",
+            "refs/remotes/sample-a/sample/topic\t\n",
+            "refs/remotes/sample-a/remote/topic\t\n",
+            "refs/remotes/sample-a/shared\t\n",
+            "refs/remotes/sample-b/shared\t\n",
+            "refs/remotes/sample-a/HEAD\trefs/remotes/sample-a/sample-main\n",
+            "refs/remotes/unconfigured/ignored\t\n",
+        );
+        let config = concat!(
+            "remote.sample-a.fetch\n+refs/heads/*:refs/remotes/sample-a/*\0",
+            "remote.sample-b.fetch\n+refs/heads/*:refs/remotes/sample-b/*\0",
+        );
+        assert_eq!(
+            branch_names(refs, config, true),
+            ["remote/topic", "sample-main", "sample/topic"]
+        );
+        assert_eq!(
+            branch_names(refs, config, false),
+            ["sample-main", "sample/topic"]
+        );
+        let default = format!("{config}checkout.defaultremote\nsample-b\0");
+        assert_eq!(
+            branch_names(refs, &default, true),
+            ["remote/topic", "sample-main", "sample/topic", "shared"]
+        );
+    }
+
+    #[test]
+    fn remote_names_follow_fetch_mappings_and_exclusions() {
+        let refs = concat!(
+            "refs/remotes/sample/team/topic\t\n",
+            "refs/remotes/sample/team/hidden/topic\t\n",
+            "refs/remotes/fixed\t\n",
+        );
+        let config = concat!(
+            "remote.sample/team.fetch\n+refs/heads/*:refs/remotes/sample/team/*\0",
+            "remote.sample/team.fetch\n^refs/heads/hidden/*\0",
+            "remote.sample/team.fetch\nrefs/heads/fixed-topic:refs/remotes/fixed\0",
+        );
+        assert_eq!(branch_names(refs, config, true), ["fixed-topic", "topic"]);
+    }
+
+    #[test]
+    fn a_name_the_shell_or_the_terminal_would_read_as_something_else_is_dropped() {
+        // Git's own `check-ref-format` refuses all three of these and no
+        // repository a test can build will offer one. This function reads
+        // strings rather than a repository and a ref written by hand reaches
+        // it either way. A leading `-` would arrive at Git as an option and an
+        // escape would be the terminal's to obey rather than the menu's to
+        // draw.
+        let refs = concat!(
+            "refs/heads/sample-main\t\n",
+            "refs/heads/\t\n",
+            "refs/heads/-sample\t\n",
+            "refs/heads/sam\u{1b}[31mple\t\n",
+        );
+        assert_eq!(branch_names(refs, "", false), ["sample-main"]);
+    }
+
+    #[test]
+    fn branch_ranking_uses_the_whole_name_and_a_cached_snapshot() {
+        let mut completions = Completions {
+            branches: Some(vec![
+                "sample/topic".into(),
+                "sample/top".into(),
+                "sample/tip".into(),
+            ]),
+            ..Default::default()
+        };
+        let rows = completions.candidates(
+            "sample/top",
+            Path::new("/no-such-directory-here"),
+            Kind::Branch,
+        );
+        assert_eq!(
+            rows.iter().map(|c| c.display.as_str()).collect::<Vec<_>>(),
+            ["sample/top", "sample/topic"]
+        );
+        assert!(
+            rows.iter()
+                .all(|c| c.kind == Kind::Branch && c.label == "branch")
+        );
     }
 }
