@@ -20,7 +20,7 @@ pub struct App {
     pub cwd: PathBuf,
     history: History,
     scan: Scan,
-    commands: crate::git::Commands,
+    git: crate::git::Completions,
 }
 
 /// Quote a candidate's insertion for the shell. A leading `~` is a deliberate
@@ -59,9 +59,9 @@ impl Common {
     /// `name` in place of the argument that starts at `start`. The reach is
     /// what is left of `name` once the directory the rows come from is taken
     /// off the front of it. Every row draws that directory's children and the
-    /// name each one holds is the part the reach is measured in.
-    fn new(start: usize, name: String, arg: &str, whole: Option<Kind>) -> Common {
-        let dir = candidates::split(arg).0.chars().count();
+    /// name each one holds is the part the reach is measured in. Git names
+    /// use zero for `dir` and measure the whole name.
+    fn new(start: usize, name: String, dir: usize, whole: Option<Kind>) -> Common {
         Common {
             reach: name.chars().count().saturating_sub(dir),
             start,
@@ -81,7 +81,7 @@ impl App {
             cwd,
             history: History::default(),
             scan: Scan::default(),
-            commands: crate::git::Commands::default(),
+            git: crate::git::Completions::default(),
         }
     }
 
@@ -103,21 +103,20 @@ impl App {
     pub fn refresh(&mut self) {
         self.selected = 0;
         // Which provider read the line. `arg` tries both and hands back the
-        // word alone. A `git` line is the one to fill the menu with
-        // subcommands rather than with directories.
-        let git = crate::git::parse(self.line.left_of_cursor()).is_some();
+        // word alone. A Git query selects commands or branches.
+        let git = crate::git::parse(self.line.left_of_cursor());
         // `arg` rather than the parse. A word nothing here may grow is one to
         // offer no menu for. The key then falls through to the shell's own
         // completion instead of opening rows nothing can take.
-        self.items = match self.arg() {
-            Some(q) if git => self.commands.candidates(&q.arg, &self.cwd),
-            Some(q) => candidates::generate_in(
+        self.items = match (self.arg(), git) {
+            (Some(q), Some(git)) => self.git.candidates(&q.arg, &self.cwd, git.kind),
+            (Some(q), None) => candidates::generate_in(
                 &shellword::unquote(&q.arg),
                 &self.cwd,
                 &self.history,
                 &mut self.scan,
             ),
-            None => Vec::new(),
+            (None, _) => Vec::new(),
         };
     }
 
@@ -134,7 +133,13 @@ impl App {
         if !self.menu_open() {
             return None;
         }
-        self.items.get(self.selected)
+        let pick = self.items.get(self.selected)?;
+        if pick.kind.is_git()
+            && crate::git::parse(self.line.left_of_cursor()).is_none_or(|q| q.kind != pick.kind)
+        {
+            return None;
+        }
+        Some(pick)
     }
 
     /// The word the menu completes and its byte offset.
@@ -148,7 +153,7 @@ impl App {
     /// old word stranded behind it.
     fn arg(&self) -> Option<candidates::Query> {
         let q = candidates::parse(self.line.left_of_cursor())
-            .or_else(|| crate::git::parse(self.line.left_of_cursor()))?;
+            .or_else(|| crate::git::parse(self.line.left_of_cursor()).map(|git| git.word))?;
         // A space inside a quote is a character of the name. Outside one it is
         // the person saying the word is finished.
         let quoted = q.arg.starts_with(['\'', '"']);
@@ -161,7 +166,7 @@ impl App {
 
     /// Whether this run is on a `git` line. `pick` asks before it loads the
     /// directory history and again after each key. The history has nothing to
-    /// say about a subcommand and the second question is whether the run is
+    /// say about Git candidates and the second question is whether the run is
     /// over.
     ///
     /// The whole line rather than the half in front of the cursor. The
@@ -181,7 +186,11 @@ impl App {
             return String::new();
         };
         let arg = shellword::unquote(&q.arg);
-        candidates::split(&arg).1.to_string()
+        if crate::git::parse(self.line.left_of_cursor()).is_some() {
+            arg
+        } else {
+            candidates::split(&arg).1.to_string()
+        }
     }
 
     /// What the prediction would add to the line, drawn dim after the cursor.
@@ -227,7 +236,7 @@ impl App {
         };
         let arg = shellword::unquote(&q.arg);
         starts_with_folded(&pick.insert, &arg)
-            && (pick.kind == Kind::Command || shared_bytes(&pick.insert, &arg) < pick.insert.len())
+            && (pick.kind.is_git() || shared_bytes(&pick.insert, &arg) < pick.insert.len())
     }
 
     /// Whether Enter is a request to run the line rather than to grow it.
@@ -256,7 +265,7 @@ impl App {
             return false;
         };
         let mut insert = quote_insert(&pick.insert);
-        if pick.kind == Kind::Command && self.line.right_of_cursor().is_empty() {
+        if pick.kind.is_git() && self.line.right_of_cursor().is_empty() {
             insert.push(' ');
         }
         self.replace_arg(q.start, &insert);
@@ -284,11 +293,16 @@ impl App {
         let q = self.arg()?;
         let quoted = q.arg.starts_with(['\'', '"']);
         let arg = shellword::unquote(&q.arg);
+        let dir = if selected.kind.is_git() {
+            0
+        } else {
+            candidates::split(&arg).0.chars().count()
+        };
         if selected.kind == Kind::Parent {
             return Some(Common::new(
                 q.start,
                 selected.insert.clone(),
-                &arg,
+                dir,
                 Some(selected.kind),
             ));
         }
@@ -303,7 +317,7 @@ impl App {
             .items
             .iter()
             .filter(|c| {
-                matches!(c.kind, Kind::Dir | Kind::Command) && starts_with_folded(&c.insert, &arg)
+                (c.kind == Kind::Dir || c.kind.is_git()) && starts_with_folded(&c.insert, &arg)
             })
             .collect();
         // The count is measured in `head` throughout. What was typed can be a
@@ -317,7 +331,7 @@ impl App {
                 return Some(Common::new(
                     q.start,
                     one.insert.clone(),
-                    &arg,
+                    dir,
                     Some(one.kind),
                 ));
             }
@@ -365,7 +379,7 @@ impl App {
         if prefix == "~" || quote_insert(prefix) != prefix {
             return None;
         }
-        Some(Common::new(q.start, prefix.to_string(), &arg, None))
+        Some(Common::new(q.start, prefix.to_string(), dir, None))
     }
 
     /// Take the prefix the directory rows in the menu share. `common` is what
@@ -379,7 +393,7 @@ impl App {
             return false;
         };
         let mut insert = quote_insert(&c.name);
-        if c.whole == Some(Kind::Command) && self.line.right_of_cursor().is_empty() {
+        if c.whole.is_some_and(Kind::is_git) && self.line.right_of_cursor().is_empty() {
             insert.push(' ');
         }
         self.replace_arg(c.start, &insert);
@@ -438,6 +452,61 @@ mod tests {
         cursor_after(&mut a, 8);
         assert!(a.accept());
         assert_eq!(a.line.text(), "git sample --example");
+    }
+
+    fn branches(line: &str, names: &[&str]) -> App {
+        let mut a = staged(line, names);
+        for item in &mut a.items {
+            item.kind = candidates::Kind::Branch;
+            item.label = "branch";
+        }
+        a
+    }
+
+    #[test]
+    fn branch_prefixes_and_underlines_include_the_slashes() {
+        let mut a = branches("git switch sample/t", &["sample/topic", "sample/topical"]);
+        assert_eq!(a.typed(), "sample/t");
+        assert_eq!(a.reach(), 0);
+        a.items[1].insert = "sample/topaz".into();
+        assert_eq!(a.reach(), "sample/top".len());
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "git switch sample/top");
+    }
+
+    #[test]
+    fn branch_acceptance_finishes_the_word_without_running() {
+        for line in ["git switch sample/t", "git checkout sample/topic"] {
+            let mut a = branches(line, &["sample/topic"]);
+            assert!(a.adds_to_the_line());
+            assert!(!a.runs_the_line());
+            assert!(a.accept());
+            assert!(a.line.text().ends_with("sample/topic "));
+            assert!(!a.menu_open());
+        }
+        let mut a = branches("git switch sample/t", &["sample/topic"]);
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "git switch sample/topic ");
+    }
+
+    #[test]
+    fn branch_acceptance_quotes_shell_syntax_and_preserves_the_tail() {
+        let mut a = branches("git checkout sample", &["sample$(false)'suffix"]);
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "git checkout 'sample$(false)'\\''suffix' ");
+        let mut a = branches("git checkout sample/t --", &["sample/topic"]);
+        cursor_after(&mut a, "git checkout sample/t".len());
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "git checkout sample/topic --");
+    }
+
+    #[test]
+    fn a_branch_cannot_replace_the_subcommand_after_cursor_movement() {
+        let mut a = branches("git switch sample/t", &["sample/topic"]);
+        cursor_after(&mut a, "git switch".len());
+        assert!(!a.accept());
+        assert!(!a.accept_common());
+        assert_eq!(a.line.text(), "git switch sample/t");
     }
 
     #[test]

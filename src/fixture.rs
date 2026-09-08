@@ -8,6 +8,7 @@
 //! compiled into that build.
 
 use std::path::{Path, PathBuf};
+use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 pub struct Fixture(PathBuf);
@@ -34,6 +35,50 @@ impl Fixture {
 
     pub fn path(&self) -> &Path {
         &self.0
+    }
+
+    /// Run Git with synthetic identities and no user configuration.
+    pub fn git(&self, args: &[&str]) -> String {
+        let output = Command::new("git")
+            .args(args)
+            .current_dir(self.path())
+            .env_clear()
+            .env("PATH", std::env::var_os("PATH").unwrap_or_default())
+            .env("HOME", self.path())
+            .env("GIT_CONFIG_NOSYSTEM", "1")
+            .env("GIT_CONFIG_GLOBAL", "/dev/null")
+            .env("GIT_AUTHOR_NAME", "Sample")
+            .env("GIT_AUTHOR_EMAIL", "sample@example.invalid")
+            .env("GIT_COMMITTER_NAME", "Sample")
+            .env("GIT_COMMITTER_EMAIL", "sample@example.invalid")
+            .stdin(Stdio::null())
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "Git failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        String::from_utf8(output.stdout)
+            .unwrap()
+            .trim_end()
+            .to_string()
+    }
+
+    /// Create local branches at one empty commit.
+    pub fn init_git(&self, branches: &[&str]) {
+        self.git(&[
+            "init",
+            "--quiet",
+            "--template=",
+            "--initial-branch=sample-main",
+        ]);
+        let tree = self.git(&["hash-object", "-t", "tree", "-w", "--stdin"]);
+        let commit = self.git(&["commit-tree", &tree, "-m", "Sample"]);
+        self.git(&["update-ref", "refs/heads/sample-main", &commit]);
+        for branch in branches {
+            self.git(&["update-ref", &format!("refs/heads/{branch}"), &commit]);
+        }
     }
 }
 

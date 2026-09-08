@@ -257,7 +257,7 @@ fn git_tab_opens_the_menu_and_cancel_restores_the_seed() {
 }
 
 #[test]
-fn git_arguments_keep_the_shells_completion() {
+fn git_branch_arguments_outside_a_repository_keep_the_shells_completion() {
     let f = home(
         "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
         "bindkey ' ' $_surmise_space",
@@ -266,6 +266,224 @@ fn git_arguments_keep_the_shells_completion() {
     typed(&mut t, "git switch \t");
     assert_eq!(line(&t).trim(), "❯ git switch SAMPLE");
     assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+}
+
+#[test]
+fn git_branch_acceptance_returns_to_editing_for_enter_tab_and_right() {
+    for subcommand in ["switch", "checkout"] {
+        for key in ["\r", "\t", "\x1b[C"] {
+            let f = home(
+                "git() { print -r -- GIT-RAN }\nsample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
+                "bindkey ' ' $_surmise_space",
+            );
+            f.init_git(&["sample/topic"]);
+            let mut t = ready(f.path());
+            t.send(&format!("git {subcommand} sample/t\t"));
+            assert!(t.wait_panel(WAIT), "no branch menu: {:?}", t.lines());
+            t.pump(SETTLE);
+            assert!(
+                t.panel()
+                    .iter()
+                    .any(|row| row.text.contains("sample/topic"))
+            );
+            t.send(key);
+            closed(&mut t);
+            assert_eq!(line(&t).trim(), format!("❯ git {subcommand} sample/topic"));
+            assert!(!t.lines().join("\n").contains("GIT-RAN"));
+            typed(&mut t, "\t");
+            assert_eq!(
+                line(&t).trim(),
+                format!("❯ git {subcommand} sample/topic SAMPLE")
+            );
+        }
+    }
+}
+
+#[test]
+fn accepting_switch_or_checkout_opens_the_branch_menu() {
+    for (prefix, key) in [("swit", "\r"), ("checko", "\t"), ("swit", "\x1b[C")] {
+        let f = home("git() { print -r -- GIT-RAN }", "");
+        f.init_git(&["sample/topic"]);
+        let mut t = ready(f.path());
+        t.send("git ");
+        assert!(t.wait_panel(WAIT), "no command menu: {:?}", t.lines());
+        typed(&mut t, prefix);
+        typed(&mut t, key);
+        assert!(
+            t.panel()
+                .iter()
+                .any(|row| row.text.contains("sample/topic")),
+            "no branch menu: {:?}",
+            t.lines()
+        );
+        assert!(!t.lines().join("\n").contains("GIT-RAN"));
+    }
+}
+
+#[test]
+fn a_space_after_switch_or_checkout_opens_branches() {
+    for subcommand in ["switch", "checkout"] {
+        let f = home("", "");
+        f.init_git(&["sample/topic"]);
+        let mut t = ready(f.path());
+        t.send("git ");
+        assert!(t.wait_panel(WAIT), "no command menu: {:?}", t.lines());
+        t.send("\x1b");
+        closed(&mut t);
+        t.send(&format!("{subcommand} "));
+        assert!(t.wait_panel(WAIT), "no branch menu: {:?}", t.lines());
+        t.pump(SETTLE);
+        assert!(
+            t.panel()
+                .iter()
+                .any(|row| row.text.contains("sample/topic"))
+        );
+    }
+}
+
+#[test]
+fn git_branch_cancel_restores_the_seed_and_escape_keeps_edits() {
+    for (key, expected) in [
+        ("\x03", "sample/"),
+        ("\x07", "sample/"),
+        ("\x1b", "sample/t"),
+    ] {
+        let f = home("", "bindkey ' ' $_surmise_space");
+        f.init_git(&["sample/topic"]);
+        let mut t = ready(f.path());
+        t.send("git switch sample/\t");
+        assert!(t.wait_panel(WAIT), "no branch menu: {:?}", t.lines());
+        typed(&mut t, "t");
+        t.send(key);
+        closed(&mut t);
+        assert_eq!(line(&t).trim(), format!("❯ git switch {expected}"));
+    }
+}
+
+#[test]
+fn unsupported_git_arguments_still_use_shell_completion_in_a_repository() {
+    let f = home(
+        "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
+        "bindkey ' ' $_surmise_space",
+    );
+    f.init_git(&["sample/topic"]);
+    let mut t = ready(f.path());
+    for seed in [
+        "git switch -c ",
+        "git checkout -- ",
+        "git switch zzzz",
+        "git checkout sample/topic ",
+        "git status ",
+        "git -C work switch ",
+    ] {
+        typed(&mut t, &format!("{seed}\t"));
+        assert_eq!(line(&t).trim(), format!("❯ {seed}SAMPLE"));
+        assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+        typed(&mut t, "\x15");
+    }
+}
+
+#[test]
+fn git_remote_branch_candidates_follow_guess_and_default_remote_settings() {
+    let f = home("", "bindkey ' ' $_surmise_space");
+    f.init_git(&[]);
+    for remote in ["sample-a", "sample-b"] {
+        f.git(&[
+            "config",
+            &format!("remote.{remote}.fetch"),
+            &format!("+refs/heads/*:refs/remotes/{remote}/*"),
+        ]);
+        f.git(&[
+            "update-ref",
+            &format!("refs/remotes/{remote}/sample/shared"),
+            "HEAD",
+        ]);
+    }
+    f.git(&["update-ref", "refs/remotes/sample-a/sample/unique", "HEAD"]);
+    f.git(&[
+        "symbolic-ref",
+        "refs/remotes/sample-a/HEAD",
+        "refs/remotes/sample-a/sample/unique",
+    ]);
+    let mut t = ready(f.path());
+    for (guess, preferred, shared, unique) in [
+        ("true", "missing", false, true),
+        ("true", "sample-b", true, true),
+        ("false", "sample-b", false, false),
+    ] {
+        f.git(&["config", "checkout.guess", guess]);
+        f.git(&["config", "checkout.defaultRemote", preferred]);
+        t.send("git switch \t");
+        assert!(t.wait_panel(WAIT), "no branch menu: {:?}", t.lines());
+        t.pump(SETTLE);
+        let rows: String = t.panel().iter().map(|row| row.text.as_str()).collect();
+        assert!(rows.contains("sample-main"), "{rows:?}");
+        assert_eq!(rows.contains("sample/shared"), shared, "{rows:?}");
+        assert_eq!(rows.contains("sample/unique"), unique, "{rows:?}");
+        assert!(!rows.contains("HEAD"), "{rows:?}");
+        t.send("\x1b");
+        closed(&mut t);
+        typed(&mut t, "\x15");
+    }
+}
+
+#[test]
+fn git_branch_names_reach_the_shell_as_one_literal_argument() {
+    let f = home("", "bindkey ' ' $_surmise_space");
+    f.init_git(&["sample$(false)'suffix"]);
+    let mut t = ready(f.path());
+    t.send("git switch suffix\t");
+    assert!(t.wait_panel(WAIT), "no branch menu: {:?}", t.lines());
+    t.send("\r");
+    closed(&mut t);
+    assert_eq!(line(&t).trim(), "❯ git switch 'sample$(false)'\\''suffix'");
+    assert_eq!(f.git(&["symbolic-ref", "--short", "HEAD"]), "sample-main");
+    t.send("\r");
+    t.pump(SETTLE);
+    assert_eq!(
+        f.git(&["symbolic-ref", "--short", "HEAD"]),
+        "sample$(false)'suffix"
+    );
+}
+
+#[test]
+fn git_branch_lists_stay_fixed_until_the_next_menu() {
+    let f = home("", "bindkey ' ' $_surmise_space");
+    f.init_git(&["sample/topic"]);
+    let mut t = ready(f.path());
+    t.send("git switch \t");
+    assert!(t.wait_panel(WAIT), "no branch menu: {:?}", t.lines());
+    f.git(&["branch", "sample/new"]);
+    typed(&mut t, "sample/");
+    assert!(
+        t.panel()
+            .iter()
+            .any(|row| row.text.contains("sample/topic"))
+    );
+    assert!(!t.panel().iter().any(|row| row.text.contains("sample/new")));
+    t.send("\x1b");
+    closed(&mut t);
+    t.send("\t");
+    assert!(t.wait_panel(WAIT), "no branch menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    assert!(t.panel().iter().any(|row| row.text.contains("sample/new")));
+}
+
+#[test]
+fn enter_after_leaving_the_branch_argument_does_not_run_or_replace_the_command() {
+    let f = home(
+        "git() { print -r -- GIT-RAN }",
+        "bindkey ' ' $_surmise_space",
+    );
+    f.init_git(&["sample/topic"]);
+    let mut t = ready(f.path());
+    t.send("git switch sample/t\t");
+    assert!(t.wait_panel(WAIT), "no branch menu: {:?}", t.lines());
+    typed(&mut t, &"\x1b[D".repeat(" sample/t".len()));
+    t.send("\r");
+    closed(&mut t);
+    assert_eq!(line(&t).trim(), "❯ git switch sample/t");
+    assert!(!t.lines().join("\n").contains("GIT-RAN"));
 }
 
 #[test]
