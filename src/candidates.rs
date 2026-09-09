@@ -21,15 +21,20 @@ use std::path::{Path, PathBuf};
 /// walk itself is therefore unbounded. What that costs is one pass over a
 /// directory holding hundreds of thousands of files and what it buys is a
 /// menu that is not silently empty. `Scan` is what keeps that pass to one.
-const SCAN_LIMIT: usize = 400;
+pub(crate) const SCAN_LIMIT: usize = 400;
 /// How many rows the menu will ever be asked to hold.
 pub const MAX_RESULTS: usize = 60;
+/// What a row that adds a folder says it is. `ui` reads it to give such a row
+/// the folder glyph where the kind alone says only that Git named the row.
+pub(crate) const FOLDER: &str = "folder";
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Kind {
     Command,
     Branch,
     File,
+    Option,
+    Path,
     Dir,
     Parent,
     Special,
@@ -40,7 +45,10 @@ pub enum Kind {
 
 impl Kind {
     pub fn is_git(self) -> bool {
-        matches!(self, Kind::Command | Kind::Branch | Kind::File)
+        matches!(
+            self,
+            Kind::Command | Kind::Branch | Kind::File | Kind::Option | Kind::Path
+        )
     }
 }
 
@@ -48,7 +56,7 @@ impl Kind {
 pub struct Candidate {
     pub display: String,
     pub insert: String,
-    /// What the row is, shown under the list. One word.
+    /// What the row is or what an option does, shown under the list.
     pub label: &'static str,
     pub kind: Kind,
     pub score: i32,
@@ -98,7 +106,7 @@ fn resolved_in(arg: &str, cwd: &Path) -> PathBuf {
     if p.is_absolute() { p } else { cwd.join(p) }
 }
 
-fn subdirs(dir: &Path, want_hidden: bool) -> Vec<String> {
+fn subdirs(dir: &Path, want_hidden: bool, git: bool) -> Vec<String> {
     let Ok(rd) = std::fs::read_dir(dir) else {
         return Vec::new();
     };
@@ -109,14 +117,20 @@ fn subdirs(dir: &Path, want_hidden: bool) -> Vec<String> {
     rd.flatten()
         .filter_map(|entry| {
             let raw = entry.file_name();
+            if git && raw.to_str().is_none() {
+                return None;
+            }
             let name = raw.to_string_lossy();
+            if git && (name == ".git" || name.chars().any(char::is_control)) {
+                return None;
+            }
             if name.starts_with('.') && !want_hidden {
                 return None;
             }
             let kind = entry.file_type().ok()?;
             // A symlink to a directory is still a directory to `cd`. Only a
             // symlink needs the second look. That look is a syscall of its own.
-            (kind.is_dir() || (kind.is_symlink() && entry.path().is_dir()))
+            (kind.is_dir() || (!git && kind.is_symlink() && entry.path().is_dir()))
                 .then(|| name.into_owned())
         })
         .take(SCAN_LIMIT)
@@ -138,14 +152,22 @@ pub(crate) struct Scan {
     /// The hidden names are a listing of their own rather than a filter over
     /// one. A key that left the flag out would answer a `cd .` from a walk
     /// that never looked for them.
-    walked: HashMap<(PathBuf, bool), Vec<String>>,
+    walked: HashMap<(PathBuf, bool, bool), Vec<String>>,
 }
 
 impl Scan {
     fn names(&mut self, dir: &Path, want_hidden: bool) -> &[String] {
+        self.names_for(dir, want_hidden, false)
+    }
+
+    pub(crate) fn git_names(&mut self, dir: &Path, want_hidden: bool) -> &[String] {
+        self.names_for(dir, want_hidden, true)
+    }
+
+    fn names_for(&mut self, dir: &Path, want_hidden: bool, git: bool) -> &[String] {
         self.walked
-            .entry((dir.to_path_buf(), want_hidden))
-            .or_insert_with(|| subdirs(dir, want_hidden))
+            .entry((dir.to_path_buf(), want_hidden, git))
+            .or_insert_with(|| subdirs(dir, want_hidden, git))
     }
 }
 
@@ -153,7 +175,7 @@ pub(crate) fn folder(display: String, insert: String, score: i32) -> Candidate {
     Candidate {
         display,
         insert,
-        label: "folder",
+        label: FOLDER,
         kind: Kind::Dir,
         score,
     }
@@ -445,7 +467,7 @@ mod tests {
     #[test]
     fn subdirs_lists_directories_and_nothing_else() {
         let f = Fixture::new(&["alpha", "beta", "readme*"]);
-        let mut got = subdirs(f.path(), false);
+        let mut got = subdirs(f.path(), false, false);
         got.sort();
         assert_eq!(got, ["alpha", "beta"]);
     }
@@ -453,8 +475,8 @@ mod tests {
     #[test]
     fn subdirs_hides_a_dot_directory_until_it_is_asked_for() {
         let f = Fixture::new(&["alpha", ".hidden"]);
-        assert_eq!(subdirs(f.path(), false), ["alpha"]);
-        let mut all = subdirs(f.path(), true);
+        assert_eq!(subdirs(f.path(), false, false), ["alpha"]);
+        let mut all = subdirs(f.path(), true, false);
         all.sort();
         assert_eq!(all, [".hidden", "alpha"]);
     }
@@ -468,7 +490,7 @@ mod tests {
         entries.extend((0..SCAN_LIMIT).map(|i| format!("dir-{i}")));
         let names: Vec<&str> = entries.iter().map(String::as_str).collect();
         let f = Fixture::new(&names);
-        assert_eq!(subdirs(f.path(), false).len(), SCAN_LIMIT);
+        assert_eq!(subdirs(f.path(), false, false).len(), SCAN_LIMIT);
     }
 
     #[test]
@@ -492,7 +514,7 @@ mod tests {
 
     #[test]
     fn subdirs_says_nothing_about_a_directory_it_cannot_read() {
-        assert!(subdirs(Path::new("/no-such-directory-here"), false).is_empty());
+        assert!(subdirs(Path::new("/no-such-directory-here"), false, false).is_empty());
     }
 
     #[cfg(unix)]
@@ -501,7 +523,7 @@ mod tests {
         let f = Fixture::new(&["alpha", "readme*"]);
         std::os::unix::fs::symlink(f.path().join("alpha"), f.path().join("link")).unwrap();
         std::os::unix::fs::symlink(f.path().join("readme"), f.path().join("dead")).unwrap();
-        let mut got = subdirs(f.path(), false);
+        let mut got = subdirs(f.path(), false, false);
         got.sort();
         assert_eq!(got, ["alpha", "link"]);
     }

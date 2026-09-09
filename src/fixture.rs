@@ -17,6 +17,9 @@ impl Fixture {
     /// Make a directory holding `entries`. An entry that ends in `*` is made
     /// as a file rather than a directory.
     pub fn new(entries: &[&str]) -> Fixture {
+        // No prompt is waiting on a test and every fixture-backed one spawns
+        // Git more than once.
+        crate::git::widen_timeout();
         static N: AtomicUsize = AtomicUsize::new(0);
         let root = std::env::temp_dir().join(format!(
             "surmise-test-{}-{}",
@@ -73,6 +76,11 @@ impl Fixture {
             "--template=",
             "--initial-branch=sample-main",
         ]);
+        // The machine's own excludes file reaches this repository through any
+        // Git the code under test runs for itself. The `env_clear` above speaks
+        // for these calls alone and cannot speak for those. A name a developer
+        // ignores at home would otherwise go missing from a menu a test reads.
+        self.git(&["config", "core.excludesFile", "/dev/null"]);
         let tree = self.git(&["hash-object", "-t", "tree", "-w", "--stdin"]);
         let commit = self.git(&["commit-tree", &tree, "-m", "Sample"]);
         self.git(&["update-ref", "refs/heads/sample-main", &commit]);

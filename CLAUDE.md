@@ -216,44 +216,87 @@ Esc keeps the edited line. Ctrl-C and Ctrl-G restore the line that opened the
 menu. The menu reads branches and their settings once when it first needs
 them. Branches created later appear in the next menu.
 
-Typing `git add ` opens the file menu. Tab opens it on a partial file name.
-The menu includes unstaged modifications, unstaged deletions and untracked
-files below the current directory. It excludes ignored untracked files and
-files with no changes since their last staging. Git reads its standard ignore
-rules. Each candidate shows its full path relative to the current directory.
-Nested files appear individually. A leading `./` stays on the completed path.
+Typing `git add ` opens a menu of files, folders and options.
+Tab opens it on a partial argument. Files and folders precede options when
+the argument is empty. The default file list includes unstaged
+modifications, unstaged deletions and untracked files below the current
+directory. It excludes ignored untracked files and files with no changes
+since their last staging. Git reads its standard ignore rules. Each candidate
+shows its full path relative to the current directory. Nested files appear
+individually. A leading `./` stays on the completed path.
+
+Folder candidates come from the filesystem. They include empty, unchanged
+and ignored folders. Hidden folders appear when their name starts with a
+typed dot. The `.git` directory is excluded. So is a symbolic link to a
+folder and so is every path through one: Git refuses a pathspec beyond a
+symbolic link. Accepting a folder adds its trailing slash and opens its
+children. The folder itself remains the first
+row. Enter on that row accepts the whole folder and adds a space.
+Files below an accepted folder are excluded from later candidates.
+An argument of `.` offers the current directory as a whole.
 
 File matching uses the whole path. Enter accepts the highlighted file.
 Right accepts a prefix match. Tab accepts a shared prefix or a single prefix
-match. Accepting a whole file adds a space and returns the line to the shell.
-It does not stage the file or execute the command. Esc keeps the edited line.
-Ctrl-C and Ctrl-G restore the line that opened the menu. The file list stays
-fixed until the next menu.
+match. Accepting a whole file adds a space and offers the remaining files.
+Files already on the line are excluded. Tab can reopen completion after an
+earlier file argument. Single quotes, literal double quotes and escaped
+characters are supported. Shell expansions stay with shell completion.
+Acceptance does not stage files or execute the command. Esc keeps the edited line.
+Ctrl-C and Ctrl-G restore the line that opened the menu. Options can remain
+after all files are selected. Esc returns to the shell before Enter runs
+the command. Each file query and directory listing stays fixed until the
+next menu.
+
+The option names and aliases follow the [Q Git completion specification](https://github.com/withfig/autocomplete/blob/aef52acff84c45edde61ae610cc2c964802b9a38/src/git.ts).
+The menu shows a short description of the highlighted option in its footer.
+It excludes options already on the left of the cursor and their aliases.
+Short option groups such as `-nv` are supported. Options can appear before
+or after paths. Accepting `--` ends option completion and allows paths that
+start with `-`.
+
+Accepting `--chmod` adds `=` and offers `+x` and `-x`.
+`--pathspec-from-file` completes a file argument after a space or `=`.
+That argument uses filesystem names including unchanged files and absolute
+paths. A `-` value reads standard input. These names receive shell quoting
+without Git pathspec prefixes. After this argument only unused options are
+offered. The path file is not read by completion.
+
+`--force` includes ignored untracked files. `--update`, `--patch` and `--edit`
+limit file candidates to tracked changes. `--renormalize` and `--refresh`
+also include unchanged tracked files. `--no-all` and `--ignore-removal`
+exclude deleted files. Each combination has its own cached file query.
+Folder candidates remain available with these options.
 
 Accepted file names receive shell quoting when needed. Git wildcard
 characters and a leading `:` also receive a literal pathspec prefix. A
 leading `-` receives `./` so Git reads a path. Names with control characters
 are omitted and so are names that are not UTF-8.
 
-Only the first branch or file argument without preceding options uses these
-menus. Other arguments and Git global options use the shell's existing
-completion. These include command options and new branch names after
+Only the first branch argument without preceding options uses the branch
+menu. File completion accepts multiple arguments and the documented `add`
+options. Other arguments and Git global options use the shell's existing
+completion. These include other commands' options and new branch names after
 `switch -c` or `checkout -b`. File arguments with absolute paths or `..`
-components also use shell completion. Quoted arguments and compound shell
-commands stay with the shell. Git candidates use text ranking alone.
-Directory history does not affect them. A directory outside a repository or
-a query with no matching branches or files also leaves completion to the
-shell.
+components also use shell completion. Quoted branch arguments and compound
+shell commands stay with the shell. Git candidates use text ranking alone.
+Directory history does not affect them. Branch queries outside a repository
+leave completion to the shell. The `add` options and filesystem candidates
+remain available outside a repository. An argument with no candidates uses
+shell completion.
 
 Git must be on PATH. The command query allows 250 ms and at most 64 KiB of
 output. The branch and configuration queries share a separate budget with
 the same limits. The file query has its own budget with these limits. A
-missing Git, a failed query or a query that exceeds either limit leaves
-completion to the shell. Errors do not print at the prompt.
+missing Git, a failed query or a query that exceeds either limit supplies no
+Git candidates. Independent filesystem and option candidates remain available.
+Errors do not print at the prompt.
 The command query uses Git's experimental `--list-cmds` interface.
 The branch query uses `for-each-ref` and reads `refs/heads` and `refs/remotes`.
-The file query uses `ls-files --modified --others --exclude-standard -z`.
-A Git version that does not support a query leaves that completion to the shell.
+The default file query uses `ls-files --modified --others --exclude-standard -z`.
+Options can select `--cached`, omit `--others` or omit `--exclude-standard`.
+Folder completion uses the existing directory cache with its 400-name limit.
+Path-file arguments cache at most 400 filesystem entries per directory.
+A Git version that does not support a query supplies no candidates for it.
 
 ## Build, test and lint
 
@@ -361,6 +404,15 @@ back.
 `src/fixture.rs` is `pub` rather than `#[cfg(test)]`. An integration test links
 the library as an ordinary crate and a `#[cfg(test)]` module is not compiled
 into that build.
+
+`Fixture::new` also widens the query budget. A prompt is what the 250 ms is for
+and a test has no prompt waiting on it. A fixture-backed test spawns Git
+several times over and a loaded runner can spend that whole budget on the fork
+alone, so a test measured against it fails on the machine rather than on the
+code. `read_commands` takes its patience as an argument for the same reason.
+The file and branch readers are reached through `App` rather than called
+directly and the fixture is what moves the budget for them. The installed
+binary keeps the prompt's own.
 
 `rust-toolchain.toml` pins the toolchain for the same reason. A floating stable
 plus `-Dwarnings` means a new lint can turn CI red with no change to the code.
