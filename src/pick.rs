@@ -119,6 +119,14 @@ pub fn run(seed: &str) -> io::Result<u8> {
     // `tty::claim` below replaces stdin outright and there is no reading it
     // back afterwards.
     let input = read_input()?;
+
+    // `enabled = false` keeps surmise out of the way entirely. Every key
+    // answers `PASS`, the same status a menu with nothing to offer already
+    // gives back, and the shell's own completion runs in its place.
+    if !crate::config::Config::load().enabled {
+        return Ok(PASS);
+    }
+
     // A character right of the cursor that is not blank means the cursor
     // sits inside a word. Completing there would split it, so the key goes
     // back to the shell before surmise looks at `seed` at all. Q refuses the

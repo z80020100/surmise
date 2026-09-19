@@ -41,6 +41,7 @@ use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fmt;
+use std::path::PathBuf;
 use std::rc::Rc;
 
 use crate::spec_store;
@@ -335,18 +336,49 @@ struct Stats {
 ///
 /// This performs no session-level caching. `plans/phase-2-spec-runtime.md`
 /// §1 owns that, on top of the walk this function exists to provide.
-pub fn load(name: &str) -> Result<Subcommand, SpecError> {
-    let raw = read_raw(name)?;
+///
+/// `spec_dirs` is taken as a parameter for the reason `spec_store` gives for
+/// the same choice: a `static` holding the config can be set once, and a
+/// test binary runs every test in one process, so the first test to seed it
+/// would pin the directories for all the rest. [`load_configured`] is the
+/// process-wide entry point a picker uses.
+pub fn load(name: &str, spec_dirs: &[PathBuf]) -> Result<Subcommand, SpecError> {
+    load_with(name, |n| read_raw(n, spec_dirs))
+}
+
+/// [`load`] over the config this process was started with, so a name in
+/// `disabled_commands` is refused and `spec_dirs` is searched first. This is
+/// the entry point a picker uses; nothing calls it yet, because nothing
+/// completes from a spec until `plans/phase-2-spec-runtime.md` lands.
+pub fn load_configured(name: &str) -> Result<Subcommand, SpecError> {
+    load_with(name, read_raw_configured)
+}
+
+/// The two entry points differ only in where the bytes come from. A pointer
+/// is followed with the same reader that found it, once and no further.
+fn load_with(
+    name: &str,
+    read: impl Fn(&str) -> Result<RawSubcommand, SpecError>,
+) -> Result<Subcommand, SpecError> {
+    let raw = read(name)?;
     let raw = match &raw.versioned_spec_path {
-        Some(target) => read_raw(target)?,
+        Some(target) => read(target)?,
         None => raw,
     };
     let mut stats = Stats::default();
     Ok(normalize_subcommand(raw, None, &mut stats))
 }
 
-fn read_raw(name: &str) -> Result<RawSubcommand, SpecError> {
-    let bytes = spec_store::get(name).ok_or(SpecError::Missing)?;
+fn read_raw(name: &str, spec_dirs: &[PathBuf]) -> Result<RawSubcommand, SpecError> {
+    parse_raw(spec_store::get(name, spec_dirs))
+}
+
+fn read_raw_configured(name: &str) -> Result<RawSubcommand, SpecError> {
+    parse_raw(spec_store::get_configured(name))
+}
+
+fn parse_raw(bytes: Option<Vec<u8>>) -> Result<RawSubcommand, SpecError> {
+    let bytes = bytes.ok_or(SpecError::Missing)?;
     serde_json::from_slice(&bytes).map_err(SpecError::Malformed)
 }
 
@@ -920,7 +952,7 @@ mod tests {
     #[test]
     fn every_committed_spec_loads() {
         for key in spec_keys() {
-            load(&key).unwrap_or_else(|err| panic!("{key} did not load: {err}"));
+            load(&key, &[]).unwrap_or_else(|err| panic!("{key} did not load: {err}"));
         }
     }
 
@@ -933,7 +965,8 @@ mod tests {
     fn corpus_totals_match_the_converters_report() {
         let mut stats = Stats::default();
         for key in spec_keys() {
-            let raw = read_raw(&key).unwrap_or_else(|err| panic!("{key} did not parse: {err}"));
+            let raw =
+                read_raw(&key, &[]).unwrap_or_else(|err| panic!("{key} did not parse: {err}"));
             normalize_subcommand(raw, None, &mut stats);
         }
         assert_eq!(stats.subcommands, 50_784, "subcommands");
@@ -948,7 +981,7 @@ mod tests {
     /// six collisions the count above asserts.
     #[test]
     fn a_subcommand_name_collision_keeps_the_later_node() {
-        let spec = load("trivy").expect("trivy is a committed spec");
+        let spec = load("trivy", &[]).expect("trivy is a committed spec");
         let client = spec
             .subcommands
             .get("client")
@@ -958,7 +991,7 @@ mod tests {
 
     #[test]
     fn a_bare_string_name_becomes_a_one_element_list() {
-        let spec = load("adb").expect("adb is a committed spec");
+        let spec = load("adb", &[]).expect("adb is a committed spec");
         assert_eq!(spec.name, vec!["adb".to_string()]);
     }
 
@@ -966,7 +999,7 @@ mod tests {
     /// alias `-o`, and both are persistent.
     #[test]
     fn an_array_name_keeps_every_alias() {
-        let spec = load("az").expect("az resolves through its pointer");
+        let spec = load("az", &[]).expect("az resolves through its pointer");
         let by_long = spec
             .persistent_options
             .get("--output")
@@ -984,7 +1017,7 @@ mod tests {
 
     #[test]
     fn persistent_options_split_out_and_do_not_reach_a_child() {
-        let spec = load("az").expect("az resolves through its pointer");
+        let spec = load("az", &[]).expect("az resolves through its pointer");
         assert!(spec.persistent_options.contains_key("--debug"));
         assert!(!spec.options.contains_key("--debug"));
         for child in spec.subcommands.values() {
@@ -998,7 +1031,7 @@ mod tests {
 
     #[test]
     fn args_are_a_list_even_when_the_spec_has_none() {
-        let spec = load("adb").expect("adb is a committed spec");
+        let spec = load("adb", &[]).expect("adb is a committed spec");
         let devices = spec
             .subcommands
             .get("devices")
@@ -1010,7 +1043,7 @@ mod tests {
     /// `audit` subcommand declares no `parserDirectives` of its own.
     #[test]
     fn parser_directives_are_inherited_until_a_child_declares_its_own() {
-        let spec = load("npm").expect("npm is a committed spec");
+        let spec = load("npm", &[]).expect("npm is a committed spec");
         assert!(
             spec.parser_directives
                 .as_ref()
@@ -1037,7 +1070,7 @@ mod tests {
     /// three.
     #[test]
     fn a_template_adds_a_generator_without_discarding_the_arg_s_own() {
-        let spec = load("mount").expect("mount is a committed spec");
+        let spec = load("mount", &[]).expect("mount is a committed spec");
         let arg = spec
             .args
             .iter()
@@ -1060,7 +1093,7 @@ mod tests {
     /// with a plain name and no template, so no generator is synthesized.
     #[test]
     fn an_arg_without_a_template_gets_no_synthesized_generator() {
-        let spec = load("adb").expect("adb is a committed spec");
+        let spec = load("adb", &[]).expect("adb is a committed spec");
         let serial = spec.options.get("-s").expect("adb has a -s option");
         assert_eq!(serial.args.len(), 1);
         assert!(serial.args[0].generators.is_empty());
@@ -1073,7 +1106,7 @@ mod tests {
     /// `trigger` nor `getQueryTerm` set.
     #[test]
     fn a_folders_template_defaults_its_trigger_and_query_term() {
-        let spec = load("trivy").expect("trivy is a committed spec");
+        let spec = load("trivy", &[]).expect("trivy is a committed spec");
         let client = spec
             .subcommands
             .get("client")
@@ -1095,7 +1128,7 @@ mod tests {
     /// `loadSpec` as a plain string.
     #[test]
     fn a_string_loadspec_on_a_node_becomes_one_global_entry() {
-        let spec = load("pnpx").expect("pnpx is a committed spec");
+        let spec = load("pnpx", &[]).expect("pnpx is a committed spec");
         let child = spec
             .subcommands
             .get("create-react-native-app")
@@ -1114,7 +1147,7 @@ mod tests {
     /// argument-level occurrence.
     #[test]
     fn a_string_loadspec_on_an_arg_becomes_one_global_entry() {
-        let spec = load("herd").expect("herd is a committed spec");
+        let spec = load("herd", &[]).expect("herd is a committed spec");
         let php = spec
             .subcommands
             .get("php")
@@ -1138,7 +1171,7 @@ mod tests {
     /// 228 subcommands and 7 options, every one of them persistent.
     #[test]
     fn a_pointer_resolves_to_the_whole_spec_behind_it() {
-        let spec = load("az").expect("az's pointer resolves");
+        let spec = load("az", &[]).expect("az's pointer resolves");
         assert_eq!(spec.subcommands.len(), 228);
         assert!(
             spec.options.is_empty(),
@@ -1153,7 +1186,7 @@ mod tests {
 
     #[test]
     fn a_missing_spec_is_the_not_ours_error() {
-        match load("not-a-real-command-surmise-made-up") {
+        match load("not-a-real-command-surmise-made-up", &[]) {
             Err(SpecError::Missing) => {}
             other => panic!("expected SpecError::Missing, got {other:?}"),
         }
@@ -1164,7 +1197,7 @@ mod tests {
     /// occurrences in the corpus.
     #[test]
     fn option_is_required_is_kept_and_never_read() {
-        let spec = load("onboardbase").expect("onboardbase is a committed spec");
+        let spec = load("onboardbase", &[]).expect("onboardbase is a committed spec");
         let set_token = spec
             .subcommands
             .get("config:set-token")
@@ -1207,7 +1240,7 @@ mod tests {
     /// `scriptTimeout`, a real field `Generator` does not name.
     #[test]
     fn an_unnamed_field_survives_in_extra() {
-        let spec = load("mamba").expect("mamba is a committed spec");
+        let spec = load("mamba", &[]).expect("mamba is a committed spec");
         let activate = spec
             .subcommands
             .get("activate")
@@ -1226,7 +1259,7 @@ mod tests {
     /// root sets `filterStrategy`.
     #[test]
     fn subcommand_simple_fields_are_typed() {
-        let fisher = load("fisher").expect("fisher is a committed spec");
+        let fisher = load("fisher", &[]).expect("fisher is a committed spec");
         let tide = fisher
             .subcommands
             .get("install")
@@ -1239,21 +1272,21 @@ mod tests {
         assert!(tide.icon.is_some());
         assert_eq!(tide.priority, Some(99));
 
-        let yalc = load("yalc").expect("yalc is a committed spec");
+        let yalc = load("yalc", &[]).expect("yalc is a committed spec");
         let installations = yalc
             .subcommands
             .get("installations")
             .expect("yalc has an installations subcommand");
         assert_eq!(installations.requires_subcommand, Some(true));
 
-        let bw = load("bw").expect("bw is a committed spec");
+        let bw = load("bw", &[]).expect("bw is a committed spec");
         let delete = bw
             .subcommands
             .get("delete")
             .expect("bw has a delete subcommand");
         assert_eq!(delete.is_dangerous, Some(true));
 
-        let pnpm = load("pnpm").expect("pnpm is a committed spec");
+        let pnpm = load("pnpm", &[]).expect("pnpm is a committed spec");
         assert_eq!(pnpm.filter_strategy.as_deref(), Some("fuzzy"));
     }
 
@@ -1261,7 +1294,7 @@ mod tests {
     /// `icon` and `insertValue` together.
     #[test]
     fn option_simple_fields_are_typed() {
-        let spec = load("esbuild").expect("esbuild is a committed spec");
+        let spec = load("esbuild", &[]).expect("esbuild is a committed spec");
         let charset = spec
             .options
             .get("--charset")
@@ -1277,12 +1310,12 @@ mod tests {
     /// which shows the same fields on a [`Suggestion`] reached that way.
     #[test]
     fn additional_suggestions_normalize_the_same_way_as_other_suggestion_lists() {
-        let who = load("who").expect("who is a committed spec");
+        let who = load("who", &[]).expect("who is a committed spec");
         let am = who.subcommands.get("am").expect("who has an am subcommand");
         assert_eq!(am.additional_suggestions.len(), 1);
         assert_eq!(am.additional_suggestions[0].name, vec!["am I".to_string()]);
 
-        let kubectx = load("kubectx").expect("kubectx is a committed spec");
+        let kubectx = load("kubectx", &[]).expect("kubectx is a committed spec");
         let dash = kubectx
             .additional_suggestions
             .iter()
@@ -1301,7 +1334,7 @@ mod tests {
     /// argument (`suggestCurrentToken`).
     #[test]
     fn arg_simple_fields_are_typed() {
-        let airflow = load("airflow").expect("airflow is a committed spec");
+        let airflow = load("airflow", &[]).expect("airflow is a committed spec");
         let role = airflow
             .subcommands
             .get("roles")
@@ -1315,20 +1348,20 @@ mod tests {
         assert_eq!(role.is_variadic, Some(true));
         assert_eq!(role.options_can_break_variadic_arg, Some(true));
 
-        let do_spec = load("do").expect("do is a committed spec");
+        let do_spec = load("do", &[]).expect("do is a committed spec");
         assert_eq!(do_spec.args[0].is_command, Some(true));
 
-        let ts_node = load("ts-node").expect("ts-node is a committed spec");
+        let ts_node = load("ts-node", &[]).expect("ts-node is a committed spec");
         assert_eq!(ts_node.args[0].is_script, Some(true));
 
-        let gem = load("gem").expect("gem is a committed spec");
+        let gem = load("gem", &[]).expect("gem is a committed spec");
         let install = gem
             .subcommands
             .get("install")
             .expect("gem has an install subcommand");
         assert_eq!(install.args[0].debounce, Some(true));
 
-        let tfsec = load("tfsec").expect("tfsec is a committed spec");
+        let tfsec = load("tfsec", &[]).expect("tfsec is a committed spec");
         let out = tfsec
             .options
             .get("--out")
@@ -1341,7 +1374,7 @@ mod tests {
     /// string prefix, not a bare flag.
     #[test]
     fn arg_is_module_carries_the_prefix_string() {
-        let spec = load("python").expect("python is a committed spec");
+        let spec = load("python", &[]).expect("python is a committed spec");
         let module_flag = spec.options.get("-m").expect("python has -m");
         assert_eq!(module_flag.args[0].is_module.as_deref(), Some("python/"));
     }
@@ -1351,11 +1384,11 @@ mod tests {
     /// and `specs/adb.json`'s `-s` declares no `isRepeatable` at all.
     #[test]
     fn is_repeatable_models_all_three_shapes() {
-        let ansible_lint = load("ansible-lint").expect("ansible-lint is a committed spec");
+        let ansible_lint = load("ansible-lint", &[]).expect("ansible-lint is a committed spec");
         let q = ansible_lint.options.get("-q").expect("ansible-lint has -q");
         assert_eq!(q.is_repeatable, Repeatable::Times(2));
 
-        let sqlmesh = load("sqlmesh").expect("sqlmesh is a committed spec");
+        let sqlmesh = load("sqlmesh", &[]).expect("sqlmesh is a committed spec");
         let restate = sqlmesh
             .subcommands
             .get("plan")
@@ -1365,7 +1398,7 @@ mod tests {
             .expect("plan has --restate-model");
         assert_eq!(restate.is_repeatable, Repeatable::Unlimited);
 
-        let adb = load("adb").expect("adb is a committed spec");
+        let adb = load("adb", &[]).expect("adb is a committed spec");
         let serial = adb.options.get("-s").expect("adb has -s");
         assert_eq!(serial.is_repeatable, Repeatable::Once);
     }
@@ -1375,7 +1408,7 @@ mod tests {
     /// flag. `false` never appears in the corpus, so it is not tested here.
     #[test]
     fn requires_separator_models_the_flag_and_the_explicit_string() {
-        let eza = load("eza").expect("eza is a committed spec");
+        let eza = load("eza", &[]).expect("eza is a committed spec");
         let color_scale = eza
             .options
             .get("--color-scale")
@@ -1385,7 +1418,7 @@ mod tests {
             Some(Separator::Explicit("=".to_string()))
         );
 
-        let ua = load("ua").expect("ua is a committed spec");
+        let ua = load("ua", &[]).expect("ua is a committed spec");
         let attach_config = ua
             .subcommands
             .get("attach")
@@ -1400,7 +1433,7 @@ mod tests {
     /// `send create --hidden` sets `dependsOn`.
     #[test]
     fn exclusive_on_and_depends_on_are_kept() {
-        let bw = load("bw").expect("bw is a committed spec");
+        let bw = load("bw", &[]).expect("bw is a committed spec");
         let method = bw
             .subcommands
             .get("login")
@@ -1436,11 +1469,11 @@ mod tests {
     #[test]
     fn timing_for_git_and_gcloud_compute() {
         let git_start = Instant::now();
-        load("git").expect("git is a committed spec");
+        load("git", &[]).expect("git is a committed spec");
         let git_elapsed = git_start.elapsed();
 
         let gcloud_start = Instant::now();
-        load("gcloud/compute").expect("gcloud/compute is a committed spec");
+        load("gcloud/compute", &[]).expect("gcloud/compute is a committed spec");
         let gcloud_elapsed = gcloud_start.elapsed();
 
         eprintln!("git: {git_elapsed:?}, gcloud/compute: {gcloud_elapsed:?}");

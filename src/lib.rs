@@ -9,6 +9,7 @@
 
 pub mod app;
 pub mod candidates;
+pub mod config;
 pub mod fixture;
 pub mod fuzzy;
 pub mod git;
