@@ -119,6 +119,14 @@ pub fn run(seed: &str) -> io::Result<u8> {
     // `tty::claim` below replaces stdin outright and there is no reading it
     // back afterwards.
     let input = read_input()?;
+    // A character right of the cursor that is not blank means the cursor
+    // sits inside a word. Completing there would split it, so the key goes
+    // back to the shell before surmise looks at `seed` at all. Q refuses the
+    // same way.
+    if input.rbuffer.starts_with(|c: char| c != ' ' && c != '\t') {
+        return Ok(PASS);
+    }
+
     // Without a current directory there is nothing to complete against. The
     // shell's own completion is the honest answer.
     let Ok(cwd) = std::env::current_dir() else {

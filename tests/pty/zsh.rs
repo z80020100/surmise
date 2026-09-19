@@ -982,6 +982,25 @@ fn tab_asks_surmise_about_a_line_already_typed() {
 }
 
 #[test]
+fn tab_inside_a_word_reaches_the_shells_own_completion() {
+    // The space key still wraps `cd work` itself into the menu, so the space
+    // trigger is given back to the shell here and Tab is the only way in.
+    // Stepping the cursor back into `work` then leaves a real `RBUFFER`
+    // behind it. surmise reads that off stdin now and answers `PASS` before
+    // it ever looks at `cd wo`, exactly as it would for a finished word.
+    let f = home(
+        "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
+        "bindkey ' ' $_surmise_space",
+    );
+    let mut t = ready(f.path());
+    typed(&mut t, "cd work");
+    typed(&mut t, "\x1b[D\x1b[D");
+    typed(&mut t, "\t");
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+    assert_eq!(line(&t).trim(), "❯ cd woSAMPLErk", "{:?}", t.lines());
+}
+
+#[test]
 fn an_alias_reaches_the_picker_without_changing_what_it_answers() {
     // Nothing reads the alias map yet. The claim here is only that carrying
     // it on stdin does not break a picker that already works.

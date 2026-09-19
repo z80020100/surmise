@@ -76,6 +76,11 @@ Without spare rows the menu shows only the list and its label.
 | Esc | Leave the menu and keep what you typed |
 | Ctrl-C and Ctrl-G | Leave and restore the line you started with |
 
+A cursor that sits inside a word narrows Tab before surmise reads anything
+else on the line. When the character to its right is not a space or a tab,
+Tab hands the key to the shell's own completion instead, because completing
+there would split a word still being typed.
+
 A line that already names a directory gets a row of its own at the top of the
 menu. That row runs the line rather than growing it. A `↵` in a colour of its
 own is the whole row: the line is on the screen already and a name there would
