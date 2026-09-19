@@ -641,16 +641,33 @@ mod tests {
         assert!(std::ptr::eq(walk.passed_options[0], color_scale.as_ref()));
     }
 
-    /// No committed spec exercises `option_arg_separators` with more than one
-    /// separator on an option that names none of its own — `esbuild`, which
-    /// configures two, gives every argument-taking option its own explicit
-    /// one instead — and none pairs an explicit separator with a spec-wide
-    /// list that does not already contain it. This node is built by hand to
-    /// cover both: `--level` proves an explicit separator excludes the
-    /// others, and `--mode` proves an option naming none of its own tries
-    /// every separator the spec configures.
+    /// `nextflow`'s root configures two separators, `=` and `.` — the
+    /// second because the same corpus has options literally named
+    /// `-e.`/`-process.` that take `key=value`, not because `.` is a typo
+    /// for `=`. Its `run` subcommand has plenty of options, like `-profile`
+    /// and `-w`, that declare no `requiresSeparator` of their own, so they
+    /// fall back to trying every separator the root configures.
     #[test]
-    fn option_separators_combine_a_per_option_override_with_the_spec_wide_list() {
+    fn option_arg_separators_tries_every_configured_separator() {
+        let nextflow = spec::load("nextflow", &[]).unwrap();
+        let run = nextflow.subcommands.get("run").unwrap();
+        let profile = run.options.get("-profile").unwrap();
+        let work_dir = run.options.get("-w").unwrap();
+        let walk = walk(
+            &command("nextflow run -profile=docker -w.testdir "),
+            &nextflow,
+        );
+        assert_eq!(walk.passed_options.len(), 2);
+        assert!(std::ptr::eq(walk.passed_options[0], profile.as_ref()));
+        assert!(std::ptr::eq(walk.passed_options[1], work_dir.as_ref()));
+    }
+
+    /// No committed spec pairs an explicit `requiresSeparator` with a
+    /// spec-wide `option_arg_separators` list that names a different
+    /// separator, so this node is built by hand to prove the override
+    /// excludes the spec-wide list rather than merely joining it.
+    #[test]
+    fn requires_separator_explicit_overrides_the_spec_wide_list() {
         let mut options = HashMap::new();
         options.insert(
             "--level".to_string(),
@@ -659,23 +676,19 @@ mod tests {
                 Some(Separator::Explicit(":".to_string())),
             )),
         );
-        options.insert("--mode".to_string(), Rc::new(bare_opt("--mode", None)));
         let node = bare_node(
             options,
             ParserDirectives {
-                option_arg_separators: vec!["=".to_string(), ":".to_string()],
+                option_arg_separators: vec!["=".to_string()],
                 ..Default::default()
             },
         );
 
-        let via_colon = walk(&command("probe --level:5 --mode:fast "), &node);
-        assert_eq!(via_colon.passed_options.len(), 2);
+        let via_colon = walk(&command("probe --level:5 "), &node);
+        assert_eq!(via_colon.passed_options.len(), 1);
 
-        let via_equals = walk(&command("probe --mode=fast "), &node);
-        assert_eq!(via_equals.passed_options.len(), 1);
-
-        let level_rejects_equals = walk(&command("probe --level=5 "), &node);
-        assert!(level_rejects_equals.passed_options.is_empty());
+        let via_equals = walk(&command("probe --level=5 "), &node);
+        assert!(via_equals.passed_options.is_empty());
     }
 
     #[test]
