@@ -1294,7 +1294,7 @@ mod tests {
         assert!(row.contains("[31mred"), "{row:?}");
         // The only escapes left are the ones this module wrote itself: the
         // ground, the glyph's colour, the name's and the reset.
-        let ours = [PANEL_CHOSEN, NAME_CHOSEN, ICON_FG_CHOSEN, RESET]
+        let ours: usize = [PANEL_CHOSEN, NAME_CHOSEN, ICON_FG_CHOSEN, RESET]
             .iter()
             .map(|s| s.matches('\x1b').count())
             .sum();

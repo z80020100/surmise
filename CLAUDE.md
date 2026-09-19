@@ -326,9 +326,13 @@ No other platform is built and no other platform is checked.
 `specs/` holds a completion specification for each of 727 commands: their
 subcommands, their options, their arguments and the description of every one of
 those. It is 1481 JSON files plus an index and it is committed. Nothing
-downloads it, nothing generates it during a build and it needs no network. The
-binary does not read it yet. This section says what the directory is rather
-than what surmise does with it.
+downloads it, nothing generates it during a build and it needs no network.
+`build.rs` reads that whole tree at build time and `spec_store` is the
+byte-level lookup the binary carries: `get(name)` decompresses one spec and
+`commands()` returns the compiled-in list of 727 names. Parsing a spec and
+answering an argument from it belong to a later phase. This section still says
+what the directory is and what carrying it costs, rather than what a menu does
+with a spec once it has one.
 
 The point of committing it is that surmise then outlives whatever published it.
 The corpus these files came from has had no release since May 2025 and a tool
@@ -374,6 +378,18 @@ code that parsed the output.
 
 `specs/LICENSE` and `THIRD_PARTY.md` carry the attribution. The descriptions are
 the upstream's own text and the licence travels with them.
+
+Every file under `specs/` except the top-level `index.json` compresses on its
+own into one blob, so `spec_store::get` decompresses the one spec a menu needs
+and leaves the rest of the corpus alone. `flate2` with the `rust_backend`
+feature does both ends and neither of them reaches for a C library. The blob is
+9 105 907 bytes.
+
+The binary does not carry that weight yet. A linker drops what nothing calls
+and nothing outside `spec_store`'s own tests calls it, so a release build still
+measures 2 745 040 bytes. A build with one call to `spec_store::get` in it
+measures 12 028 176 bytes and that is what the corpus costs from the moment a
+menu reads one.
 
 ## Repository conventions
 
