@@ -50,6 +50,13 @@ pub(crate) struct Target {
 /// line at all. Answering there anyway would let this provider quietly take
 /// over a line the other two are still meant to own; this is what keeps this
 /// provider to only what the first two declined.
+///
+/// The refusal reads the raw word, not what an alias expands it to.
+/// `crate::git::parse` and `cd`'s own reader each match a literal `git` or
+/// `cd` at the start of the line; neither ever claims a line that starts
+/// with an alias for one. Refusing on the expanded name would therefore
+/// hold this provider off a line nobody else is going to answer, and
+/// `alias g=git` would open on nothing at all.
 pub(crate) fn parse(left: &str, tail: &str, aliases: &HashMap<String, String>) -> Option<Target> {
     if !tail.is_empty() && !tail.starts_with(char::is_whitespace) {
         return None;
@@ -60,9 +67,10 @@ pub(crate) fn parse(left: &str, tail: &str, aliases: &HashMap<String, String>) -
     if command.words.len() < 2 {
         return None;
     }
-    let name = command.words[0].inner_text.as_str();
+    let raw = shellparse::command_at(left, left.len());
+    let raw_name = raw.as_ref().and_then(|cmd| cmd.words.first());
     // Only what Git's own menu and `cd`'s declined, never what they claim.
-    if name == "git" || name == "cd" {
+    if raw_name.is_some_and(|w| w.inner_text == "git" || w.inner_text == "cd") {
         return None;
     }
     let word = command.words.last()?;

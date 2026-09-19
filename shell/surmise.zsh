@@ -67,6 +67,10 @@ _surmise_redraw() {
 surmise-complete() {
   emulate -L zsh
   local from_space=$1 result ret
+  # Filled here as well as on the space key below, so whichever one runs
+  # first pays the one fork `_surmise_fill_specs` costs and the other only
+  # ever reads the array it left behind.
+  _surmise_fill_specs
   # RBUFFER and the alias table go on stdin as one record: RBUFFER first,
   # then a name and a value for every alias, each ended with a NUL. A value
   # can hold a space, a newline or a quote and a NUL is the one byte none of
@@ -102,8 +106,8 @@ surmise-complete() {
 zle -N surmise-complete
 bindkey '^I' surmise-complete
 
-# Open after `cd`, `git`, `git switch`, `git checkout` or `git add` and a space.
-# The picker keeps the keys until it returns the line to the shell.
+# Open on a space after any command surmise has a specification for. The
+# picker keeps the keys until it returns the line to the shell.
 #
 # The trigger hangs off the space key rather than off `self-insert`. Wrapping
 # `self-insert` does not survive zsh-autosuggestions. That plugin walks every
@@ -117,12 +121,50 @@ if [[ -z $_surmise_space ]]; then
   esac
 fi
 
+# The command names a space can open a menu for. `surmise specs names`
+# prints the compiled-in list, one name per line, and `cd` is one of them.
+# The array stays empty until the first space or the first Tab needs an
+# answer, so a shell that opens and never completes anything never pays for
+# the fork that fills it.
+typeset -gA _surmise_specs
+
+_surmise_fill_specs() {
+  [[ -n $_surmise_specs_filled ]] && return
+  typeset -g _surmise_specs_filled=1
+  local name
+  for name in ${(f)"$(command $SURMISE_BIN specs names 2>/dev/null)"}; do
+    _surmise_specs[$name]=1
+  done
+}
+
+# Open on a space that ends the line, when the line's first word names a
+# command surmise has a specification for. The word is read the way the
+# shell itself would read it before running anything, so `$aliases` is
+# checked ahead of `_surmise_specs` and only the alias value's own first
+# word counts: `alias g=git` opens the menu on a bare `g ` and an alias that
+# expands to several words is read for the one it starts with rather than
+# for the rest of them.
+#
+# Nothing here asks what comes after that word. `docker container ` opens
+# the same way `docker ` does, because a space anywhere on the line ends up
+# checking the same first word. What a later word means is the picker's own
+# question, and a first word with no specification never reaches it.
 surmise-space() {
   # The delegated widget runs under the person's own options rather than
   # surmise's. `emulate` waits until after it for that reason.
   zle $_surmise_space
   emulate -L zsh
-  [[ -z $RBUFFER && $LBUFFER =~ '^[[:blank:]]*(cd|git|git[[:blank:]]+(switch|checkout|add))[[:blank:]]$' ]] || return
+  [[ -z $RBUFFER ]] || return
+  _surmise_fill_specs
+  # `[1]` on `${(z)...}` inline reads as a string index rather than an array
+  # one when the split leaves a single word, which a bare `cd ` always does.
+  # Splitting into `words` first is what keeps `words[1]` an array lookup
+  # whether the split left one word or several.
+  local -a words
+  words=(${(z)LBUFFER})
+  local word=${aliases[$words[1]]:-$words[1]}
+  words=(${(z)word})
+  (( $+_surmise_specs[$words[1]] )) || return
   surmise-complete from-space
 }
 

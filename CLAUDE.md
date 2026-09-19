@@ -43,10 +43,12 @@ line and the ghost text follows the line either way.
 
 ## Use
 
-Two ways in. Tab asks surmise about the line you already have and falls through
-to the shell's own completion when surmise has nothing to offer. The paragraphs
-under the table say what narrows that. Typing a bare `cd ` opens surmise on
-its own. A menu of directories opens below the line. The mark on the first
+Tab asks surmise about the line you already have and falls through to the
+shell's own completion when surmise has nothing to offer. The paragraphs
+under the table say what narrows that. A bare `cd ` also opens surmise on its
+own, and so does a space after any other command surmise has a specification
+for; "Other commands" below says what that opens and what it costs. A menu
+of directories opens below the line. The mark on the first
 name sits under the cursor and the menu follows the cursor along the line. The
 menu is one width whatever it holds. Near the right edge it keeps that width
 and gives the alignment up. A terminal too narrow for that width is the one
@@ -316,6 +318,16 @@ finished `git` subcommand with a trailing space. The command name resolves
 through the shell's alias table first, so an alias for `docker` opens the
 menu under the name it expands to.
 
+An alias for `git` or `cd` is the one exception, and it reaches this menu
+rather than Git's own or `cd`'s: the exclusion above tests the word as
+typed, not what it expands to, because `crate::git::parse` and `cd`'s own
+reader each match only the literal word and never claim a line that starts
+with an alias for either. `alias g=git` therefore opens on `git`'s own
+specification — subcommands, options and their descriptions — but not on a
+branch name or a file name, which stay `crate::git::parse`'s alone. `alias
+c=cd` opens on `cd.json`'s own two rows, `-` and `~`, not on a real
+directory name, which stays the directory scan's alone.
+
 `spec_menu` loads the named command's specification and asks `argwalk` to
 walk the line against it. A row comes from whatever the walk says the next
 word may be: a child subcommand, an option not already on the line, or one of
@@ -358,13 +370,19 @@ no rows rather than guessing at one or running one unasked. Teaching `argwalk`
 to fill one of those in from a generator, the way the Git branch and file
 readers already do their own, remains a later phase.
 
-Tab is the only way in. A bare `docker ` does not open the menu the way a bare
-`cd ` does; widening that trigger is a change of its own, in
-`shell/surmise.zsh` rather than here. Reading and normalizing a specification
-costs about 2.4 ms for `git`'s and about 19 ms for the worst one in the
-corpus, so a menu loads a command's spec once — the same way its Git
-completions and its directory scan are already kept for one menu — and
-answers every later key from what that load found.
+A space opens the menu here too, the way a bare `cd ` or `git ` already did:
+`docker ` and `docker container ` both reach it, because the widget checks
+the line's first word rather than the whole line and an alias resolves
+before that check does. The set that word is checked against is `surmise
+specs names`'s own output, a zsh array the widget fills once from the first
+space or Tab a shell asks of it — one fork, about 12 ms, spent on whichever
+of the two comes first — and reads for every one after that, a hash lookup
+with no fork left in it and nothing worth measuring.
+
+Reading and normalizing a specification costs about 2.4 ms for `git`'s and
+about 19 ms for the worst one in the corpus, so a menu loads a command's spec
+once — the same way its Git completions and its directory scan are already
+kept for one menu — and answers every later key from what that load found.
 
 The corpus is frozen at the May 2025 release `specs/` was read from. A
 command that has grown a subcommand since gets no row for it until the corpus
