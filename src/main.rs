@@ -1,4 +1,5 @@
-//! surmise — completion for `cd` directories and Git subcommands.
+//! surmise — completion for `cd` directories, Git subcommands, and any
+//! command with a committed specification.
 //!
 //! `surmise::pick` draws the menu and answers a shell widget with the line and
 //! a status. This file reads the arguments and hands the line over. It also
@@ -12,7 +13,8 @@ use std::process::ExitCode;
 use surmise::{config, pick, ui};
 
 const USAGE: &str = "\
-surmise — complete cd directories and Git subcommands.
+surmise — complete cd directories, Git subcommands, and any command with a
+committed specification.
 
   surmise init zsh                the shell widget, for `eval \"$(surmise init zsh)\"`
   surmise --pick LINE             the picker that widget calls, result on stdout

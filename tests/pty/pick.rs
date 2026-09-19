@@ -283,6 +283,39 @@ fn a_bare_git_puts_a_subcommand_glyph_on_every_row() {
 }
 
 #[test]
+fn a_bare_docker_draws_a_menu_of_subcommands_with_their_descriptions() {
+    let f = fixture();
+    let t = opened(f.path(), "docker ");
+    let panel = t.panel();
+    let rows: Vec<&str> = panel
+        .iter()
+        .take_while(|row| is_name(row))
+        .map(|row| row.text.as_str())
+        .collect();
+    assert!(!rows.is_empty());
+    for text in &rows {
+        assert!(text.contains(CMD_ICON), "{text:?}");
+    }
+    // Nothing narrows an empty search term, so the rows sort alphabetically
+    // and the highlight opens on the first of them.
+    assert!(rows[0].contains("attach"), "{rows:?}");
+    assert!(
+        footer(&t).contains("Attach local standard input"),
+        "{:?}",
+        footer(&t)
+    );
+}
+
+#[test]
+fn tab_accepts_a_spec_subcommand_and_grows_the_line() {
+    let f = fixture();
+    let mut t = opened(f.path(), "docker contai");
+    t.send("\t");
+    t.pump(SETTLE);
+    assert!(shown(&t).contains("docker container "), "{:?}", t.lines());
+}
+
+#[test]
 fn the_menu_marks_what_the_argument_reached() {
     let f = fixture();
     let t = opened(f.path(), "cd wk");
