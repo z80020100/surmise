@@ -18,6 +18,7 @@ pub mod line;
 pub mod path;
 pub mod pick;
 pub mod shellword;
+pub mod spec;
 pub mod spec_store;
 pub mod tty;
 pub mod ui;

@@ -33,6 +33,12 @@ libc = "0.2"
 # Directory history. Bundling SQLite keeps the database version independent
 # of the one the operating system ships.
 rusqlite = { version = "0.40.2", default-features = false, features = ["bundled"] }
+# The derive macros that turn a spec's raw JSON shape into `spec`'s Raw*
+# structs. Nothing here hand-writes a `Deserialize` impl.
+serde = { version = "1.0", features = ["derive"] }
+# Parsing a spec. `spec_store` only ever handed back bytes before `spec`
+# existed to parse one, so this moved up from `[dev-dependencies]`.
+serde_json = "1.0.151"
 # Display width. A line can hold a character that is wider than one cell.
 unicode-width = "0.2"
 
@@ -43,10 +49,6 @@ cargo-husky = { version = "1.5.0", default-features = false, features = ["user-h
 # raw mode rather than reading stdin. A child spawned any other way would put
 # the terminal the tests were started from into raw mode.
 portable-pty = "0.9"
-# Checking that a spec the store hands back is valid JSON. `spec_store` deals
-# in bytes and the phase that parses a spec is a later one, so this is a test
-# dependency until then.
-serde_json = "1.0.151"
 # The screen those tests read. A byte stream can carry a box-drawing character
 # and still render as garbage. Every assertion therefore reads a rendered
 # screen rather than the stream.
