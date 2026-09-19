@@ -364,11 +364,26 @@ the sibling subcommands of the argument's own enclosing node, so `fnm help `
 offers `fnm`'s own subcommands rather than `help`'s, which has none of its
 own. `history` answers nothing yet; a later phase gives it a reader.
 
-An argument that needs anything else — a script, a native reader, a package's
-own scripts, a branch name, anything `specs/dynamic.txt` names — still offers
-no rows rather than guessing at one or running one unasked. Teaching `argwalk`
-to fill one of those in from a generator, the way the Git branch and file
-readers already do their own, remains a later phase.
+Two arguments are answered by a reader of surmise's own. `make ` offers the
+targets of the makefile beside the line and the same argument behind `-j`,
+`-B` and `-e` offers them too. `ssh ` offers host names. Both readers read
+files and neither runs a program. The targets come from `GNUmakefile`,
+`makefile` or `Makefile`, whichever of make's own three names is there first.
+The hosts come from `~/.ssh/config`, `/etc/ssh/ssh_config` and
+`~/.ssh/known_hosts`. `make -qp` would give the thorough answer and it expands
+the makefile to do it. Completing a line would then run whatever
+`$(shell ...)` the makefile holds and reading the text cannot. A `Host` line's
+patterns are not host names and a hashed `known_hosts` entry holds no name to
+read. An `Include` in an SSH configuration is not followed either. Each file
+is read up to 64 KiB, the cap a Git query's own output already carries.
+
+An argument that needs anything else — a script, another native reader, a
+package's own scripts, a branch name, anything else `specs/dynamic.txt`
+names — still offers no rows rather than guessing at one or running one
+unasked. Those two are two of the 4854 arguments that file lists and the other
+4852 show nothing. Teaching `argwalk` to fill one of those in from a
+generator, the way the Git branch and file readers already do their own,
+remains a later phase.
 
 A space opens the menu here too, the way a bare `cd ` or `git ` already did:
 `docker ` and `docker container ` both reach it, because the widget checks
