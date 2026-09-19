@@ -1,0 +1,121 @@
+{
+  "description": "The StepZen CLI is the primary way to build, deploy and test your schemas on StepZen",
+  "name": "StepZen",
+  "subcommands": [
+    {
+      "args": [
+        {
+          "description": "Command name for which to display help",
+          "name": "command"
+        }
+      ],
+      "description": "Display help for StepZen",
+      "name": "help"
+    },
+    {
+      "description": "Login to StepZen",
+      "name": "login"
+    },
+    {
+      "description": "Logout of StepZen",
+      "name": "logout"
+    },
+    {
+      "description": "Deploy, watch and develop your API",
+      "name": "start",
+      "options": [
+        {
+          "args": [
+            {
+              "description": "Path to StepZen directory",
+              "name": "path",
+              "template": "folders"
+            }
+          ],
+          "description": "The working directory for StepZen assets",
+          "name": "--dir",
+          "requiresSeparator": true
+        },
+        {
+          "args": [
+            {
+              "description": "The StepZen endpoint",
+              "dyn": true,
+              "generators": [
+                {
+                  "script": [
+                    "stepzen",
+                    "list",
+                    "schemas"
+                  ]
+                }
+              ],
+              "name": "endpoint"
+            }
+          ],
+          "description": "The folder/endpoint to deploy to",
+          "name": "--endpoint",
+          "requiresSeparator": true
+        },
+        {
+          "args": [
+            {
+              "description": "A port to run on",
+              "name": "port"
+            }
+          ],
+          "description": "The port number to use for the GraphiQL explorer",
+          "name": "--port",
+          "requiresSeparator": true
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "The name of the generator to import",
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "curl",
+                "https://api.github.com/repos/steprz/stepzen-schemas/contents"
+              ]
+            }
+          ],
+          "name": "name"
+        }
+      ],
+      "description": "Import pre-configured schemas to Your API",
+      "name": "import",
+      "options": [
+        {
+          "args": [
+            {
+              "description": "Path to directory",
+              "name": "path",
+              "template": "folders"
+            }
+          ],
+          "description": "The directory to which the schema will be imported",
+          "name": "--dir",
+          "requiresSeparator": true
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "The type of asset to list (schemas or configurationsets)",
+          "name": "type",
+          "suggestions": [
+            "schemas",
+            "configurationsets"
+          ]
+        }
+      ],
+      "description": "List the assets of a specified type that are linked to the StepZen account",
+      "name": "list"
+    }
+  ]
+}

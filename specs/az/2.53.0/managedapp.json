@@ -1,0 +1,684 @@
+{
+  "description": "Manage template solutions provided and maintained by Independent Software Vendors (ISVs)",
+  "name": "managedapp",
+  "subcommands": [
+    {
+      "description": "Create a managed application",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "kind"
+            }
+          ],
+          "description": "The managed application kind. can be marketplace or servicecatalog",
+          "isRequired": true,
+          "name": "--kind"
+        },
+        {
+          "args": [
+            {
+              "name": "managed-rg-id"
+            }
+          ],
+          "description": "The resource group managed by the managed application",
+          "isRequired": true,
+          "name": [
+            "--managed-rg-id",
+            "-m"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The managed application name",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "The resource group of the managed application",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "The managed application location",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "managedapp-definition-id"
+            }
+          ],
+          "description": "The full qualified managed application definition id",
+          "name": [
+            "--managedapp-definition-id",
+            "-d"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "parameters"
+            }
+          ],
+          "description": "JSON formatted string or a path to a file with such content",
+          "name": "--parameters"
+        },
+        {
+          "args": [
+            {
+              "name": "plan-name"
+            }
+          ],
+          "description": "The managed application package plan name",
+          "name": "--plan-name"
+        },
+        {
+          "args": [
+            {
+              "name": "plan-product"
+            }
+          ],
+          "description": "The managed application package plan product",
+          "name": "--plan-product"
+        },
+        {
+          "args": [
+            {
+              "name": "plan-publisher"
+            }
+          ],
+          "description": "The managed application package plan publisher",
+          "name": "--plan-publisher"
+        },
+        {
+          "args": [
+            {
+              "name": "plan-version"
+            }
+          ],
+          "description": "The managed application package plan version",
+          "name": "--plan-version"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        }
+      ]
+    },
+    {
+      "description": "Delete a managed application",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the managed application. Required",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "The resource group of the managed application",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "List managed applications",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "The resource group of the managed application",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Gets a managed application",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The managed application name",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "The resource group of the managed application",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Managed Applications",
+      "name": "definition",
+      "subcommands": [
+        {
+          "description": "Create a managed application definition",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "authorizations"
+                }
+              ],
+              "description": "Space-separated authorization pairs in a format of <principalId>:<roleDefinitionId>",
+              "isRequired": true,
+              "name": [
+                "--authorizations",
+                "-a"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "The managed application definition description",
+              "isRequired": true,
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "The managed application definition display name",
+              "isRequired": true,
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "lock-level",
+                  "suggestions": [
+                    "CanNotDelete",
+                    "None",
+                    "ReadOnly"
+                  ]
+                }
+              ],
+              "description": "The type of lock restriction",
+              "isRequired": true,
+              "name": "--lock-level"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The managed application definition name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group of the managed application definition",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "create-ui-definition"
+                }
+              ],
+              "description": "JSON formatted string or a path to a file with such content",
+              "name": [
+                "--create-ui-definition",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "deployment-mode",
+                  "suggestions": [
+                    "Complete",
+                    "Incremental"
+                  ]
+                }
+              ],
+              "description": "The managed application deployment mode",
+              "name": "--deployment-mode"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "main-template"
+                }
+              ],
+              "description": "JSON formatted string or a path to a file with such content",
+              "name": [
+                "--main-template",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "package-file-uri"
+                }
+              ],
+              "description": "The managed application definition package file uri",
+              "name": "--package-file-uri"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Delete a managed application definition",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the managed application definition to delete. Required",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group of the managed application definition",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "List managed application definitions",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group of the managed application definition",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets a managed application definition",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The managed application definition name",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group of the managed application definition",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update a managed application definition",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "authorizations"
+                }
+              ],
+              "description": "Space-separated authorization pairs in a format of <principalId>:<roleDefinitionId>",
+              "isRequired": true,
+              "name": [
+                "--authorizations",
+                "-a"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "The managed application definition description",
+              "isRequired": true,
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "The managed application definition display name",
+              "isRequired": true,
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "lock-level",
+                  "suggestions": [
+                    "CanNotDelete",
+                    "None",
+                    "ReadOnly"
+                  ]
+                }
+              ],
+              "description": "The type of lock restriction",
+              "isRequired": true,
+              "name": "--lock-level"
+            },
+            {
+              "args": [
+                {
+                  "name": "create-ui-definition"
+                }
+              ],
+              "description": "JSON formatted string or a path to a file with such content",
+              "name": [
+                "--create-ui-definition",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "deployment-mode",
+                  "suggestions": [
+                    "Complete",
+                    "Incremental"
+                  ]
+                }
+              ],
+              "description": "The managed application deployment mode",
+              "name": "--deployment-mode"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "main-template"
+                }
+              ],
+              "description": "JSON formatted string or a path to a file with such content",
+              "name": [
+                "--main-template",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The managed application definition name",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "package-file-uri"
+                }
+              ],
+              "description": "The managed application definition package file uri",
+              "name": "--package-file-uri"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group of the managed application definition",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

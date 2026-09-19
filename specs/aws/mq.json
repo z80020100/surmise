@@ -1,0 +1,1453 @@
+{
+  "description": "Amazon MQ is a managed message broker service for Apache ActiveMQ and RabbitMQ that makes it easy to set up and operate message brokers in the cloud. A message broker allows software applications and components to communicate using various programming languages, operating systems, and formal messaging protocols",
+  "name": "mq",
+  "subcommands": [
+    {
+      "description": "Creates a broker. Note: This API is asynchronous. To create a broker, you must either use the AmazonMQFullAccess IAM policy or include the following EC2 permissions in your IAM policy. ec2:CreateNetworkInterface This permission is required to allow Amazon MQ to create an elastic network interface (ENI) on behalf of your account. ec2:CreateNetworkInterfacePermission This permission is required to attach the ENI to the broker instance. ec2:DeleteNetworkInterface ec2:DeleteNetworkInterfacePermission ec2:DetachNetworkInterface ec2:DescribeInternetGateways ec2:DescribeNetworkInterfaces ec2:DescribeNetworkInterfacePermissions ec2:DescribeRouteTables ec2:DescribeSecurityGroups ec2:DescribeSubnets ec2:DescribeVpcs For more information, see Create an IAM User and Get Your Amazon Web Services Credentials and Never Modify or Delete the Amazon MQ Elastic Network Interface in the Amazon MQ Developer Guide",
+      "name": "create-broker",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Optional. The authentication strategy used to secure the broker. The default is SIMPLE",
+          "name": "--authentication-strategy"
+        },
+        {
+          "description": "Enables automatic upgrades to new patch versions for brokers as new versions are released and supported by Amazon MQ. Automatic upgrades occur during the scheduled maintenance window or after a manual broker reboot. Set to true by default, if no value is specified. Must be set to true for ActiveMQ brokers version 5.18 and above and for RabbitMQ brokers version 3.13 and above",
+          "name": "--auto-minor-version-upgrade"
+        },
+        {
+          "description": "Enables automatic upgrades to new patch versions for brokers as new versions are released and supported by Amazon MQ. Automatic upgrades occur during the scheduled maintenance window or after a manual broker reboot. Set to true by default, if no value is specified. Must be set to true for ActiveMQ brokers version 5.18 and above and for RabbitMQ brokers version 3.13 and above",
+          "name": "--no-auto-minor-version-upgrade"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Required. The broker's name. This value must be unique in your Amazon Web Services account, 1-50 characters long, must contain only letters, numbers, dashes, and underscores, and must not contain white spaces, brackets, wildcard characters, or special characters. Do not add personally identifiable information (PII) or other confidential or sensitive information in broker names. Broker names are accessible to other Amazon Web Services services, including CloudWatch Logs. Broker names are not intended to be used for private or sensitive data",
+          "name": "--broker-name"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "A list of information about the configuration",
+          "name": "--configuration"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that the requester receives for the created broker. Amazon MQ passes your ID with the API action. We recommend using a Universally Unique Identifier (UUID) for the creatorRequestId. You may omit the creatorRequestId if your application doesn't require idempotency",
+          "name": "--creator-request-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Required. The broker's deployment mode",
+          "name": "--deployment-mode"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Encryption options for the broker",
+          "name": "--encryption-options"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Required. The type of broker engine. Currently, Amazon MQ supports ACTIVEMQ and RABBITMQ",
+          "name": "--engine-type"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The broker engine version. Defaults to the latest available version for the specified broker engine type. For more information, see the ActiveMQ version management and the RabbitMQ version management sections in the Amazon MQ Developer Guide",
+          "name": "--engine-version"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Required. The broker's instance type",
+          "name": "--host-instance-type"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Optional. The metadata of the LDAP server used to authenticate and authorize connections to the broker. Does not apply to RabbitMQ brokers",
+          "name": "--ldap-server-metadata"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Enables Amazon CloudWatch logging for brokers",
+          "name": "--logs"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "The parameters that determine the WeeklyStartTime",
+          "name": "--maintenance-window-start-time"
+        },
+        {
+          "description": "Enables connections from applications outside of the VPC that hosts the broker's subnets. Set to false by default, if no value is provided",
+          "name": "--publicly-accessible"
+        },
+        {
+          "description": "Enables connections from applications outside of the VPC that hosts the broker's subnets. Set to false by default, if no value is provided",
+          "name": "--no-publicly-accessible"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The list of rules (1 minimum, 125 maximum) that authorize connections to brokers",
+          "name": "--security-groups"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The broker's storage type",
+          "name": "--storage-type"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The list of groups that define which subnets and IP ranges the broker can use from different Availability Zones. If you specify more than one subnet, the subnets must be in different Availability Zones. Amazon MQ will not be able to create VPC endpoints for your broker with multiple subnets in the same Availability Zone. A SINGLE_INSTANCE deployment requires one subnet (for example, the default subnet). An ACTIVE_STANDBY_MULTI_AZ Amazon MQ for ActiveMQ deployment requires two subnets. A CLUSTER_MULTI_AZ Amazon MQ for RabbitMQ deployment has no subnet requirements when deployed with public accessibility. Deployment without public accessibility requires at least one subnet. If you specify subnets in a shared VPC for a RabbitMQ broker, the associated VPC to which the specified subnets belong must be owned by your Amazon Web Services account. Amazon MQ will not be able to create VPC endpoints in VPCs that are not owned by your Amazon Web Services account",
+          "name": "--subnet-ids"
+        },
+        {
+          "args": [
+            {
+              "name": "map"
+            }
+          ],
+          "description": "Create tags when creating the broker",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The list of broker users (persons or applications) who can access queues and topics. For Amazon MQ for RabbitMQ brokers, one and only one administrative user is accepted and created when a broker is first provisioned. All subsequent broker users are created by making RabbitMQ API calls directly to brokers or via the RabbitMQ web console",
+          "name": "--users"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Defines whether this broker is a part of a data replication pair",
+          "name": "--data-replication-mode"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The Amazon Resource Name (ARN) of the primary broker that is used to replicate data from in a data replication pair, and is applied to the replica broker. Must be set when dataReplicationMode is set to CRDR",
+          "name": "--data-replication-primary-broker-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Creates a new configuration for the specified configuration name. Amazon MQ uses the default configuration (the engine type and version)",
+      "name": "create-configuration",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Optional. The authentication strategy associated with the configuration. The default is SIMPLE",
+          "name": "--authentication-strategy"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Required. The type of broker engine. Currently, Amazon MQ supports ACTIVEMQ and RABBITMQ",
+          "name": "--engine-type"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The broker engine version. Defaults to the latest available version for the specified broker engine type. For more information, see the ActiveMQ version management and the RabbitMQ version management sections in the Amazon MQ Developer Guide",
+          "name": "--engine-version"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Required. The name of the configuration. This value can contain only alphanumeric characters, dashes, periods, underscores, and tildes (- . _ ~). This value must be 1-150 characters long",
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "map"
+            }
+          ],
+          "description": "Create tags when creating the configuration",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Add a tag to a resource",
+      "name": "create-tags",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The Amazon Resource Name (ARN) of the resource tag",
+          "name": "--resource-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "map"
+            }
+          ],
+          "description": "The key-value pair for the resource tag",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Creates an ActiveMQ user. Do not add personally identifiable information (PII) or other confidential or sensitive information in broker usernames. Broker usernames are accessible to other Amazon Web Services services, including CloudWatch Logs. Broker usernames are not intended to be used for private or sensitive data",
+      "name": "create-user",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that Amazon MQ generates for the broker",
+          "name": "--broker-id"
+        },
+        {
+          "description": "Enables access to the ActiveMQ Web Console for the ActiveMQ user",
+          "name": "--console-access"
+        },
+        {
+          "description": "Enables access to the ActiveMQ Web Console for the ActiveMQ user",
+          "name": "--no-console-access"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The list of groups (20 maximum) to which the ActiveMQ user belongs. This value can contain only alphanumeric characters, dashes, periods, underscores, and tildes (- . _ ~). This value must be 2-100 characters long",
+          "name": "--groups"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Required. The password of the user. This value must be at least 12 characters long, must contain at least 4 unique characters, and must not contain commas, colons, or equal signs (,:=)",
+          "name": "--password"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The username of the ActiveMQ user. This value can contain only alphanumeric characters, dashes, periods, underscores, and tildes (- . _ ~). This value must be 2-100 characters long",
+          "name": "--username"
+        },
+        {
+          "description": "Defines if this user is intended for CRDR replication purposes",
+          "name": "--replication-user"
+        },
+        {
+          "description": "Defines if this user is intended for CRDR replication purposes",
+          "name": "--no-replication-user"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes a broker. Note: This API is asynchronous",
+      "name": "delete-broker",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that Amazon MQ generates for the broker",
+          "name": "--broker-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Removes a tag from a resource",
+      "name": "delete-tags",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The Amazon Resource Name (ARN) of the resource tag",
+          "name": "--resource-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "An array of tag keys to delete",
+          "name": "--tag-keys"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes an ActiveMQ user",
+      "name": "delete-user",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that Amazon MQ generates for the broker",
+          "name": "--broker-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The username of the ActiveMQ user. This value can contain only alphanumeric characters, dashes, periods, underscores, and tildes (- . _ ~). This value must be 2-100 characters long",
+          "name": "--username"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns information about the specified broker",
+      "name": "describe-broker",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that Amazon MQ generates for the broker",
+          "name": "--broker-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Describe available engine types and versions",
+      "name": "describe-broker-engine-types",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Filter response by engine type",
+          "name": "--engine-type"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of brokers that Amazon MQ can return per page (20 by default). This value must be an integer from 5 to 100",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token that specifies the next page of results Amazon MQ should return. To request the first page, leave nextToken empty",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Describe available broker instance options",
+      "name": "describe-broker-instance-options",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Filter response by engine type",
+          "name": "--engine-type"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Filter response by host instance type",
+          "name": "--host-instance-type"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of brokers that Amazon MQ can return per page (20 by default). This value must be an integer from 5 to 100",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token that specifies the next page of results Amazon MQ should return. To request the first page, leave nextToken empty",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Filter response by storage type",
+          "name": "--storage-type"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns information about the specified configuration",
+      "name": "describe-configuration",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that Amazon MQ generates for the configuration",
+          "name": "--configuration-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns the specified configuration revision for the specified configuration",
+      "name": "describe-configuration-revision",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that Amazon MQ generates for the configuration",
+          "name": "--configuration-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The revision of the configuration",
+          "name": "--configuration-revision"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns information about an ActiveMQ user",
+      "name": "describe-user",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that Amazon MQ generates for the broker",
+          "name": "--broker-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The username of the ActiveMQ user. This value can contain only alphanumeric characters, dashes, periods, underscores, and tildes (- . _ ~). This value must be 2-100 characters long",
+          "name": "--username"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns a list of all brokers",
+      "name": "list-brokers",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of brokers that Amazon MQ can return per page (20 by default). This value must be an integer from 5 to 100",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token that specifies the next page of results Amazon MQ should return. To request the first page, leave nextToken empty",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns a list of all revisions for the specified configuration",
+      "name": "list-configuration-revisions",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that Amazon MQ generates for the configuration",
+          "name": "--configuration-id"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of brokers that Amazon MQ can return per page (20 by default). This value must be an integer from 5 to 100",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token that specifies the next page of results Amazon MQ should return. To request the first page, leave nextToken empty",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns a list of all configurations",
+      "name": "list-configurations",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of brokers that Amazon MQ can return per page (20 by default). This value must be an integer from 5 to 100",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token that specifies the next page of results Amazon MQ should return. To request the first page, leave nextToken empty",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Lists tags for a resource",
+      "name": "list-tags",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The Amazon Resource Name (ARN) of the resource tag",
+          "name": "--resource-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns a list of all ActiveMQ users",
+      "name": "list-users",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that Amazon MQ generates for the broker",
+          "name": "--broker-id"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of brokers that Amazon MQ can return per page (20 by default). This value must be an integer from 5 to 100",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token that specifies the next page of results Amazon MQ should return. To request the first page, leave nextToken empty",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Promotes a data replication replica broker to the primary broker role",
+      "name": "promote",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that Amazon MQ generates for the broker",
+          "name": "--broker-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The Promote mode requested. Note: Valid values for the parameter are SWITCHOVER, FAILOVER",
+          "name": "--mode"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Reboots a broker. Note: This API is asynchronous",
+      "name": "reboot-broker",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that Amazon MQ generates for the broker",
+          "name": "--broker-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Adds a pending configuration change to a broker",
+      "name": "update-broker",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Optional. The authentication strategy used to secure the broker. The default is SIMPLE",
+          "name": "--authentication-strategy"
+        },
+        {
+          "description": "Enables automatic upgrades to new patch versions for brokers as new versions are released and supported by Amazon MQ. Automatic upgrades occur during the scheduled maintenance window or after a manual broker reboot. Must be set to true for ActiveMQ brokers version 5.18 and above and for RabbitMQ brokers version 3.13 and above",
+          "name": "--auto-minor-version-upgrade"
+        },
+        {
+          "description": "Enables automatic upgrades to new patch versions for brokers as new versions are released and supported by Amazon MQ. Automatic upgrades occur during the scheduled maintenance window or after a manual broker reboot. Must be set to true for ActiveMQ brokers version 5.18 and above and for RabbitMQ brokers version 3.13 and above",
+          "name": "--no-auto-minor-version-upgrade"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that Amazon MQ generates for the broker",
+          "name": "--broker-id"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "A list of information about the configuration",
+          "name": "--configuration"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The broker engine version. For more information, see the ActiveMQ version management and the RabbitMQ version management sections in the Amazon MQ Developer Guide. When upgrading to ActiveMQ version 5.18 and above or RabbitMQ version 3.13 and above, you must have autoMinorVersionUpgrade set to true for the broker",
+          "name": "--engine-version"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The broker's host instance type to upgrade to. For a list of supported instance types, see Broker instance types",
+          "name": "--host-instance-type"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Optional. The metadata of the LDAP server used to authenticate and authorize connections to the broker. Does not apply to RabbitMQ brokers",
+          "name": "--ldap-server-metadata"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Enables Amazon CloudWatch logging for brokers",
+          "name": "--logs"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "The parameters that determine the WeeklyStartTime",
+          "name": "--maintenance-window-start-time"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The list of security groups (1 minimum, 5 maximum) that authorizes connections to brokers",
+          "name": "--security-groups"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Defines whether this broker is a part of a data replication pair",
+          "name": "--data-replication-mode"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Updates the specified configuration",
+      "name": "update-configuration",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that Amazon MQ generates for the configuration",
+          "name": "--configuration-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon MQ for Active MQ: The base64-encoded XML configuration. Amazon MQ for RabbitMQ: the base64-encoded Cuttlefish configuration",
+          "name": "--data"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The description of the configuration",
+          "name": "--description"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Updates the information for an ActiveMQ user",
+      "name": "update-user",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The unique ID that Amazon MQ generates for the broker",
+          "name": "--broker-id"
+        },
+        {
+          "description": "Enables access to the the ActiveMQ Web Console for the ActiveMQ user",
+          "name": "--console-access"
+        },
+        {
+          "description": "Enables access to the the ActiveMQ Web Console for the ActiveMQ user",
+          "name": "--no-console-access"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The list of groups (20 maximum) to which the ActiveMQ user belongs. This value can contain only alphanumeric characters, dashes, periods, underscores, and tildes (- . _ ~). This value must be 2-100 characters long",
+          "name": "--groups"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The password of the user. This value must be at least 12 characters long, must contain at least 4 unique characters, and must not contain commas, colons, or equal signs (,:=)",
+          "name": "--password"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The username of the ActiveMQ user. This value can contain only alphanumeric characters, dashes, periods, underscores, and tildes (- . _ ~). This value must be 2-100 characters long",
+          "name": "--username"
+        },
+        {
+          "description": "Defines whether the user is intended for data replication",
+          "name": "--replication-user"
+        },
+        {
+          "description": "Defines whether the user is intended for data replication",
+          "name": "--no-replication-user"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    }
+  ]
+}

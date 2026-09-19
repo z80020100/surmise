@@ -1,0 +1,1461 @@
+{
+  "description": "Commands to manage fleet",
+  "name": "fleet",
+  "subcommands": [
+    {
+      "description": "Creates or updates a Fleet",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Specify the fleet name",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "agent-subnet-id"
+            }
+          ],
+          "description": "The ID of the subnet which the Fleet hub node will join on startup. If this is not specified, a vnet and subnet will be generated and used",
+          "name": "--agent-subnet-id"
+        },
+        {
+          "args": [
+            {
+              "name": "apiserver-subnet-id"
+            }
+          ],
+          "description": "The subnet to be used when apiserver vnet integration is enabled. It is required when creating a new Fleet with BYO vnet",
+          "name": "--apiserver-subnet-id"
+        },
+        {
+          "args": [
+            {
+              "name": "assign-identity"
+            }
+          ],
+          "description": "With --enable-managed-identity, enable user assigned managed identity (MSI) on the Fleet resource. Specify the existing user assigned identity resource",
+          "name": "--assign-identity"
+        },
+        {
+          "args": [
+            {
+              "name": "dns-name-prefix"
+            }
+          ],
+          "description": "Prefix for hostnames that are created. If not specified, generate a hostname using the managed cluster and resource group names",
+          "name": [
+            "--dns-name-prefix",
+            "-p"
+          ]
+        },
+        {
+          "description": "If set, the Fleet will be created with a hub cluster",
+          "name": "--enable-hub"
+        },
+        {
+          "description": "Enable system assigned managed identity (MSI) on the Fleet resource",
+          "name": "--enable-managed-identity"
+        },
+        {
+          "description": "Whether to create the Fleet hub as a private cluster or not",
+          "name": "--enable-private-cluster"
+        },
+        {
+          "description": "Whether to enable apiserver vnet integration for the Fleet hub or not",
+          "name": "--enable-vnet-integration"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        }
+      ]
+    },
+    {
+      "description": "Deletes a Fleet",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Specify the fleet name",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Lists the user credentials of a Fleet",
+      "name": "get-credentials",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Specify the fleet name",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "context"
+            }
+          ],
+          "description": "If specified, overwrite the default context name",
+          "name": "--context"
+        },
+        {
+          "args": [
+            {
+              "name": "file"
+            }
+          ],
+          "description": "Kubernetes configuration file to update. Use \"-\" to print YAML to stdout instead",
+          "name": [
+            "--file",
+            "-f"
+          ]
+        },
+        {
+          "description": "Overwrite any existing cluster entry with the same name",
+          "name": "--overwrite-existing"
+        }
+      ]
+    },
+    {
+      "description": "Lists fleets in the specified subscription and resource group",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Gets a Fleet",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Specify the fleet name",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Patches a fleet resource",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Specify the fleet name",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "assign-identity"
+            }
+          ],
+          "description": "With --enable-managed-identity, enable user assigned managed identity (MSI) on the Fleet resource. Specify the existing user assigned identity resource",
+          "name": "--assign-identity"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-managed-identity",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable system assigned managed identity (MSI) on the Fleet resource",
+          "name": "--enable-managed-identity"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        }
+      ]
+    },
+    {
+      "description": "Wait for a fleet resource to reach a desired state",
+      "name": "wait",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "fleet-name"
+            }
+          ],
+          "description": "The name of the Fleet resource. Required",
+          "isRequired": true,
+          "name": "--fleet-name"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+          "name": "--created"
+        },
+        {
+          "args": [
+            {
+              "name": "custom"
+            }
+          ],
+          "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+          "name": "--custom"
+        },
+        {
+          "description": "Wait until deleted",
+          "name": "--deleted"
+        },
+        {
+          "description": "Wait until the resource exists",
+          "name": "--exists"
+        },
+        {
+          "args": [
+            {
+              "name": "interval"
+            }
+          ],
+          "description": "Polling interval in seconds",
+          "name": "--interval"
+        },
+        {
+          "args": [
+            {
+              "name": "timeout"
+            }
+          ],
+          "description": "Maximum wait in seconds",
+          "name": "--timeout"
+        },
+        {
+          "description": "Wait until updated with provisioningState at 'Succeeded'",
+          "name": "--updated"
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage a fleet member",
+      "name": "member",
+      "subcommands": [
+        {
+          "description": "Creates or updates a fleet member",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "member-cluster-id"
+                }
+              ],
+              "description": "ID of the managed cluster",
+              "isRequired": true,
+              "name": "--member-cluster-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Specify the fleet member name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "update-group"
+                }
+              ],
+              "description": "Group of the fleet member",
+              "name": "--update-group"
+            }
+          ]
+        },
+        {
+          "description": "Deletes a fleet member",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Specify the fleet member name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists the members of a fleet",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets a Fleet member",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Specify the fleet member name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update a fleet member",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Specify the fleet member name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "update-group"
+                }
+              ],
+              "description": "Group of the fleet member",
+              "name": "--update-group"
+            }
+          ]
+        },
+        {
+          "description": "Wait for a fleet member resource to reach a desired state",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-member-name"
+                }
+              ],
+              "description": "The name of the Fleet member resource. Required",
+              "isRequired": true,
+              "name": "--fleet-member-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage a fleet update run",
+      "name": "updaterun",
+      "subcommands": [
+        {
+          "description": "Creates or updates a fleet update run",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Specify name for the update run",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "upgrade-type",
+                  "suggestions": [
+                    "Full",
+                    "NodeImageOnly"
+                  ]
+                }
+              ],
+              "description": "Specify the upgrade type of fleet members. Acceptable values are 'Full' and 'NodeImageOnly'",
+              "isRequired": true,
+              "name": "--upgrade-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "kubernetes-version"
+                }
+              ],
+              "description": "Specify the kubernetes version to upgrade fleet member(s) to, when --upgrade-type is set to 'Full'. Acceptable format is x.x.x (eg. 1.2.3)",
+              "name": "--kubernetes-version"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "node-image-selection",
+                  "suggestions": [
+                    "Consistent",
+                    "Latest"
+                  ]
+                }
+              ],
+              "description": "Node Image Selection is an option that lets you choose how your clusters' nodes are upgraded",
+              "name": "--node-image-selection"
+            },
+            {
+              "args": [
+                {
+                  "name": "stages"
+                }
+              ],
+              "description": "Path to a json file that defines stages to upgrade a fleet. See examples for further reference",
+              "name": "--stages"
+            },
+            {
+              "args": [
+                {
+                  "name": "update-strategy-name"
+                }
+              ],
+              "description": "The name of the update strategy to use for this update run. If not specified, the default update strategy will be used",
+              "name": "--update-strategy-name"
+            }
+          ]
+        },
+        {
+          "description": "Deletes a fleet update run",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Specify name for the update run",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists the update runs of a fleet",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Shows a fleet update run",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Specify name for the update run",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Starts a fleet update run",
+          "name": "start",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Specify name for the update run",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            }
+          ]
+        },
+        {
+          "description": "Stops a fleet update run",
+          "name": "stop",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Specify name for the update run",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            }
+          ]
+        },
+        {
+          "description": "Wait for a fleet updateraun resource to reach a desired state",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "update-run-name"
+                }
+              ],
+              "description": "The name of the UpdateRun resource. Required",
+              "isRequired": true,
+              "name": "--update-run-name"
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage a fleet update strategy",
+      "name": "updatestrategy",
+      "subcommands": [
+        {
+          "description": "Creates or updates a update strategy",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Specify name for the fleet update strategy",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "stages"
+                }
+              ],
+              "description": "Path to a json file that defines the update strategy",
+              "isRequired": true,
+              "name": "--stages"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            }
+          ]
+        },
+        {
+          "description": "Deletes a update strategy",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Specify name for the fleet update strategy",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists the fleet's update strategies",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Shows a update strategy",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Specify name for the fleet update strategy",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Wait for a fleet updatestrategy resource to reach a desired state",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "fleet-name"
+                }
+              ],
+              "description": "Specify the fleet name",
+              "isRequired": true,
+              "name": [
+                "--fleet-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "update-strategy-name"
+                }
+              ],
+              "description": "The name of the UpdateStrategy resource. Required",
+              "isRequired": true,
+              "name": "--update-strategy-name"
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

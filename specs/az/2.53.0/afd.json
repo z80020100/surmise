@@ -1,0 +1,5380 @@
+{
+  "description": "Manage Azure Front Door Standard/Premium. For classical Azure Front Door, please refer https://docs.microsoft.com/en-us/cli/azure/network/front-door?view=azure-cli-latest",
+  "name": "afd",
+  "subcommands": [
+    {
+      "description": "Manage custom domains within the specified profile",
+      "name": "custom-domain",
+      "subcommands": [
+        {
+          "description": "Create a custom domain within the specified profile",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "certificate-type",
+                  "suggestions": [
+                    "AzureFirstPartyManagedCertificate",
+                    "CustomerCertificate",
+                    "ManagedCertificate"
+                  ]
+                }
+              ],
+              "description": "Defines the source of the SSL certificate",
+              "isRequired": true,
+              "name": "--certificate-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom-domain-name"
+                }
+              ],
+              "description": "Name of the custom domain",
+              "isRequired": true,
+              "name": "--custom-domain-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "host-name"
+                }
+              ],
+              "description": "The host name of the domain. Must be a domain name",
+              "isRequired": true,
+              "name": "--host-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "minimum-tls-version",
+                  "suggestions": [
+                    "TLS10",
+                    "TLS12"
+                  ]
+                }
+              ],
+              "description": "TLS protocol version that will be used for Https",
+              "isRequired": true,
+              "name": "--minimum-tls-version"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "azure-dns-zone"
+                }
+              ],
+              "description": "ID of the Azure DNS zone",
+              "name": "--azure-dns-zone"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "secret"
+                }
+              ],
+              "description": "Name of the azure front door secret",
+              "name": "--secret"
+            }
+          ]
+        },
+        {
+          "description": "Delete a custom domain",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "custom-domain-name"
+                }
+              ],
+              "description": "Name of the custom domain",
+              "name": "--custom-domain-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List all the custom domains within the specified profile",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Regenerate the domain validation token to restart the validation process",
+          "name": "regenerate-validation-token",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "custom-domain-name"
+                }
+              ],
+              "description": "Name of the custom domain",
+              "name": "--custom-domain-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Show the custom domain details",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "custom-domain-name"
+                }
+              ],
+              "description": "Name of the custom domain",
+              "name": "--custom-domain-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update a custom domain within the specified profile",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "azure-dns-zone"
+                }
+              ],
+              "description": "ID of the Azure DNS zone",
+              "name": "--azure-dns-zone"
+            },
+            {
+              "args": [
+                {
+                  "name": "certificate-type",
+                  "suggestions": [
+                    "AzureFirstPartyManagedCertificate",
+                    "CustomerCertificate",
+                    "ManagedCertificate"
+                  ]
+                }
+              ],
+              "description": "Defines the source of the SSL certificate",
+              "name": "--certificate-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom-domain-name"
+                }
+              ],
+              "description": "Name of the custom domain",
+              "name": "--custom-domain-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "minimum-tls-version",
+                  "suggestions": [
+                    "TLS10",
+                    "TLS12"
+                  ]
+                }
+              ],
+              "description": "TLS protocol version that will be used for Https",
+              "name": "--minimum-tls-version"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "secret"
+                }
+              ],
+              "description": "Name of the azure front door secret",
+              "name": "--secret"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a condition of the custom domain is met",
+          "name": "wait",
+          "options": [
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom-domain-name"
+                }
+              ],
+              "description": "Name of the custom domain",
+              "name": "--custom-domain-name"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage AFD endpoints within the specified profile.\n\n\t\tAn endpoint is a logical grouping of domains and their associated configurations",
+      "name": "endpoint",
+      "subcommands": [
+        {
+          "description": "Creates an endpoint within the specified profile",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "endpoint-name"
+                }
+              ],
+              "description": "Name of the endpoint under the profile which is unique globally",
+              "isRequired": true,
+              "name": "--endpoint-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "enabled-state",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Whether to enable this endpoint",
+              "name": "--enabled-state"
+            },
+            {
+              "args": [
+                {
+                  "name": "name-reuse-scope",
+                  "suggestions": [
+                    "NoReuse",
+                    "ResourceGroupReuse",
+                    "SubscriptionReuse",
+                    "TenantReuse"
+                  ]
+                }
+              ],
+              "description": "Indicates the endpoint name reuse scope. The default value is TenantReuse",
+              "name": "--name-reuse-scope"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Delete an endpoint within the specified profile",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "endpoint-name"
+                }
+              ],
+              "description": "Name of the endpoint under the profile which is unique globally",
+              "name": "--endpoint-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List all the endpoints within the specified profile",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Removes cached contents from Azure Front Door",
+          "name": "purge",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "content-paths"
+                }
+              ],
+              "description": "The path to the content to be purged. Can describe a file path or a wildcard directory",
+              "isRequired": true,
+              "name": "--content-paths"
+            },
+            {
+              "args": [
+                {
+                  "name": "domains"
+                }
+              ],
+              "description": "List of domains",
+              "name": "--domains"
+            },
+            {
+              "args": [
+                {
+                  "name": "endpoint-name"
+                }
+              ],
+              "description": "Name of the endpoint under the profile which is unique globally",
+              "name": "--endpoint-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Show details of an endpoint within the specified profile",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "endpoint-name"
+                }
+              ],
+              "description": "Name of the endpoint under the profile which is unique globally",
+              "name": "--endpoint-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update an endpoint within the specified profile",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "enabled-state",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Whether to enable this endpoint",
+              "name": "--enabled-state"
+            },
+            {
+              "args": [
+                {
+                  "name": "endpoint-name"
+                }
+              ],
+              "description": "Name of the endpoint under the profile which is unique globally",
+              "name": "--endpoint-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage afd log analytic results",
+      "name": "log-analytic",
+      "subcommands": [
+        {
+          "description": "Manage available location names for AFD log analysis",
+          "name": "location",
+          "subcommands": [
+            {
+              "description": "Get all available location names for AFD log analytics report",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "profile-name"
+                    }
+                  ],
+                  "description": "Name of the Azure Front Door Standard or Azure Front Door Premium profile which is unique within the resource group. which is unique within the resource group",
+                  "isRequired": true,
+                  "name": "--profile-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage metric statistics for AFD profile",
+          "name": "metric",
+          "subcommands": [
+            {
+              "description": "Get log report for AFD profile",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "custom-domains"
+                    }
+                  ],
+                  "description": "The domains to be included",
+                  "isRequired": true,
+                  "name": "--custom-domains"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "date-time-begin"
+                    }
+                  ],
+                  "description": "The start datetime",
+                  "isRequired": true,
+                  "name": "--date-time-begin"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "date-time-end"
+                    }
+                  ],
+                  "description": "The end datetime",
+                  "isRequired": true,
+                  "name": "--date-time-end"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "granularity",
+                      "suggestions": [
+                        "P1D",
+                        "PT1H",
+                        "PT5M"
+                      ]
+                    }
+                  ],
+                  "description": "The interval granularity",
+                  "isRequired": true,
+                  "name": "--granularity"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "metrics",
+                      "suggestions": [
+                        "clientRequestBandwidth",
+                        "clientRequestCount",
+                        "clientRequestTraffic",
+                        "originRequestBandwidth",
+                        "originRequestTraffic",
+                        "totalLatency"
+                      ]
+                    }
+                  ],
+                  "description": "Metric types to include",
+                  "isRequired": true,
+                  "name": "--metrics"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "profile-name"
+                    }
+                  ],
+                  "description": "Name of the Azure Front Door Standard or Azure Front Door Premium profile which is unique within the resource group. which is unique within the resource group",
+                  "isRequired": true,
+                  "name": "--profile-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "protocols"
+                    }
+                  ],
+                  "description": "The protocols to be included",
+                  "isRequired": true,
+                  "name": "--protocols"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "continents"
+                    }
+                  ],
+                  "description": "ISO 3316-1 alpha-2 continent code",
+                  "name": "--continents"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "country-or-regions"
+                    }
+                  ],
+                  "description": "ISO 3316-1 alpha-2 region code",
+                  "name": "--country-or-regions"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "group-by",
+                      "suggestions": [
+                        "cacheStatus",
+                        "country",
+                        "customDomain",
+                        "httpStatusCode",
+                        "protocol"
+                      ]
+                    }
+                  ],
+                  "description": "Aggregate demensions",
+                  "name": "--group-by"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage ranking statistics for AFD profile",
+          "name": "ranking",
+          "subcommands": [
+            {
+              "description": "Get log analytics ranking report for AFD profile",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "date-time-begin"
+                    }
+                  ],
+                  "description": "The start datetime",
+                  "isRequired": true,
+                  "name": "--date-time-begin"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "date-time-end"
+                    }
+                  ],
+                  "description": "The end datetime",
+                  "isRequired": true,
+                  "name": "--date-time-end"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "max-ranking"
+                    }
+                  ],
+                  "description": "The maximum number of rows to return based on the ranking",
+                  "isRequired": true,
+                  "name": "--max-ranking"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "metrics",
+                      "suggestions": [
+                        "clientRequestCount",
+                        "clientRequestTraffic",
+                        "errorCount",
+                        "hitCount",
+                        "missCount",
+                        "userErrorCount"
+                      ]
+                    }
+                  ],
+                  "description": "Metric types to include",
+                  "isRequired": true,
+                  "name": "--metrics"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "profile-name"
+                    }
+                  ],
+                  "description": "Name of the Azure Front Door Standard or Azure Front Door Premium profile which is unique within the resource group. which is unique within the resource group",
+                  "isRequired": true,
+                  "name": "--profile-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rankings",
+                      "suggestions": [
+                        "browser",
+                        "countryOrRegion",
+                        "referrer",
+                        "url",
+                        "userAgent"
+                      ]
+                    }
+                  ],
+                  "description": "The dimemsions to be included for ranking",
+                  "isRequired": true,
+                  "name": "--rankings"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "custom-domains"
+                    }
+                  ],
+                  "description": "The domains to be included",
+                  "name": "--custom-domains"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage endpoints and custom domains available for AFD log analysis",
+          "name": "resource",
+          "subcommands": [
+            {
+              "description": "Get all endpoints and custom domains available for AFD log report",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "profile-name"
+                    }
+                  ],
+                  "description": "Name of the Azure Front Door Standard or Azure Front Door Premium profile which is unique within the resource group. which is unique within the resource group",
+                  "isRequired": true,
+                  "name": "--profile-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage origins within the specified origin group.\n\n\t\tOrigins are the application servers where Front Door will route your client requests. Utilize any publicly accessible application server, including App Service, Traffic Manager, Private Link, and many others",
+      "name": "origin",
+      "subcommands": [
+        {
+          "description": "Create an AFD origin",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "enabled-state",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Whether to enable this origin",
+              "isRequired": true,
+              "name": "--enabled-state"
+            },
+            {
+              "args": [
+                {
+                  "name": "host-name"
+                }
+              ],
+              "description": "The address of the origin. Domain names, IPv4 addresses, and IPv6 addresses are supported.This should be unique across all origins in a origin group",
+              "isRequired": true,
+              "name": "--host-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-group-name"
+                }
+              ],
+              "description": "Name of the origin group which is unique within the endpoint",
+              "isRequired": true,
+              "name": "--origin-group-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-name"
+                }
+              ],
+              "description": "Name of the origin",
+              "isRequired": true,
+              "name": "--origin-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "enable-private-link",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Indicates whether private link is enanbled on that origin",
+              "name": "--enable-private-link"
+            },
+            {
+              "args": [
+                {
+                  "name": "enforce-certificate-name-check",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "\"Whether to enable certificate name check at origin level",
+              "name": "--enforce-certificate-name-check"
+            },
+            {
+              "args": [
+                {
+                  "name": "http-port"
+                }
+              ],
+              "description": "The port used for http requests to the origin",
+              "name": "--http-port"
+            },
+            {
+              "args": [
+                {
+                  "name": "https-port"
+                }
+              ],
+              "description": "The port used for https requests to the origin",
+              "name": "--https-port"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-host-header"
+                }
+              ],
+              "description": "The Host header to send for requests to this origin. If you leave this blank, the request hostname determines this value. Azure CDN origins, such as Web Apps, Blob Storage, and Cloud Services require this host header value to match the origin hostname by default",
+              "name": "--origin-host-header"
+            },
+            {
+              "args": [
+                {
+                  "name": "priority"
+                }
+              ],
+              "description": "Priority of origin in given origin group for load balancing. Higher priorities will not be used for load balancing if any lower priority origin is healthy. Must be between 1 and 5",
+              "name": "--priority"
+            },
+            {
+              "args": [
+                {
+                  "name": "private-link-location"
+                }
+              ],
+              "description": "The location of origin that will be connected to using the private link",
+              "name": "--private-link-location"
+            },
+            {
+              "args": [
+                {
+                  "name": "private-link-request-message"
+                }
+              ],
+              "description": "The message that is shown to the approver of the private link request",
+              "name": "--private-link-request-message"
+            },
+            {
+              "args": [
+                {
+                  "name": "private-link-resource"
+                }
+              ],
+              "description": "The resource ID of the origin that will be connected to using the private link",
+              "name": "--private-link-resource"
+            },
+            {
+              "args": [
+                {
+                  "name": "private-link-sub-resource-type"
+                }
+              ],
+              "description": "The sub-resource type of the origin that will be connected to using the private link.You can use \"az network private-link-resource list\" to obtain the supported sub-resource types",
+              "name": "--private-link-sub-resource-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "weight"
+                }
+              ],
+              "description": "Weight of the origin in given origin group for load balancing. Must be between 1 and 1000",
+              "name": "--weight"
+            }
+          ]
+        },
+        {
+          "description": "Deletes an existing origin within an origin group",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-group-name"
+                }
+              ],
+              "description": "Name of the origin group which is unique within the endpoint",
+              "name": "--origin-group-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-name"
+                }
+              ],
+              "description": "Name of the origin",
+              "name": "--origin-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists all of the existing origins within an origin group",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "origin-group-name"
+                }
+              ],
+              "description": "Name of the origin group which is unique within the endpoint",
+              "isRequired": true,
+              "name": "--origin-group-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets an existing origin within an origin group",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-group-name"
+                }
+              ],
+              "description": "Name of the origin group which is unique within the endpoint",
+              "name": "--origin-group-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-name"
+                }
+              ],
+              "description": "Name of the origin",
+              "name": "--origin-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update the settings of the specified AFD origin",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "enable-private-link",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Indicates whether private link is enanbled on that origin",
+              "name": "--enable-private-link"
+            },
+            {
+              "args": [
+                {
+                  "name": "enabled-state",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Whether to enable this origin",
+              "name": "--enabled-state"
+            },
+            {
+              "args": [
+                {
+                  "name": "enforce-certificate-name-check",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "\"Whether to enable certificate name check at origin level",
+              "name": "--enforce-certificate-name-check"
+            },
+            {
+              "args": [
+                {
+                  "name": "host-name"
+                }
+              ],
+              "description": "The address of the origin. Domain names, IPv4 addresses, and IPv6 addresses are supported.This should be unique across all origins in a origin group",
+              "name": "--host-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "http-port"
+                }
+              ],
+              "description": "The port used for http requests to the origin",
+              "name": "--http-port"
+            },
+            {
+              "args": [
+                {
+                  "name": "https-port"
+                }
+              ],
+              "description": "The port used for https requests to the origin",
+              "name": "--https-port"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-group-name"
+                }
+              ],
+              "description": "Name of the origin group which is unique within the endpoint",
+              "name": "--origin-group-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-host-header"
+                }
+              ],
+              "description": "The Host header to send for requests to this origin. If you leave this blank, the request hostname determines this value. Azure CDN origins, such as Web Apps, Blob Storage, and Cloud Services require this host header value to match the origin hostname by default",
+              "name": "--origin-host-header"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-name"
+                }
+              ],
+              "description": "Name of the origin",
+              "name": "--origin-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "priority"
+                }
+              ],
+              "description": "Priority of origin in given origin group for load balancing. Higher priorities will not be used for load balancing if any lower priority origin is healthy. Must be between 1 and 5",
+              "name": "--priority"
+            },
+            {
+              "args": [
+                {
+                  "name": "private-link-location"
+                }
+              ],
+              "description": "The location of origin that will be connected to using the private link",
+              "name": "--private-link-location"
+            },
+            {
+              "args": [
+                {
+                  "name": "private-link-request-message"
+                }
+              ],
+              "description": "The message that is shown to the approver of the private link request",
+              "name": "--private-link-request-message"
+            },
+            {
+              "args": [
+                {
+                  "name": "private-link-resource"
+                }
+              ],
+              "description": "The resource ID of the origin that will be connected to using the private link",
+              "name": "--private-link-resource"
+            },
+            {
+              "args": [
+                {
+                  "name": "private-link-sub-resource-type"
+                }
+              ],
+              "description": "The sub-resource type of the origin that will be connected to using the private link.You can use \"az network private-link-resource list\" to obtain the supported sub-resource types",
+              "name": "--private-link-sub-resource-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "weight"
+                }
+              ],
+              "description": "Weight of the origin in given origin group for load balancing. Must be between 1 and 1000",
+              "name": "--weight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage origin groups under the specified profile.\n\n\t\tAn origin group is a set of origins to which Front Door load balances your client requests",
+      "name": "origin-group",
+      "subcommands": [
+        {
+          "description": "Creates a new origin group within the specified profile",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "additional-latency-in-milliseconds"
+                }
+              ],
+              "description": "The additional latency in milliseconds for probes to fall into the lowest latency bucket",
+              "isRequired": true,
+              "name": "--additional-latency-in-milliseconds"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-group-name"
+                }
+              ],
+              "description": "Name of the origin group",
+              "isRequired": true,
+              "name": "--origin-group-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "probe-path"
+                }
+              ],
+              "description": "The path relative to the origin that is used to determine the health of the origin",
+              "isRequired": true,
+              "name": "--probe-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "probe-protocol",
+                  "suggestions": [
+                    "Http",
+                    "Https",
+                    "NotSet"
+                  ]
+                }
+              ],
+              "description": "Protocol to use for health probe",
+              "isRequired": true,
+              "name": "--probe-protocol"
+            },
+            {
+              "args": [
+                {
+                  "name": "probe-request-type",
+                  "suggestions": [
+                    "GET",
+                    "HEAD",
+                    "NotSet"
+                  ]
+                }
+              ],
+              "description": "The type of health probe request that is made",
+              "isRequired": true,
+              "name": "--probe-request-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "sample-size"
+                }
+              ],
+              "description": "The number of samples to consider for load balancing decisions",
+              "isRequired": true,
+              "name": "--sample-size"
+            },
+            {
+              "args": [
+                {
+                  "name": "successful-samples-required"
+                }
+              ],
+              "description": "The number of samples within the sample period that must succeed",
+              "isRequired": true,
+              "name": "--successful-samples-required"
+            },
+            {
+              "args": [
+                {
+                  "name": "probe-interval-in-seconds"
+                }
+              ],
+              "description": "The number of seconds between health probes",
+              "name": "--probe-interval-in-seconds"
+            }
+          ]
+        },
+        {
+          "description": "Deletes an existing origin group within the specified profile",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-group-name"
+                }
+              ],
+              "description": "Name of the origin group",
+              "name": "--origin-group-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists all of the existing origin groups within a profile",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets an existing origin group within a profile",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-group-name"
+                }
+              ],
+              "description": "Name of the origin group",
+              "name": "--origin-group-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Updates an existing origin group within the specified profile",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "additional-latency-in-milliseconds"
+                }
+              ],
+              "description": "The additional latency in milliseconds for probes to fall into the lowest latency bucket",
+              "name": "--additional-latency-in-milliseconds"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-group-name"
+                }
+              ],
+              "description": "Name of the origin group",
+              "name": "--origin-group-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "probe-interval-in-seconds"
+                }
+              ],
+              "description": "The number of seconds between health probes",
+              "name": "--probe-interval-in-seconds"
+            },
+            {
+              "args": [
+                {
+                  "name": "probe-path"
+                }
+              ],
+              "description": "The path relative to the origin that is used to determine the health of the origin",
+              "name": "--probe-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "probe-protocol",
+                  "suggestions": [
+                    "Http",
+                    "Https",
+                    "NotSet"
+                  ]
+                }
+              ],
+              "description": "Protocol to use for health probe",
+              "name": "--probe-protocol"
+            },
+            {
+              "args": [
+                {
+                  "name": "probe-request-type",
+                  "suggestions": [
+                    "GET",
+                    "HEAD",
+                    "NotSet"
+                  ]
+                }
+              ],
+              "description": "The type of health probe request that is made",
+              "name": "--probe-request-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "sample-size"
+                }
+              ],
+              "description": "The number of samples to consider for load balancing decisions",
+              "name": "--sample-size"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "successful-samples-required"
+                }
+              ],
+              "description": "The number of samples within the sample period that must succeed",
+              "name": "--successful-samples-required"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage AFD profiles",
+      "name": "profile",
+      "subcommands": [
+        {
+          "description": "Create a new AFD profile",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "sku",
+                  "suggestions": [
+                    "Premium_AzureFrontDoor",
+                    "Standard_AzureFrontDoor"
+                  ]
+                }
+              ],
+              "description": "The pricing tier of the AFD profile",
+              "isRequired": true,
+              "name": "--sku"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-response-timeout-seconds"
+                }
+              ],
+              "description": "Send and receive timeout on forwarding request to the origin. When timeout is reached, the request fails and returns",
+              "name": "--origin-response-timeout-seconds"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Delete an AFD profile",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "List AFD profiles",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show details of an AFD profile",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update an AFD profile",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-response-timeout-seconds"
+                }
+              ],
+              "description": "Send and receive timeout on forwarding request to the origin. When timeout is reached, the request fails and returns",
+              "name": "--origin-response-timeout-seconds"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "List resource usage within the specific AFD profile",
+          "name": "usage",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage routes under an AFD endpoint.\n\n\t\tA route maps your domains and matching URL path patterns to a specific origin group",
+      "name": "route",
+      "subcommands": [
+        {
+          "description": "Creates a new route within the specified endpoint",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "endpoint-name"
+                }
+              ],
+              "description": "Name of the endpoint",
+              "isRequired": true,
+              "name": "--endpoint-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "forwarding-protocol",
+                  "suggestions": [
+                    "HttpOnly",
+                    "HttpsOnly",
+                    "MatchRequest"
+                  ]
+                }
+              ],
+              "description": "Protocol this rule will use when forwarding traffic to backends",
+              "isRequired": true,
+              "name": "--forwarding-protocol"
+            },
+            {
+              "args": [
+                {
+                  "name": "https-redirect",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Whether to automatically redirect HTTP traffic to HTTPS traffic",
+              "isRequired": true,
+              "name": "--https-redirect"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-group"
+                }
+              ],
+              "description": "Name or ID of the origin group to be associated with",
+              "isRequired": true,
+              "name": "--origin-group"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "route-name"
+                }
+              ],
+              "description": "Name of the route",
+              "isRequired": true,
+              "name": "--route-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "supported-protocols",
+                  "suggestions": [
+                    "Http",
+                    "Https"
+                  ]
+                }
+              ],
+              "description": "List of supported protocols for this route",
+              "isRequired": true,
+              "name": "--supported-protocols"
+            },
+            {
+              "args": [
+                {
+                  "name": "content-types-to-compress"
+                }
+              ],
+              "description": "List of content types on which compression applies. The value should be a valid MIME type",
+              "name": "--content-types-to-compress"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom-domains"
+                }
+              ],
+              "description": "Custom domains referenced by this endpoint",
+              "name": "--custom-domains"
+            },
+            {
+              "description": "Indicates whether caching is enanbled on that route",
+              "name": "--enable-caching"
+            },
+            {
+              "description": "Indicates whether content compression is enabled on AzureFrontDoor. Default value is false. If compression is enabled, content will be served as compressed if user requests for a compressed version. Content won't be compressed on AzureFrontDoor when requested content is smaller than 1 byte or larger than 1 MB",
+              "name": "--enable-compression"
+            },
+            {
+              "args": [
+                {
+                  "name": "enabled-state",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Whether to enable this route",
+              "name": "--enabled-state"
+            },
+            {
+              "args": [
+                {
+                  "name": "link-to-default-domain",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Whether this route will be linked to the default endpoint domain",
+              "name": "--link-to-default-domain"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-path"
+                }
+              ],
+              "description": "A directory path on the origin that Azure Front Door can use to retrieve content from",
+              "name": "--origin-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "patterns-to-match"
+                }
+              ],
+              "description": "The route patterns of the rule",
+              "name": "--patterns-to-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "query-parameters"
+                }
+              ],
+              "description": "Query parameters to include or exclude",
+              "name": "--query-parameters"
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string-caching-behavior",
+                  "suggestions": [
+                    "IgnoreQueryString",
+                    "IgnoreSpecifiedQueryStrings",
+                    "IncludeSpecifiedQueryStrings",
+                    "UseQueryString"
+                  ]
+                }
+              ],
+              "description": "Defines how CDN caches requests that include query strings. You can ignore any query strings when caching, bypass caching to prevent requests that contain query strings from being cached, or cache every request with a unique URL",
+              "name": "--query-string-caching-behavior"
+            },
+            {
+              "args": [
+                {
+                  "name": "rule-sets"
+                }
+              ],
+              "description": "Collection of ID or name of rule set referenced by the route",
+              "name": "--rule-sets"
+            }
+          ]
+        },
+        {
+          "description": "Delete an existing route within the specified endpoint",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "endpoint-name"
+                }
+              ],
+              "description": "Name of the endpoint",
+              "name": "--endpoint-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "route-name"
+                }
+              ],
+              "description": "Name of the route",
+              "name": "--route-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List all the routes within the specified endpoint",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "endpoint-name"
+                }
+              ],
+              "description": "Name of the endpoint",
+              "isRequired": true,
+              "name": "--endpoint-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show route details",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "endpoint-name"
+                }
+              ],
+              "description": "Name of the endpoint",
+              "name": "--endpoint-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "route-name"
+                }
+              ],
+              "description": "Name of the route",
+              "name": "--route-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update an existing route within the specified endpoint",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "content-types-to-compress"
+                }
+              ],
+              "description": "List of content types on which compression applies. The value should be a valid MIME type",
+              "name": "--content-types-to-compress"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom-domains"
+                }
+              ],
+              "description": "Custom domains referenced by this endpoint",
+              "name": "--custom-domains"
+            },
+            {
+              "args": [
+                {
+                  "name": "enable-caching",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Indicates whether caching is enanbled on that route",
+              "name": "--enable-caching"
+            },
+            {
+              "args": [
+                {
+                  "name": "enable-compression",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Indicates whether content compression is enabled on AzureFrontDoor. Default value is false. If compression is enabled, content will be served as compressed if user requests for a compressed version. Content won't be compressed on AzureFrontDoor when requested content is smaller than 1 byte or larger than 1 MB",
+              "name": "--enable-compression"
+            },
+            {
+              "args": [
+                {
+                  "name": "enabled-state",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Whether to enable this route",
+              "name": "--enabled-state"
+            },
+            {
+              "args": [
+                {
+                  "name": "endpoint-name"
+                }
+              ],
+              "description": "Name of the endpoint",
+              "name": "--endpoint-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "forwarding-protocol",
+                  "suggestions": [
+                    "HttpOnly",
+                    "HttpsOnly",
+                    "MatchRequest"
+                  ]
+                }
+              ],
+              "description": "Protocol this rule will use when forwarding traffic to backends",
+              "name": "--forwarding-protocol"
+            },
+            {
+              "args": [
+                {
+                  "name": "https-redirect",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Whether to automatically redirect HTTP traffic to HTTPS traffic",
+              "name": "--https-redirect"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "link-to-default-domain",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Whether this route will be linked to the default endpoint domain",
+              "name": "--link-to-default-domain"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-group"
+                }
+              ],
+              "description": "Name or ID of the origin group to be associated with",
+              "name": "--origin-group"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-path"
+                }
+              ],
+              "description": "A directory path on the origin that Azure Front Door can use to retrieve content from",
+              "name": "--origin-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "patterns-to-match"
+                }
+              ],
+              "description": "The route patterns of the rule",
+              "name": "--patterns-to-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "query-parameters"
+                }
+              ],
+              "description": "Query parameters to include or exclude",
+              "name": "--query-parameters"
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string-caching-behavior",
+                  "suggestions": [
+                    "IgnoreQueryString",
+                    "IgnoreSpecifiedQueryStrings",
+                    "IncludeSpecifiedQueryStrings",
+                    "UseQueryString"
+                  ]
+                }
+              ],
+              "description": "Defines how CDN caches requests that include query strings. You can ignore any query strings when caching, bypass caching to prevent requests that contain query strings from being cached, or cache every request with a unique URL",
+              "name": "--query-string-caching-behavior"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "route-name"
+                }
+              ],
+              "description": "Name of the route",
+              "name": "--route-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "rule-sets"
+                }
+              ],
+              "description": "Collection of ID or name of rule set referenced by the route",
+              "name": "--rule-sets"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "supported-protocols",
+                  "suggestions": [
+                    "Http",
+                    "Https"
+                  ]
+                }
+              ],
+              "description": "List of supported protocols for this route",
+              "name": "--supported-protocols"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage delivery rules within the specified rule set",
+      "name": "rule",
+      "subcommands": [
+        {
+          "description": "Creates a new delivery rule within the specified rule set",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "action-name",
+                  "suggestions": [
+                    "ModifyRequestHeader",
+                    "ModifyResponseHeader",
+                    "RouteConfigurationOverride",
+                    "UrlRedirect",
+                    "UrlRewrite"
+                  ]
+                }
+              ],
+              "description": "The name of the action for the delivery rule: https://docs.microsoft.com/en-us/azure/frontdoor/front-door-rules-engine-actions",
+              "isRequired": true,
+              "name": "--action-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "order"
+                }
+              ],
+              "description": "The order in which the rules are applied for the endpoint. Possible values {0,1,2,3,………}. A rule with a lower order will be applied before one with a higher order. Rule with order 0 is a special rule. It does not require any condition and actions listed in it will always be applied",
+              "isRequired": true,
+              "name": "--order"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "rule-name"
+                }
+              ],
+              "description": "Name of the rule",
+              "isRequired": true,
+              "name": "--rule-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "rule-set-name"
+                }
+              ],
+              "description": "Name of the rule set",
+              "isRequired": true,
+              "name": "--rule-set-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "cache-behavior",
+                  "suggestions": [
+                    "HonorOrigin",
+                    "OverrideAlways",
+                    "OverrideIfOriginMissing"
+                  ]
+                }
+              ],
+              "description": "Caching behavior for the requests",
+              "name": "--cache-behavior"
+            },
+            {
+              "args": [
+                {
+                  "name": "cache-duration"
+                }
+              ],
+              "description": "The duration for which the content needs to be cached. Allowed format is [d.]hh:mm:ss",
+              "name": "--cache-duration"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom-fragment"
+                }
+              ],
+              "description": "Fragment to add to the redirect URL",
+              "name": "--custom-fragment"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom-hostname"
+                }
+              ],
+              "description": "Host to redirect. Leave empty to use the incoming host as the destination host",
+              "name": "--custom-hostname"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom-path"
+                }
+              ],
+              "description": "The full path to redirect. Path cannot be empty and must start with /. Leave empty to use the incoming path as destination path",
+              "name": "--custom-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom-querystring"
+                }
+              ],
+              "description": "The set of query strings to be placed in the redirect URL. leave empty to preserve the incoming query string",
+              "name": "--custom-querystring"
+            },
+            {
+              "args": [
+                {
+                  "name": "destination"
+                }
+              ],
+              "description": "The destination path to be used in the rewrite",
+              "name": "--destination"
+            },
+            {
+              "args": [
+                {
+                  "name": "enable-caching",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Indicates whether to enable caching on the route",
+              "name": "--enable-caching"
+            },
+            {
+              "args": [
+                {
+                  "name": "enable-compression",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Indicates whether content compression is enabled on AzureFrontDoor. Default value is false. If compression is enabled, content will be served as compressed if user requests for a compressed version. Content won't be compressed on AzureFrontDoor when requested content is smaller than 1 byte or larger than 1 MB",
+              "name": "--enable-compression"
+            },
+            {
+              "args": [
+                {
+                  "name": "forwarding-protocol",
+                  "suggestions": [
+                    "HttpOnly",
+                    "HttpsOnly",
+                    "MatchRequest"
+                  ]
+                }
+              ],
+              "description": "Protocol this rule will use when forwarding traffic to backends",
+              "name": "--forwarding-protocol"
+            },
+            {
+              "args": [
+                {
+                  "name": "header-action",
+                  "suggestions": [
+                    "Append",
+                    "Delete",
+                    "Overwrite"
+                  ]
+                }
+              ],
+              "description": "Header action for the requests",
+              "name": "--header-action"
+            },
+            {
+              "args": [
+                {
+                  "name": "header-name"
+                }
+              ],
+              "description": "Name of the header to modify",
+              "name": "--header-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "header-value"
+                }
+              ],
+              "description": "Value of the header",
+              "name": "--header-value"
+            },
+            {
+              "args": [
+                {
+                  "name": "match-processing-behavior",
+                  "suggestions": [
+                    "Continue",
+                    "Stop"
+                  ]
+                }
+              ],
+              "description": "Indicate whether rules engine should continue to run the remaining rules or stop if matched. Defaults to Continue",
+              "name": "--match-processing-behavior"
+            },
+            {
+              "args": [
+                {
+                  "name": "match-values"
+                }
+              ],
+              "description": "Match values of the match condition. e.g, space separated values \"GET\" \"HTTP\"",
+              "name": "--match-values"
+            },
+            {
+              "args": [
+                {
+                  "name": "match-variable",
+                  "suggestions": [
+                    "ClientPort",
+                    "Cookies",
+                    "HostName",
+                    "HttpVersion",
+                    "IsDevice",
+                    "PostArgs",
+                    "QueryString",
+                    "RemoteAddress",
+                    "RequestBody",
+                    "RequestHeader",
+                    "RequestMethod",
+                    "RequestScheme",
+                    "RequestUri",
+                    "ServerPort",
+                    "SocketAddr",
+                    "SslProtocol",
+                    "UrlFileExtension",
+                    "UrlFileName",
+                    "UrlPath"
+                  ]
+                }
+              ],
+              "description": "Name of the match condition: https://docs.microsoft.com/en-us/azure/frontdoor/rules-match-conditions",
+              "name": "--match-variable"
+            },
+            {
+              "args": [
+                {
+                  "name": "negate-condition",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "If true, negates the condition",
+              "name": "--negate-condition"
+            },
+            {
+              "args": [
+                {
+                  "name": "operator"
+                }
+              ],
+              "description": "Operator of the match condition",
+              "name": "--operator"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-group"
+                }
+              ],
+              "description": "Name or ID of the OriginGroup that would override the default OriginGroup",
+              "name": "--origin-group"
+            },
+            {
+              "args": [
+                {
+                  "name": "preserve-unmatched-path",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "If True, the remaining path after the source pattern will be appended to the new destination path",
+              "name": "--preserve-unmatched-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "query-parameters"
+                }
+              ],
+              "description": "Query parameters to include or exclude",
+              "name": "--query-parameters"
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string-caching-behavior",
+                  "suggestions": [
+                    "IgnoreQueryString",
+                    "IgnoreSpecifiedQueryStrings",
+                    "IncludeSpecifiedQueryStrings",
+                    "UseQueryString"
+                  ]
+                }
+              ],
+              "description": "Defines how CDN caches requests that include query strings. You can ignore any query strings when caching, bypass caching to prevent requests that contain query strings from being cached, or cache every request with a unique URL",
+              "name": "--query-string-caching-behavior"
+            },
+            {
+              "args": [
+                {
+                  "name": "redirect-protocol",
+                  "suggestions": [
+                    "Http",
+                    "Https",
+                    "MatchRequest"
+                  ]
+                }
+              ],
+              "description": "Protocol to use for the redirect",
+              "name": "--redirect-protocol"
+            },
+            {
+              "args": [
+                {
+                  "name": "redirect-type",
+                  "suggestions": [
+                    "Found",
+                    "Moved",
+                    "PermanentRedirect",
+                    "TemporaryRedirect"
+                  ]
+                }
+              ],
+              "description": "The redirect type the rule will use when redirecting traffic",
+              "name": "--redirect-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "selector"
+                }
+              ],
+              "description": "Selector of the match condition",
+              "name": "--selector"
+            },
+            {
+              "args": [
+                {
+                  "name": "source-pattern"
+                }
+              ],
+              "description": "A request URI pattern that identifies the type of requests that may be rewritten",
+              "name": "--source-pattern"
+            },
+            {
+              "args": [
+                {
+                  "name": "transforms",
+                  "suggestions": [
+                    "Lowercase",
+                    "RemoveNulls",
+                    "Trim",
+                    "Uppercase",
+                    "UrlDecode",
+                    "UrlEncode"
+                  ]
+                }
+              ],
+              "description": "Transform to apply before matching",
+              "name": "--transforms"
+            }
+          ]
+        },
+        {
+          "description": "Remove a delivery rule from rule set",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "rule-name"
+                }
+              ],
+              "description": "Name of the rule",
+              "name": "--rule-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "rule-set-name"
+                }
+              ],
+              "description": "Name of the rule set",
+              "name": "--rule-set-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists all of the existing delivery rules within a rule set",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "rule-set-name"
+                }
+              ],
+              "description": "Name of the rule set",
+              "isRequired": true,
+              "name": "--rule-set-name"
+            }
+          ]
+        },
+        {
+          "description": "Show delivery rule details",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "rule-name"
+                }
+              ],
+              "description": "Name of the rule",
+              "name": "--rule-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "rule-set-name"
+                }
+              ],
+              "description": "Name of the rule set",
+              "name": "--rule-set-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Manage delivery rule actions for a rule",
+          "name": "action",
+          "subcommands": [
+            {
+              "description": "Add an action to a delivery rule",
+              "name": "add",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "action-name",
+                      "suggestions": [
+                        "ModifyRequestHeader",
+                        "ModifyResponseHeader",
+                        "RouteConfigurationOverride",
+                        "UrlRedirect",
+                        "UrlRewrite"
+                      ]
+                    }
+                  ],
+                  "description": "The name of the action for the delivery rule: https://docs.microsoft.com/en-us/azure/frontdoor/front-door-rules-engine-actions",
+                  "isRequired": true,
+                  "name": "--action-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "cache-behavior",
+                      "suggestions": [
+                        "HonorOrigin",
+                        "OverrideAlways",
+                        "OverrideIfOriginMissing"
+                      ]
+                    }
+                  ],
+                  "description": "Caching behavior for the requests",
+                  "name": "--cache-behavior"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "cache-duration"
+                    }
+                  ],
+                  "description": "The duration for which the content needs to be cached. Allowed format is [d.]hh:mm:ss",
+                  "name": "--cache-duration"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "custom-fragment"
+                    }
+                  ],
+                  "description": "Fragment to add to the redirect URL",
+                  "name": "--custom-fragment"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "custom-hostname"
+                    }
+                  ],
+                  "description": "Host to redirect. Leave empty to use the incoming host as the destination host",
+                  "name": "--custom-hostname"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "custom-path"
+                    }
+                  ],
+                  "description": "The full path to redirect. Path cannot be empty and must start with /. Leave empty to use the incoming path as destination path",
+                  "name": "--custom-path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "custom-querystring"
+                    }
+                  ],
+                  "description": "The set of query strings to be placed in the redirect URL. leave empty to preserve the incoming query string",
+                  "name": "--custom-querystring"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "destination"
+                    }
+                  ],
+                  "description": "The destination path to be used in the rewrite",
+                  "name": "--destination"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "enable-caching",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Indicates whether to enable caching on the route",
+                  "name": "--enable-caching"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "enable-compression",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Indicates whether content compression is enabled on AzureFrontDoor. Default value is false. If compression is enabled, content will be served as compressed if user requests for a compressed version. Content won't be compressed on AzureFrontDoor when requested content is smaller than 1 byte or larger than 1 MB",
+                  "name": "--enable-compression"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "forwarding-protocol",
+                      "suggestions": [
+                        "HttpOnly",
+                        "HttpsOnly",
+                        "MatchRequest"
+                      ]
+                    }
+                  ],
+                  "description": "Protocol this rule will use when forwarding traffic to backends",
+                  "name": "--forwarding-protocol"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "header-action",
+                      "suggestions": [
+                        "Append",
+                        "Delete",
+                        "Overwrite"
+                      ]
+                    }
+                  ],
+                  "description": "Header action for the requests",
+                  "name": "--header-action"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "header-name"
+                    }
+                  ],
+                  "description": "Name of the header to modify",
+                  "name": "--header-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "header-value"
+                    }
+                  ],
+                  "description": "Value of the header",
+                  "name": "--header-value"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "origin-group"
+                    }
+                  ],
+                  "description": "Name or ID of the OriginGroup that would override the default OriginGroup",
+                  "name": "--origin-group"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "preserve-unmatched-path",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "If True, the remaining path after the source pattern will be appended to the new destination path",
+                  "name": "--preserve-unmatched-path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "profile-name"
+                    }
+                  ],
+                  "description": "Name of the CDN profile which is unique within the resource group",
+                  "name": "--profile-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "query-parameters"
+                    }
+                  ],
+                  "description": "Query parameters to include or exclude",
+                  "name": "--query-parameters"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "query-string-caching-behavior",
+                      "suggestions": [
+                        "IgnoreQueryString",
+                        "IgnoreSpecifiedQueryStrings",
+                        "IncludeSpecifiedQueryStrings",
+                        "UseQueryString"
+                      ]
+                    }
+                  ],
+                  "description": "Defines how CDN caches requests that include query strings. You can ignore any query strings when caching, bypass caching to prevent requests that contain query strings from being cached, or cache every request with a unique URL",
+                  "name": "--query-string-caching-behavior"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "redirect-protocol",
+                      "suggestions": [
+                        "Http",
+                        "Https",
+                        "MatchRequest"
+                      ]
+                    }
+                  ],
+                  "description": "Protocol to use for the redirect",
+                  "name": "--redirect-protocol"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "redirect-type",
+                      "suggestions": [
+                        "Found",
+                        "Moved",
+                        "PermanentRedirect",
+                        "TemporaryRedirect"
+                      ]
+                    }
+                  ],
+                  "description": "The redirect type the rule will use when redirecting traffic",
+                  "name": "--redirect-type"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rule-name"
+                    }
+                  ],
+                  "description": "Name of the rule",
+                  "name": "--rule-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rule-set-name"
+                    }
+                  ],
+                  "description": "Name of the rule set",
+                  "name": "--rule-set-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "source-pattern"
+                    }
+                  ],
+                  "description": "A request URI pattern that identifies the type of requests that may be rewritten",
+                  "name": "--source-pattern"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Show actions associated with the rule",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "profile-name"
+                    }
+                  ],
+                  "description": "Name of the CDN profile which is unique within the resource group",
+                  "isRequired": true,
+                  "name": "--profile-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rule-name"
+                    }
+                  ],
+                  "description": "Name of the rule",
+                  "isRequired": true,
+                  "name": "--rule-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rule-set-name"
+                    }
+                  ],
+                  "description": "Name of the rule set",
+                  "isRequired": true,
+                  "name": "--rule-set-name"
+                }
+              ]
+            },
+            {
+              "description": "Remove an action from a delivery rule",
+              "name": "remove",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "index"
+                    }
+                  ],
+                  "description": "The index of the condition/action",
+                  "isRequired": true,
+                  "name": "--index"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "profile-name"
+                    }
+                  ],
+                  "description": "Name of the CDN profile which is unique within the resource group",
+                  "name": "--profile-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rule-name"
+                    }
+                  ],
+                  "description": "Name of the rule",
+                  "name": "--rule-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rule-set-name"
+                    }
+                  ],
+                  "description": "Name of the rule set",
+                  "name": "--rule-set-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage delivery rule conditions for a rule",
+          "name": "condition",
+          "subcommands": [
+            {
+              "description": "Add a condition to a delivery rule",
+              "name": "add",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "match-variable",
+                      "suggestions": [
+                        "ClientPort",
+                        "Cookies",
+                        "HostName",
+                        "HttpVersion",
+                        "IsDevice",
+                        "PostArgs",
+                        "QueryString",
+                        "RemoteAddress",
+                        "RequestBody",
+                        "RequestHeader",
+                        "RequestMethod",
+                        "RequestScheme",
+                        "RequestUri",
+                        "ServerPort",
+                        "SocketAddr",
+                        "SslProtocol",
+                        "UrlFileExtension",
+                        "UrlFileName",
+                        "UrlPath"
+                      ]
+                    }
+                  ],
+                  "description": "Name of the match condition: https://docs.microsoft.com/en-us/azure/frontdoor/rules-match-conditions",
+                  "isRequired": true,
+                  "name": "--match-variable"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "operator"
+                    }
+                  ],
+                  "description": "Operator of the match condition",
+                  "isRequired": true,
+                  "name": "--operator"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "match-values"
+                    }
+                  ],
+                  "description": "Match values of the match condition. e.g, space separated values \"GET\" \"HTTP\"",
+                  "name": "--match-values"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "negate-condition",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "If true, negates the condition",
+                  "name": "--negate-condition"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "profile-name"
+                    }
+                  ],
+                  "description": "Name of the CDN profile which is unique within the resource group",
+                  "name": "--profile-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rule-name"
+                    }
+                  ],
+                  "description": "Name of the rule",
+                  "name": "--rule-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rule-set-name"
+                    }
+                  ],
+                  "description": "Name of the rule set",
+                  "name": "--rule-set-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "selector"
+                    }
+                  ],
+                  "description": "Selector of the match condition",
+                  "name": "--selector"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "transforms",
+                      "suggestions": [
+                        "Lowercase",
+                        "RemoveNulls",
+                        "Trim",
+                        "Uppercase",
+                        "UrlDecode",
+                        "UrlEncode"
+                      ]
+                    }
+                  ],
+                  "description": "Transform to apply before matching",
+                  "name": "--transforms"
+                }
+              ]
+            },
+            {
+              "description": "Show condtions associated with the rule",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "profile-name"
+                    }
+                  ],
+                  "description": "Name of the CDN profile which is unique within the resource group",
+                  "isRequired": true,
+                  "name": "--profile-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rule-name"
+                    }
+                  ],
+                  "description": "Name of the rule",
+                  "isRequired": true,
+                  "name": "--rule-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rule-set-name"
+                    }
+                  ],
+                  "description": "Name of the rule set",
+                  "isRequired": true,
+                  "name": "--rule-set-name"
+                }
+              ]
+            },
+            {
+              "description": "Remove a condition from a delivery rule",
+              "name": "remove",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "index"
+                    }
+                  ],
+                  "description": "The index of the condition/action",
+                  "isRequired": true,
+                  "name": "--index"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "profile-name"
+                    }
+                  ],
+                  "description": "Name of the CDN profile which is unique within the resource group",
+                  "name": "--profile-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rule-name"
+                    }
+                  ],
+                  "description": "Name of the rule",
+                  "name": "--rule-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rule-set-name"
+                    }
+                  ],
+                  "description": "Name of the rule set",
+                  "name": "--rule-set-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage rule set for the specified profile.\n\n\t\tRules Set allows you to customize how HTTP requests are handled at the edge and provides more controls of the behaviors of your web application",
+      "name": "rule-set",
+      "subcommands": [
+        {
+          "description": "Creates a new rule set under the specified profile",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "rule-set-name"
+                }
+              ],
+              "description": "Name of the rule set",
+              "isRequired": true,
+              "name": "--rule-set-name"
+            }
+          ]
+        },
+        {
+          "description": "Delete the rule set",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "rule-set-name"
+                }
+              ],
+              "description": "Name of the rule set",
+              "name": "--rule-set-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists existing AzureFrontDoor rule sets within a profile",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets an existing AzureFrontDoor rule set with the specified rule set name under the specified subscription, resource group and profile",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "rule-set-name"
+                }
+              ],
+              "description": "Name of the rule set",
+              "name": "--rule-set-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage secrets within the specified profile.\n\n\t\tSecrets are used to reference your own certificate stored in Azure Key Vault. You must specifiy the secret name when creating custom domain if you want to use your own certificate for TLS encryption",
+      "name": "secret",
+      "subcommands": [
+        {
+          "description": "Creates a new secret within the specified profile",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "secret-name"
+                }
+              ],
+              "description": "Name of the secret",
+              "isRequired": true,
+              "name": "--secret-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "secret-source"
+                }
+              ],
+              "description": "Resource ID of the Azure Key Vault certificate, expected format is like /subscriptions/sub1/resourceGroups/rg1/providers/Microsoft.KeyVault/vaults/vault1/secrets/cert1",
+              "isRequired": true,
+              "name": "--secret-source"
+            },
+            {
+              "args": [
+                {
+                  "name": "secret-version"
+                }
+              ],
+              "description": "Version of the certificate to be used",
+              "name": "--secret-version"
+            },
+            {
+              "args": [
+                {
+                  "name": "use-latest-version",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Whether to use the latest version for the certificate",
+              "name": "--use-latest-version"
+            }
+          ]
+        },
+        {
+          "description": "Deletes an existing Secret within profile",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "secret-name"
+                }
+              ],
+              "description": "Name of the secret",
+              "name": "--secret-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists existing AzureFrontDoor secrets",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets an existing Secret within a profile",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "secret-name"
+                }
+              ],
+              "description": "Name of the secret",
+              "name": "--secret-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update an existing secret within the specified profile",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "secret-name"
+                }
+              ],
+              "description": "Name of the secret",
+              "name": "--secret-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "secret-source"
+                }
+              ],
+              "description": "Resource ID of the Azure Key Vault certificate, expected format is like /subscriptions/sub1/resourceGroups/rg1/providers/Microsoft.KeyVault/vaults/vault1/secrets/cert1",
+              "name": "--secret-source"
+            },
+            {
+              "args": [
+                {
+                  "name": "secret-version"
+                }
+              ],
+              "description": "Version of the certificate to be used",
+              "name": "--secret-version"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "use-latest-version",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Whether to use the latest version for the certificate",
+              "name": "--use-latest-version"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage security policies within the specified profile.\n\n\t\tSecurity policies could be used to apply a web application firewall policy to protect your web applications against OWASP top-10 vulnerabilities and block malicious bots",
+      "name": "security-policy",
+      "subcommands": [
+        {
+          "description": "Creates a new security policy within the specified profile",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "domains"
+                }
+              ],
+              "description": "The domains to associate with the WAF policy. Could either be the ID of an endpoint (default domain will be used in that case) or ID of a custom domain",
+              "isRequired": true,
+              "name": "--domains"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "security-policy-name"
+                }
+              ],
+              "description": "Name of the security policy",
+              "isRequired": true,
+              "name": "--security-policy-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "waf-policy"
+                }
+              ],
+              "description": "The ID of Front Door WAF policy",
+              "isRequired": true,
+              "name": "--waf-policy"
+            }
+          ]
+        },
+        {
+          "description": "Deletes an existing security policy within profile",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "security-policy-name"
+                }
+              ],
+              "description": "Name of the security policy",
+              "name": "--security-policy-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists security policies associated with the profile",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "isRequired": true,
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets an existing security policy within a profile",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "security-policy-name"
+                }
+              ],
+              "description": "Name of the security policy",
+              "name": "--security-policy-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update an existing security policy within the specified profile",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "domains"
+                }
+              ],
+              "description": "The domains to associate with the WAF policy. Could either be the ID of an endpoint (default domain will be used in that case) or ID of a custom domain",
+              "name": "--domains"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "profile-name"
+                }
+              ],
+              "description": "Name of the CDN profile which is unique within the resource group",
+              "name": "--profile-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "security-policy-name"
+                }
+              ],
+              "description": "Name of the security policy",
+              "name": "--security-policy-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "waf-policy"
+                }
+              ],
+              "description": "The ID of Front Door WAF policy",
+              "name": "--waf-policy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage afd WAF related log analytic results",
+      "name": "waf-log-analytic",
+      "subcommands": [
+        {
+          "description": "Manage WAF related metric statistics for AFD profile",
+          "name": "metric",
+          "subcommands": [
+            {
+              "description": "Get Waf related log analytics report for AFD profile",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "date-time-begin"
+                    }
+                  ],
+                  "description": "The start datetime",
+                  "isRequired": true,
+                  "name": "--date-time-begin"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "date-time-end"
+                    }
+                  ],
+                  "description": "The end datetime",
+                  "isRequired": true,
+                  "name": "--date-time-end"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "granularity",
+                      "suggestions": [
+                        "P1D",
+                        "PT1H",
+                        "PT5M"
+                      ]
+                    }
+                  ],
+                  "description": "The interval granularity",
+                  "isRequired": true,
+                  "name": "--granularity"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "metrics",
+                      "suggestions": [
+                        "clientRequestCount"
+                      ]
+                    }
+                  ],
+                  "description": "Metric types to be included",
+                  "isRequired": true,
+                  "name": "--metrics"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "profile-name"
+                    }
+                  ],
+                  "description": "Name of the Azure Front Door Standard or Azure Front Door Premium profile which is unique within the resource group. which is unique within the resource group",
+                  "isRequired": true,
+                  "name": "--profile-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "actions",
+                      "suggestions": [
+                        "allow",
+                        "block",
+                        "log",
+                        "redirect"
+                      ]
+                    }
+                  ],
+                  "description": "The WAF actions to be included",
+                  "name": "--actions"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "group-by",
+                      "suggestions": [
+                        "customDomain",
+                        "httpStatusCode"
+                      ]
+                    }
+                  ],
+                  "description": "Aggregate demensions",
+                  "name": "--group-by"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rule-types",
+                      "suggestions": [
+                        "bot",
+                        "custom",
+                        "managed"
+                      ]
+                    }
+                  ],
+                  "description": "The WAF rule types to be included",
+                  "name": "--rule-types"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage WAF related ranking statistics for AFD profile",
+          "name": "ranking",
+          "subcommands": [
+            {
+              "description": "Get WAF log analytics charts for AFD profile",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "date-time-begin"
+                    }
+                  ],
+                  "description": "The start datetime",
+                  "isRequired": true,
+                  "name": "--date-time-begin"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "date-time-end"
+                    }
+                  ],
+                  "description": "The end datetime",
+                  "isRequired": true,
+                  "name": "--date-time-end"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "max-ranking"
+                    }
+                  ],
+                  "description": "The maximum number of rows to return based on the ranking",
+                  "isRequired": true,
+                  "name": "--max-ranking"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "metrics",
+                      "suggestions": [
+                        "clientRequestCount"
+                      ]
+                    }
+                  ],
+                  "description": "Metric types to be included",
+                  "isRequired": true,
+                  "name": "--metrics"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "profile-name"
+                    }
+                  ],
+                  "description": "Name of the Azure Front Door Standard or Azure Front Door Premium profile which is unique within the resource group. which is unique within the resource group",
+                  "isRequired": true,
+                  "name": "--profile-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rankings",
+                      "suggestions": [
+                        "action",
+                        "clientIp",
+                        "country",
+                        "ruleGroup",
+                        "ruleId",
+                        "ruleType",
+                        "url",
+                        "userAgent"
+                      ]
+                    }
+                  ],
+                  "description": "The dimemsions to be included for ranking",
+                  "isRequired": true,
+                  "name": "--rankings"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "actions",
+                      "suggestions": [
+                        "allow",
+                        "block",
+                        "log",
+                        "redirect"
+                      ]
+                    }
+                  ],
+                  "description": "The WAF actions to be included",
+                  "name": "--actions"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "rule-types",
+                      "suggestions": [
+                        "bot",
+                        "custom",
+                        "managed"
+                      ]
+                    }
+                  ],
+                  "description": "The WAF rule types to be included",
+                  "name": "--rule-types"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

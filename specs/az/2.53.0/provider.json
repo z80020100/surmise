@@ -1,0 +1,168 @@
+{
+  "description": "Manage resource providers",
+  "name": "provider",
+  "subcommands": [
+    {
+      "description": "Gets all resource providers for a subscription",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "expand"
+            }
+          ],
+          "description": "The properties to include in the results. For example, use &$expand=metadata in the query string to retrieve resource provider metadata. To include property aliases in response, use $expand=resourceTypes/aliases. Default value is None",
+          "name": "--expand"
+        }
+      ]
+    },
+    {
+      "description": "Register a provider",
+      "name": "register",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "namespace"
+            }
+          ],
+          "description": "The resource namespace, aka 'provider'",
+          "isRequired": true,
+          "name": [
+            "--namespace",
+            "-n"
+          ]
+        },
+        {
+          "description": "A value indicating whether authorization is consented or not",
+          "name": [
+            "--consent-to-permissions",
+            "-c"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "management-group-id"
+            }
+          ],
+          "description": "The management group id to register",
+          "name": [
+            "--management-group-id",
+            "-m"
+          ]
+        },
+        {
+          "description": "Wait for the registration to finish",
+          "name": "--wait"
+        }
+      ]
+    },
+    {
+      "description": "Gets the specified resource provider",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "namespace"
+            }
+          ],
+          "description": "The resource namespace, aka 'provider'",
+          "isRequired": true,
+          "name": [
+            "--namespace",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "expand"
+            }
+          ],
+          "description": "The $expand query parameter. For example, to include property aliases in response, use $expand=resourceTypes/aliases. Default value is None",
+          "name": "--expand"
+        }
+      ]
+    },
+    {
+      "description": "Unregister a provider",
+      "name": "unregister",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "namespace"
+            }
+          ],
+          "description": "The resource namespace, aka 'provider'",
+          "isRequired": true,
+          "name": [
+            "--namespace",
+            "-n"
+          ]
+        },
+        {
+          "description": "Wait for unregistration to finish",
+          "name": "--wait"
+        }
+      ]
+    },
+    {
+      "description": "Get provider operations metadatas",
+      "name": "operation",
+      "subcommands": [
+        {
+          "description": "Get operations from all providers",
+          "name": "list"
+        },
+        {
+          "description": "Get an individual provider's operations",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "The resource namespace, aka 'provider'",
+              "isRequired": true,
+              "name": [
+                "--namespace",
+                "-n"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage permissions for a provider",
+      "name": "permission",
+      "subcommands": [
+        {
+          "description": "List permissions from a provider",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "The resource namespace, aka 'provider'",
+              "isRequired": true,
+              "name": [
+                "--namespace",
+                "-n"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

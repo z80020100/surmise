@@ -1,0 +1,1066 @@
+{
+  "description": "Commands to manage connected kubernetes clusters",
+  "name": "connectedk8s",
+  "subcommands": [
+    {
+      "description": "Onboard a connected kubernetes cluster to azure",
+      "name": "connect",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the connected cluster",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "azure-hybrid-benefit",
+              "suggestions": [
+                "False",
+                "NotApplicable",
+                "True"
+              ]
+            }
+          ],
+          "description": "Flag to enable/disable Azure Hybrid Benefit feature",
+          "name": "--azure-hybrid-benefit"
+        },
+        {
+          "args": [
+            {
+              "name": "container-log-path"
+            }
+          ],
+          "description": "Override the default container log path to enable fluent-bit logging",
+          "name": "--container-log-path"
+        },
+        {
+          "args": [
+            {
+              "name": "correlation-id"
+            }
+          ],
+          "description": "A guid that is used to internally track the source of cluster onboarding. Please do not modify it unless advised",
+          "name": "--correlation-id"
+        },
+        {
+          "args": [
+            {
+              "name": "custom-ca-cert"
+            }
+          ],
+          "description": "Path to the certificate file for proxy or custom Certificate Authority",
+          "name": [
+            "--custom-ca-cert",
+            "--proxy-cert"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "custom-locations-oid"
+            }
+          ],
+          "description": "OID of 'custom-locations' app",
+          "name": "--custom-locations-oid"
+        },
+        {
+          "description": "Flag to disable auto upgrade of arc agents",
+          "name": "--disable-auto-upgrade"
+        },
+        {
+          "args": [
+            {
+              "name": "distribution",
+              "suggestions": [
+                "aks",
+                "aks_edge_k3s",
+                "aks_edge_k8s",
+                "aks_engine",
+                "aks_management",
+                "aks_workload",
+                "canonical",
+                "capz",
+                "eks",
+                "generic",
+                "gke",
+                "k3s",
+                "karbon",
+                "kind",
+                "minikube",
+                "openshift",
+                "rancher_rke",
+                "tkg"
+              ]
+            }
+          ],
+          "description": "The Kubernetes distribution which will be running on this connected cluster",
+          "name": "--distribution"
+        },
+        {
+          "args": [
+            {
+              "name": "distribution-version"
+            }
+          ],
+          "description": "The Kubernetes distribution version of the connected cluster",
+          "name": "--distribution-version"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-private-link",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Flag to enable/disable private link support on a connected cluster resource. Allowed values: false, true",
+          "name": "--enable-private-link"
+        },
+        {
+          "args": [
+            {
+              "name": "infrastructure",
+              "suggestions": [
+                "LTSCWindows 10 Enterprise LTSC",
+                "Windows 10 Enterprise",
+                "Windows 10 Enterprise LTSC 2019",
+                "Windows 10 Enterprise LTSC 2021",
+                "Windows 10 Enterprise N",
+                "Windows 10 Enterprise N LTSC 2019",
+                "Windows 10 Enterprise N LTSC 2021",
+                "Windows 10 IoT Enterprise",
+                "Windows 10 IoT Enterprise LTSC 2019",
+                "Windows 10 IoT Enterprise LTSC 2021",
+                "Windows 10 Pro",
+                "Windows 11 Enterprise",
+                "Windows 11 Enterprise N",
+                "Windows 11 IoT Enterprise",
+                "Windows 11 Pro",
+                "Windows Server 2019",
+                "Windows Server 2019 Datacenter",
+                "Windows Server 2019 Standard",
+                "Windows Server 2022",
+                "Windows Server 2022 Datacenter",
+                "Windows Server 2022 Standard",
+                "aws",
+                "azure",
+                "azure_stack_edge",
+                "azure_stack_hci",
+                "azure_stack_hub",
+                "gcp",
+                "generic",
+                "vsphere",
+                "windows_server"
+              ]
+            }
+          ],
+          "description": "The infrastructure on which the Kubernetes cluster represented by this connected cluster will be running on",
+          "name": "--infrastructure"
+        },
+        {
+          "args": [
+            {
+              "name": "kube-config"
+            }
+          ],
+          "description": "Path to the kube config file",
+          "name": "--kube-config"
+        },
+        {
+          "args": [
+            {
+              "name": "kube-context"
+            }
+          ],
+          "description": "Kubconfig context from current machine",
+          "name": "--kube-context"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "onboarding-timeout"
+            }
+          ],
+          "description": "Time required (in seconds) for the arc-agent pods to be installed on the kubernetes cluster. Override this value if the hardware/network constraints on your cluster requires more time for installing the arc-agent pods",
+          "name": "--onboarding-timeout"
+        },
+        {
+          "args": [
+            {
+              "name": "private-link-scope-resource-id"
+            }
+          ],
+          "description": "ARM resource id of the private link scope resource to which this connected cluster is associated",
+          "name": [
+            "--private-link-scope-resource-id",
+            "--pls-arm-id"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "proxy-http"
+            }
+          ],
+          "description": "Http proxy URL to be used",
+          "name": "--proxy-http"
+        },
+        {
+          "args": [
+            {
+              "name": "proxy-https"
+            }
+          ],
+          "description": "Https proxy URL to be used",
+          "name": "--proxy-https"
+        },
+        {
+          "args": [
+            {
+              "name": "proxy-skip-range"
+            }
+          ],
+          "description": "List of URLs/CIDRs for which proxy should not to be used",
+          "name": "--proxy-skip-range"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Delete a connected kubernetes cluster along with connected cluster agents",
+      "name": "delete",
+      "options": [
+        {
+          "description": "Force delete to remove all azure-arc resources from the cluster",
+          "name": "--force"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "kube-config"
+            }
+          ],
+          "description": "Path to the kube config file",
+          "name": "--kube-config"
+        },
+        {
+          "args": [
+            {
+              "name": "kube-context"
+            }
+          ],
+          "description": "Kubconfig context from current machine",
+          "name": "--kube-context"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the connected cluster",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Disables the selective features on the connected cluster",
+      "name": "disable-features",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "features",
+              "suggestions": [
+                "azure-rbac",
+                "cluster-connect",
+                "custom-locations"
+              ]
+            }
+          ],
+          "description": "Space-separated list of features you want to disable",
+          "isRequired": true,
+          "name": "--features"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "kube-config"
+            }
+          ],
+          "description": "Path to the kube config file",
+          "name": "--kube-config"
+        },
+        {
+          "args": [
+            {
+              "name": "kube-context"
+            }
+          ],
+          "description": "Kubconfig context from current machine",
+          "name": "--kube-context"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the connected cluster",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Enables the selective features on the connected cluster",
+      "name": "enable-features",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "features",
+              "suggestions": [
+                "azure-rbac",
+                "cluster-connect",
+                "custom-locations"
+              ]
+            }
+          ],
+          "description": "Space-separated list of features you want to enable",
+          "isRequired": true,
+          "name": "--features"
+        },
+        {
+          "args": [
+            {
+              "name": "app-id"
+            }
+          ],
+          "description": "Application ID for enabling Azure RBAC. Specify when enabling azure-rbac",
+          "name": "--app-id"
+        },
+        {
+          "args": [
+            {
+              "name": "app-secret"
+            }
+          ],
+          "description": "Application secret for enabling Azure RBAC. Specify when enabling azure-rbac",
+          "name": "--app-secret"
+        },
+        {
+          "args": [
+            {
+              "name": "custom-locations-oid"
+            }
+          ],
+          "description": "OID of 'custom-locations' app",
+          "name": "--custom-locations-oid"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "kube-config"
+            }
+          ],
+          "description": "Path to the kube config file",
+          "name": "--kube-config"
+        },
+        {
+          "args": [
+            {
+              "name": "kube-context"
+            }
+          ],
+          "description": "Kubconfig context from current machine",
+          "name": "--kube-context"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the connected cluster",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "skip-azure-rbac-list"
+            }
+          ],
+          "description": "Comma separated list of names of usernames/email/oid. Azure RBAC will be skipped for these users. Specify when enabling azure-rbac",
+          "name": "--skip-azure-rbac-list"
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "List connected kubernetes clusters",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Get access to a connected kubernetes cluster",
+      "name": "proxy",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "file"
+            }
+          ],
+          "description": "Kubernetes configuration file to update. If not provided, updates the file '~/.kube/config'. Use '-' to print YAML to stdout instead",
+          "name": [
+            "--file",
+            "-f"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "kube-context"
+            }
+          ],
+          "description": "If specified, overwrite the default context name",
+          "name": "--kube-context"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the connected cluster",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "port"
+            }
+          ],
+          "description": "Port used for accessing connected cluster",
+          "name": "--port"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "args": [
+            {
+              "name": "token"
+            }
+          ],
+          "description": "Service account token to use to authenticate to the kubernetes cluster",
+          "name": "--token"
+        }
+      ]
+    },
+    {
+      "description": "Show details of a connected kubernetes cluster",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the connected cluster",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Perform diagnostic checks on an Arc enabled Kubernetes cluster",
+      "name": "troubleshoot",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the connected cluster",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "kube-config"
+            }
+          ],
+          "description": "Path to the kube config file",
+          "name": "--kube-config"
+        },
+        {
+          "args": [
+            {
+              "name": "kube-context"
+            }
+          ],
+          "description": "Kubconfig context from current machine",
+          "name": "--kube-context"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        }
+      ]
+    },
+    {
+      "description": "Update properties of the arc onboarded kubernetes cluster",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "auto-upgrade",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Flag to enable/disable auto upgrade of arc agents. By default, auto upgrade of agents is enabled",
+          "name": "--auto-upgrade"
+        },
+        {
+          "args": [
+            {
+              "name": "azure-hybrid-benefit",
+              "suggestions": [
+                "False",
+                "NotApplicable",
+                "True"
+              ]
+            }
+          ],
+          "description": "Flag to enable/disable Azure Hybrid Benefit feature",
+          "name": "--azure-hybrid-benefit"
+        },
+        {
+          "args": [
+            {
+              "name": "container-log-path"
+            }
+          ],
+          "description": "Override the default container log path to enable fluent-bit logging",
+          "name": "--container-log-path"
+        },
+        {
+          "args": [
+            {
+              "name": "custom-ca-cert"
+            }
+          ],
+          "description": "Path to the certificate file for proxy or custom Certificate Authority",
+          "name": [
+            "--custom-ca-cert",
+            "--proxy-cert"
+          ]
+        },
+        {
+          "description": "Disables proxy settings for agents",
+          "name": "--disable-proxy"
+        },
+        {
+          "args": [
+            {
+              "name": "distribution",
+              "suggestions": [
+                "aks",
+                "aks_edge_k3s",
+                "aks_edge_k8s",
+                "aks_engine",
+                "aks_management",
+                "aks_workload",
+                "canonical",
+                "capz",
+                "eks",
+                "generic",
+                "gke",
+                "k3s",
+                "karbon",
+                "kind",
+                "minikube",
+                "openshift",
+                "rancher_rke",
+                "tkg"
+              ]
+            }
+          ],
+          "description": "The Kubernetes distribution which will be running on this connected cluster",
+          "name": "--distribution"
+        },
+        {
+          "args": [
+            {
+              "name": "distribution-version"
+            }
+          ],
+          "description": "The Kubernetes distribution version of the connected cluster",
+          "name": "--distribution-version"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "kube-config"
+            }
+          ],
+          "description": "Path to the kube config file",
+          "name": "--kube-config"
+        },
+        {
+          "args": [
+            {
+              "name": "kube-context"
+            }
+          ],
+          "description": "Kubconfig context from current machine",
+          "name": "--kube-context"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the connected cluster",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "proxy-http"
+            }
+          ],
+          "description": "Http proxy URL to be used",
+          "name": "--proxy-http"
+        },
+        {
+          "args": [
+            {
+              "name": "proxy-https"
+            }
+          ],
+          "description": "Https proxy URL to be used",
+          "name": "--proxy-https"
+        },
+        {
+          "args": [
+            {
+              "name": "proxy-skip-range"
+            }
+          ],
+          "description": "List of URLs/CIDRs for which proxy should not to be used",
+          "name": "--proxy-skip-range"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Atomically upgrade onboarded agents to the specific version or default to the latest version",
+      "name": "upgrade",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "agent-version"
+            }
+          ],
+          "description": "Version of agent to update the helm charts to",
+          "name": "--agent-version"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "kube-config"
+            }
+          ],
+          "description": "Path to the kube config file",
+          "name": "--kube-config"
+        },
+        {
+          "args": [
+            {
+              "name": "kube-context"
+            }
+          ],
+          "description": "Kubconfig context from current machine",
+          "name": "--kube-context"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the connected cluster",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "args": [
+            {
+              "name": "upgrade-timeout"
+            }
+          ],
+          "description": "Time required (in seconds) for the arc-agent pods to be upgraded on the kubernetes cluster. Override this value if the hardware/network constraints on your cluster requires more time for upgrading the arc-agent pods",
+          "name": "--upgrade-timeout"
+        }
+      ]
+    }
+  ]
+}

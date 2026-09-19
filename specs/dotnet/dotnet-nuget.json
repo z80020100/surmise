@@ -1,0 +1,1041 @@
+{
+  "name": "nuget",
+  "subcommands": [
+    {
+      "args": [
+        {
+          "description": "Name/ID of the package to delete",
+          "name": "package_name"
+        },
+        {
+          "description": "Version of the package to delete",
+          "name": "package_version"
+        }
+      ],
+      "description": "The dotnet nuget delete command deletes or unlists a package from the server. For nuget.org, the action is to unlist the package",
+      "isDangerous": true,
+      "name": "delete",
+      "options": [
+        {
+          "description": "Forces the application to run using an invariant, English-based culture",
+          "name": "--force-english-output"
+        },
+        {
+          "description": "Allows the command to stop and wait for user input or action. For example, to complete authentication. Available since .NET Core 3.0 SDK",
+          "name": "--interactive"
+        },
+        {
+          "args": [
+            {
+              "name": "key"
+            }
+          ],
+          "description": "The API key for the server",
+          "name": [
+            "-k",
+            "--api-key"
+          ]
+        },
+        {
+          "description": "Doesn't append \"api/v2/package\" to the source URL. Option available since .NET Core 2.1 SDK",
+          "name": "--no-service-endpoint"
+        },
+        {
+          "description": "Doesn't prompt for user input or confirmations",
+          "name": "--non-interactive"
+        },
+        {
+          "args": [
+            {
+              "name": "source"
+            }
+          ],
+          "description": "Specifies the server URL. Supported URLs for nuget.org include https://www.nuget.org, https://www.nuget.org/api/v3, and https://www.nuget.org/api/v2/package. For private feeds, replace the host name (for example, %hostname%/api/v3)",
+          "name": [
+            "-s",
+            "--source"
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "cache_location",
+          "suggestions": [
+            "all",
+            "http-cache",
+            "global-packages",
+            "temp"
+          ]
+        }
+      ],
+      "description": "The dotnet nuget locals command clears or lists local NuGet resources in the http-request cache, temporary cache, or machine-wide global packages folder",
+      "name": "locals",
+      "options": [
+        {
+          "description": "The clear option executes a clear operation on the specified cache type. The contents of the cache directories are deleted recursively. The executing user/group must have permission to the files in the cache directories. If not, an error is displayed indicating the files/folders that weren't cleared",
+          "name": [
+            "-c",
+            "--clear"
+          ]
+        },
+        {
+          "description": "The list option is used to display the location of the specified cache type",
+          "name": [
+            "-l",
+            "--list"
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Specifies the file path to the package to be pushed",
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "name": "root"
+        }
+      ],
+      "description": "The dotnet nuget push command pushes a package to the server and publishes it. The push command uses server and credential details found in the system's NuGet config file or chain of config files. For more information on config files, see Configuring NuGet Behavior. NuGet's default configuration is obtained by loading %AppData%NuGetNuGet.config (Windows) or $HOME/.local/share (Linux/macOS), then loading any nuget.config or .nuget\nuget.config starting from the root of drive and ending in the current directory",
+      "name": "push",
+      "options": [
+        {
+          "description": "Disables buffering when pushing to an HTTP(S) server to reduce memory usage",
+          "name": [
+            "-d",
+            "--disable-buffering"
+          ]
+        },
+        {
+          "description": "Forces the application to run using an invariant, English-based culture",
+          "name": "--force-english-output"
+        },
+        {
+          "description": "Allows the command to stop and wait for user input or action. For example, to complete authentication. Available since .NET Core 3.0 SDK",
+          "name": "--interactive"
+        },
+        {
+          "args": [
+            {
+              "name": "key"
+            }
+          ],
+          "description": "The API key for the server",
+          "name": [
+            "-k",
+            "--api-key"
+          ]
+        },
+        {
+          "description": "Doesn't push symbols (even if present)",
+          "name": [
+            "-n",
+            "--no-symbols"
+          ]
+        },
+        {
+          "description": "Doesn't append \"api/v2/package\" to the source URL. Option available since .NET Core 2.1 SDK",
+          "name": "--no-service-endpoint"
+        },
+        {
+          "args": [
+            {
+              "name": "source"
+            }
+          ],
+          "description": "Specifies the server URL. NuGet identifies a UNC or local folder source and simply copies the file there instead of pushing it using HTTP",
+          "name": [
+            "-s",
+            "--source"
+          ]
+        },
+        {
+          "description": "When pushing multiple packages to an HTTP(S) server, treats any 409 Conflict response as a warning so that the push can continue. Available since .NET Core 3.1 SDK",
+          "name": "--skip-duplicate"
+        },
+        {
+          "args": [
+            {
+              "name": "key"
+            }
+          ],
+          "description": "The API key for the symbol server",
+          "name": [
+            "-sk",
+            "--symbol-api-key"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "symbol_source"
+            }
+          ],
+          "description": "Specifies the symbol server URL",
+          "name": [
+            "-ss",
+            "--symbol-source"
+          ]
+        },
+        {
+          "args": [
+            {
+              "default": "300",
+              "isOptional": true,
+              "name": "timeout"
+            }
+          ],
+          "description": "Specifies the timeout for pushing to a server in seconds. Defaults to 300 seconds (5 minutes). Specifying 0 applies the default value",
+          "name": [
+            "-t",
+            "--timeout"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "add",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Path to the package source",
+              "name": "package_source"
+            }
+          ],
+          "description": "The dotnet nuget add source command adds a new package source to your NuGet configuration files",
+          "name": "source",
+          "options": [
+            {
+              "args": [
+                {
+                  "dyn": true,
+                  "generators": [
+                    {}
+                  ],
+                  "name": "file"
+                }
+              ],
+              "description": "The NuGet configuration file (nuget.config) to use. If specified, only the settings from this file will be used. If not specified, the hierarchy of configuration files from the current directory will be used",
+              "name": "--configfile"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the source",
+              "name": [
+                "-n",
+                "--name"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "password"
+                }
+              ],
+              "description": "Password to be used when connecting to an authenticated source",
+              "name": [
+                "-p",
+                "--password"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "clear-text"
+                }
+              ],
+              "description": "Enables storing portable package source credentials by disabling password encryption",
+              "name": "--store-password-in-clear-text"
+            },
+            {
+              "args": [
+                {
+                  "name": "username"
+                }
+              ],
+              "description": "Username to be used when connecting to an authenticated source",
+              "name": [
+                "-u",
+                "--username"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "types",
+                  "suggestions": [
+                    "negotiate",
+                    "kerberos",
+                    "ntlm",
+                    "digest"
+                  ]
+                }
+              ],
+              "description": "Comma-separated list of valid authentication types for this source. Set this to basic if the server advertises NTLM or Negotiate and your credentials must be sent using the Basic mechanism, for instance when using a PAT with on-premises Azure DevOps Server. Other valid values include negotiate, kerberos, ntlm, and digest, but these values are unlikely to be useful",
+              "name": "--valid-authentication-types"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "disable",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Name of the source",
+              "name": "name"
+            }
+          ],
+          "description": "The dotnet nuget disable source command disables an existing source in your NuGet configuration files",
+          "name": "source",
+          "options": [
+            {
+              "args": [
+                {
+                  "dyn": true,
+                  "generators": [
+                    {}
+                  ],
+                  "name": "file"
+                }
+              ],
+              "description": "The NuGet configuration file (nuget.config) to use. If specified, only the settings from this file will be used. If not specified, the hierarchy of configuration files from the current directory will be used",
+              "name": "--configfile"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "enable",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Name of the source",
+              "name": "name"
+            }
+          ],
+          "description": "The dotnet nuget enable source command enables an existing source in your NuGet configuration files",
+          "name": "source",
+          "options": [
+            {
+              "args": [
+                {
+                  "dyn": true,
+                  "generators": [
+                    {}
+                  ],
+                  "name": "file"
+                }
+              ],
+              "description": "The NuGet configuration file (nuget.config) to use. If specified, only the settings from this file will be used. If not specified, the hierarchy of configuration files from the current directory will be used",
+              "name": "--configfile"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "dyn": true,
+              "generators": [
+                {}
+              ],
+              "name": "file"
+            }
+          ],
+          "description": "The NuGet configuration file (nuget.config) to use. If specified, only the settings from this file will be used. If not specified, the hierarchy of configuration files from the current directory will be used",
+          "name": "--configfile"
+        },
+        {
+          "args": [
+            {
+              "name": "output",
+              "suggestions": [
+                "Detailed",
+                "Short"
+              ]
+            }
+          ],
+          "description": "The format of the list command output: Detailed (the default) and Short",
+          "name": "--format"
+        }
+      ],
+      "subcommands": [
+        {
+          "description": "The dotnet nuget list source command lists all existing sources from your NuGet configuration files",
+          "name": "source"
+        }
+      ]
+    },
+    {
+      "name": "remove",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Name of the source",
+              "name": "name"
+            }
+          ],
+          "description": "The dotnet nuget remove source command removes an existing source from your NuGet configuration files",
+          "name": "source",
+          "options": [
+            {
+              "args": [
+                {
+                  "dyn": true,
+                  "generators": [
+                    {}
+                  ],
+                  "name": "file"
+                }
+              ],
+              "description": "The NuGet configuration file (nuget.config) to use. If specified, only the settings from this file will be used. If not specified, the hierarchy of configuration files from the current directory will be used",
+              "name": "--configFile"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "update",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Name of the source",
+              "name": "name"
+            }
+          ],
+          "description": "The dotnet nuget update source command updates an existing source in your NuGet configuration files",
+          "name": "source",
+          "options": [
+            {
+              "args": [
+                {
+                  "dyn": true,
+                  "generators": [
+                    {}
+                  ],
+                  "name": "file"
+                }
+              ],
+              "description": "The NuGet configuration file (nuget.config) to use. If specified, only the settings from this file will be used. If not specified, the hierarchy of configuration files from the current directory will be used",
+              "name": "--configfile"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the source",
+              "name": [
+                "-n",
+                "--name"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "password"
+                }
+              ],
+              "description": "Password to be used when connecting to an authenticated source",
+              "name": [
+                "-p",
+                "--password"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "clear-text"
+                }
+              ],
+              "description": "Enables storing portable package source credentials by disabling password encryption",
+              "name": "--store-password-in-clear-text"
+            },
+            {
+              "args": [
+                {
+                  "name": "username"
+                }
+              ],
+              "description": "Username to be used when connecting to an authenticated source",
+              "name": [
+                "-u",
+                "--username"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "types",
+                  "suggestions": [
+                    "negotiate",
+                    "kerberos",
+                    "ntlm",
+                    "digest"
+                  ]
+                }
+              ],
+              "description": "Comma-separated list of valid authentication types for this source. Set this to basic if the server advertises NTLM or Negotiate and your credentials must be sent using the Basic mechanism, for instance when using a PAT with on-premises Azure DevOps Server. Other valid values include negotiate, kerberos, ntlm, and digest, but these values are unlikely to be useful",
+              "name": "--valid-authentication-types"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Specifies the file path to the package(s) to be verified. Multiple position arguments can be passed in to verify multiple packages",
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "name": "package-path"
+        }
+      ],
+      "description": "The dotnet nuget verify command verifies a signed NuGet package",
+      "name": "verify",
+      "options": [
+        {
+          "description": "Specifies that all verifications possible should be performed on the package(s). By default, only signatures are verified",
+          "name": "--all"
+        },
+        {
+          "args": [
+            {
+              "name": "fingerprint"
+            }
+          ],
+          "description": "Verify that the signer certificate matches with one of the specified SHA256 fingerprints. This option can be supplied multiple times to provide multiple fingerprints",
+          "name": "--certificate-fingerprint"
+        },
+        {
+          "args": [
+            {
+              "name": "verbosity",
+              "suggestions": [
+                "quiet",
+                "minimal",
+                "normal",
+                "detailed",
+                "diagnostic"
+              ]
+            }
+          ],
+          "description": "Sets the verbosity level of the command. Allowed values are q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]. Not supported in every command. See specific command page to determine if this option is available",
+          "name": [
+            "-v",
+            "--verbosity"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "The dotnet nuget trust command manages the trusted signers. By default, NuGet accepts all authors and repositories. These commands allow you to specify only a specific subset of signers whose signatures will be accepted, while rejecting all others",
+      "name": "trust",
+      "subcommands": [
+        {
+          "description": "Lists all the trusted signers in the configuration. This option will include all the certificates (with fingerprint and fingerprint algorithm) each signer has. If a certificate has a preceding [U], it means that certificate entry has allowUntrustedRoot set as true",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "dyn": true,
+                  "generators": [
+                    {}
+                  ],
+                  "name": "file"
+                }
+              ],
+              "description": "The NuGet configuration file (nuget.config) to use. If specified, only the settings from this file will be used. If not specified, the hierarchy of configuration files from the current directory will be used",
+              "name": "--configfile"
+            },
+            {
+              "args": [
+                {
+                  "name": "verbosity",
+                  "suggestions": [
+                    "quiet",
+                    "minimal",
+                    "normal",
+                    "detailed",
+                    "diagnostic"
+                  ]
+                }
+              ],
+              "description": "Sets the verbosity level of the command. Allowed values are q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]. The default is minimal",
+              "name": [
+                "-v",
+                "--verbosity"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Deletes the current list of certificates and replaces them with an up-to-date list from the repository",
+          "name": "sync",
+          "options": [
+            {
+              "args": [
+                {
+                  "dyn": true,
+                  "generators": [
+                    {}
+                  ],
+                  "name": "file"
+                }
+              ],
+              "description": "The NuGet configuration file (nuget.config) to use. If specified, only the settings from this file will be used. If not specified, the hierarchy of configuration files from the current directory will be used",
+              "name": "--configfile"
+            },
+            {
+              "args": [
+                {
+                  "name": "verbosity",
+                  "suggestions": [
+                    "quiet",
+                    "minimal",
+                    "normal",
+                    "detailed",
+                    "diagnostic"
+                  ]
+                }
+              ],
+              "description": "Sets the verbosity level of the command. Allowed values are q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]. The default is minimal",
+              "name": [
+                "-v",
+                "--verbosity"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "The name of the existing trusted signer to remove",
+              "name": "name"
+            }
+          ],
+          "description": "Removes any trusted signers that match the given name",
+          "name": "remove",
+          "options": [
+            {
+              "args": [
+                {
+                  "dyn": true,
+                  "generators": [
+                    {}
+                  ],
+                  "name": "file"
+                }
+              ],
+              "description": "The NuGet configuration file (nuget.config) to use. If specified, only the settings from this file will be used. If not specified, the hierarchy of configuration files from the current directory will be used",
+              "name": "--configfile"
+            },
+            {
+              "args": [
+                {
+                  "name": "verbosity",
+                  "suggestions": [
+                    "quiet",
+                    "minimal",
+                    "normal",
+                    "detailed",
+                    "diagnostic"
+                  ]
+                }
+              ],
+              "description": "Sets the verbosity level of the command. Allowed values are q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]. The default is minimal",
+              "name": [
+                "-v",
+                "--verbosity"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "The name of the trusted signer to add. If NAME already exists in the configuration, the signature is appended",
+              "name": "name"
+            },
+            {
+              "description": "The given PACKAGE should be a local path to the signed .nupkg file",
+              "name": "package"
+            }
+          ],
+          "description": "Adds a trusted signer with the given name, based on the author signature of the package",
+          "name": "author",
+          "options": [
+            {
+              "description": "Specifies if the certificate for the trusted signer should be allowed to chain to an untrusted root. This is not recommended",
+              "name": "--allow-untrusted-root"
+            },
+            {
+              "args": [
+                {
+                  "dyn": true,
+                  "generators": [
+                    {}
+                  ],
+                  "name": "file"
+                }
+              ],
+              "description": "The NuGet configuration file (nuget.config) to use. If specified, only the settings from this file will be used. If not specified, the hierarchy of configuration files from the current directory will be used",
+              "name": "--configfile"
+            },
+            {
+              "args": [
+                {
+                  "name": "verbosity",
+                  "suggestions": [
+                    "quiet",
+                    "minimal",
+                    "normal",
+                    "detailed",
+                    "diagnostic"
+                  ]
+                }
+              ],
+              "description": "Sets the verbosity level of the command. Allowed values are q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]. The default is minimal",
+              "name": [
+                "-v",
+                "--verbosity"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "The name of the trusted signer to add. If NAME already exists in the configuration, the signature is appended",
+              "name": "name"
+            },
+            {
+              "description": "The given PACKAGE should be a local path to the signed .nupkg file",
+              "name": "package"
+            }
+          ],
+          "description": "Adds a trusted signer with the given name, based on the repository signature or countersignature of a signed package",
+          "name": "repository",
+          "options": [
+            {
+              "description": "Specifies if the certificate for the trusted signer should be allowed to chain to an untrusted root. This is not recommended",
+              "name": "--allow-untrusted-root"
+            },
+            {
+              "description": "Semicolon-separated list of trusted owners to further restrict the trust of a repository",
+              "name": "--owners"
+            },
+            {
+              "args": [
+                {
+                  "dyn": true,
+                  "generators": [
+                    {}
+                  ],
+                  "name": "file"
+                }
+              ],
+              "description": "The NuGet configuration file (nuget.config) to use. If specified, only the settings from this file will be used. If not specified, the hierarchy of configuration files from the current directory will be used",
+              "name": "--configfile"
+            },
+            {
+              "args": [
+                {
+                  "name": "verbosity",
+                  "suggestions": [
+                    "quiet",
+                    "minimal",
+                    "normal",
+                    "detailed",
+                    "diagnostic"
+                  ]
+                }
+              ],
+              "description": "Sets the verbosity level of the command. Allowed values are q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]. The default is minimal",
+              "name": [
+                "-v",
+                "--verbosity"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "The name of the trusted signer to add. If a trusted signer with the given name already exists, the certificate item is added to that signer. Otherwise a trusted author is created with a certificate item from the given certificate information",
+              "name": "name"
+            },
+            {
+              "description": "The fingerprint of the certificate",
+              "name": "fingerprint"
+            }
+          ],
+          "description": "Adds a trusted signer with the given name, based on a certificate fingerprint",
+          "name": "certificate",
+          "options": [
+            {
+              "description": "Specifies the hash algorithm used to calculate the certificate fingerprint. Defaults to SHA256. Values supported are SHA256, SHA384 and SHA512",
+              "name": "--algorithm"
+            },
+            {
+              "args": [
+                {
+                  "dyn": true,
+                  "generators": [
+                    {}
+                  ],
+                  "name": "file"
+                }
+              ],
+              "description": "The NuGet configuration file (nuget.config) to use. If specified, only the settings from this file will be used. If not specified, the hierarchy of configuration files from the current directory will be used",
+              "name": "--configfile"
+            },
+            {
+              "args": [
+                {
+                  "name": "verbosity",
+                  "suggestions": [
+                    "quiet",
+                    "minimal",
+                    "normal",
+                    "detailed",
+                    "diagnostic"
+                  ]
+                }
+              ],
+              "description": "Sets the verbosity level of the command. Allowed values are q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]. The default is minimal",
+              "name": [
+                "-v",
+                "--verbosity"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Adds a trusted signer based on a given package source",
+          "name": "source",
+          "options": [
+            {
+              "description": "Semicolon-separated list of trusted owners to further restrict the trust of a repository",
+              "name": "owners"
+            },
+            {
+              "args": [
+                {
+                  "name": "source-url"
+                }
+              ],
+              "description": "If a source-url is provided, it must be a v3 package source URL (like https://api.nuget.org/v3/index.json). Other package source types are not supported",
+              "name": "--source-url"
+            },
+            {
+              "args": [
+                {
+                  "dyn": true,
+                  "generators": [
+                    {}
+                  ],
+                  "name": "file"
+                }
+              ],
+              "description": "The NuGet configuration file (nuget.config) to use. If specified, only the settings from this file will be used. If not specified, the hierarchy of configuration files from the current directory will be used",
+              "name": "--configfile"
+            },
+            {
+              "args": [
+                {
+                  "name": "verbosity",
+                  "suggestions": [
+                    "quiet",
+                    "minimal",
+                    "normal",
+                    "detailed",
+                    "diagnostic"
+                  ]
+                }
+              ],
+              "description": "Sets the verbosity level of the command. Allowed values are q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]. The default is minimal",
+              "name": [
+                "-v",
+                "--verbosity"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Specifies the file path to the package(s) to be signed. Multiple arguments can be passed in to sign multiple packages",
+          "isVariadic": true,
+          "name": "package-paths"
+        }
+      ],
+      "description": "The dotnet nuget sign command signs all the packages matching the first argument with a certificate. The certificate with the private key can be obtained from a file or from a certificate installed in a certificate store by providing a subject name or a SHA-1 fingerprint",
+      "name": "sign",
+      "options": [
+        {
+          "args": [
+            {
+              "dyn": true,
+              "generators": [
+                {}
+              ],
+              "name": "path"
+            }
+          ],
+          "description": "Specifies the file path to the certificate to be used in signing the package",
+          "name": "--certificate-path"
+        },
+        {
+          "args": [
+            {
+              "name": "storename"
+            }
+          ],
+          "description": "Specifies the name of the X.509 certificate store to use to search for the certificate. Defaults to \"My\", the X.509 certificate store for personal certificates. This option should be used when specifying the certificate via --certificate-subject-name or --certificate-fingerprint options",
+          "name": "--certificate-store-name"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Specifies the name of the X.509 certificate store use to search for the certificate. Defaults to \"CurrentUser\", the X.509 certificate store used by the current user. This option should be used when specifying the certificate via --certificate-subject-name or --certificate-fingerprint options",
+          "name": "--certificate-store-location"
+        },
+        {
+          "args": [
+            {
+              "name": "subjectname"
+            }
+          ],
+          "description": "Specifies the subject name of the certificate used to search a local certificate store for the certificate. The search is a case-insensitive string comparison using the supplied value, which will find all certificates with the subject name containing that string, regardless of other subject values. The certificate store can be specified by --certificate-store-name and --certificate-store-location options",
+          "name": "--certificate-subject-name"
+        },
+        {
+          "args": [
+            {
+              "name": "fingerprint"
+            }
+          ],
+          "description": "SHA-1 fingerprint of the certificate used to search a local certificate store for the certificate",
+          "name": "--certificate-fingerprint"
+        },
+        {
+          "args": [
+            {
+              "name": "password"
+            }
+          ],
+          "description": "Specifies the certificate password, if needed. If a certificate is password protected but no password is provided, the sign command will fail",
+          "name": "--certificate-password"
+        },
+        {
+          "args": [
+            {
+              "name": "algorithm",
+              "suggestions": [
+                "SHA256",
+                "SHA384",
+                "SHA512"
+              ]
+            }
+          ],
+          "description": "Hash algorithm to be used to sign the package. Defaults to SHA256. Possible values are SHA256, SHA384, and SHA512",
+          "name": "--hash-algorithm"
+        },
+        {
+          "args": [
+            {
+              "name": "directory",
+              "template": "folders"
+            }
+          ],
+          "description": "Specifies the directory where the signed package should be saved. If this option is not specified, by default the original package is overwritten by the signed package",
+          "name": [
+            "-o",
+            "--output"
+          ]
+        },
+        {
+          "description": "Indicate that the current signature should be overwritten. By default the command will fail if the package already has a signature",
+          "isDangerous": true,
+          "name": "--overwrite"
+        },
+        {
+          "args": [
+            {
+              "name": "algorithm",
+              "suggestions": [
+                "SHA256"
+              ]
+            }
+          ],
+          "description": "Hash algorithm to be used by the RFC 3161 timestamp server. Defaults to SHA256",
+          "name": "--timestamp-hash-algorithm"
+        },
+        {
+          "args": [
+            {
+              "name": "url"
+            }
+          ],
+          "description": "URL to an RFC 3161 timestamping server",
+          "name": "--timestamper"
+        },
+        {
+          "args": [
+            {
+              "name": "verbosity",
+              "suggestions": [
+                "quiet",
+                "minimal",
+                "normal",
+                "detailed",
+                "diagnostic"
+              ]
+            }
+          ],
+          "description": "Sets the verbosity level of the command. Allowed values are q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic]. The default is minimal",
+          "name": [
+            "-v",
+            "--verbosity"
+          ]
+        }
+      ]
+    }
+  ]
+}

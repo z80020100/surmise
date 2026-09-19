@@ -1,0 +1,30 @@
+{
+  "description": "Automatically rerun PHPUnit tests when source code changes",
+  "name": "phpunit-watcher",
+  "subcommands": [
+    {
+      "description": "This will run the tests and rerun them whenever a file in the app, src or tests directory is modified",
+      "name": "watch",
+      "options": [
+        {
+          "args": [
+            {
+              "dyn": true,
+              "generators": [
+                {
+                  "script": [
+                    "phpunit",
+                    "--list-tests"
+                  ]
+                }
+              ],
+              "name": "filter"
+            }
+          ],
+          "description": "Watch a specific test",
+          "name": "--filter"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "description": "Switch profiles",
+  "name": "git-profile",
+  "options": [
+    {
+      "description": "Help for git-profile script",
+      "name": [
+        "--help",
+        "-h"
+      ]
+    },
+    {
+      "description": "Config file (default \"~/.gitprofile\")",
+      "name": [
+        "--config",
+        "-c"
+      ]
+    }
+  ],
+  "subcommands": [
+    {
+      "args": [
+        {
+          "description": "Profile you want to apply in this repository",
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "git-profile",
+                "list"
+              ]
+            }
+          ],
+          "name": "profile"
+        }
+      ],
+      "description": "Use a profile",
+      "name": "use"
+    }
+  ]
+}

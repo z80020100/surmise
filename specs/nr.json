@@ -1,0 +1,42 @@
+{
+  "additionalSuggestions": [
+    {
+      "description": "Run the last command",
+      "insertValue": "-\n",
+      "name": "-",
+      "type": "shortcut"
+    }
+  ],
+  "args": [
+    {
+      "description": "The script to run",
+      "dyn": true,
+      "filterStrategy": "fuzzy",
+      "generators": [
+        {
+          "cache": {
+            "cacheByDirectory": true,
+            "strategy": "stale-while-revalidate"
+          },
+          "script": [
+            "bash",
+            "-c",
+            "until [[ -f package.json ]] || [[ $PWD = '/' ]]; do cd ..; done; cat package.json"
+          ]
+        }
+      ],
+      "name": "script"
+    }
+  ],
+  "description": "Use the right package manager - run",
+  "name": "nr",
+  "options": [
+    {
+      "description": "Output usage information",
+      "name": [
+        "-h",
+        "--help"
+      ]
+    }
+  ]
+}

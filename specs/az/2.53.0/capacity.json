@@ -1,0 +1,622 @@
+{
+  "description": "Manage capacity",
+  "name": "capacity",
+  "subcommands": [
+    {
+      "description": "Manage capacity reservation",
+      "name": "reservation",
+      "subcommands": [
+        {
+          "description": "Create capacity reservation",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "capacity-reservation-group"
+                }
+              ],
+              "description": "The name of the capacity reservation group",
+              "isRequired": true,
+              "name": [
+                "--capacity-reservation-group",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "capacity-reservation-name"
+                }
+              ],
+              "description": "The name of the capacity reservation",
+              "isRequired": true,
+              "name": [
+                "--capacity-reservation-name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "sku"
+                }
+              ],
+              "description": "The SKU of the resource for which capacity needs be reserved. Currently VM Skus with the capability called \"CapacityReservationSupported\" set to true are supported. Refer to List Microsoft.Compute SKUs in a region (https://docs.microsoft.com/rest/api/compute/resourceskus/list) for supported values",
+              "isRequired": true,
+              "name": [
+                "--sku",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "capacity"
+                }
+              ],
+              "description": "Specify the number of virtual machines in the scale set",
+              "name": "--capacity"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            },
+            {
+              "args": [
+                {
+                  "name": "zone",
+                  "suggestions": [
+                    "1",
+                    "2",
+                    "3"
+                  ]
+                }
+              ],
+              "description": "Availability Zone to use for this capacity reservation. The zone has to be single value and also should be part for the list of zones specified during the capacity reservation group creation. If not provided, the reservation supports only non-zonal deployments. If provided, enforces VM/VMSS using this capacity reservation to be in same zone",
+              "name": [
+                "--zone",
+                "-z"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete operation to delete a capacity reservation. This operation is allowed only when all the associated resources are disassociated from the capacity reservation. Please refer to https://aka.ms/CapacityReservation for more details",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "capacity-reservation-group-name"
+                }
+              ],
+              "description": "The name of the capacity reservation group",
+              "name": [
+                "--capacity-reservation-group-name",
+                "--capacity-reservation-group",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "capacity-reservation-name"
+                }
+              ],
+              "description": "The name of the capacity reservation",
+              "name": [
+                "--capacity-reservation-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List all of the capacity reservations in the specified capacity reservation group. Use the nextLink property in the response to get the next page of capacity reservations",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "capacity-reservation-group-name"
+                }
+              ],
+              "description": "The name of the capacity reservation group",
+              "isRequired": true,
+              "name": [
+                "--capacity-reservation-group-name",
+                "--capacity-reservation-group",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show capacity reservation",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "capacity-reservation-group"
+                }
+              ],
+              "description": "The name of the capacity reservation group",
+              "isRequired": true,
+              "name": [
+                "--capacity-reservation-group",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "capacity-reservation-name"
+                }
+              ],
+              "description": "The name of the capacity reservation",
+              "isRequired": true,
+              "name": [
+                "--capacity-reservation-name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "instance-view"
+                }
+              ],
+              "description": "Retrieve a snapshot of the runtime properties of the capacity reservation that is managed by the platform and can change outside of control plane operations",
+              "name": [
+                "--instance-view",
+                "-i"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update capacity reservation",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "capacity-reservation-group"
+                }
+              ],
+              "description": "The name of the capacity reservation group",
+              "isRequired": true,
+              "name": [
+                "--capacity-reservation-group",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "capacity-reservation-name"
+                }
+              ],
+              "description": "The name of the capacity reservation",
+              "isRequired": true,
+              "name": [
+                "--capacity-reservation-name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "capacity"
+                }
+              ],
+              "description": "Specify the number of virtual machines in the scale set",
+              "name": "--capacity"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Manage capacity reservation group",
+          "name": "group",
+          "subcommands": [
+            {
+              "description": "Create capacity reservation group",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "capacity-reservation-group"
+                    }
+                  ],
+                  "description": "The name of the capacity reservation group",
+                  "isRequired": true,
+                  "name": [
+                    "--capacity-reservation-group",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "location"
+                    }
+                  ],
+                  "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+                  "name": [
+                    "--location",
+                    "-l"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "tags"
+                    }
+                  ],
+                  "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+                  "name": "--tags"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "zones",
+                      "suggestions": [
+                        "1",
+                        "2",
+                        "3"
+                      ]
+                    }
+                  ],
+                  "description": "Availability Zones to use for this capacity reservation group. If not provided, the group supports only regional resources in the region. If provided, enforces each capacity reservation in the group to be in one of the zones",
+                  "name": [
+                    "--zones",
+                    "-z"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Delete operation to delete a capacity reservation group. This operation is allowed only if all the associated resources are disassociated from the reservation group and all capacity reservations under the reservation group have also been deleted. Please refer to https://aka.ms/CapacityReservation for more details",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "capacity-reservation-group-name"
+                    }
+                  ],
+                  "description": "The name of the capacity reservation group",
+                  "name": [
+                    "--capacity-reservation-group-name",
+                    "--capacity-reservation-group",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List the capacity reservation groups",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "vm-instance"
+                    }
+                  ],
+                  "description": "Retrieve the Virtual Machine Instance which are associated to capacity reservation group in the response",
+                  "name": "--vm-instance"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "vmss-instance"
+                    }
+                  ],
+                  "description": "Retrieve the ScaleSet VM Instance which are associated to capacity reservation group in the response",
+                  "name": "--vmss-instance"
+                }
+              ]
+            },
+            {
+              "description": "Show capacity reservation group",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "capacity-reservation-group"
+                    }
+                  ],
+                  "description": "The name of the capacity reservation group",
+                  "isRequired": true,
+                  "name": [
+                    "--capacity-reservation-group",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "instance-view"
+                    }
+                  ],
+                  "description": "Retrieve the list of instance views of the capacity reservations under the capacity reservation group which is a snapshot of the runtime properties of a capacity reservation that is managed by the platform and can change outside of control plane operations",
+                  "name": [
+                    "--instance-view",
+                    "-i"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Update capacity reservation group",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "capacity-reservation-group"
+                    }
+                  ],
+                  "description": "The name of the capacity reservation group",
+                  "isRequired": true,
+                  "name": [
+                    "--capacity-reservation-group",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "tags"
+                    }
+                  ],
+                  "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+                  "name": "--tags"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

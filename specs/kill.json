@@ -1,0 +1,51 @@
+{
+  "args": [
+    {
+      "dyn": true,
+      "generators": [
+        {
+          "script": [
+            "bash",
+            "-c",
+            "ps axo pid,comm | sed 1d"
+          ]
+        }
+      ],
+      "isVariadic": true,
+      "name": "pid"
+    }
+  ],
+  "description": "Terminate or signal a process",
+  "name": "kill",
+  "options": [
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "env",
+                "kill",
+                "-l"
+              ]
+            }
+          ],
+          "name": "signal_name"
+        }
+      ],
+      "description": "A symbolic signal name specifying the signal to be sent",
+      "name": "-s"
+    },
+    {
+      "args": [
+        {
+          "isOptional": true,
+          "name": "exit_status"
+        }
+      ],
+      "description": "If no operand is given, list the signal names; otherwise, write the signal name corresponding to exit_status",
+      "name": "-l"
+    }
+  ]
+}

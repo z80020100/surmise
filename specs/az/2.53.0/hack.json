@@ -1,0 +1,104 @@
+{
+  "description": "Commands to manage resources commonly used for student hacks",
+  "name": "hack",
+  "subcommands": [
+    {
+      "description": "Create resources commonly used for a student hack, including a website, database, and artificial intelligence",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "isRequired": true,
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Base name of resources; random charagers will be appended",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "runtime",
+              "suggestions": [
+                "aspnet",
+                "jetty",
+                "node",
+                "php",
+                "python",
+                "tomcat"
+              ]
+            }
+          ],
+          "description": "Runtime",
+          "isRequired": true,
+          "name": [
+            "--runtime",
+            "-r"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ai"
+            }
+          ],
+          "description": "Enable Azure Cognitive Services",
+          "name": "--ai"
+        },
+        {
+          "args": [
+            {
+              "name": "database",
+              "suggestions": [
+                "cosmosdb",
+                "mysql",
+                "sql"
+              ]
+            }
+          ],
+          "description": "Database type - { sql | mysql | cosmosdb }",
+          "name": [
+            "--database",
+            "-d"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Display settings for created resources, including database name and password, Git url, and website url",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the application",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        }
+      ]
+    }
+  ]
+}

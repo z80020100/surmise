@@ -1,0 +1,127 @@
+{
+  "args": [
+    {
+      "isVariadic": true,
+      "name": "file",
+      "template": "filepaths"
+    }
+  ],
+  "description": "Lists the metadata attributes for the specified file",
+  "name": "mdls",
+  "options": [
+    {
+      "args": [
+        {
+          "description": "Metadata attribute name",
+          "name": "attributeName",
+          "suggestions": [
+            "_kMDItemDisplayNameWithExtensions",
+            "kMDItemContentCreationDate",
+            "kMDItemContentCreationDate_Ranking",
+            "kMDItemContentModificationDate",
+            "kMDItemContentModificationDate_Ranking",
+            "kMDItemContentType",
+            "kMDItemContentTypeTree",
+            "kMDItemDateAdded",
+            "kMDItemDateAdded_Ranking",
+            "kMDItemDisplayName",
+            "kMDItemDocumentIdentifier",
+            "kMDItemFSContentChangeDate",
+            "kMDItemFSCreationDate",
+            "kMDItemFSCreatorCode",
+            "kMDItemFSFinderFlags",
+            "kMDItemFSHasCustomIcon",
+            "kMDItemFSInvisible",
+            "kMDItemFSIsExtensionHidden",
+            "kMDItemFSIsStationery",
+            "kMDItemFSLabel",
+            "kMDItemFSName",
+            "kMDItemFSNodeCount",
+            "kMDItemFSOwnerGroupID",
+            "kMDItemFSOwnerUserID",
+            "kMDItemFSSize",
+            "kMDItemFSTypeCode",
+            "kMDItemInterestingDate_Ranking",
+            "kMDItemKind",
+            "kMDItemLogicalSize",
+            "kMDItemPhysicalSize"
+          ]
+        }
+      ],
+      "description": "Print only the matching metadata attribute value.  Can be used multiple times",
+      "exclusiveOn": [
+        "--plist",
+        "-plist"
+      ],
+      "isRepeatable": true,
+      "name": [
+        "--name",
+        "-name"
+      ]
+    },
+    {
+      "description": "Print raw attribute data in the order that was requested. Fields will be separated with a ASCII NUL character, suitable for piping to xargs(1) -0",
+      "exclusiveOn": [
+        "--plist",
+        "-plist"
+      ],
+      "name": [
+        "--raw",
+        "-raw"
+      ]
+    },
+    {
+      "dependsOn": [
+        "--raw",
+        "-raw"
+      ],
+      "description": "Sets a marker string to be used when a requested attribute is null. Only used in -raw mode.  Default is '(null)'",
+      "exclusiveOn": [
+        "--plist",
+        "-plist"
+      ],
+      "insertValue": "--nullMarker \"{cursor}\"",
+      "name": [
+        "--nullMarker",
+        "-nullMarker"
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "XML output location",
+          "name": "stdout or file",
+          "suggestions": [
+            {
+              "description": "Writes to stdout",
+              "name": "-",
+              "priority": 77
+            }
+          ],
+          "template": "filepaths"
+        },
+        {
+          "description": "File to read from",
+          "name": "file",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Output attributes in XML format to file. Use - to write to stdout option. Incompatible with options -raw, -nullMarker, and -name",
+      "exclusiveOn": [
+        "--raw",
+        "-raw",
+        "--nullMarker",
+        "-nullMarker",
+        "--name",
+        "-name"
+      ],
+      "name": [
+        "--plist",
+        "-plist"
+      ]
+    }
+  ],
+  "parserDirectives": {
+    "flagsArePosixNoncompliant": true
+  }
+}

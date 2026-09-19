@@ -1,0 +1,1120 @@
+{
+  "description": "Manage consumption of Azure resources",
+  "name": "consumption",
+  "subcommands": [
+    {
+      "description": "Manage budgets for an Azure subscription",
+      "name": "budget",
+      "subcommands": [
+        {
+          "description": "Create a budget for an Azure subscription",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "amount"
+                }
+              ],
+              "description": "Amount of a budget",
+              "isRequired": true,
+              "name": "--amount"
+            },
+            {
+              "args": [
+                {
+                  "name": "budget-name"
+                }
+              ],
+              "description": "Name of a budget",
+              "isRequired": true,
+              "name": "--budget-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "category",
+                  "suggestions": [
+                    "cost",
+                    "usage"
+                  ]
+                }
+              ],
+              "description": "Category of the budget can be cost or usage",
+              "isRequired": true,
+              "name": "--category"
+            },
+            {
+              "args": [
+                {
+                  "name": "end-date"
+                }
+              ],
+              "description": "End date (YYYY-MM-DD in UTC) of time period of a budget",
+              "isRequired": true,
+              "name": [
+                "--end-date",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "start-date"
+                }
+              ],
+              "description": "Start date (YYYY-MM-DD in UTC) of time period of a budget",
+              "isRequired": true,
+              "name": [
+                "--start-date",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "time-grain",
+                  "suggestions": [
+                    "annually",
+                    "monthly",
+                    "quarterly"
+                  ]
+                }
+              ],
+              "description": "Time grain of the budget can be monthly, quarterly, or annually",
+              "isRequired": true,
+              "name": "--time-grain"
+            },
+            {
+              "args": [
+                {
+                  "name": "meter-filter"
+                }
+              ],
+              "description": "Space-separated list of meters to filter on. Required if category is usage",
+              "name": "--meter-filter"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-filter"
+                }
+              ],
+              "description": "Space-separated list of resource instances to filter on",
+              "name": "--resource-filter"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group-filter"
+                }
+              ],
+              "description": "Space-separated list of resource groups to filter on",
+              "name": "--resource-group-filter"
+            }
+          ]
+        },
+        {
+          "description": "Create operation to create or update a budget. Update operation requires latest eTag to be set in the request mandatorily. You may obtain the latest eTag by performing a get operation. Create operation does not require eTag",
+          "name": "create-with-rg",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "amount"
+                }
+              ],
+              "description": "The total amount of cost to track with the budget",
+              "name": "--amount"
+            },
+            {
+              "args": [
+                {
+                  "name": "budget-name"
+                }
+              ],
+              "description": "Budget Name",
+              "name": [
+                "--budget-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "category",
+                  "suggestions": [
+                    "Cost",
+                    "Usage"
+                  ]
+                }
+              ],
+              "description": "The category of the budget, whether the budget tracks cost or usage",
+              "name": "--category"
+            },
+            {
+              "args": [
+                {
+                  "name": "e-tag"
+                }
+              ],
+              "description": "ETag of the resource. To handle concurrent update scenario, this field will be used to determine whether the user is updating the latest version or not",
+              "name": "--e-tag"
+            },
+            {
+              "args": [
+                {
+                  "name": "filters"
+                }
+              ],
+              "description": "May be used to filter budgets by resource group, resource, or meter. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--filters"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "notifications"
+                }
+              ],
+              "description": "Dictionary of notifications associated with the budget. Budget can have up to five notifications. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--notifications"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "time-grain",
+                  "suggestions": [
+                    "Annually",
+                    "Monthly",
+                    "Quarterly"
+                  ]
+                }
+              ],
+              "description": "The time covered by a budget. Tracking of the amount will be reset based on the time grain",
+              "name": "--time-grain"
+            },
+            {
+              "args": [
+                {
+                  "name": "time-period"
+                }
+              ],
+              "description": "Has start and end date of the budget. The start date must be first of the month and should be less than the end date. Budget start date must be on or after June 1, 2017. Future start date should not be more than three months. Past start date should be selected within the timegrain period. There are no restrictions on the end date. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--time-period"
+            }
+          ]
+        },
+        {
+          "description": "Delete a budget for an Azure subscription",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "budget-name"
+                }
+              ],
+              "description": "Name of a budget",
+              "isRequired": true,
+              "name": "--budget-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete operation to delete a budget",
+          "name": "delete-with-rg",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "budget-name"
+                }
+              ],
+              "description": "Budget Name",
+              "name": [
+                "--budget-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "List budgets for an Azure subscription",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "max-items"
+                }
+              ],
+              "description": "Total number of items to return in the command's output. If the total number of items available is more than the value specified, a token is provided in the command's output. To resume pagination, provide the token value in --next-token argument of a subsequent command",
+              "name": "--max-items"
+            },
+            {
+              "args": [
+                {
+                  "name": "next-token"
+                }
+              ],
+              "description": "Token to specify where to start paginating. This is the token value from a previously truncated response",
+              "name": "--next-token"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show budget for an Azure subscription",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "budget-name"
+                }
+              ],
+              "description": "Name of a budget",
+              "isRequired": true,
+              "name": "--budget-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the budget for a resource group under a subscription by budget name",
+          "name": "show-with-rg",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "budget-name"
+                }
+              ],
+              "description": "Budget Name",
+              "name": [
+                "--budget-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update operation to create or update a budget. Update operation requires latest eTag to be set in the request mandatorily. You may obtain the latest eTag by performing a get operation. Create operation does not require eTag",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "amount"
+                }
+              ],
+              "description": "The total amount of cost to track with the budget",
+              "name": "--amount"
+            },
+            {
+              "args": [
+                {
+                  "name": "budget-name"
+                }
+              ],
+              "description": "Budget Name",
+              "name": [
+                "--budget-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "category",
+                  "suggestions": [
+                    "Cost",
+                    "Usage"
+                  ]
+                }
+              ],
+              "description": "The category of the budget, whether the budget tracks cost or usage",
+              "name": "--category"
+            },
+            {
+              "args": [
+                {
+                  "name": "e-tag"
+                }
+              ],
+              "description": "ETag of the resource. To handle concurrent update scenario, this field will be used to determine whether the user is updating the latest version or not",
+              "name": "--e-tag"
+            },
+            {
+              "args": [
+                {
+                  "name": "filters"
+                }
+              ],
+              "description": "May be used to filter budgets by resource group, resource, or meter. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--filters"
+            },
+            {
+              "args": [
+                {
+                  "name": "force-string",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "notifications"
+                }
+              ],
+              "description": "Dictionary of notifications associated with the budget. Budget can have up to five notifications. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--notifications"
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "time-grain",
+                  "suggestions": [
+                    "Annually",
+                    "Monthly",
+                    "Quarterly"
+                  ]
+                }
+              ],
+              "description": "The time covered by a budget. Tracking of the amount will be reset based on the time grain",
+              "name": "--time-grain"
+            },
+            {
+              "args": [
+                {
+                  "name": "time-period"
+                }
+              ],
+              "description": "Has start and end date of the budget. The start date must be first of the month and should be less than the end date. Budget start date must be on or after June 1, 2017. Future start date should not be more than three months. Past start date should be selected within the timegrain period. There are no restrictions on the end date. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--time-period"
+            }
+          ]
+        },
+        {
+          "description": "Update operation to create or update a budget. Update operation requires latest eTag to be set in the request mandatorily. You may obtain the latest eTag by performing a get operation. Create operation does not require eTag",
+          "name": "update-with-rg",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "amount"
+                }
+              ],
+              "description": "The total amount of cost to track with the budget",
+              "name": "--amount"
+            },
+            {
+              "args": [
+                {
+                  "name": "budget-name"
+                }
+              ],
+              "description": "Budget Name",
+              "name": [
+                "--budget-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "category",
+                  "suggestions": [
+                    "Cost",
+                    "Usage"
+                  ]
+                }
+              ],
+              "description": "The category of the budget, whether the budget tracks cost or usage",
+              "name": "--category"
+            },
+            {
+              "args": [
+                {
+                  "name": "e-tag"
+                }
+              ],
+              "description": "ETag of the resource. To handle concurrent update scenario, this field will be used to determine whether the user is updating the latest version or not",
+              "name": "--e-tag"
+            },
+            {
+              "args": [
+                {
+                  "name": "filters"
+                }
+              ],
+              "description": "May be used to filter budgets by resource group, resource, or meter. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--filters"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "notifications"
+                }
+              ],
+              "description": "Dictionary of notifications associated with the budget. Budget can have up to five notifications. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--notifications"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "time-grain",
+                  "suggestions": [
+                    "Annually",
+                    "Monthly",
+                    "Quarterly"
+                  ]
+                }
+              ],
+              "description": "The time covered by a budget. Tracking of the amount will be reset based on the time grain",
+              "name": "--time-grain"
+            },
+            {
+              "args": [
+                {
+                  "name": "time-period"
+                }
+              ],
+              "description": "Has start and end date of the budget. The start date must be first of the month and should be less than the end date. Budget start date must be on or after June 1, 2017. Future start date should not be more than three months. Past start date should be selected within the timegrain period. There are no restrictions on the end date. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--time-period"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Inspect the marketplace usage data of an Azure subscription within a billing period",
+      "name": "marketplace",
+      "subcommands": [
+        {
+          "description": "List the marketplace for an Azure subscription within a billing period",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "billing-period-name"
+                }
+              ],
+              "description": "Name of the billing period to get the marketplace",
+              "name": [
+                "--billing-period-name",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "end-date"
+                }
+              ],
+              "description": "End date (YYYY-MM-DD in UTC). If specified, also requires --start-date",
+              "name": [
+                "--end-date",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "max-items"
+                }
+              ],
+              "description": "Total number of items to return in the command's output. If the total number of items available is more than the value specified, a token is provided in the command's output. To resume pagination, provide the token value in --next-token argument of a subsequent command",
+              "name": "--max-items"
+            },
+            {
+              "args": [
+                {
+                  "name": "next-token"
+                }
+              ],
+              "description": "Token to specify where to start paginating. This is the token value from a previously truncated response",
+              "name": "--next-token"
+            },
+            {
+              "args": [
+                {
+                  "name": "start-date"
+                }
+              ],
+              "description": "Start date (YYYY-MM-DD in UTC). If specified, also requires --end-date",
+              "name": [
+                "--start-date",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "top"
+                }
+              ],
+              "description": "Maximum number of items to return. Value range: 1-1000",
+              "name": [
+                "--top",
+                "-t"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Inspect the price sheet of an Azure subscription within a billing period",
+      "name": "pricesheet",
+      "subcommands": [
+        {
+          "description": "Show the price sheet for an Azure subscription within a billing period",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "billing-period-name"
+                }
+              ],
+              "description": "Name of the billing period to get the price sheet",
+              "name": [
+                "--billing-period-name",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "include-meter-details"
+                }
+              ],
+              "description": "Include meter details in the price sheet",
+              "name": "--include-meter-details"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage reservations for Azure resources",
+      "name": "reservation",
+      "subcommands": [
+        {
+          "description": "List reservation details",
+          "name": "detail",
+          "subcommands": [
+            {
+              "description": "List the details of a reservation by order id or reservation id",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "end-date"
+                    }
+                  ],
+                  "description": "End date (YYYY-MM-DD in UTC). Only needed for daily grain and if specified, also requires --start-date",
+                  "isRequired": true,
+                  "name": [
+                    "--end-date",
+                    "-e"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "reservation-order-id"
+                    }
+                  ],
+                  "description": "Reservation order id",
+                  "isRequired": true,
+                  "name": "--reservation-order-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "start-date"
+                    }
+                  ],
+                  "description": "Start date (YYYY-MM-DD in UTC). Only needed for daily grain and if specified, also requires --end-date",
+                  "isRequired": true,
+                  "name": [
+                    "--start-date",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "max-items"
+                    }
+                  ],
+                  "description": "Total number of items to return in the command's output. If the total number of items available is more than the value specified, a token is provided in the command's output. To resume pagination, provide the token value in --next-token argument of a subsequent command",
+                  "name": "--max-items"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "next-token"
+                    }
+                  ],
+                  "description": "Token to specify where to start paginating. This is the token value from a previously truncated response",
+                  "name": "--next-token"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "reservation-id"
+                    }
+                  ],
+                  "description": "Reservation id",
+                  "name": "--reservation-id"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List reservation summaries",
+          "name": "summary",
+          "subcommands": [
+            {
+              "description": "List reservation summaries for daily or monthly by order Id or reservation id",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "grain",
+                      "suggestions": [
+                        "daily",
+                        "monthly"
+                      ]
+                    }
+                  ],
+                  "description": "Reservation summary grain. Possible values are daily or monthly",
+                  "isRequired": true,
+                  "name": "--grain"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "reservation-order-id"
+                    }
+                  ],
+                  "description": "Reservation order id",
+                  "isRequired": true,
+                  "name": "--reservation-order-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "end-date"
+                    }
+                  ],
+                  "description": "End date (YYYY-MM-DD in UTC). Only needed for daily grain and if specified, also requires --start-date",
+                  "name": [
+                    "--end-date",
+                    "-e"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "max-items"
+                    }
+                  ],
+                  "description": "Total number of items to return in the command's output. If the total number of items available is more than the value specified, a token is provided in the command's output. To resume pagination, provide the token value in --next-token argument of a subsequent command",
+                  "name": "--max-items"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "next-token"
+                    }
+                  ],
+                  "description": "Token to specify where to start paginating. This is the token value from a previously truncated response",
+                  "name": "--next-token"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "reservation-id"
+                    }
+                  ],
+                  "description": "Id of the reservation",
+                  "name": "--reservation-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "start-date"
+                    }
+                  ],
+                  "description": "Start date (YYYY-MM-DD in UTC). Only needed for daily grain and if specified, also requires --end-date",
+                  "name": [
+                    "--start-date",
+                    "-s"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Inspect the usage of Azure resources",
+      "name": "usage",
+      "subcommands": [
+        {
+          "description": "List the details of Azure resource consumption, either as an invoice or within a billing period",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "billing-period-name"
+                }
+              ],
+              "description": "Name of the billing period to get the usage details that associate with",
+              "name": [
+                "--billing-period-name",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "end-date"
+                }
+              ],
+              "description": "End date (YYYY-MM-DD in UTC). If specified, also requires --start-date",
+              "name": [
+                "--end-date",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "include-additional-properties"
+                }
+              ],
+              "description": "Include additional properties in the usages",
+              "name": [
+                "--include-additional-properties",
+                "-a"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "include-meter-details"
+                }
+              ],
+              "description": "Include meter details in the usages",
+              "name": [
+                "--include-meter-details",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "max-items"
+                }
+              ],
+              "description": "Total number of items to return in the command's output. If the total number of items available is more than the value specified, a token is provided in the command's output. To resume pagination, provide the token value in --next-token argument of a subsequent command",
+              "name": "--max-items"
+            },
+            {
+              "args": [
+                {
+                  "name": "next-token"
+                }
+              ],
+              "description": "Token to specify where to start paginating. This is the token value from a previously truncated response",
+              "name": "--next-token"
+            },
+            {
+              "args": [
+                {
+                  "name": "start-date"
+                }
+              ],
+              "description": "Start date (YYYY-MM-DD in UTC). If specified, also requires --end-date",
+              "name": [
+                "--start-date",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "top"
+                }
+              ],
+              "description": "Maximum number of items to return. Value range: 1-1000",
+              "name": [
+                "--top",
+                "-t"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,677 @@
+{
+  "description": "Use the Amazon OpenSearch Ingestion API to create and manage ingestion pipelines. OpenSearch Ingestion is a fully managed data collector that delivers real-time log and trace data to OpenSearch Service domains. For more information, see Getting data into your cluster using OpenSearch Ingestion",
+  "name": "osis",
+  "subcommands": [
+    {
+      "description": "Creates an OpenSearch Ingestion pipeline. For more information, see Creating Amazon OpenSearch Ingestion pipelines",
+      "name": "create-pipeline",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the OpenSearch Ingestion pipeline to create. Pipeline names are unique across the pipelines owned by an account within an Amazon Web Services Region",
+          "name": "--pipeline-name"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The minimum pipeline capacity, in Ingestion Compute Units (ICUs)",
+          "name": "--min-units"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum pipeline capacity, in Ingestion Compute Units (ICUs)",
+          "name": "--max-units"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The pipeline configuration in YAML format. The command accepts the pipeline configuration as a string or within a .yaml file. If you provide the configuration as a string, each new line must be escaped with \\n",
+          "name": "--pipeline-configuration-body"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Key-value pairs to configure log publishing",
+          "name": "--log-publishing-options"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Container for the values required to configure VPC access for the pipeline. If you don't specify these values, OpenSearch Ingestion creates the pipeline with a public endpoint",
+          "name": "--vpc-options"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Key-value pairs to configure persistent buffering for the pipeline",
+          "name": "--buffer-options"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Key-value pairs to configure encryption for data that is written to a persistent buffer",
+          "name": "--encryption-at-rest-options"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "List of tags to add to the pipeline upon creation",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes an OpenSearch Ingestion pipeline. For more information, see Deleting Amazon OpenSearch Ingestion pipelines",
+      "name": "delete-pipeline",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the pipeline to delete",
+          "name": "--pipeline-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves information about an OpenSearch Ingestion pipeline",
+      "name": "get-pipeline",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the pipeline",
+          "name": "--pipeline-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves information about a specific blueprint for OpenSearch Ingestion. Blueprints are templates for the configuration needed for a CreatePipeline request. For more information, see Using blueprints to create a pipeline",
+      "name": "get-pipeline-blueprint",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the blueprint to retrieve",
+          "name": "--blueprint-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The format format of the blueprint to retrieve",
+          "name": "--format"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns progress information for the current change happening on an OpenSearch Ingestion pipeline. Currently, this operation only returns information when a pipeline is being created. For more information, see Tracking the status of pipeline creation",
+      "name": "get-pipeline-change-progress",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the pipeline",
+          "name": "--pipeline-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves a list of all available blueprints for Data Prepper. For more information, see Using blueprints to create a pipeline",
+      "name": "list-pipeline-blueprints",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Lists all OpenSearch Ingestion pipelines in the current Amazon Web Services account and Region. For more information, see Viewing Amazon OpenSearch Ingestion pipelines",
+      "name": "list-pipelines",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "An optional parameter that specifies the maximum number of results to return. You can use nextToken to get the next page of results",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "If your initial ListPipelines operation returns a nextToken, you can include the returned nextToken in subsequent ListPipelines operations, which returns results in the next page",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Lists all resource tags associated with an OpenSearch Ingestion pipeline. For more information, see Tagging Amazon OpenSearch Ingestion pipelines",
+      "name": "list-tags-for-resource",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The Amazon Resource Name (ARN) of the pipeline to retrieve tags for",
+          "name": "--arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Starts an OpenSearch Ingestion pipeline. For more information, see Starting an OpenSearch Ingestion pipeline",
+      "name": "start-pipeline",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the pipeline to start",
+          "name": "--pipeline-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Stops an OpenSearch Ingestion pipeline. For more information, see Stopping an OpenSearch Ingestion pipeline",
+      "name": "stop-pipeline",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the pipeline to stop",
+          "name": "--pipeline-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Tags an OpenSearch Ingestion pipeline. For more information, see Tagging Amazon OpenSearch Ingestion pipelines",
+      "name": "tag-resource",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The Amazon Resource Name (ARN) of the pipeline to tag",
+          "name": "--arn"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The list of key-value tags to add to the pipeline",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Removes one or more tags from an OpenSearch Ingestion pipeline. For more information, see Tagging Amazon OpenSearch Ingestion pipelines",
+      "name": "untag-resource",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The Amazon Resource Name (ARN) of the pipeline to remove tags from",
+          "name": "--arn"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The tag keys to remove",
+          "name": "--tag-keys"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Updates an OpenSearch Ingestion pipeline. For more information, see Updating Amazon OpenSearch Ingestion pipelines",
+      "name": "update-pipeline",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the pipeline to update",
+          "name": "--pipeline-name"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The minimum pipeline capacity, in Ingestion Compute Units (ICUs)",
+          "name": "--min-units"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum pipeline capacity, in Ingestion Compute Units (ICUs)",
+          "name": "--max-units"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The pipeline configuration in YAML format. The command accepts the pipeline configuration as a string or within a .yaml file. If you provide the configuration as a string, each new line must be escaped with \\n",
+          "name": "--pipeline-configuration-body"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Key-value pairs to configure log publishing",
+          "name": "--log-publishing-options"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Key-value pairs to configure persistent buffering for the pipeline",
+          "name": "--buffer-options"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Key-value pairs to configure encryption for data that is written to a persistent buffer",
+          "name": "--encryption-at-rest-options"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Checks whether an OpenSearch Ingestion pipeline configuration is valid prior to creation. For more information, see Creating Amazon OpenSearch Ingestion pipelines",
+      "name": "validate-pipeline",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The pipeline configuration in YAML format. The command accepts the pipeline configuration as a string or within a .yaml file. If you provide the configuration as a string, each new line must be escaped with \\n",
+          "name": "--pipeline-configuration-body"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1054 @@
+{
+  "description": "Shopify CLI helps you build Shopify apps. It quickly generates Node.js, Ruby on Rails, and PHP apps, app extensions, Shopify Scripts (beta), and Shopify themes. You can also use it for Shopify themes and when automating many common development tasks. Visit https://shopify.dev/apps/tools/cli to know more",
+  "icon": "https://avatars.githubusercontent.com/u/8085?s=16&v=4",
+  "name": "shopify",
+  "options": [
+    {
+      "description": "Show help for this command",
+      "icon": "fig://icon?type=option",
+      "isPersistent": true,
+      "name": [
+        "--help",
+        "-h"
+      ],
+      "priority": 1
+    }
+  ],
+  "subcommands": [
+    {
+      "description": "Suite of commands for developing Shopify themes",
+      "name": "theme",
+      "priority": 100,
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "The name that you want to give your theme. Cloned files are stored in a folder with this name",
+              "name": "NAME"
+            }
+          ],
+          "description": "Clones a Git repository to your local machine to use as the starting point for building a theme",
+          "name": "init",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "URL"
+                }
+              ],
+              "description": "The URL of the Git repository that you want to clone. If no URL is specified, then https://github.com/Shopify/dawn.git is used",
+              "icon": "fig://icon?type=github",
+              "name": "--clone-url"
+            }
+          ],
+          "priority": 100
+        },
+        {
+          "description": "Uploads the current theme as a development theme to the store that you're connected to",
+          "name": "serve",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "MODE",
+                  "suggestions": [
+                    {
+                      "description": "Hot reloads local changes to CSS and sections (default)",
+                      "name": "hot-reload"
+                    },
+                    {
+                      "description": "Refreshes the entire page when a file is modified",
+                      "name": "full-page"
+                    },
+                    {
+                      "description": "Deactivate live reload",
+                      "name": "off"
+                    }
+                  ]
+                }
+              ],
+              "description": "The level at which content is reloaded when changes are made to the theme",
+              "name": "--live-reload"
+            },
+            {
+              "args": [
+                {
+                  "description": "The network interface the web server listens on. The default value is 127.0.0.1",
+                  "name": "IP"
+                }
+              ],
+              "description": "The network interface the web server listens on. The default value is 127.0.0.1",
+              "name": "--host"
+            },
+            {
+              "args": [
+                {
+                  "description": "The local port to serve the theme preview from",
+                  "name": "PORT"
+                }
+              ],
+              "description": "The local port to serve the theme preview from",
+              "name": "--port"
+            },
+            {
+              "description": "Force the polling adapter to watch file changes. You can try this option if live reload isn't working as expected",
+              "name": "--poll"
+            }
+          ]
+        },
+        {
+          "description": "Calls and runs Theme Check to analyze your theme code for errors and to ensure that it follows theme and Liquid best practices. Learn more about the checks that Theme Check runs",
+          "icon": "fig://icon?type=alert",
+          "name": "check",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "PATH",
+                  "template": "filepaths"
+                }
+              ],
+              "description": "The path to your custom Theme Check config. This config overrides .theme-check.yml, if it is present in the directory being analyzed",
+              "name": "--config"
+            },
+            {
+              "args": [
+                {
+                  "name": "CATEGORY",
+                  "suggestions": [
+                    "html",
+                    "json",
+                    "liquid",
+                    "performance",
+                    "translation"
+                  ]
+                }
+              ],
+              "description": "Run only the specified category of checks. You can specify multiple categories using multiple instances of this flag",
+              "name": "--category"
+            },
+            {
+              "args": [
+                {
+                  "name": "CATEGORY",
+                  "suggestions": [
+                    "html",
+                    "json",
+                    "liquid",
+                    "performance",
+                    "translation"
+                  ]
+                }
+              ],
+              "description": "Run all checks other than those in the specified category. You can specify multiple categories using multiple instances of this flag",
+              "name": "--exclude-category"
+            },
+            {
+              "args": [
+                {
+                  "name": "LEVEL",
+                  "suggestions": [
+                    "error",
+                    "suggestion",
+                    "style"
+                  ]
+                }
+              ],
+              "description": "Configure the severity level that causes a run of theme check to fail (exit code 1). Options include error, suggestion, and style",
+              "name": "--fail-level"
+            },
+            {
+              "description": "Automatically fix correctable offenses",
+              "name": "--auto-correct"
+            },
+            {
+              "description": "Generate a new Theme Check config file",
+              "name": "--init"
+            },
+            {
+              "args": [
+                {
+                  "name": "type",
+                  "suggestions": [
+                    "json",
+                    "text"
+                  ]
+                }
+              ],
+              "description": "Output the results of the check to a file. Options include json and text (default)",
+              "name": "--output"
+            },
+            {
+              "description": "Output the active config to STDOUT",
+              "name": "--print"
+            },
+            {
+              "description": "List the active checks",
+              "name": "--list"
+            },
+            {
+              "description": "Print the version of Theme Check being used",
+              "name": "--version"
+            }
+          ]
+        },
+        {
+          "description": "Returns links that let you preview the specified theme",
+          "name": "open",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "NAME_OR_ID"
+                }
+              ],
+              "description": "The name or ID of the theme that you want to overwrite",
+              "name": "--theme"
+            },
+            {
+              "description": "Returns links for the live (published) theme. This option doesn't require --theme",
+              "name": "--live"
+            },
+            {
+              "description": "Returns links for your development theme. This option doesn't require --theme",
+              "name": "--development"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "The ID of the theme that you want to delete. You can specify multiple theme IDs separated by spaces",
+              "name": "THEME_ID"
+            }
+          ],
+          "description": "Deletes a theme from your store",
+          "name": "delete",
+          "options": [
+            {
+              "description": "Deletes your development theme",
+              "name": "--development"
+            },
+            {
+              "description": "Deletes the theme without confirming with the user",
+              "name": "--force"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "isOptional": true,
+              "name": "ROOT",
+              "template": "folders"
+            }
+          ],
+          "description": "Packages your local theme files into a ZIP file that can be uploaded to Shopify",
+          "icon": "fig://icon?type=box",
+          "name": "package"
+        },
+        {
+          "args": [
+            {
+              "description": "The ID of the theme that you want to delete. You can specify multiple theme IDs separated by spaces",
+              "name": "THEME_ID"
+            }
+          ],
+          "description": "Publishes an unpublished theme from your theme library",
+          "name": "publish",
+          "options": [
+            {
+              "description": "Publish the theme without confirming with the user",
+              "name": "--force"
+            }
+          ]
+        },
+        {
+          "description": "Retrieves theme files from Shopify",
+          "name": "pull",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "NAME_OR_ID"
+                }
+              ],
+              "description": "The name or ID of the theme that you want to overwrite",
+              "name": "--theme"
+            },
+            {
+              "description": "Pulls the live (published) theme. This option doesn't require --theme",
+              "name": "--live"
+            },
+            {
+              "description": "Downloads theme files from your remote development theme. You might use this command to copy changes made to the development theme in the theme editor to your local copy of the theme. This option doesn't require --theme",
+              "name": "--development"
+            },
+            {
+              "description": "Runs the pull command without deleting local files",
+              "name": "--nodelete"
+            },
+            {
+              "description": "Skips downloading the specified files from Shopify. Specify multiple patterns to ignore by using the flag multiple times in a single command. If files are excluded using .shopifyignore, then both the contents of .shopifyignore and the --ignore flag are respected",
+              "name": "--ignore"
+            },
+            {
+              "description": "Downloads only the specified files from Shopify. Specify multiple patterns by using the flag multiple times in a single command",
+              "name": "--only"
+            }
+          ]
+        },
+        {
+          "description": "Uploads your local theme files to Shopify, overwriting the remote theme if specified",
+          "name": "push",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "NAME_OR_ID"
+                }
+              ],
+              "description": "The name or ID of the theme that you want to overwrite",
+              "name": "--theme"
+            },
+            {
+              "description": "Pushes to your development theme. If you don't have a development theme, then one is created. This option doesn't require --theme",
+              "name": "--development"
+            },
+            {
+              "description": "Pushes your local files without deleting remote files from Shopify",
+              "name": "--nodelete"
+            },
+            {
+              "description": "Returns information about the pushed theme as a JSON object",
+              "name": "--json"
+            },
+            {
+              "description": "Allows Shopify CLI to overwrite the live (published) theme",
+              "name": "--allow-live"
+            },
+            {
+              "description": "Pushes to the live (published) theme. This option doesn't require --theme or --allow-live",
+              "name": "--live"
+            },
+            {
+              "description": "After the theme is pushed, publishes the theme so it is live in the store",
+              "name": "--publish"
+            },
+            {
+              "description": "Uploads the theme to the theme library as a new unpublished theme.You're prompted to provide a name for the theme. Use the --theme flag to provide a name as a part of the command",
+              "name": "--unpublished"
+            },
+            {
+              "description": "Skips uploading the specified files to Shopify. Specify multiple patterns to ignore by using the flag multiple times in a single command. If files are excluded using .shopifyignore, then both the contents of .shopifyignore and the --ignore flag are respected",
+              "name": "--ignore"
+            },
+            {
+              "description": "Uploads only the specified files to Shopify. Specify multiple patterns by using the flag multiple times in a single command",
+              "name": "--only"
+            }
+          ]
+        },
+        {
+          "description": "Lists the themes in your store, along with their IDs and statuses",
+          "name": "list"
+        }
+      ]
+    },
+    {
+      "description": "This reference lists the Shopify CLI commands for apps",
+      "name": "app",
+      "priority": 90,
+      "subcommands": [
+        {
+          "description": "Creates a ruby on rails / node / php app",
+          "name": "create",
+          "priority": 100,
+          "subcommands": [
+            {
+              "description": "Connects an existing app to Shopify CLI. Creates a config file",
+              "name": "rails",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "NAME"
+                    }
+                  ],
+                  "description": "App name. Any string",
+                  "name": "--name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ID"
+                    }
+                  ],
+                  "description": "Partner organization ID. Must be an existing organization",
+                  "isRequired": false,
+                  "name": "--organization-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "MYSHOPIFYDOMAIN"
+                    }
+                  ],
+                  "description": "Development store URL. Must be an existing development store",
+                  "isRequired": false,
+                  "name": "--store-domain"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "APPTYPE",
+                      "suggestions": [
+                        "public",
+                        "custom"
+                      ]
+                    }
+                  ],
+                  "description": "Whether this app is public or custom",
+                  "isRequired": false,
+                  "name": "--type"
+                },
+                {
+                  "description": "Output verbose information when installing dependencies",
+                  "isRequired": false,
+                  "name": "--verbose"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "DB",
+                      "suggestions": [
+                        {
+                          "name": "mysql"
+                        },
+                        {
+                          "name": "postgresql"
+                        },
+                        {
+                          "name": "sqlite3"
+                        },
+                        {
+                          "name": "oracle"
+                        },
+                        {
+                          "name": "frontbase"
+                        },
+                        {
+                          "name": "ibm_db"
+                        },
+                        {
+                          "name": "sqlserver"
+                        },
+                        {
+                          "name": "jdbcmysql"
+                        },
+                        {
+                          "name": "jdbcsqlite3"
+                        },
+                        {
+                          "name": "jdbcpostgresql"
+                        },
+                        {
+                          "name": "jdbc"
+                        }
+                      ]
+                    }
+                  ],
+                  "description": "Database type",
+                  "name": "--db"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "RAILSOPTS"
+                    }
+                  ],
+                  "description": "Additional options. Must be string containing one or more valid Rails options, separated by spaces",
+                  "name": "--rails-opts"
+                }
+              ]
+            },
+            {
+              "description": "Creates an embedded nodejs app",
+              "name": "node",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "NAME"
+                    }
+                  ],
+                  "description": "App name. Any string",
+                  "name": "--name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ID"
+                    }
+                  ],
+                  "description": "Partner organization ID. Must be an existing organization",
+                  "isRequired": false,
+                  "name": "--organization-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "MYSHOPIFYDOMAIN"
+                    }
+                  ],
+                  "description": "Development store URL. Must be an existing development store",
+                  "isRequired": false,
+                  "name": "--store-domain"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "APPTYPE",
+                      "suggestions": [
+                        "public",
+                        "custom"
+                      ]
+                    }
+                  ],
+                  "description": "Whether this app is public or custom",
+                  "isRequired": false,
+                  "name": "--type"
+                },
+                {
+                  "description": "Output verbose information when installing dependencies",
+                  "isRequired": false,
+                  "name": "--verbose"
+                }
+              ]
+            },
+            {
+              "description": "Connects an existing app to Shopify CLI. Creates a config file",
+              "name": "php",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "NAME"
+                    }
+                  ],
+                  "description": "App name. Any string",
+                  "name": "--name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ID"
+                    }
+                  ],
+                  "description": "Partner organization ID. Must be an existing organization",
+                  "isRequired": false,
+                  "name": "--organization-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "MYSHOPIFYDOMAIN"
+                    }
+                  ],
+                  "description": "Development store URL. Must be an existing development store",
+                  "isRequired": false,
+                  "name": "--store-domain"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "APPTYPE",
+                      "suggestions": [
+                        "public",
+                        "custom"
+                      ]
+                    }
+                  ],
+                  "description": "Whether this app is public or custom",
+                  "isRequired": false,
+                  "name": "--type"
+                },
+                {
+                  "description": "Output verbose information when installing dependencies",
+                  "isRequired": false,
+                  "name": "--verbose"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Connects an existing app to Shopify CLI. Creates a config file",
+          "name": "connect",
+          "priority": 90
+        },
+        {
+          "description": "Deploy the current app to a hosting service. Heroku (https://www.heroku.com) is currently the only option, but more will be added in the future",
+          "name": "deploy",
+          "priority": 80,
+          "subcommands": [
+            {
+              "description": "Deploys the current app to Heroku",
+              "icon": "fig://icon?type=heroku",
+              "name": "heroku"
+            }
+          ]
+        },
+        {
+          "description": "Open your local development app in the default browser",
+          "name": "open",
+          "priority": 70
+        },
+        {
+          "description": "Start a local development server for your project, as well as a public ngrok tunnel to your localhost",
+          "name": "serve",
+          "priority": 60
+        },
+        {
+          "description": "Controls an HTTP tunnel to your local development app using ngrok. With the tunnel command, you can authenticate with ngrok and start or stop the tunnel. To authenticate with ngrok, you need to create an ngrok account, and then create an authentication token from your ngrok dashboard. Copy your token and use it with the auth command",
+          "name": "tunnel",
+          "priority": 50,
+          "subcommands": [
+            {
+              "description": "Starts an ngrok tunnel, will print the URL for an existing tunnel if already running",
+              "name": "start",
+              "priority": 100
+            },
+            {
+              "description": "Stops the ngrok tunnel",
+              "name": "stop",
+              "priority": 90
+            },
+            {
+              "description": "Writes an ngrok auth token to ~/.ngrok2/ngrok.yml to connect with an ngrok account. Visit https://dashboard.ngrok.com/signup to sign up",
+              "name": "auth",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "token"
+                    }
+                  ],
+                  "description": "Ngrok auth token",
+                  "isRequired": true,
+                  "name": "--token"
+                }
+              ],
+              "priority": 80
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Suite of commands for developing app extensions",
+      "name": "extension",
+      "priority": 80,
+      "subcommands": [
+        {
+          "description": "Scaffolds a new extension project in a subdirectory of your app. To specify the type and name of your extension, you can use the interactive prompts or specify them as parameters on the command",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "TYPE"
+                }
+              ],
+              "description": "The type of extension that you want to create",
+              "name": "--type"
+            },
+            {
+              "args": [
+                {
+                  "name": "NAME"
+                }
+              ],
+              "description": "The name of the extension. Shopify CLI transforms the input into snake case to name your directory. Extension names have a 50 character limit",
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "KEY"
+                }
+              ],
+              "name": "--api-key"
+            }
+          ],
+          "priority": 100
+        },
+        {
+          "description": "Starts a local server that can be rendered in the development store. This command must be run from your extension’s directory. The server will continue to run until you press Ctrl+C",
+          "name": "serve",
+          "options": [
+            {
+              "description": "Creates an HTTP tunnel (this is the default behavior)",
+              "name": "--tunnel"
+            },
+            {
+              "description": "Skips creating an HTTP tunnel",
+              "name": "--no-tunnel"
+            },
+            {
+              "args": [
+                {
+                  "description": "A relative link to product or variant",
+                  "name": "RESOURCE"
+                }
+              ],
+              "name": "--ressourceUrl"
+            }
+          ],
+          "priority": 90
+        },
+        {
+          "description": "Creates your app extension and associates it with an app in your Partner organization. This step should be done only once for each app extension. Before you can push your code to Shopify, you need to create an app in your Partner Dashboard that you want to register your extension to. After an extension is registered to an app, the registration can’t be undone",
+          "name": "register",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "KEY"
+                }
+              ],
+              "description": "The API key of the app that you want to register your extension to",
+              "name": "--api-key"
+            }
+          ],
+          "priority": 80
+        },
+        {
+          "description": "Connects your local project directory to an existing app in your Partner organization. This command is intended to help teams collaborate on the same extension code. Each developer can clone the extension code locally, and then run shopify extension connect to populate the local .env file with the API keys required to push changes to the extension",
+          "name": "connect",
+          "priority": 70
+        },
+        {
+          "description": "Uploads your code to Shopify. You need to run this command before you can publish your extension from the Partner Dashboard. You need to register your extension before you can push it to Shopify",
+          "name": "push",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "KEY"
+                }
+              ],
+              "description": "Connect your extension and app by inserting your app's API key (which you can get from your app setup page on shopify.dev)",
+              "name": "--api-key"
+            },
+            {
+              "args": [
+                {
+                  "name": "REGISTRATION_ID"
+                }
+              ],
+              "description": "The id of the extension's registration",
+              "name": "--registration-id"
+            }
+          ],
+          "priority": 60
+        },
+        {
+          "args": [
+            {
+              "name": "extension path",
+              "template": "folders"
+            }
+          ],
+          "description": "Runs Theme Check to analyze your code for errors and to ensure that it follows theme and Liquid best practices. Learn more about the checks that Theme Check runs. This command is only valid for theme app extensions",
+          "icon": "fig://icon?type=alert",
+          "name": "check",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "PATH",
+                  "template": "filepaths"
+                }
+              ],
+              "description": "The path to your custom Theme Check config. This config overrides .theme-check.yml, if it is present in the directory being analyzed",
+              "name": "--config"
+            },
+            {
+              "args": [
+                {
+                  "name": "CATEGORY",
+                  "suggestions": [
+                    "html",
+                    "json",
+                    "liquid",
+                    "performance",
+                    "translation"
+                  ]
+                }
+              ],
+              "description": "Run only the specified category of checks. You can specify multiple categories using multiple instances of this flag",
+              "name": "--category"
+            },
+            {
+              "args": [
+                {
+                  "name": "CATEGORY",
+                  "suggestions": [
+                    "html",
+                    "json",
+                    "liquid",
+                    "performance",
+                    "translation"
+                  ]
+                }
+              ],
+              "description": "Run all checks other than those in the specified category. You can specify multiple categories using multiple instances of this flag",
+              "name": "--exclude-category"
+            },
+            {
+              "args": [
+                {
+                  "name": "LEVEL",
+                  "suggestions": [
+                    "error",
+                    "suggestion",
+                    "style"
+                  ]
+                }
+              ],
+              "description": "Configure the severity level that causes a run of theme check to fail (exit code 1). Options include error, suggestion, and style",
+              "name": "--fail-level"
+            },
+            {
+              "description": "Automatically fix correctable offenses",
+              "name": "--auto-correct"
+            },
+            {
+              "description": "Generate a new Theme Check config file",
+              "name": "--init"
+            },
+            {
+              "args": [
+                {
+                  "name": "type",
+                  "suggestions": [
+                    "json",
+                    "text"
+                  ]
+                }
+              ],
+              "description": "Output the results of the check to a file. Options include json and text (default)",
+              "name": "--output"
+            },
+            {
+              "description": "Output the active config to STDOUT",
+              "name": "--print"
+            },
+            {
+              "description": "List the active checks",
+              "name": "--list"
+            },
+            {
+              "description": "Print the version of Theme Check being used",
+              "name": "--version"
+            }
+          ],
+          "priority": 50
+        }
+      ]
+    },
+    {
+      "description": "Authenticates you, and logs you into the specified store, with Shopify CLI",
+      "name": "login",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "STORE"
+            }
+          ],
+          "description": "The store prefix, myshopify.com URL, admin URL, custom domain or custom domain admin",
+          "name": "--store"
+        }
+      ],
+      "priority": 70
+    },
+    {
+      "description": "Logs you out of the Shopify account or Partner account and store. The logout command clears credentials. You need to reauthenticate the next time that you connect to a store",
+      "name": "logout",
+      "priority": 60
+    },
+    {
+      "args": [
+        {
+          "isVariadic": true,
+          "name": "TYPE",
+          "suggestions": [
+            {
+              "description": "Creates products in your store. Products are created with a title and a price",
+              "name": "products"
+            },
+            {
+              "description": "Creates customers in your store. Customers are created with a name only",
+              "name": "customers"
+            },
+            {
+              "description": "Creates draft orders in your store. Draft orders are created with one custom item",
+              "name": "draftorders"
+            }
+          ]
+        }
+      ],
+      "description": "Adds example data to your store for testing your app or theme’s behavior.The populate command lets you specify which type of data you're populating, and how many to create",
+      "name": "populate",
+      "options": [
+        {
+          "args": [
+            {
+              "description": "Creates the specified number of records. This is an optional parameter. If no count is specified, then five records are created",
+              "name": "NUMBER"
+            }
+          ],
+          "name": "--count",
+          "priority": 1
+        }
+      ],
+      "priority": 50
+    },
+    {
+      "description": "Displays the store that you're currently connected to",
+      "icon": "fig://icon?type=option",
+      "name": "store",
+      "priority": 40
+    },
+    {
+      "description": "Displays the version of Shopify CLI that you're running",
+      "icon": "fig://icon?type=option",
+      "name": "version",
+      "priority": 30
+    },
+    {
+      "description": "Configures Shopify CLI options. There are two available options: analytics and feature",
+      "name": "config",
+      "priority": 10,
+      "subcommands": [
+        {
+          "description": "Configures anonymous usage reporting by enabling or disabling analytics",
+          "name": "analytics",
+          "options": [
+            {
+              "name": "--status"
+            },
+            {
+              "name": "--enable"
+            },
+            {
+              "name": "--disable"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "feature_name"
+            }
+          ],
+          "description": "Configures active feature sets in the CLI. This command is used for development and debugging work on the CLI tool itself. Unless you're developing the tool, don't alter this command. Review the Shopify CLI development guide for more information",
+          "name": "feature",
+          "options": [
+            {
+              "name": "--status"
+            },
+            {
+              "name": "--enable"
+            },
+            {
+              "name": "--disable"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Determines which Partner organization you're logged in to, or which store you're logged in to as a staff member",
+      "icon": "fig://icon?type=option",
+      "name": "whoami",
+      "priority": 1
+    },
+    {
+      "description": "Switches between stores without logging out and logging in again",
+      "name": "switch",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "STORE"
+            }
+          ],
+          "description": "The store prefix, myshopify.com URL, admin URL, custom domain or custom domain admin",
+          "name": "--store"
+        }
+      ],
+      "priority": 20
+    },
+    {
+      "description": "Shopify Scripts is in beta and only available to stores on the Shopify Plus plan. Enrollment to the beta program is closed",
+      "name": "script",
+      "priority": 25,
+      "subcommands": [
+        {
+          "description": "Creates a new script project. The project is created in a subdirectory of the current directory",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "api_name",
+                  "suggestions": [
+                    "shipping_methods",
+                    "payment_methods"
+                  ]
+                }
+              ],
+              "description": "The API library to use for the script",
+              "name": "--api"
+            },
+            {
+              "args": [
+                {
+                  "name": "script_name"
+                }
+              ],
+              "description": "The name of the script",
+              "name": "--title"
+            },
+            {
+              "args": [
+                {
+                  "name": "script_language"
+                }
+              ],
+              "description": "The format or language of the script. Valid values: wasm. If unspecified, then your script project is created in WebAssembly (Wasm), which is the default format for script projects",
+              "name": "--language"
+            }
+          ]
+        },
+        {
+          "description": "Connects a script to a Shopify Partner organization and custom app. You need to run the connect command before you first deploy the script to an app. The connect command creates the project's .env and .shopify-cli.yml files if they don't exist, or updates the files if they do exist. This command is useful if you're working on one project across multiple computers, or if you're collaborating with other developers using a version control system like Git",
+          "name": "connect"
+        },
+        {
+          "description": "Deploys a previously connected script to the Shopify platform",
+          "name": "push",
+          "options": [
+            {
+              "description": "Replaces the current script with the newest version. This parameter is required if you've already pushed the script to the Shopify platform",
+              "name": "--force"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

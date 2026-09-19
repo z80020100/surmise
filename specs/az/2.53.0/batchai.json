@@ -1,0 +1,2349 @@
+{
+  "description": "Manage Batch AI resources",
+  "name": "batchai",
+  "subcommands": [
+    {
+      "description": "Commands to manage clusters",
+      "name": "cluster",
+      "subcommands": [
+        {
+          "description": "Set auto-scale parameters for a cluster",
+          "name": "auto-scale",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "max"
+                }
+              ],
+              "description": "Maximum number of nodes",
+              "isRequired": true,
+              "name": "--max"
+            },
+            {
+              "args": [
+                {
+                  "name": "min"
+                }
+              ],
+              "description": "Minimum number of nodes",
+              "isRequired": true,
+              "name": "--min"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of cluster",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Create a cluster",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of cluster",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "isRequired": true,
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "afs-mount-path"
+                }
+              ],
+              "description": "Relative mount path for Azure File share. The file share will be available at $AZ_BATCHAI_MOUNT_ROOT/<relative_mount_path> folder",
+              "name": "--afs-mount-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "afs-name"
+                }
+              ],
+              "description": "Name of Azure File Share to be mounted on each cluster node. Must be used in conjunction with --storage-account-name. Multiple shares can be mounted using configuration file (see --config-file option)",
+              "name": "--afs-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "bfs-mount-path"
+                }
+              ],
+              "description": "Relative mount path for Azure Storage container. The container will be available at $AZ_BATCHAI_MOUNT_ROOT/<relative_mount_path> folder",
+              "name": "--bfs-mount-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "bfs-name"
+                }
+              ],
+              "description": "Name of Azure Storage container to be mounted on each cluster node. Must be used in conjunction with --storage-account-name. Multiple containers can be mounted using configuration file (see --config-file option)",
+              "name": "--bfs-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "config-file"
+                }
+              ],
+              "description": "A path to a json file containing cluster create parameters (json representation of azure.mgmt.batchai.models.ClusterCreateParameters)",
+              "name": [
+                "--config-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "custom-image"
+                }
+              ],
+              "description": "ARM ID of a virtual machine image to be used for nodes creation. Note, you need to provide --image containing information about the base image used for this image creation",
+              "name": "--custom-image"
+            },
+            {
+              "args": [
+                {
+                  "name": "generate-ssh-keys"
+                }
+              ],
+              "description": "Generate SSH public and private key files in ~/.ssh directory (if missing)",
+              "name": "--generate-ssh-keys"
+            },
+            {
+              "args": [
+                {
+                  "name": "image"
+                }
+              ],
+              "description": "Operation system image for cluster nodes. The value may contain an alias (UbuntuLTS, UbuntuDSVM) or specify image details in the form \"publisher:offer:sku:version\". If image configuration is not provided via command line or configuration file, Batch AI will choose default OS image",
+              "name": [
+                "--image",
+                "-i"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "max"
+                }
+              ],
+              "description": "Max nodes count for the auto-scale cluster",
+              "name": "--max"
+            },
+            {
+              "args": [
+                {
+                  "name": "min"
+                }
+              ],
+              "description": "Min nodes count for the auto-scale cluster",
+              "name": "--min"
+            },
+            {
+              "args": [
+                {
+                  "name": "nfs"
+                }
+              ],
+              "description": "Name or ARM ID of a file server to be mounted on each cluster node. You need to provide full ARM ID if the file server belongs to a different workspace. Multiple NFS can be mounted using configuration file (see --config-file option)",
+              "name": "--nfs"
+            },
+            {
+              "args": [
+                {
+                  "name": "nfs-mount-path"
+                }
+              ],
+              "description": "Relative mount path for NFS. The NFS will be available at $AZ_BATCHAI_MOUNT_ROOT/<relative_mount_path> folder",
+              "name": "--nfs-mount-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "password"
+                }
+              ],
+              "description": "Optional password for the admin user account to be created on each compute node",
+              "name": [
+                "--password",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "setup-task"
+                }
+              ],
+              "description": "A command line which should be executed on each compute node when it's got allocated or rebooted. The task is executed in a bash subshell under root account",
+              "name": "--setup-task"
+            },
+            {
+              "args": [
+                {
+                  "name": "setup-task-output"
+                }
+              ],
+              "description": "Directory path to store where setup-task's logs. Note, Batch AI will create several helper directories under this path. The created directories are reported as stdOutErrPathSuffix by 'az cluster show' command",
+              "name": "--setup-task-output"
+            },
+            {
+              "args": [
+                {
+                  "name": "ssh-key"
+                }
+              ],
+              "description": "Optional SSH public key value or path. If ommited and no password specified, default SSH key (~/.ssh/id_rsa.pub) will be used",
+              "name": [
+                "--ssh-key",
+                "-k"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-account-key"
+                }
+              ],
+              "description": "Storage account key. Required if the storage account belongs to a different subscription. Can be specified using AZURE_BATCHAI_STORAGE_KEY environment variable",
+              "name": "--storage-account-key"
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-account-name"
+                }
+              ],
+              "description": "Storage account name for Azure File Shares and/or Azure Storage Containers to be mounted on each cluster node. Can be specified using AZURE_BATCHAI_STORAGE_ACCOUNT environment variable",
+              "name": "--storage-account-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subnet"
+                }
+              ],
+              "description": "ARM ID of a virtual network subnet to put the cluster in",
+              "name": "--subnet"
+            },
+            {
+              "args": [
+                {
+                  "name": "target"
+                }
+              ],
+              "description": "Number of nodes which should be allocated immediately after cluster creation. If the cluster is in auto-scale mode, BatchAI can change the number of nodes later based on number of running and queued jobs",
+              "name": [
+                "--target",
+                "-t"
+              ]
+            },
+            {
+              "description": "If provided, the command will create a storage account in a new or existing resource group named \"batchaiautostorage\". It will also create Azure File Share with name \"batchaishare\", Azure Blob Container with name \"batchaicontainer\". The File Share and Blob Container will be mounted on each cluster node at $AZ_BATCHAI_MOUNT_ROOT/autoafs and $AZ_BATCHAI_MOUNT_ROOT/autobfs. If the resource group already exists and contains an approapriate storage account belonging to the same region as cluster, this command will reuse existing storage account",
+              "name": "--use-auto-storage"
+            },
+            {
+              "args": [
+                {
+                  "name": "user-name"
+                }
+              ],
+              "description": "Name of admin user account to be created on each compute node. If the value is not provided and no user configuration is provided in the config file, current user's name will be used",
+              "name": [
+                "--user-name",
+                "-u"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "vm-priority",
+                  "suggestions": [
+                    "dedicated",
+                    "lowpriority"
+                  ]
+                }
+              ],
+              "description": "VM priority",
+              "name": "--vm-priority"
+            },
+            {
+              "args": [
+                {
+                  "name": "vm-size"
+                }
+              ],
+              "description": "VM size for cluster nodes (e.g. Standard_NC6 for 1 GPU node)",
+              "name": [
+                "--vm-size",
+                "-s"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete a cluster",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of cluster",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List clusters",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "isRequired": true,
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Resize a cluster",
+          "name": "resize",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "target"
+                }
+              ],
+              "description": "Target number of compute nodes",
+              "isRequired": true,
+              "name": [
+                "--target",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of cluster",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show information about a cluster",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of cluster",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Commands to work with files generated by node setup task",
+          "name": "file",
+          "subcommands": [
+            {
+              "description": "List files generated by the cluster's node setup task",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "cluster"
+                    }
+                  ],
+                  "description": "Name of cluster",
+                  "isRequired": true,
+                  "name": [
+                    "--cluster",
+                    "-c"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "workspace"
+                    }
+                  ],
+                  "description": "Name of workspace",
+                  "isRequired": true,
+                  "name": [
+                    "--workspace",
+                    "-w"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "expiry"
+                    }
+                  ],
+                  "description": "Time in minutes for how long generated download URLs should remain valid",
+                  "name": "--expiry"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "Relative path of a subfolder inside of the node setup task output directory",
+                  "name": [
+                    "--path",
+                    "-p"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Commands to work with cluster nodes",
+          "name": "node",
+          "subcommands": [
+            {
+              "description": "Executes a command line on a cluster's node with optional ports forwarding",
+              "name": "exec",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "cluster"
+                    }
+                  ],
+                  "description": "Name of cluster",
+                  "isRequired": true,
+                  "name": [
+                    "--cluster",
+                    "-c"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "workspace"
+                    }
+                  ],
+                  "description": "Name of workspace",
+                  "isRequired": true,
+                  "name": [
+                    "--workspace",
+                    "-w"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "address"
+                    }
+                  ],
+                  "description": "Specifies that connections to the given TCP port or Unix socket on the local (client) host are to be forwarded to the given host and port, or Unix socket, on the remote side. e.g. -L 8080:localhost:8080",
+                  "name": [
+                    "--address",
+                    "-L"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "exec"
+                    }
+                  ],
+                  "description": "Optional command line to be executed on the node. If not provided, the command will perform ports forwarding only",
+                  "name": "--exec"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "node-id"
+                    }
+                  ],
+                  "description": "ID of the node to forward the ports to. If not provided, the command will be executed on the first available node",
+                  "name": [
+                    "--node-id",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "password"
+                    }
+                  ],
+                  "description": "Optional password to establish SSH connection",
+                  "name": [
+                    "--password",
+                    "-p"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ssh-private-key"
+                    }
+                  ],
+                  "description": "Optional SSH private key path to establish SSH connection. If omitted, the default SSH private key will be used",
+                  "name": [
+                    "--ssh-private-key",
+                    "-k"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List remote login information for cluster's nodes",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "cluster"
+                    }
+                  ],
+                  "description": "Name of cluster",
+                  "isRequired": true,
+                  "name": [
+                    "--cluster",
+                    "-c"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "workspace"
+                    }
+                  ],
+                  "description": "Name of workspace",
+                  "isRequired": true,
+                  "name": [
+                    "--workspace",
+                    "-w"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage experiments",
+      "name": "experiment",
+      "subcommands": [
+        {
+          "description": "Create an experiment",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of experiment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "isRequired": true,
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete an experiment",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of experiment",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List experiments",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "isRequired": true,
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show information about an experiment",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of experiment",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage file servers",
+      "name": "file-server",
+      "subcommands": [
+        {
+          "description": "Create a file server",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of file server",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure a default value by setting up default workspace using az batchai workspace set-default",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name or ARM ID of the workspace. You can configure default workspace using az batchai workspace set-default",
+              "isRequired": true,
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "caching-type",
+                  "suggestions": [
+                    "none",
+                    "readonly",
+                    "readwrite"
+                  ]
+                }
+              ],
+              "description": "Caching type for premium disks. If not provided via command line or in configuration file, no caching will be used",
+              "name": "--caching-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "config-file"
+                }
+              ],
+              "description": "A path to a json file containing file server create parameters (json representation of azure.mgmt.batchai.models.FileServerCreateParameters). Note, parameters given via command line will overwrite parameters specified in the configuration file",
+              "name": [
+                "--config-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "disk-count"
+                }
+              ],
+              "description": "Number of disks",
+              "name": "--disk-count"
+            },
+            {
+              "args": [
+                {
+                  "name": "disk-size"
+                }
+              ],
+              "description": "Disk size in Gb",
+              "name": "--disk-size"
+            },
+            {
+              "args": [
+                {
+                  "name": "generate-ssh-keys"
+                }
+              ],
+              "description": "Generate SSH public and private key files in ~/.ssh directory (if missing)",
+              "name": "--generate-ssh-keys"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "password"
+                }
+              ],
+              "description": "Optional password for the admin user created on the NFS node",
+              "name": [
+                "--password",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ssh-key"
+                }
+              ],
+              "description": "Optional SSH public key value or path. If ommited and no password specified, default SSH key (~/.ssh/id_rsa.pub) will be used",
+              "name": [
+                "--ssh-key",
+                "-k"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-sku",
+                  "suggestions": [
+                    "Premium_LRS",
+                    "Standard_LRS"
+                  ]
+                }
+              ],
+              "description": "The sku of storage account to persist VM",
+              "name": "--storage-sku"
+            },
+            {
+              "args": [
+                {
+                  "name": "subnet"
+                }
+              ],
+              "description": "ARM ID of a virtual network subnet to put the file server in. If not provided via command line or in the configuration file, Batch AI will create a new virtual network and subnet under your subscription",
+              "name": "--subnet"
+            },
+            {
+              "args": [
+                {
+                  "name": "user-name"
+                }
+              ],
+              "description": "Name of admin user account to be created on NFS node. If the value is not provided and no user configuration is provided in the config file, current user's name will be used",
+              "name": [
+                "--user-name",
+                "-u"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "vm-size"
+                }
+              ],
+              "description": "VM size",
+              "name": [
+                "--vm-size",
+                "-s"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List file servers",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "isRequired": true,
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage jobs",
+      "name": "job",
+      "subcommands": [
+        {
+          "description": "Create a job",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster"
+                }
+              ],
+              "description": "Name or ARM ID of the cluster to run the job. You need to provide ARM ID if the cluster belongs to a different workspace",
+              "isRequired": true,
+              "name": [
+                "--cluster",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "config-file"
+                }
+              ],
+              "description": "A path to a json file containing job create parameters (json representation of azure.mgmt.batchai.models.JobCreateParameters)",
+              "isRequired": true,
+              "name": [
+                "--config-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "experiment"
+                }
+              ],
+              "description": "Name of experiment",
+              "isRequired": true,
+              "name": [
+                "--experiment",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of job",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "isRequired": true,
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "afs-mount-path"
+                }
+              ],
+              "description": "Relative mount path for Azure File Share. The File Share will be available at $AZ_BATCHAI_JOB_MOUNT_ROOT/<relative_mount_path> folder",
+              "name": "--afs-mount-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "afs-name"
+                }
+              ],
+              "description": "Name of Azure File Share to mount during the job execution. The File Share will be mounted only on the nodes which are executing the job. Must be used in conjunction with --storage-account-name. Multiple shares can be mounted using configuration file (see --config-file option)",
+              "name": "--afs-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "bfs-mount-path"
+                }
+              ],
+              "description": "Relative mount path for Azure Storage Blob Container. The container will be available at $AZ_BATCHAI_JOB_MOUNT_ROOT/<relative_mount_path> folder",
+              "name": "--bfs-mount-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "bfs-name"
+                }
+              ],
+              "description": "Name of Azure Storage Blob Container to mount during the job execution. The container will be mounted only on the nodes which are executing the job. Must be used in conjunction with --storage-account-name. Multiple containers can be mounted using configuration file (see --config-file option)",
+              "name": "--bfs-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "nfs"
+                }
+              ],
+              "description": "Name or ARM ID of the file server to be mounted during the job execution. You need to provide ARM ID if the file server belongs to a different workspace. You can configure multiple file servers using job's configuration file",
+              "name": "--nfs"
+            },
+            {
+              "args": [
+                {
+                  "name": "nfs-mount-path"
+                }
+              ],
+              "description": "Relative mount path for NFS. The NFS will be available at $AZ_BATCHAI_JOB_MOUNT_ROOT/<relative_mount_path> folder",
+              "name": "--nfs-mount-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-account-key"
+                }
+              ],
+              "description": "Storage account key. Required if the storage account belongs to a different subscription. Can be specified using AZURE_BATCHAI_STORAGE_KEY environment variable",
+              "name": "--storage-account-key"
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-account-name"
+                }
+              ],
+              "description": "Storage account name for Azure File Shares and/or Azure Storage Containers to be mounted on each cluster node. Can be specified using AZURE_BATCHAI_STORAGE_ACCOUNT environment variable",
+              "name": "--storage-account-name"
+            }
+          ]
+        },
+        {
+          "description": "Delete a job",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "experiment"
+                }
+              ],
+              "description": "Name of experiment",
+              "name": [
+                "--experiment",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of job",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List jobs",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "experiment"
+                }
+              ],
+              "description": "Name of experiment",
+              "isRequired": true,
+              "name": [
+                "--experiment",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "isRequired": true,
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show information about a job",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "experiment"
+                }
+              ],
+              "description": "Name of experiment",
+              "name": [
+                "--experiment",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of job",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Terminate a job",
+          "name": "terminate",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "experiment"
+                }
+              ],
+              "description": "Name of experiment",
+              "name": [
+                "--experiment",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of job",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Waits for specified job completion and setups the exit code to the job's exit code",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "experiment"
+                }
+              ],
+              "description": "Name of experiment",
+              "name": [
+                "--experiment",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in sec",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of job",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "name": [
+                "--workspace",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Commands to list and stream files in job's output directories",
+          "name": "file",
+          "subcommands": [
+            {
+              "description": "List job's output files in a directory with given id",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "experiment"
+                    }
+                  ],
+                  "description": "Name of experiment",
+                  "isRequired": true,
+                  "name": [
+                    "--experiment",
+                    "-e"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "job"
+                    }
+                  ],
+                  "description": "Name of job",
+                  "isRequired": true,
+                  "name": [
+                    "--job",
+                    "-j"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "workspace"
+                    }
+                  ],
+                  "description": "Name of workspace",
+                  "isRequired": true,
+                  "name": [
+                    "--workspace",
+                    "-w"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "expiry"
+                    }
+                  ],
+                  "description": "Time in minutes for how long generated download URL should remain valid",
+                  "name": "--expiry"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "output-directory-id"
+                    }
+                  ],
+                  "description": "The Id of the job's output directory (as specified by \"id\" element in outputDirectories collection in the job create parameters)",
+                  "name": [
+                    "--output-directory-id",
+                    "-d"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "Relative path in the given output directory",
+                  "name": [
+                    "--path",
+                    "-p"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Stream the content of a file (similar to 'tail -f')",
+              "name": "stream",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "experiment"
+                    }
+                  ],
+                  "description": "Name of experiment",
+                  "isRequired": true,
+                  "name": [
+                    "--experiment",
+                    "-e"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "file-name"
+                    }
+                  ],
+                  "description": "The name of the file to stream",
+                  "isRequired": true,
+                  "name": [
+                    "--file-name",
+                    "-f"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "job"
+                    }
+                  ],
+                  "description": "Name of job",
+                  "isRequired": true,
+                  "name": [
+                    "--job",
+                    "-j"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "workspace"
+                    }
+                  ],
+                  "description": "Name of workspace",
+                  "isRequired": true,
+                  "name": [
+                    "--workspace",
+                    "-w"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "output-directory-id"
+                    }
+                  ],
+                  "description": "The Id of the job's output directory (as specified by \"id\" element in outputDirectories collection in the job create parameters)",
+                  "name": [
+                    "--output-directory-id",
+                    "-d"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "Relative path in the given output directory",
+                  "name": [
+                    "--path",
+                    "-p"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Commands to work with nodes which executed a job",
+          "name": "node",
+          "subcommands": [
+            {
+              "description": "Executes a command line on a cluster's node used to execute the job with optional ports forwarding",
+              "name": "exec",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "experiment"
+                    }
+                  ],
+                  "description": "Name of experiment",
+                  "isRequired": true,
+                  "name": [
+                    "--experiment",
+                    "-e"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "job"
+                    }
+                  ],
+                  "description": "Name of job",
+                  "isRequired": true,
+                  "name": [
+                    "--job",
+                    "-j"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "workspace"
+                    }
+                  ],
+                  "description": "Name of workspace",
+                  "isRequired": true,
+                  "name": [
+                    "--workspace",
+                    "-w"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "address"
+                    }
+                  ],
+                  "description": "Specifies that connections to the given TCP port or Unix socket on the local (client) host are to be forwarded to the given host and port, or Unix socket, on the remote side. e.g. -L 8080:localhost:8080",
+                  "name": [
+                    "--address",
+                    "-L"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "exec"
+                    }
+                  ],
+                  "description": "Optional command line to be executed on the node. If not provided, the command will perform ports forwarding only",
+                  "name": "--exec"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "node-id"
+                    }
+                  ],
+                  "description": "ID of the node to forward the ports to. If not provided, the command will be executed on the first available node",
+                  "name": [
+                    "--node-id",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "password"
+                    }
+                  ],
+                  "description": "Optional password to establish SSH connection",
+                  "name": [
+                    "--password",
+                    "-p"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ssh-private-key"
+                    }
+                  ],
+                  "description": "Optional SSH private key path to establish SSH connection. If omitted, the default SSH private key will be used",
+                  "name": [
+                    "--ssh-private-key",
+                    "-k"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List remote login information for nodes which executed the job",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "experiment"
+                    }
+                  ],
+                  "description": "Name of experiment",
+                  "isRequired": true,
+                  "name": [
+                    "--experiment",
+                    "-e"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "job"
+                    }
+                  ],
+                  "description": "Name of job",
+                  "isRequired": true,
+                  "name": [
+                    "--job",
+                    "-j"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "workspace"
+                    }
+                  ],
+                  "description": "Name of workspace",
+                  "isRequired": true,
+                  "name": [
+                    "--workspace",
+                    "-w"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Gets the current usage information as well as limits for Batch AI resources for given location",
+      "name": "list-usages",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "isRequired": true,
+          "name": [
+            "--location",
+            "-l"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage workspaces",
+      "name": "workspace",
+      "subcommands": [
+        {
+          "description": "Create a workspace",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "isRequired": true,
+              "name": [
+                "--workspace",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location of the workspace. If omitted, the location of the resource group will be used",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete a workspace",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "name": [
+                "--workspace",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List workspaces",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show information about a workspace",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace"
+                }
+              ],
+              "description": "Name of workspace",
+              "name": [
+                "--workspace",
+                "-n"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

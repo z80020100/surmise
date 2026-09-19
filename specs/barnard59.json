@@ -1,0 +1,794 @@
+{
+  "name": "barnard59",
+  "options": [
+    {
+      "args": [
+        {
+          "name": "name=value"
+        }
+      ],
+      "description": "Variable key/value pairs",
+      "name": "--variable"
+    },
+    {
+      "description": "Import all environment variables",
+      "name": "--variable-all"
+    },
+    {
+      "description": "Enable diagnostic console output",
+      "name": [
+        "-v",
+        "--verbose"
+      ]
+    },
+    {
+      "description": "Disable all logging",
+      "name": [
+        "-q",
+        "--quiet"
+      ]
+    },
+    {
+      "description": "Enable histogram of buffer usage",
+      "name": "--enable-buffer-monitor"
+    },
+    {
+      "args": [
+        {
+          "default": "ERROR",
+          "name": "level",
+          "suggestions": [
+            "NONE",
+            "ERROR",
+            "WARN",
+            "INFO",
+            "DEBUG",
+            "VERBOSE",
+            "ALL"
+          ]
+        }
+      ],
+      "description": "Enable OpenTelemetry console diagnostic output",
+      "name": "--otel-debug"
+    },
+    {
+      "args": [
+        {
+          "default": "none",
+          "name": "exporter",
+          "suggestions": [
+            "otlp",
+            "none"
+          ]
+        }
+      ],
+      "description": "OpenTelemetry Metrics exporter to use",
+      "name": "--otel-metrics-exporter"
+    },
+    {
+      "args": [
+        {
+          "default": "10000",
+          "name": "milliseconds"
+        }
+      ],
+      "description": "Export Metrics interval",
+      "name": "--otel-metrics-interval"
+    },
+    {
+      "args": [
+        {
+          "default": "none",
+          "name": "exporter",
+          "suggestions": [
+            "otlp",
+            "none"
+          ]
+        }
+      ],
+      "description": "OpenTelemetry Traces exporter to use",
+      "name": "--otel-traces-exporter"
+    },
+    {
+      "description": "Display help for command",
+      "name": [
+        "-h",
+        "--help"
+      ],
+      "priority": 49
+    }
+  ],
+  "subcommands": [
+    {
+      "args": [
+        {
+          "name": "filename"
+        }
+      ],
+      "name": "run",
+      "options": [
+        {
+          "args": [
+            {
+              "default": "-",
+              "isOptional": true,
+              "name": "filename"
+            }
+          ],
+          "description": "Output file",
+          "name": "--output"
+        },
+        {
+          "args": [
+            {
+              "isOptional": true,
+              "name": "iri"
+            }
+          ],
+          "description": "IRI of the pipeline description",
+          "name": "--pipeline"
+        },
+        {
+          "args": [
+            {
+              "name": "name=value"
+            }
+          ],
+          "description": "Variable key/value pairs",
+          "name": "--variable"
+        },
+        {
+          "description": "Import all environment variables",
+          "name": "--variable-all"
+        },
+        {
+          "description": "Enable diagnostic console output",
+          "name": [
+            "-v",
+            "--verbose"
+          ]
+        },
+        {
+          "description": "Disable all logging",
+          "name": [
+            "-q",
+            "--quiet"
+          ]
+        },
+        {
+          "description": "Display help for command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "name": "cube",
+      "options": [
+        {
+          "description": "Output the version number",
+          "name": [
+            "-V",
+            "--version"
+          ]
+        },
+        {
+          "description": "Display help for command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ],
+      "subcommands": [
+        {
+          "description": "Retrieves cube and its constraint shape from SPARQL endpoint",
+          "name": "fetch-metadata",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "endpoint"
+                }
+              ],
+              "description": "SPARQL endpoint",
+              "isRequired": true,
+              "name": "--endpoint"
+            },
+            {
+              "args": [
+                {
+                  "name": "cube"
+                }
+              ],
+              "description": "Cube URI",
+              "isRequired": true,
+              "name": "--cube"
+            },
+            {
+              "args": [
+                {
+                  "name": "name=value"
+                }
+              ],
+              "description": "Variable key/value pairs",
+              "name": "--variable"
+            },
+            {
+              "description": "Import all environment variables",
+              "name": "--variable-all"
+            },
+            {
+              "description": "Enable diagnostic console output",
+              "name": [
+                "-v",
+                "--verbose"
+              ]
+            },
+            {
+              "description": "Display help for command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "description": "Validate input cube and its constraint against profile shapes",
+          "name": "check-metadata",
+          "options": [
+            {
+              "args": [
+                {
+                  "default": "https://cube.link/latest/shape/standalone-constraint-constraint",
+                  "name": "profile"
+                }
+              ],
+              "description": "Cube constraint profile URL",
+              "isRequired": true,
+              "name": "--profile"
+            },
+            {
+              "args": [
+                {
+                  "name": "profileFormat"
+                }
+              ],
+              "description": "Override the profile format",
+              "name": "--profileFormat"
+            },
+            {
+              "args": [
+                {
+                  "name": "name=value"
+                }
+              ],
+              "description": "Variable key/value pairs",
+              "name": "--variable"
+            },
+            {
+              "description": "Import all environment variables",
+              "name": "--variable-all"
+            },
+            {
+              "description": "Enable diagnostic console output",
+              "name": [
+                "-v",
+                "--verbose"
+              ]
+            },
+            {
+              "description": "Display help for command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "description": "Retrieves cube observations from SPARQL endpoint",
+          "name": "fetch-observations",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "endpoint"
+                }
+              ],
+              "description": "SPARQL endpoint",
+              "isRequired": true,
+              "name": "--endpoint"
+            },
+            {
+              "args": [
+                {
+                  "name": "cube"
+                }
+              ],
+              "description": "Cube URI",
+              "isRequired": true,
+              "name": "--cube"
+            },
+            {
+              "args": [
+                {
+                  "name": "name=value"
+                }
+              ],
+              "description": "Variable key/value pairs",
+              "name": "--variable"
+            },
+            {
+              "description": "Import all environment variables",
+              "name": "--variable-all"
+            },
+            {
+              "description": "Enable diagnostic console output",
+              "name": [
+                "-v",
+                "--verbose"
+              ]
+            },
+            {
+              "description": "Display help for command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "description": "Validate input observations against cube constraint",
+          "name": "check-observations",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "constraint"
+                }
+              ],
+              "description": "Cube constraint file",
+              "isRequired": true,
+              "name": "--constraint"
+            },
+            {
+              "args": [
+                {
+                  "default": "50",
+                  "name": "batchSize"
+                }
+              ],
+              "description": "Batch size",
+              "isRequired": true,
+              "name": "--batchSize"
+            },
+            {
+              "args": [
+                {
+                  "default": "500",
+                  "name": "maxViolations"
+                }
+              ],
+              "description": "Max number of violations",
+              "isRequired": true,
+              "name": "--maxViolations"
+            },
+            {
+              "args": [
+                {
+                  "default": "100000",
+                  "name": "sortChunkSize"
+                }
+              ],
+              "description": "Sort chunk size",
+              "isRequired": true,
+              "name": "--sortChunkSize"
+            },
+            {
+              "args": [
+                {
+                  "name": "name=value"
+                }
+              ],
+              "description": "Variable key/value pairs",
+              "name": "--variable"
+            },
+            {
+              "description": "Import all environment variables",
+              "name": "--variable-all"
+            },
+            {
+              "description": "Enable diagnostic console output",
+              "name": [
+                "-v",
+                "--verbose"
+              ]
+            },
+            {
+              "description": "Display help for command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "description": "Retrieves cube constraint from SPARQL endpoint",
+          "name": "fetch-constraint",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "endpoint"
+                }
+              ],
+              "description": "SPARQL endpoint",
+              "isRequired": true,
+              "name": "--endpoint"
+            },
+            {
+              "args": [
+                {
+                  "name": "cube"
+                }
+              ],
+              "description": "Cube URI",
+              "isRequired": true,
+              "name": "--cube"
+            },
+            {
+              "args": [
+                {
+                  "name": "name=value"
+                }
+              ],
+              "description": "Variable key/value pairs",
+              "name": "--variable"
+            },
+            {
+              "description": "Import all environment variables",
+              "name": "--variable-all"
+            },
+            {
+              "description": "Enable diagnostic console output",
+              "name": [
+                "-v",
+                "--verbose"
+              ]
+            },
+            {
+              "description": "Display help for command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "description": "Retrieves cube with observations from SPARQL endpoint",
+          "name": "fetch-cube",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "endpoint"
+                }
+              ],
+              "description": "SPARQL endpoint",
+              "isRequired": true,
+              "name": "--endpoint"
+            },
+            {
+              "args": [
+                {
+                  "name": "cube"
+                }
+              ],
+              "description": "Cube URI",
+              "isRequired": true,
+              "name": "--cube"
+            },
+            {
+              "args": [
+                {
+                  "name": "name=value"
+                }
+              ],
+              "description": "Variable key/value pairs",
+              "name": "--variable"
+            },
+            {
+              "description": "Import all environment variables",
+              "name": "--variable-all"
+            },
+            {
+              "description": "Enable diagnostic console output",
+              "name": [
+                "-v",
+                "--verbose"
+              ]
+            },
+            {
+              "description": "Display help for command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "isOptional": true,
+              "name": "command",
+              "template": "help"
+            }
+          ],
+          "description": "Display help for command",
+          "name": "help",
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "name": "graph-store",
+      "options": [
+        {
+          "description": "Output the version number",
+          "name": [
+            "-V",
+            "--version"
+          ]
+        },
+        {
+          "description": "Display help for command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ],
+      "subcommands": [
+        {
+          "description": "Upload RDF documents using SPARQL Graph Store Protocol",
+          "name": "put",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "source"
+                }
+              ],
+              "description": "Glob of RDF documents to upload",
+              "isRequired": true,
+              "name": "--source"
+            },
+            {
+              "args": [
+                {
+                  "name": "graph"
+                }
+              ],
+              "name": "--graph"
+            },
+            {
+              "args": [
+                {
+                  "name": "endpoint"
+                }
+              ],
+              "isRequired": true,
+              "name": "--endpoint"
+            },
+            {
+              "args": [
+                {
+                  "name": "user"
+                }
+              ],
+              "name": "--user"
+            },
+            {
+              "args": [
+                {
+                  "name": "password"
+                }
+              ],
+              "name": "--password"
+            },
+            {
+              "args": [
+                {
+                  "name": "name=value"
+                }
+              ],
+              "description": "Variable key/value pairs",
+              "name": "--variable"
+            },
+            {
+              "description": "Import all environment variables",
+              "name": "--variable-all"
+            },
+            {
+              "description": "Enable diagnostic console output",
+              "name": [
+                "-v",
+                "--verbose"
+              ]
+            },
+            {
+              "description": "Display help for command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "isOptional": true,
+              "name": "command",
+              "template": "help"
+            }
+          ],
+          "description": "Display help for command",
+          "name": "help",
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "name": "shacl",
+      "options": [
+        {
+          "description": "Output the version number",
+          "name": [
+            "-V",
+            "--version"
+          ]
+        },
+        {
+          "description": "Display help for command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ],
+      "subcommands": [
+        {
+          "description": "Validates the RDF in standard input against a SHACL document",
+          "name": "validate",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "shapes"
+                }
+              ],
+              "description": "URL or path of the shapes graph",
+              "isRequired": true,
+              "name": "--shapes"
+            },
+            {
+              "args": [
+                {
+                  "name": "shapesMediaType"
+                }
+              ],
+              "description": "Override the shapes graph format",
+              "name": "--shapesMediaType"
+            },
+            {
+              "args": [
+                {
+                  "name": "name=value"
+                }
+              ],
+              "description": "Variable key/value pairs",
+              "name": "--variable"
+            },
+            {
+              "description": "Import all environment variables",
+              "name": "--variable-all"
+            },
+            {
+              "description": "Enable diagnostic console output",
+              "name": [
+                "-v",
+                "--verbose"
+              ]
+            },
+            {
+              "description": "Display help for command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "description": "Human-readable summary of SHACL validation report",
+          "name": "report-summary",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name=value"
+                }
+              ],
+              "description": "Variable key/value pairs",
+              "name": "--variable"
+            },
+            {
+              "description": "Import all environment variables",
+              "name": "--variable-all"
+            },
+            {
+              "description": "Enable diagnostic console output",
+              "name": [
+                "-v",
+                "--verbose"
+              ]
+            },
+            {
+              "description": "Display help for command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "isOptional": true,
+              "name": "command",
+              "template": "help"
+            }
+          ],
+          "description": "Display help for command",
+          "name": "help",
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "isOptional": true,
+          "name": "command",
+          "template": "help"
+        }
+      ],
+      "description": "Display help for command",
+      "name": "help",
+      "priority": 49
+    }
+  ]
+}

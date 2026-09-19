@@ -1,0 +1,1206 @@
+{
+  "description": "Shopify CLI is a command-line interface tool that helps you build Shopify apps and themes. It quickly generates Shopify apps, themes, and custom storefronts. You can also use it to automate many common development tasks. Visit https://shopify.dev/apps/tools/cli to know more",
+  "icon": "https://avatars.githubusercontent.com/u/8085?s=16&v=4",
+  "name": "shopify",
+  "options": [
+    {
+      "description": "Show help for this command",
+      "icon": "fig://icon?type=option",
+      "isPersistent": true,
+      "name": [
+        "--help",
+        "-h"
+      ],
+      "priority": 1
+    }
+  ],
+  "subcommands": [
+    {
+      "description": "Suite of commands for developing Shopify themes",
+      "name": "theme",
+      "options": [
+        {
+          "description": "Provide more detailed output in the logs",
+          "isPersistent": true,
+          "name": "--verbose",
+          "priority": 1
+        }
+      ],
+      "priority": 100,
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "The name that you want to give your theme. Cloned files are stored in a folder with this name",
+              "name": "NAME"
+            }
+          ],
+          "description": "Clones a Git repository to your local machine to use as the starting point for building a theme",
+          "name": "init",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "URL"
+                }
+              ],
+              "description": "The URL of the Git repository that you want to clone. If no URL is specified, then https://github.com/Shopify/dawn.git is used",
+              "icon": "fig://icon?type=github",
+              "name": [
+                "--clone-url",
+                "-u"
+              ]
+            },
+            {
+              "description": "Clone the latest release from the repository, rather than the content of the repository's main branch",
+              "icon": "fig://icon?type=github",
+              "name": "--latest"
+            },
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": [
+                    "folders"
+                  ]
+                }
+              ],
+              "description": "The path to your theme directory",
+              "name": "--path"
+            }
+          ],
+          "priority": 75
+        },
+        {
+          "description": "Uploads the current theme as the specified theme, or a development theme, to a store so you can preview it",
+          "name": "dev",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "store"
+                }
+              ],
+              "description": "The development store that you want to use to preview your theme",
+              "name": [
+                "--store",
+                "-s"
+              ]
+            },
+            {
+              "description": "Your Theme Access password for the store",
+              "name": "--password"
+            },
+            {
+              "args": [
+                {
+                  "name": "NAME_OR_ID"
+                }
+              ],
+              "description": "The ID or name of the theme that you want to preview. If you don't use this flag, then the theme is previewed using a new or existing development theme",
+              "name": [
+                "--theme",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "MODE",
+                  "suggestions": [
+                    {
+                      "description": "Hot reloads local changes to CSS and sections (default)",
+                      "name": "hot-reload"
+                    },
+                    {
+                      "description": "Refreshes the entire page when a file is modified",
+                      "name": "full-page"
+                    },
+                    {
+                      "description": "Deactivate live reload",
+                      "name": "off"
+                    }
+                  ]
+                }
+              ],
+              "description": "The level at which content is reloaded when changes are made to the theme",
+              "name": "--live-reload"
+            },
+            {
+              "args": [
+                {
+                  "description": "The network interface the web server listens on. The default value is 127.0.0.1",
+                  "name": "IP"
+                }
+              ],
+              "description": "The network interface the web server listens on. The default value is 127.0.0.1",
+              "name": "--host"
+            },
+            {
+              "args": [
+                {
+                  "name": "PORT"
+                }
+              ],
+              "description": "The local port to serve the theme preview from",
+              "name": "--port"
+            },
+            {
+              "description": "Force the polling adapter to watch file changes. You can try this option if live reload isn't working as expected",
+              "name": "--poll"
+            },
+            {
+              "description": "Enables two-way sync for theme JSON files. When this option is enabled, changes made in the theme editor in the Shopify admin are applied to the local copy of the theme",
+              "name": [
+                "--theme-editor-sync",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "description": "Pattern to match files",
+                  "name": "pattern"
+                }
+              ],
+              "description": "Skips hot reloading any files that match the specified pattern. Specify multiple patterns to ignore by using the flag multiple times in a single command",
+              "name": [
+                "--ignore",
+                "-x"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "description": "Pattern to match files",
+                  "name": "pattern"
+                }
+              ],
+              "description": "Hot reloads only files that match the specified pattern. Specify multiple patterns by using the flag multiple times in a single command",
+              "name": [
+                "--only",
+                "-o"
+              ]
+            }
+          ],
+          "priority": 100
+        },
+        {
+          "description": "Calls and runs Theme Check to analyze your theme code for errors and to ensure that it follows theme and Liquid best practices. Learn more about the checks that Theme Check runs",
+          "icon": "fig://icon?type=alert",
+          "name": "check",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "PATH",
+                  "template": "filepaths"
+                }
+              ],
+              "description": "The path to your custom Theme Check config. This config overrides .theme-check.yml, if it is present in the directory being analyzed",
+              "name": [
+                "--config",
+                "-C"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "CATEGORY",
+                  "suggestions": [
+                    "html",
+                    "json",
+                    "liquid",
+                    "performance",
+                    "translation"
+                  ]
+                }
+              ],
+              "description": "Run only the specified category of checks. You can specify multiple categories using multiple instances of this flag",
+              "name": [
+                "--category",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "CATEGORY",
+                  "suggestions": [
+                    "html",
+                    "json",
+                    "liquid",
+                    "performance",
+                    "translation"
+                  ]
+                }
+              ],
+              "description": "Run all checks other than those in the specified category. You can specify multiple categories using multiple instances of this flag",
+              "name": [
+                "--exclude-category",
+                "-x"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "LEVEL",
+                  "suggestions": [
+                    "error",
+                    "suggestion",
+                    "style"
+                  ]
+                }
+              ],
+              "description": "Configure the severity level that causes a run of theme check to fail (exit code 1). Options include error, suggestion, and style",
+              "name": "--fail-level"
+            },
+            {
+              "description": "Automatically fix correctable offenses",
+              "name": [
+                "--auto-correct",
+                "-a"
+              ]
+            },
+            {
+              "description": "Generate a new Theme Check config file",
+              "name": "--init"
+            },
+            {
+              "args": [
+                {
+                  "name": "type",
+                  "suggestions": [
+                    "json",
+                    "text"
+                  ]
+                }
+              ],
+              "description": "Output the results of the check to a file. Options include json and text (default)",
+              "name": [
+                "--output",
+                "-o"
+              ]
+            },
+            {
+              "description": "Output the active config to STDOUT",
+              "name": "--print"
+            },
+            {
+              "description": "List the active checks",
+              "name": [
+                "--list",
+                "-l"
+              ]
+            },
+            {
+              "description": "Print the version of Theme Check being used",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "description": "The path to your theme directory",
+                  "name": "path",
+                  "template": [
+                    "folders"
+                  ]
+                }
+              ],
+              "description": "The path to your theme directory",
+              "name": "--path"
+            }
+          ]
+        },
+        {
+          "description": "Returns links that let you preview the specified theme",
+          "name": "open",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "NAME_OR_ID"
+                }
+              ],
+              "description": "The name or ID of the theme that you want to overwrite",
+              "name": [
+                "--theme",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "store"
+                }
+              ],
+              "description": "The development store that you want to use to preview your theme",
+              "name": [
+                "--store",
+                "-s"
+              ]
+            },
+            {
+              "description": "Returns links for the live (published) theme. This option doesn't require --theme",
+              "name": [
+                "--live",
+                "-l"
+              ]
+            },
+            {
+              "description": "Returns links for your development theme. This option doesn't require --theme",
+              "name": [
+                "--development",
+                "-d"
+              ]
+            },
+            {
+              "description": "Opens the theme editor for the specified theme in your browser",
+              "name": [
+                "--editor",
+                "-e"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "The ID of the theme that you want to delete. You can specify multiple theme IDs separated by spaces",
+              "name": "THEME_ID"
+            }
+          ],
+          "description": "Deletes a theme from your store",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "store"
+                }
+              ],
+              "description": "The development store that you want to delete your theme from",
+              "name": [
+                "--store",
+                "-s"
+              ]
+            },
+            {
+              "description": "Deletes your development theme",
+              "name": [
+                "--development",
+                "-d"
+              ]
+            },
+            {
+              "description": "Deletes the theme without confirming with the user",
+              "name": [
+                "--force",
+                "-f"
+              ]
+            },
+            {
+              "description": "Shows development themes created by others in the theme list",
+              "name": [
+                "--show-all",
+                "-a"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "NAME_OR_ID"
+                }
+              ],
+              "description": "The name or ID of the theme that you want to delete",
+              "name": [
+                "--theme",
+                "-t"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Packages your local theme files into a ZIP file that can be uploaded to Shopify",
+          "icon": "fig://icon?type=box",
+          "name": "package",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": [
+                    "folders"
+                  ]
+                }
+              ],
+              "description": "The path to your theme directory",
+              "name": "--path"
+            }
+          ]
+        },
+        {
+          "description": "Publishes an unpublished theme from your theme library",
+          "name": "publish",
+          "options": [
+            {
+              "description": "Publish the theme without confirming with the user",
+              "name": [
+                "--force",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "store"
+                }
+              ],
+              "description": "The development store that you want to use to preview your theme",
+              "name": [
+                "--store",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "NAME_OR_ID"
+                }
+              ],
+              "description": "The name or ID of the theme that you want to publish",
+              "name": [
+                "--theme",
+                "-t"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Uploads your theme as a new, unpublished theme in your theme library. The theme is given a randomized name",
+          "name": "share",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "store"
+                }
+              ],
+              "description": "The development store that you want to use to preview your theme",
+              "name": [
+                "--store",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": [
+                    "folders"
+                  ]
+                }
+              ],
+              "description": "The path to your theme directory",
+              "name": "--path"
+            }
+          ]
+        },
+        {
+          "description": "Retrieves theme files from Shopify",
+          "name": "pull",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "NAME_OR_ID"
+                }
+              ],
+              "description": "The name or ID of the theme that you want to overwrite",
+              "name": [
+                "--theme",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": [
+                    "folders"
+                  ]
+                }
+              ],
+              "description": "The path to your theme directory",
+              "name": "--path"
+            },
+            {
+              "args": [
+                {
+                  "name": "store"
+                }
+              ],
+              "description": "The development store that you want to use to preview your theme",
+              "name": [
+                "--store",
+                "-s"
+              ]
+            },
+            {
+              "description": "Pulls the live (published) theme. This option doesn't require --theme",
+              "name": [
+                "--live",
+                "-l"
+              ]
+            },
+            {
+              "description": "Downloads theme files from your remote development theme. You might use this command to copy changes made to the development theme in the theme editor to your local copy of the theme. This option doesn't require --theme",
+              "name": [
+                "--development",
+                "-d"
+              ]
+            },
+            {
+              "description": "Runs the pull command without deleting local files",
+              "name": [
+                "--nodelete",
+                "-n"
+              ]
+            },
+            {
+              "description": "Skips downloading the specified files from Shopify. Specify multiple patterns to ignore by using the flag multiple times in a single command. If files are excluded using .shopifyignore, then both the contents of .shopifyignore and the --ignore flag are respected",
+              "name": [
+                "--ignore",
+                "-x"
+              ]
+            },
+            {
+              "description": "Downloads only the specified files from Shopify. Specify multiple patterns by using the flag multiple times in a single command",
+              "name": [
+                "--only",
+                "-o"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Uploads your local theme files to Shopify, overwriting the remote theme if specified",
+          "name": "push",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "NAME_OR_ID"
+                }
+              ],
+              "description": "The name or ID of the theme that you want to overwrite",
+              "name": [
+                "--theme",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "store"
+                }
+              ],
+              "description": "The development store that you want to use to preview your theme",
+              "name": [
+                "--store",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": [
+                    "folders"
+                  ]
+                }
+              ],
+              "description": "The path to your theme directory",
+              "name": "--path"
+            },
+            {
+              "description": "Pushes to your development theme. If you don't have a development theme, then one is created. This option doesn't require --theme",
+              "name": [
+                "--development",
+                "-d"
+              ]
+            },
+            {
+              "description": "Pushes your local files without deleting remote files from Shopify",
+              "name": [
+                "--nodelete",
+                "-n"
+              ]
+            },
+            {
+              "description": "Returns information about the pushed theme as a JSON object",
+              "name": [
+                "--json",
+                "-j"
+              ]
+            },
+            {
+              "description": "Allows Shopify CLI to overwrite the live (published) theme",
+              "name": [
+                "--allow-live",
+                "-a"
+              ]
+            },
+            {
+              "description": "Pushes to the live (published) theme. This option doesn't require --theme or --allow-live",
+              "name": [
+                "--live",
+                "-l"
+              ]
+            },
+            {
+              "description": "After the theme is pushed, publishes the theme so it is live in the store",
+              "name": [
+                "--publish",
+                "-p"
+              ]
+            },
+            {
+              "description": "Uploads the theme to the theme library as a new unpublished theme.You're prompted to provide a name for the theme. Use the --theme flag to provide a name as a part of the command",
+              "name": [
+                "--unpublished",
+                "-u"
+              ]
+            },
+            {
+              "description": "Skips uploading the specified files to Shopify. Specify multiple patterns to ignore by using the flag multiple times in a single command. If files are excluded using .shopifyignore, then both the contents of .shopifyignore and the --ignore flag are respected",
+              "name": [
+                "--ignore",
+                "-x"
+              ]
+            },
+            {
+              "description": "Uploads only the specified files to Shopify. Specify multiple patterns by using the flag multiple times in a single command",
+              "name": [
+                "--only",
+                "-o"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists the themes in your store, along with their IDs and statuses",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "store"
+                }
+              ],
+              "description": "The development store that you want to list your themes from",
+              "name": [
+                "--store",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ID"
+                }
+              ],
+              "description": "Only list the theme with the given ID",
+              "name": "--id"
+            },
+            {
+              "args": [
+                {
+                  "name": "role",
+                  "suggestions": [
+                    "live",
+                    "unpublished",
+                    "development"
+                  ]
+                }
+              ],
+              "description": "Only list themes with the given role",
+              "name": "--role"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Only list themes that contain the given string in their name",
+              "name": "--name"
+            }
+          ]
+        },
+        {
+          "description": "Displays information about your theme environment, including your current store",
+          "name": "info"
+        },
+        {
+          "description": "Starts a Language Server Protocol server",
+          "name": "language-server"
+        }
+      ]
+    },
+    {
+      "description": "This reference lists the Shopify CLI commands for apps",
+      "name": "app",
+      "options": [
+        {
+          "description": "Provide more detailed output in the logs",
+          "isPersistent": true,
+          "name": "--verbose",
+          "priority": 1
+        }
+      ],
+      "priority": 90,
+      "subcommands": [
+        {
+          "description": "Builds the app and lets you preview it on a development store or Plus sandbox store",
+          "name": "dev",
+          "options": [
+            {
+              "description": "The URL of a tunnel that you've started using your own local tunneling software. Shopify recommends Cloudflare tunnel for use with Shopify CLI",
+              "name": "--tunnel-url"
+            },
+            {
+              "args": [
+                {
+                  "name": "store"
+                }
+              ],
+              "description": "The development store or Plus sandbox store that you want to use to preview your app",
+              "name": [
+                "--store",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "key"
+                }
+              ],
+              "description": "The client ID of your app. Use this flag to specify the app that you want connect your project with",
+              "name": "--api-key"
+            },
+            {
+              "description": "Skip the prompt to update the app URLs that are set in the Partner Dashboard. Your URLs won't be updated",
+              "name": "--no-update"
+            },
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": [
+                    "folders"
+                  ]
+                }
+              ],
+              "description": "The path to your app directory",
+              "name": "--path"
+            },
+            {
+              "description": "Skip checking and installing missing dependencies for your app",
+              "name": "--skip-dependencies-installation"
+            },
+            {
+              "description": "Reset all of your dev settings and send an uninstall request for the store to the default webhook endpoint (/api/webhooks), or the endpoint defined in shopify.web.toml",
+              "name": "--reset"
+            },
+            {
+              "description": "A partial link with a product variant ID and quantity to be used to create a test checkout for checkout UI extensions",
+              "name": "--checkout-cart-url"
+            },
+            {
+              "description": "A partial link with a product ID. Use this flag to specify the product to use when testing a purchase option extension",
+              "name": "--subscription-product-url"
+            },
+            {
+              "args": [
+                {
+                  "name": "port"
+                }
+              ],
+              "description": "The local port to be used to test a theme app extension",
+              "name": "--theme-app-extension-port"
+            },
+            {
+              "args": [
+                {
+                  "name": "ID or name"
+                }
+              ],
+              "description": "The ID or name of the theme to be used to test a theme app extension",
+              "name": [
+                "--theme",
+                "-t"
+              ]
+            }
+          ],
+          "priority": 100
+        },
+        {
+          "description": "Generates a new app extension or GraphQL schema",
+          "name": "generate",
+          "requiresSubcommand": true,
+          "subcommands": [
+            {
+              "description": "Creates a new app extension for your app",
+              "name": "extension",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of your extension",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "path",
+                      "template": [
+                        "folders"
+                      ]
+                    }
+                  ],
+                  "description": "The path to your app directory",
+                  "name": "--path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "type",
+                      "suggestions": [
+                        "checkout_ui",
+                        "post_purchase_ui",
+                        "subscription_ui",
+                        "theme_app_extension",
+                        "web_pixel",
+                        "order_discount",
+                        "product_discount",
+                        "shipping_discount",
+                        "delivery_customization",
+                        "payment_customization",
+                        "order_routing_location_rule",
+                        "cart_checkout_validation",
+                        "cart_transform"
+                      ]
+                    }
+                  ],
+                  "description": "The extension type",
+                  "name": [
+                    "--type",
+                    "-t"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Generates the GraphQL schema for a function in your app",
+              "name": "schema",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "path",
+                      "template": [
+                        "folders"
+                      ]
+                    }
+                  ],
+                  "description": "The path to your app directory",
+                  "name": "--path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "key"
+                    }
+                  ],
+                  "description": "The client ID of your app",
+                  "name": "--api-key"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Builds the app and deploys all of the extensions in your app",
+          "name": "deploy",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "key"
+                }
+              ],
+              "description": "The API key of your app",
+              "name": "--api-key"
+            },
+            {
+              "description": "Skip the deploy summary confirmation prompt. Critical prompts will still be shown",
+              "name": [
+                "--force",
+                "-f"
+              ]
+            },
+            {
+              "description": "Reset all of your deploy settings",
+              "name": "--reset"
+            },
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": [
+                    "folders"
+                  ]
+                }
+              ],
+              "description": "The path to your app directory",
+              "name": "--path"
+            }
+          ],
+          "priority": 80
+        },
+        {
+          "description": "Builds the app, including extensions",
+          "name": "build",
+          "options": [
+            {
+              "description": "Specify the client ID to use when building the app. This client ID is set as an environment variable, which is used by App Bridge",
+              "name": "--api-key"
+            },
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": [
+                    "folders"
+                  ]
+                }
+              ],
+              "description": "The path to your app directory",
+              "name": "--path"
+            },
+            {
+              "description": "Skip checking and installing missing dependencies for your app",
+              "name": "--skip-dependencies-installation"
+            }
+          ]
+        },
+        {
+          "description": "List of environment commands for your app",
+          "name": "env",
+          "requiresSubcommand": true,
+          "subcommands": [
+            {
+              "description": "Creates or updates an .env files that contains app and app extension environment variables",
+              "name": "pull",
+              "options": [
+                {
+                  "description": "Specify the file where environment variables are saved. If the file doesn't exist, then it will be created",
+                  "name": "--env-file"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "path",
+                      "template": [
+                        "folders"
+                      ]
+                    }
+                  ],
+                  "description": "The path to your app directory",
+                  "name": "--path"
+                }
+              ]
+            },
+            {
+              "description": "Displays environment variables that can be used to deploy apps and app extensions",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "path",
+                      "template": [
+                        "folders"
+                      ]
+                    }
+                  ],
+                  "description": "The path to your app directory",
+                  "name": "--path"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Updates the app URL and allowed redirection URLs for your app. When you specify URLs using this command, the current URLs are overwritten",
+          "name": "update-url",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": [
+                    "folders"
+                  ]
+                }
+              ],
+              "description": "The path to your app directory",
+              "name": "--path"
+            },
+            {
+              "description": "A comma-separated list of the new allowed redirection URL or URLs for the app",
+              "name": "--redirect-urls"
+            },
+            {
+              "description": "The new app URL for the app",
+              "name": "--app-url"
+            },
+            {
+              "description": "The Client ID of your app. Use this flag to specify the app that you want to update",
+              "name": "--api-key"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "auth",
+      "requiresSubcommand": true,
+      "subcommands": [
+        {
+          "description": "Logs you out of the Shopify account or Partner account and store",
+          "name": "logout"
+        }
+      ]
+    },
+    {
+      "description": "Enables or disables command autocorrection. By default, autocorrect is off",
+      "name": "config",
+      "requiresSubcommand": true,
+      "subcommands": [
+        {
+          "description": "Enable autocorrect",
+          "name": "on"
+        },
+        {
+          "description": "Disable autocorrect",
+          "name": "off"
+        },
+        {
+          "description": "Check whether autocorrect is enabled or disabled",
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "name": "ngrok",
+      "requiresSubcommand": true,
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Your auth token for ngrok",
+              "name": "TOKEN"
+            }
+          ],
+          "description": "Saves a token to authenticate against ngrok",
+          "name": "auth"
+        }
+      ]
+    },
+    {
+      "name": "webhook",
+      "requiresSubcommand": true,
+      "subcommands": [
+        {
+          "description": "Triggers the delivery of a sample Admin API event topic payload to a designated address",
+          "name": "trigger",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "topic"
+                }
+              ],
+              "description": "The requested event topic. You can pass the webhook topic using the GraphQL enum value or the webhook topic name",
+              "name": "--topic"
+            },
+            {
+              "args": [
+                {
+                  "name": "version"
+                }
+              ],
+              "description": "API version of the event topic, in the format YYYY-MM or unstable",
+              "name": "--api-version"
+            },
+            {
+              "args": [
+                {
+                  "name": "secret"
+                }
+              ],
+              "description": "Your app's client secret. This secret is used to generate and return a X-Shopify-Hmac-SHA256 header, which lets you validate the origin of the response that you receive",
+              "name": "--shared-secret"
+            },
+            {
+              "args": [
+                {
+                  "name": "option",
+                  "suggestions": [
+                    "http",
+                    "google-pub-sub",
+                    "event-bridge"
+                  ]
+                }
+              ],
+              "description": "The method chosen to deliver the topic payload",
+              "name": "--delivery-method"
+            },
+            {
+              "args": [
+                {
+                  "name": "address"
+                }
+              ],
+              "description": "The URL where the webhook payload should be sent",
+              "name": "--address"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Displays the version of Shopify CLI that you're running",
+      "icon": "fig://icon?type=option",
+      "name": "version",
+      "priority": 30
+    },
+    {
+      "description": "Upgrades the @shopify/cli and @shopify/app packages to their latest versions",
+      "icon": "fig://icon?type=option",
+      "name": "upgrade"
+    }
+  ]
+}

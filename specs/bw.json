@@ -1,0 +1,2102 @@
+{
+  "name": "bw",
+  "options": [
+    {
+      "description": "Format output. JSON is tabbed with two spaces",
+      "icon": "fig://icon?type=asterisk",
+      "isPersistent": true,
+      "name": "--pretty",
+      "priority": 40
+    },
+    {
+      "description": "Return raw output instead of a descriptive message",
+      "icon": "fig://icon?type=asterisk",
+      "isPersistent": true,
+      "name": "--raw",
+      "priority": 40
+    },
+    {
+      "description": "Return a JSON formatted version of response output",
+      "icon": "fig://icon?type=asterisk",
+      "isPersistent": true,
+      "name": "--response",
+      "priority": 40
+    },
+    {
+      "description": "Exit with a success exit code (0) unless an error is thrown",
+      "icon": "fig://icon?type=asterisk",
+      "isPersistent": true,
+      "name": "--cleanexit",
+      "priority": 40
+    },
+    {
+      "description": "Don't return anything to stdout",
+      "icon": "fig://icon?type=asterisk",
+      "isPersistent": true,
+      "name": "--quiet",
+      "priority": 40
+    },
+    {
+      "description": "Do not prompt for interactive user input",
+      "icon": "fig://icon?type=asterisk",
+      "isPersistent": true,
+      "name": "--nointeraction",
+      "priority": 40
+    },
+    {
+      "args": [
+        {
+          "description": "Session Key",
+          "name": "session"
+        }
+      ],
+      "description": "Pass session key instead of reading from env",
+      "icon": "fig://icon?type=asterisk",
+      "isPersistent": true,
+      "name": "--session",
+      "priority": 40
+    },
+    {
+      "description": "Output BW CLI tool version number",
+      "icon": "fig://icon?type=asterisk",
+      "name": [
+        "-v",
+        "--version"
+      ],
+      "priority": 40
+    },
+    {
+      "description": "Display help for command",
+      "icon": "fig://icon?type=asterisk",
+      "name": [
+        "-h",
+        "--help"
+      ],
+      "priority": 49
+    }
+  ],
+  "subcommands": [
+    {
+      "args": [
+        {
+          "description": "Email Address of Bitwarden Account",
+          "isOptional": true,
+          "name": "email"
+        },
+        {
+          "description": "Master Password of Bitwarden Vault",
+          "isOptional": true,
+          "name": "password"
+        }
+      ],
+      "description": "Log into a user account",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "login",
+      "options": [
+        {
+          "args": [
+            {
+              "description": "Authenticator = 0, Email = 1, YubiKey = 3",
+              "name": "method",
+              "suggestions": [
+                {
+                  "description": "Authenticator",
+                  "name": "0"
+                },
+                {
+                  "description": "Email",
+                  "name": "1"
+                },
+                {
+                  "description": "YubiKey",
+                  "name": "3"
+                }
+              ]
+            }
+          ],
+          "description": "Two-step login method",
+          "exclusiveOn": [
+            "--sso",
+            "--apikey",
+            "--check"
+          ],
+          "name": "--method"
+        },
+        {
+          "args": [
+            {
+              "description": "Valid TOTP Code",
+              "name": "code"
+            }
+          ],
+          "description": "Two-step login code",
+          "exclusiveOn": [
+            "--method",
+            "--apikey",
+            "--check"
+          ],
+          "name": "--code"
+        },
+        {
+          "description": "Log in with Single-Sign On",
+          "exclusiveOn": [
+            "--method",
+            "--code",
+            "--apikey",
+            "--passwordenv",
+            "--passwordfile",
+            "--check"
+          ],
+          "name": "--sso"
+        },
+        {
+          "description": "Log in with an Api Key",
+          "exclusiveOn": [
+            "--method",
+            "--code",
+            "--sso",
+            "--passwordenv",
+            "--passwordfile",
+            "--check"
+          ],
+          "name": "--apikey"
+        },
+        {
+          "args": [
+            {
+              "description": "Environmental Variable Name",
+              "name": "passwordenv"
+            }
+          ],
+          "description": "Environment variable storing your password",
+          "exclusiveOn": [
+            "--method",
+            "--code",
+            "--sso",
+            "--apikey",
+            "--passwordfile",
+            "--check"
+          ],
+          "name": "--passwordenv"
+        },
+        {
+          "args": [
+            {
+              "description": "Path to a file containing your password",
+              "name": "passwordfile",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Path to a file containing your password as its first line",
+          "exclusiveOn": [
+            "--passwordenv",
+            "--sso",
+            "--apikey",
+            "--check"
+          ],
+          "name": "--passwordfile"
+        },
+        {
+          "description": "Check login status",
+          "exclusiveOn": [
+            "--method",
+            "--code",
+            "--sso",
+            "--apikey",
+            "--passwordenv",
+            "--passwordfile"
+          ],
+          "name": "--check"
+        },
+        {
+          "description": "Display help for login command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "description": "Log out of the current user account",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "logout",
+      "options": [
+        {
+          "description": "Display help for logout command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "description": "Lock the vault and destroy active session keys",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "lock",
+      "options": [
+        {
+          "description": "Display help for lock command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Master Password for the Vault to be unlocked",
+          "isOptional": true,
+          "name": "password"
+        }
+      ],
+      "description": "Unlock the vault and return a new session key",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "unlock",
+      "options": [
+        {
+          "description": "Check lock status",
+          "exclusiveOn": [
+            "--passwordenv",
+            "--passwordfile"
+          ],
+          "name": "--check"
+        },
+        {
+          "args": [
+            {
+              "description": "Environmental variable containing your password",
+              "name": "passwordenv"
+            }
+          ],
+          "description": "Supply an environment variable storing your password",
+          "exclusiveOn": [
+            "--passwordfile"
+          ],
+          "name": "--passwordenv"
+        },
+        {
+          "args": [
+            {
+              "description": "File containing your password",
+              "name": "passwordfile",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Path to a file containing your password as its first line",
+          "exclusiveOn": [
+            "--passwordenv"
+          ],
+          "name": "--passwordfile"
+        },
+        {
+          "description": "Display help for unlock command",
+          "exclusiveOn": [
+            "--check",
+            "--passwordenv",
+            "--passwordfile"
+          ],
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "description": "Pull the latest vault data from server",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "sync",
+      "options": [
+        {
+          "description": "Force a full sync",
+          "exclusiveOn": [
+            "--last"
+          ],
+          "name": [
+            "-f",
+            "--force"
+          ]
+        },
+        {
+          "description": "Show details of the last sync",
+          "exclusiveOn": [
+            "--force",
+            "-f"
+          ],
+          "name": "--last"
+        },
+        {
+          "description": "Display help for sync command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "description": "Generate a password/passphrase",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "generate",
+      "options": [
+        {
+          "description": "Include uppercase characters",
+          "exclusiveOn": [
+            "-p",
+            "--passphrase",
+            "--words",
+            "-c",
+            "--capitalize",
+            "--separator",
+            "--includeNumber",
+            "-h",
+            "--help"
+          ],
+          "name": [
+            "-u",
+            "--uppercase"
+          ]
+        },
+        {
+          "description": "Include lowercase characters",
+          "exclusiveOn": [
+            "-p",
+            "--passphrase",
+            "--words",
+            "-c",
+            "--capitalize",
+            "--separator",
+            "--includeNumber",
+            "-h",
+            "--help"
+          ],
+          "name": [
+            "-l",
+            "--lowercase"
+          ]
+        },
+        {
+          "description": "Include numeric characters",
+          "exclusiveOn": [
+            "-p",
+            "--passphrase",
+            "--words",
+            "-c",
+            "--capitalize",
+            "--separator",
+            "--includeNumber",
+            "-h",
+            "--help"
+          ],
+          "name": [
+            "-n",
+            "--number"
+          ]
+        },
+        {
+          "description": "Include special characters",
+          "exclusiveOn": [
+            "-p",
+            "--passphrase",
+            "--words",
+            "-c",
+            "--capitalize",
+            "--separator",
+            "--includeNumber",
+            "-h",
+            "--help"
+          ],
+          "name": [
+            "-s",
+            "--special"
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Output length",
+              "name": "length"
+            }
+          ],
+          "description": "Define password length",
+          "exclusiveOn": [
+            "-p",
+            "--passphrase",
+            "--words",
+            "-c",
+            "--capitalize",
+            "--separator",
+            "--includeNumber",
+            "-h",
+            "--help"
+          ],
+          "name": "--length"
+        },
+        {
+          "description": "Display help for generate command",
+          "exclusiveOn": [
+            "-p",
+            "--passphrase",
+            "--words",
+            "-c",
+            "--capitalize",
+            "--separator",
+            "--includeNumber",
+            "-u",
+            "--uppercase",
+            "-l",
+            "--lowercase",
+            "-n",
+            "--number",
+            "-s",
+            "--special",
+            "--length"
+          ],
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ],
+      "subcommands": [
+        {
+          "description": "Generate a passphrase",
+          "icon": "https://bitwarden.com/images/icon_32x32.png",
+          "name": [
+            "-p",
+            "--passphrase"
+          ],
+          "options": [
+            {
+              "args": [
+                {
+                  "description": "Number of words to include in passphrase",
+                  "name": "Number of words"
+                }
+              ],
+              "description": "Number of words to include in passphrase",
+              "exclusiveOn": [
+                "-u",
+                "--uppercase",
+                "-l",
+                "--lowercase",
+                "-n",
+                "--number",
+                "-s",
+                "--special",
+                "--length",
+                "-h",
+                "--help"
+              ],
+              "name": "--words"
+            },
+            {
+              "description": "Title case passphrase",
+              "exclusiveOn": [
+                "-u",
+                "--uppercase",
+                "-l",
+                "--lowercase",
+                "-n",
+                "--number",
+                "-s",
+                "--special",
+                "--length",
+                "-h",
+                "--help"
+              ],
+              "name": [
+                "-c",
+                "--capitalize"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "description": "Character to delineate words in generated passphrase",
+                  "name": "separator"
+                }
+              ],
+              "description": "Define word separator",
+              "exclusiveOn": [
+                "-u",
+                "--uppercase",
+                "-l",
+                "--lowercase",
+                "-n",
+                "--number",
+                "-s",
+                "--special",
+                "--length",
+                "-h",
+                "--help"
+              ],
+              "insertValue": "--separator '{cursor}'",
+              "name": "--separator"
+            },
+            {
+              "description": "Include a number in output",
+              "exclusiveOn": [
+                "-u",
+                "--uppercase",
+                "-l",
+                "--lowercase",
+                "-n",
+                "--number",
+                "-s",
+                "--special",
+                "--length",
+                "-h",
+                "--help"
+              ],
+              "name": "--includeNumber"
+            }
+          ],
+          "priority": 55
+        }
+      ]
+    },
+    {
+      "description": "Base 64 encode stdin",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "encode",
+      "options": [
+        {
+          "description": "Display help for encode command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Setting to configure",
+          "name": "setting",
+          "suggestions": [
+            "server"
+          ]
+        },
+        {
+          "description": "Value to set",
+          "name": "value"
+        }
+      ],
+      "description": "Configure CLI settings",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "config",
+      "options": [
+        {
+          "args": [
+            {
+              "description": "URL for a self-hosted Bitwarden Server",
+              "name": "url"
+            }
+          ],
+          "description": "Provides a custom web vault URL that differs from the base URL",
+          "name": "--web-vault"
+        },
+        {
+          "args": [
+            {
+              "description": "API URL for a self-hosted Bitwarden Server",
+              "name": "url"
+            }
+          ],
+          "description": "Provides a custom API URL that differs from the base URL",
+          "name": "--api"
+        },
+        {
+          "args": [
+            {
+              "description": "Custom Identity URL that differs from the base URL",
+              "name": "url"
+            }
+          ],
+          "description": "Provides a custom identity URL that differs from the base URL",
+          "name": "--identity"
+        },
+        {
+          "args": [
+            {
+              "description": "Custom icon service URL that differs from the base URL",
+              "name": "url"
+            }
+          ],
+          "description": "Provides a custom icon service URL that differs from the base URL",
+          "name": "--icons"
+        },
+        {
+          "args": [
+            {
+              "description": "Custom notifications URL that differs from the base URL",
+              "name": "url"
+            }
+          ],
+          "description": "Provides a custom notifications URL that differs from the base URL",
+          "name": "--notifications"
+        },
+        {
+          "args": [
+            {
+              "description": "Custom events URL that differs from the base URL",
+              "name": "url"
+            }
+          ],
+          "description": "Provides a custom events URL that differs from the base URL",
+          "name": "--events"
+        },
+        {
+          "args": [
+            {
+              "description": "Custom Key Connector URL that differs from the base URL",
+              "name": "url"
+            }
+          ],
+          "description": "Provides the URL for your Key Connector server",
+          "name": "--key-connector"
+        },
+        {
+          "description": "Display help for the config command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "description": "Check for updates",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "update",
+      "options": [
+        {
+          "description": "Display help for update command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "description": "Generate shell completions",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "completion",
+      "options": [
+        {
+          "args": [
+            {
+              "default": "zsh",
+              "description": "Shell to generate completions for",
+              "name": "shell",
+              "suggestions": [
+                "zsh"
+              ]
+            }
+          ],
+          "description": "Shell to generate completions for",
+          "name": "--shell"
+        },
+        {
+          "description": "Display help for completion command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "description": "Show server details, last sync time & date, user information, and vault status",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "status",
+      "options": [
+        {
+          "description": "Display help for status command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "description": "Start a RESTful API webserver",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "serve",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "hostname"
+            }
+          ],
+          "description": "The hostname to bind your API webserver to",
+          "name": "--hostname"
+        },
+        {
+          "args": [
+            {
+              "name": "port"
+            }
+          ],
+          "description": "The port to run your API webserver on",
+          "name": "--port"
+        },
+        {
+          "description": "Display help for serve command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "object",
+          "suggestions": [
+            "items",
+            "folders",
+            "collections",
+            "org-collections",
+            "org-members",
+            "organizations"
+          ]
+        }
+      ],
+      "description": "Retrieves an array of objects (items, folders, collections, org-collections, org-members, organizations) from your Vault",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "search"
+            }
+          ],
+          "description": "Perform a search on the listed objects",
+          "name": "--search"
+        },
+        {
+          "args": [
+            {
+              "name": "url"
+            }
+          ],
+          "description": "Filter items of type login with a url-match search",
+          "name": "--url"
+        },
+        {
+          "args": [
+            {
+              "name": "folderid"
+            }
+          ],
+          "description": "Filter items by folder id",
+          "name": "--folderid"
+        },
+        {
+          "args": [
+            {
+              "name": "collectionid"
+            }
+          ],
+          "description": "Filter items by collection id",
+          "name": "--collectionid"
+        },
+        {
+          "args": [
+            {
+              "name": "organizationid"
+            }
+          ],
+          "description": "Filter items or collections by organization id",
+          "name": "--organizationid"
+        },
+        {
+          "description": "Filter items that are in the trash",
+          "name": "--trash"
+        },
+        {
+          "description": "Display help for the list command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Type of object to get from the Vault",
+          "name": "object",
+          "suggestions": [
+            "item",
+            "username",
+            "password",
+            "uri",
+            "totp",
+            "exposed",
+            "folder",
+            "collection"
+          ]
+        },
+        {
+          "description": "Search term or object's globally unique id",
+          "name": "id"
+        }
+      ],
+      "description": "Get an object from the vault",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "get",
+      "options": [
+        {
+          "args": [
+            {
+              "description": "Object id",
+              "name": "id"
+            }
+          ],
+          "description": "Exact id of the object",
+          "name": "--id"
+        },
+        {
+          "args": [
+            {
+              "description": "Organization id",
+              "name": "organizationid"
+            }
+          ],
+          "description": "Organization id for an organization object",
+          "name": "--organizationid"
+        },
+        {
+          "description": "Display help for the get command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ],
+      "subcommands": [
+        {
+          "args": [
+            {
+              "name": "object",
+              "suggestions": [
+                "item",
+                "item.field",
+                "item.login",
+                "item.login.uri",
+                "item.card",
+                "item.identity",
+                "item.securenote",
+                "folder",
+                "collection",
+                "item-collections",
+                "org-collection",
+                "send.text",
+                "send.file"
+              ]
+            }
+          ],
+          "description": "Type of template to get",
+          "name": "template"
+        },
+        {
+          "name": "attachment",
+          "options": [
+            {
+              "args": [
+                {
+                  "description": "ID of Vault Item containing attachment",
+                  "name": "itemid"
+                }
+              ],
+              "description": "Vault Item ID containing attachment",
+              "isRequired": true,
+              "name": "--itemid"
+            },
+            {
+              "args": [
+                {
+                  "description": "Output directory and/or filename",
+                  "name": "output",
+                  "template": "folders"
+                }
+              ],
+              "description": "Output directory and/or filename",
+              "name": "--output"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Object to be created",
+          "name": "object",
+          "suggestions": [
+            "item",
+            "attachment",
+            "folder",
+            "org-collection"
+          ]
+        },
+        {
+          "description": "Encoded Json instead of uploading to Vault",
+          "name": "encodedJson"
+        }
+      ],
+      "description": "Create an object in the vault",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "description": "File to attach",
+              "name": "file",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Path to file for attachment",
+          "name": "--file"
+        },
+        {
+          "args": [
+            {
+              "description": "Item ID",
+              "name": "itemid"
+            }
+          ],
+          "description": "Attachment's item id",
+          "name": "--itemid"
+        },
+        {
+          "args": [
+            {
+              "description": "Organization ID",
+              "name": "organizationid"
+            }
+          ],
+          "description": "Organization id for an organization object",
+          "name": "--organizationid"
+        },
+        {
+          "description": "Display help for the create command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Type of Vault Object to edit",
+          "name": "object",
+          "suggestions": [
+            "item",
+            "item-collections",
+            "folder",
+            "org-collection"
+          ]
+        },
+        {
+          "description": "Object's globally unique id",
+          "name": "id"
+        },
+        {
+          "description": "Encoded json of the object to create",
+          "isOptional": true,
+          "name": "encodedJson"
+        }
+      ],
+      "description": "Edit an object from the vault",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "edit",
+      "options": [
+        {
+          "args": [
+            {
+              "description": "Organization ID",
+              "name": "organizationid"
+            }
+          ],
+          "description": "Organization id for an organization object",
+          "name": "--organizationid"
+        },
+        {
+          "description": "Display help for the edit command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Object to delete",
+          "name": "object",
+          "suggestions": [
+            "item",
+            "attachment",
+            "folder",
+            "org-collection"
+          ]
+        },
+        {
+          "description": "Unique Vault ID",
+          "name": "id"
+        }
+      ],
+      "description": "Delete an object from the vault",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "isDangerous": true,
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "description": "Item Id",
+              "name": "itemid"
+            }
+          ],
+          "description": "Attachment's item id",
+          "isDangerous": true,
+          "name": "--itemid"
+        },
+        {
+          "args": [
+            {
+              "description": "Organization Id",
+              "name": "organizationid"
+            }
+          ],
+          "description": "Organization id for an organization object",
+          "isDangerous": true,
+          "name": "--organizationid"
+        },
+        {
+          "description": "Permanently deletes the item instead of soft-deleting it (item only)",
+          "isDangerous": true,
+          "name": [
+            "-p",
+            "--permanent"
+          ]
+        },
+        {
+          "description": "Display help for the delete command",
+          "exclusiveOn": [
+            "--itemid",
+            "--organizationid",
+            "-p",
+            "--permanent"
+          ],
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "object"
+        },
+        {
+          "name": "id"
+        }
+      ],
+      "description": "Restores an object from the trash",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "restore",
+      "options": [
+        {
+          "description": "Display help for the restore command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "id"
+        },
+        {
+          "name": "organizationId"
+        },
+        {
+          "isOptional": true,
+          "name": "encodedJson"
+        }
+      ],
+      "description": "Transfers a Vault item to an Organization",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "move",
+      "options": [
+        {
+          "description": "Display help for the move command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Valid objects are: org-member",
+          "name": "object"
+        },
+        {
+          "description": "Organization id for an organization object",
+          "name": "id"
+        }
+      ],
+      "description": "Confirm an object to the organization",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "confirm",
+      "options": [
+        {
+          "args": [
+            {
+              "description": "Organization ID",
+              "name": "organizationid"
+            }
+          ],
+          "description": "Organization id for an organization object",
+          "name": "--organizationid"
+        },
+        {
+          "description": "Display help for the confirm command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "default": "bitwardenjson",
+          "description": "Format of import file",
+          "name": "format",
+          "suggestions": [
+            "1password1pif",
+            "1password1pux",
+            "1passwordmaccsv",
+            "1passwordwincsv",
+            "ascendocsv",
+            "avastcsv",
+            "avastjson",
+            "aviracsv",
+            "bitwardencsv",
+            "bitwardenjson",
+            "blackberrycsv",
+            "blurcsv",
+            "buttercupcsv",
+            "chromecsv",
+            "clipperzhtml",
+            "codebookcsv",
+            "dashlanecsv",
+            "dashlanejson",
+            "encryptrcsv",
+            "enpasscsv",
+            "enpassjson",
+            "firefoxcsv",
+            "fsecurefsk",
+            "gnomejson",
+            "kasperskytxt",
+            "keepass2xml",
+            "keepassxcsv",
+            "keepercsv",
+            "lastpasscsv",
+            "logmeoncecsv",
+            "meldiumcsv",
+            "msecurecsv",
+            "mykicsv",
+            "nordpasscsv",
+            "operacsv",
+            "padlockcsv",
+            "passboltcsv",
+            "passkeepcsv",
+            "passmanjson",
+            "passpackcsv",
+            "passwordagentcsv",
+            "passwordbossjson",
+            "passworddragonxml",
+            "passwordwallettxt",
+            "pwsafexml",
+            "remembearcsv",
+            "roboformcsv",
+            "safaricsv",
+            "safeincloudxml",
+            "saferpasscsv",
+            "securesafecsv",
+            "splashidcsv",
+            "stickypasswordxml",
+            "truekeycsv",
+            "upmcsv",
+            "vivaldicsv",
+            "yoticsv",
+            "zohovaultcsv"
+          ]
+        },
+        {
+          "description": "File to be imported",
+          "name": "input",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Import vault data from a file",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "import",
+      "options": [
+        {
+          "description": "List supported file formats",
+          "name": "--formats"
+        },
+        {
+          "args": [
+            {
+              "description": "Organization ID to be imported to",
+              "name": "organizationid"
+            }
+          ],
+          "description": "ID of the organization to import to",
+          "name": "--organizationid"
+        },
+        {
+          "description": "Display help for the import command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "description": "Export vault data to a CSV or JSON file",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "export",
+      "options": [
+        {
+          "args": [
+            {
+              "description": "Path to export to",
+              "name": "output",
+              "template": "folders"
+            }
+          ],
+          "description": "Set output directory or filename",
+          "name": "--output"
+        },
+        {
+          "args": [
+            {
+              "default": "json",
+              "description": "Export format",
+              "name": "format",
+              "suggestions": [
+                "csv",
+                "json",
+                "encrypted_json"
+              ]
+            }
+          ],
+          "description": "Export file format",
+          "name": "--format"
+        },
+        {
+          "args": [
+            {
+              "description": "Password that will encrypt this export",
+              "isOptional": true,
+              "name": "password"
+            }
+          ],
+          "description": "Use a password to encrypt instead of your Bitwarden account encryption key. Only applies to the encrypted_json format",
+          "name": "--password"
+        },
+        {
+          "args": [
+            {
+              "description": "Organization id",
+              "name": "organizationid"
+            }
+          ],
+          "description": "Enter organization id for an organization",
+          "name": "--organizationid"
+        },
+        {
+          "description": "Display help for the export command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Object's globally unique ID",
+          "name": "id"
+        },
+        {
+          "description": "Organization's globally unique ID",
+          "name": "organizationId"
+        },
+        {
+          "description": "Encoded json of an array of collection ids. Can also be piped into stdin",
+          "isOptional": true,
+          "name": "encodedJson"
+        }
+      ],
+      "deprecated": {
+        "description": "--DEPRECATED-- Use bw MOVE instead",
+        "insertValue": "move"
+      },
+      "description": "--DEPRECATED-- Move an item to an organization",
+      "icon": "fig://icon?type=alert",
+      "isDangerous": true,
+      "name": "share",
+      "options": [
+        {
+          "description": "Display help for the share command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 55
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Encoded Json data",
+          "name": "data"
+        }
+      ],
+      "description": "Work with Bitwarden Sends. A Send can be quickly created using this command or subcommands can be used to fine-tune the Send",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "send",
+      "options": [
+        {
+          "description": "Specifies that <data> is a filepath",
+          "name": [
+            "-f",
+            "--file"
+          ]
+        },
+        {
+          "args": [
+            {
+              "default": "7",
+              "isOptional": true,
+              "name": "days"
+            }
+          ],
+          "description": "The number of days in the future to set deletion date (defaults to 7 if not specified)",
+          "name": [
+            "-d",
+            "--deleteInDays"
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Max number of accesses allowed",
+              "name": "amount"
+            }
+          ],
+          "description": "The max number of accesses allowed for this Send",
+          "name": [
+            "-a",
+            "--maxAccessCount"
+          ]
+        },
+        {
+          "description": "Hide <data> in web by default. Valid only if --file is not set",
+          "name": "--hidden"
+        },
+        {
+          "args": [
+            {
+              "description": "Send name",
+              "name": "name"
+            }
+          ],
+          "description": "The name of the Send. Defaults to a guid for text Sends and the filename for files",
+          "name": [
+            "-n",
+            "--name"
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Notes to add to the Send",
+              "name": "notes"
+            }
+          ],
+          "description": "Notes to add to the Send",
+          "name": "--notes"
+        },
+        {
+          "description": "Specifies that the full Send object should be returned rather than just the access url",
+          "name": "--fullObject"
+        },
+        {
+          "description": "Display help for the Send command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ],
+      "subcommands": [
+        {
+          "description": "List all the Sends owned by you",
+          "icon": "https://bitwarden.com/images/icon_32x32.png",
+          "name": "list",
+          "options": [
+            {
+              "description": "Display help for the Send command",
+              "name": [
+                "-h",
+                "--help"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Json template to fetch",
+              "name": "object",
+              "suggestions": [
+                "send.text",
+                "send.file"
+              ]
+            }
+          ],
+          "description": "Get json templates for Send objects",
+          "icon": "https://bitwarden.com/images/icon_32x32.png",
+          "name": "template",
+          "options": [
+            {
+              "description": "Display help for the template sub-command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Send ID",
+              "name": "Send ID"
+            }
+          ],
+          "description": "Get Sends owned by you",
+          "icon": "https://bitwarden.com/images/icon_32x32.png",
+          "name": "get",
+          "options": [
+            {
+              "args": [
+                {
+                  "description": "",
+                  "name": "output",
+                  "template": "folders"
+                }
+              ],
+              "description": "Output directory or filename for attachment",
+              "name": "--output"
+            },
+            {
+              "description": "Specifies to return the text content of a Send",
+              "name": "--text"
+            },
+            {
+              "description": "Display help for the Send get sub-command",
+              "name": [
+                "-h",
+                "--help"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "URL of Send to download",
+              "name": "Send URL"
+            }
+          ],
+          "description": "Access a Bitwarden Send from a url",
+          "icon": "https://bitwarden.com/images/icon_32x32.png",
+          "name": "receive",
+          "options": [
+            {
+              "args": [
+                {
+                  "description": "Password for Send",
+                  "name": "password"
+                }
+              ],
+              "description": "Password needed to access the Send",
+              "exclusiveOn": [
+                "--passwordenv",
+                "--passwordfile"
+              ],
+              "name": "--password"
+            },
+            {
+              "args": [
+                {
+                  "description": "Environment variable containing Send's password",
+                  "name": "passwordenv"
+                }
+              ],
+              "description": "Environment variable storing the Send's password",
+              "exclusiveOn": [
+                "--password",
+                "--passwordfile"
+              ],
+              "name": "--passwordenv"
+            },
+            {
+              "args": [
+                {
+                  "description": "File containing Send's password",
+                  "name": "passwordfile",
+                  "template": "filepaths"
+                }
+              ],
+              "description": "Path to a file containing the Send's password as its first line",
+              "exclusiveOn": [
+                "--passwordenv",
+                "--password"
+              ],
+              "name": "--passwordfile"
+            },
+            {
+              "description": "Return the Send's json object rather than the Send's content",
+              "name": "--obj"
+            },
+            {
+              "args": [
+                {
+                  "description": "Path to save File-type Send",
+                  "name": "location",
+                  "template": "folders"
+                }
+              ],
+              "description": "Specify a file path to save a File-type Send to",
+              "name": "--output"
+            },
+            {
+              "description": "Display help for the receive sub-command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Encoded Json to be uploaded",
+              "name": "encodedJson"
+            }
+          ],
+          "description": "Create a Send",
+          "icon": "https://bitwarden.com/images/icon_32x32.png",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "description": "Path to file to attach as content",
+                  "name": "path",
+                  "template": "filepaths"
+                }
+              ],
+              "description": "File to Send. Can also be specified in parent's JSON",
+              "exclusiveOn": [
+                "--text",
+                "--hidden"
+              ],
+              "name": "--file"
+            },
+            {
+              "args": [
+                {
+                  "description": "Text to include as content",
+                  "name": "text"
+                }
+              ],
+              "description": "Text to Send. Can also be specified in parent's JSON",
+              "exclusiveOn": [
+                "--file"
+              ],
+              "name": "--text"
+            },
+            {
+              "dependsOn": [
+                "--text"
+              ],
+              "description": "Text hidden flag. Valid only with the --text option",
+              "name": "--hidden"
+            },
+            {
+              "args": [
+                {
+                  "description": "Password to secure the Send",
+                  "name": "password"
+                }
+              ],
+              "description": "Optional password to access this Send. Can also be specified in JSON",
+              "name": "--password"
+            },
+            {
+              "description": "Display help for the create sub-command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Encoded Json",
+              "name": "encodedJson"
+            }
+          ],
+          "description": "Edit a Send",
+          "icon": "https://bitwarden.com/images/icon_32x32.png",
+          "name": "edit",
+          "options": [
+            {
+              "args": [
+                {
+                  "description": "ItemID",
+                  "name": "itemid"
+                }
+              ],
+              "description": "Overrides the itemId provided in [encodedJson]",
+              "name": "--itemid"
+            },
+            {
+              "description": "Display help for the edit sub-command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "ID of the Send to remove password from",
+              "name": "Send ID"
+            }
+          ],
+          "description": "Removes the saved password from a Send",
+          "icon": "https://bitwarden.com/images/icon_32x32.png",
+          "name": "remove-password",
+          "options": [
+            {
+              "description": "Display help for the remove-password sub-command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "ID of the Send to delete",
+              "name": "Send ID"
+            }
+          ],
+          "description": "Delete a Send",
+          "icon": "https://bitwarden.com/images/icon_32x32.png",
+          "name": "delete",
+          "options": [
+            {
+              "description": "Display help for the delete sub-command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "isOptional": true,
+              "name": "command"
+            }
+          ],
+          "description": "Display help for the Send command",
+          "name": "help",
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "description": "Manage device approval requests sent to organizations that use SSO with trusted devices",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "device-approval",
+      "subcommands": [
+        {
+          "description": "List all pending requests for an organisation",
+          "icon": "https://bitwarden.com/images/icon_32x32.png",
+          "name": "list",
+          "options": [
+            {
+              "description": "Display help for the list sub-command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 1
+            },
+            {
+              "args": [
+                {
+                  "description": "Organisation ID",
+                  "name": "organizationid"
+                }
+              ],
+              "description": "The organisation id (required)",
+              "name": "--organizationid",
+              "priority": 100
+            }
+          ]
+        },
+        {
+          "description": "Approve a pending request",
+          "icon": "https://bitwarden.com/images/icon_32x32.png",
+          "name": "approve",
+          "options": [
+            {
+              "description": "Display help for the approve sub-command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            },
+            {
+              "args": [
+                {
+                  "description": "The id of the request to approve",
+                  "isVariadic": true,
+                  "name": "requestId"
+                }
+              ],
+              "description": "The id of the request to approve",
+              "name": "requestId"
+            },
+            {
+              "args": [
+                {
+                  "description": "Organisation ID",
+                  "name": "organizationid"
+                }
+              ],
+              "description": "The organisation id (required)",
+              "name": "--organizationid",
+              "priority": 100
+            }
+          ]
+        },
+        {
+          "description": "Approve all pending requests for an organisation",
+          "icon": "fig://icon?type=alert",
+          "isDangerous": true,
+          "name": "approve-all",
+          "options": [
+            {
+              "description": "Display help for the approve-all sub-command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            },
+            {
+              "args": [
+                {
+                  "description": "Organisation ID",
+                  "name": "organizationid"
+                }
+              ],
+              "description": "The organisation id (required)",
+              "name": "--organizationid",
+              "priority": 100
+            }
+          ]
+        },
+        {
+          "description": "Deny a pending request",
+          "icon": "https://bitwarden.com/images/icon_32x32.png",
+          "name": "deny",
+          "options": [
+            {
+              "description": "Display help for the deny sub-command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            },
+            {
+              "args": [
+                {
+                  "description": "The id of the request to approve",
+                  "isVariadic": true,
+                  "name": "requestId"
+                }
+              ],
+              "description": "The id of the request to deny",
+              "name": "requestId"
+            },
+            {
+              "args": [
+                {
+                  "description": "Organisation ID",
+                  "name": "organizationid"
+                }
+              ],
+              "description": "The organisation id (required)",
+              "name": "--organizationid",
+              "priority": 100
+            }
+          ]
+        },
+        {
+          "description": "Deny all pending requests for an organisation",
+          "icon": "https://bitwarden.com/images/icon_32x32.png",
+          "name": "deny-all",
+          "options": [
+            {
+              "description": "Display help for the deny-all sub-command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            },
+            {
+              "args": [
+                {
+                  "description": "Organisation ID",
+                  "name": "organizationid"
+                }
+              ],
+              "description": "The organisation id (required)",
+              "name": "--organizationid",
+              "priority": 100
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "isOptional": true,
+              "name": "command"
+            }
+          ],
+          "description": "Display help for command",
+          "name": "help",
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "URL of Send to download",
+          "name": "Send URL"
+        }
+      ],
+      "description": "Access a Bitwarden Send from a url",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "receive",
+      "options": [
+        {
+          "args": [
+            {
+              "description": "Password for Send",
+              "name": "password"
+            }
+          ],
+          "description": "Password needed to access the Send",
+          "exclusiveOn": [
+            "--passwordenv",
+            "--passwordfile"
+          ],
+          "name": "--password"
+        },
+        {
+          "args": [
+            {
+              "description": "Environment variable containing Send's password",
+              "name": "passwordenv"
+            }
+          ],
+          "description": "Environment variable storing the Send's password",
+          "exclusiveOn": [
+            "--password",
+            "--passwordfile"
+          ],
+          "name": "--passwordenv"
+        },
+        {
+          "args": [
+            {
+              "description": "File containing Send's password",
+              "name": "passwordfile",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Path to a file containing the Send's password as its first line",
+          "exclusiveOn": [
+            "--passwordenv",
+            "--password"
+          ],
+          "name": "--passwordfile"
+        },
+        {
+          "description": "Return the Send's json object rather than the Send's content",
+          "name": "--obj"
+        },
+        {
+          "args": [
+            {
+              "description": "Path to save File-type Send",
+              "name": "location",
+              "template": "folders"
+            }
+          ],
+          "description": "Specify a file path to save a File-type Send to",
+          "name": "--output"
+        },
+        {
+          "description": "Display help for the receive sub-command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Subcommand to display help for",
+          "isOptional": true,
+          "name": "command",
+          "suggestions": [
+            "login",
+            "logout",
+            "lock",
+            "unlock",
+            "sync",
+            "generate",
+            "encode",
+            "config",
+            "update",
+            "completion",
+            "status",
+            "serve",
+            "list",
+            "get",
+            "create",
+            "edit",
+            "delete",
+            "restore",
+            "move",
+            "confirm",
+            "import",
+            "export",
+            "share",
+            "send",
+            "receive",
+            "device-approval"
+          ]
+        }
+      ],
+      "description": "Display help for the Bitwarden CLI tool",
+      "icon": "https://bitwarden.com/images/icon_32x32.png",
+      "name": "help",
+      "priority": 49
+    }
+  ]
+}

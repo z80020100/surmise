@@ -1,0 +1,1865 @@
+{
+  "description": "IoT Analytics allows you to collect large amounts of device data, process messages, and store them. You can then query the data and run sophisticated analytics on it. IoT Analytics enables advanced data exploration through integration with Jupyter Notebooks and data visualization through integration with Amazon QuickSight. Traditional analytics and business intelligence tools are designed to process structured data. IoT data often comes from devices that record noisy processes (such as temperature, motion, or sound). As a result the data from these devices can have significant gaps, corrupted messages, and false readings that must be cleaned up before analysis can occur. Also, IoT data is often only meaningful in the context of other data from external sources.  IoT Analytics automates the steps required to analyze data from IoT devices. IoT Analytics filters, transforms, and enriches IoT data before storing it in a time-series data store for analysis. You can set up the service to collect only the data you need from your devices, apply mathematical transforms to process the data, and enrich the data with device-specific metadata such as device type and location before storing it. Then, you can analyze your data by running queries using the built-in SQL query engine, or perform more complex analytics and machine learning inference. IoT Analytics includes pre-built models for common IoT use cases so you can answer questions like which devices are about to fail or which customers are at risk of abandoning their wearable devices",
+  "name": "iotanalytics",
+  "subcommands": [
+    {
+      "description": "Sends messages to a channel",
+      "name": "batch-put-message",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the channel where the messages are sent",
+          "name": "--channel-name"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The list of messages to be sent. Each message has the format: { \"messageId\": \"string\", \"payload\": \"string\"}. The field names of message payloads (data) that you send to IoT Analytics:   Must contain only alphanumeric characters and undescores (_). No other special characters are allowed.   Must begin with an alphabetic character or single underscore (_).   Cannot contain hyphens (-).   In regular expression terms: \"^[A-Za-z_]([A-Za-z0-9]*|[A-Za-z0-9][A-Za-z0-9_]*)$\".    Cannot be more than 255 characters.   Are case insensitive. (Fields named foo and FOO in the same payload are considered duplicates.)   For example, {\"temp_01\": 29} or {\"_temp_01\": 29} are valid, but {\"temp-01\": 29}, {\"01_temp\": 29} or {\"__temp_01\": 29} are invalid in message payloads",
+          "name": "--messages"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Cancels the reprocessing of data through the pipeline",
+      "name": "cancel-pipeline-reprocessing",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of pipeline for which data reprocessing is canceled",
+          "name": "--pipeline-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the reprocessing task (returned by StartPipelineReprocessing)",
+          "name": "--reprocessing-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Used to create a channel. A channel collects data from an MQTT topic and archives the raw, unprocessed messages before publishing the data to a pipeline",
+      "name": "create-channel",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the channel",
+          "name": "--channel-name"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Where channel data is stored. You can choose one of serviceManagedS3 or customerManagedS3 storage. If not specified, the default is serviceManagedS3. You can't change this storage option after the channel is created",
+          "name": "--channel-storage"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "How long, in days, message data is kept for the channel. When customerManagedS3 storage is selected, this parameter is ignored",
+          "name": "--retention-period"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "Metadata which can be used to manage the channel",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Used to create a dataset. A dataset stores data retrieved from a data store by applying a queryAction (a SQL query) or a containerAction (executing a containerized application). This operation creates the skeleton of a dataset. The dataset can be populated manually by calling CreateDatasetContent or automatically according to a trigger you specify",
+      "name": "create-dataset",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the dataset",
+          "name": "--dataset-name"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "A list of actions that create the dataset contents",
+          "name": "--actions"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "A list of triggers. A trigger causes dataset contents to be populated at a specified time interval or when another dataset's contents are created. The list of triggers can be empty or contain up to five DataSetTrigger objects",
+          "name": "--triggers"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "When dataset contents are created, they are delivered to destinations specified here",
+          "name": "--content-delivery-rules"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Optional. How long, in days, versions of dataset contents are kept for the dataset. If not specified or set to null, versions of dataset contents are retained for at most 90 days. The number of versions of dataset contents retained is determined by the versioningConfiguration parameter. For more information, see  Keeping Multiple Versions of IoT Analytics datasets in the IoT Analytics User Guide",
+          "name": "--retention-period"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Optional. How many versions of dataset contents are kept. If not specified or set to null, only the latest version plus the latest succeeded version (if they are different) are kept for the time period specified by the retentionPeriod parameter. For more information, see Keeping Multiple Versions of IoT Analytics datasets in the IoT Analytics User Guide",
+          "name": "--versioning-configuration"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "Metadata which can be used to manage the dataset",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "A list of data rules that send notifications to CloudWatch, when data arrives late. To specify lateDataRules, the dataset must use a DeltaTimer filter",
+          "name": "--late-data-rules"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Creates the content of a dataset by applying a queryAction (a SQL query) or a containerAction (executing a containerized application)",
+      "name": "create-dataset-content",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the dataset",
+          "name": "--dataset-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The version ID of the dataset content. To specify versionId for a dataset content, the dataset must use a DeltaTimer filter",
+          "name": "--version-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Creates a data store, which is a repository for messages",
+      "name": "create-datastore",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the data store",
+          "name": "--datastore-name"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Where data in a data store is stored.. You can choose serviceManagedS3 storage, customerManagedS3 storage, or iotSiteWiseMultiLayerStorage storage. The default is serviceManagedS3. You can't change the choice of Amazon S3 storage after your data store is created",
+          "name": "--datastore-storage"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "How long, in days, message data is kept for the data store. When customerManagedS3 storage is selected, this parameter is ignored",
+          "name": "--retention-period"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "Metadata which can be used to manage the data store",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Contains the configuration information of file formats. IoT Analytics data stores support JSON and Parquet. The default file format is JSON. You can specify only one format. You can't change the file format after you create the data store",
+          "name": "--file-format-configuration"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Contains information about the partition dimensions in a data store",
+          "name": "--datastore-partitions"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Creates a pipeline. A pipeline consumes messages from a channel and allows you to process the messages before storing them in a data store. You must specify both a channel and a datastore activity and, optionally, as many as 23 additional activities in the pipelineActivities array",
+      "name": "create-pipeline",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the pipeline",
+          "name": "--pipeline-name"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "A list of PipelineActivity objects. Activities perform transformations on your messages, such as removing, renaming or adding message attributes; filtering messages based on attribute values; invoking your Lambda unctions on messages for advanced processing; or performing mathematical transformations to normalize device data. The list can be 2-25 PipelineActivity objects and must contain both a channel and a datastore activity. Each entry in the list must contain only one activity. For example:  pipelineActivities = [ { \"channel\": { ... } }, { \"lambda\": { ... } }, ... ]",
+          "name": "--pipeline-activities"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "Metadata which can be used to manage the pipeline",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes the specified channel",
+      "name": "delete-channel",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the channel to delete",
+          "name": "--channel-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes the specified dataset. You do not have to delete the content of the dataset before you perform this operation",
+      "name": "delete-dataset",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the dataset to delete",
+          "name": "--dataset-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes the content of the specified dataset",
+      "name": "delete-dataset-content",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the dataset whose content is deleted",
+          "name": "--dataset-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The version of the dataset whose content is deleted. You can also use the strings \"$LATEST\" or \"$LATEST_SUCCEEDED\" to delete the latest or latest successfully completed data set. If not specified, \"$LATEST_SUCCEEDED\" is the default",
+          "name": "--version-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes the specified data store",
+      "name": "delete-datastore",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the data store to delete",
+          "name": "--datastore-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes the specified pipeline",
+      "name": "delete-pipeline",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the pipeline to delete",
+          "name": "--pipeline-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves information about a channel",
+      "name": "describe-channel",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the channel whose information is retrieved",
+          "name": "--channel-name"
+        },
+        {
+          "description": "If true, additional statistical information about the channel is included in the response. This feature can't be used with a channel whose S3 storage is customer-managed",
+          "name": "--include-statistics"
+        },
+        {
+          "description": "If true, additional statistical information about the channel is included in the response. This feature can't be used with a channel whose S3 storage is customer-managed",
+          "name": "--no-include-statistics"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves information about a dataset",
+      "name": "describe-dataset",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the dataset whose information is retrieved",
+          "name": "--dataset-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves information about a data store",
+      "name": "describe-datastore",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the data store",
+          "name": "--datastore-name"
+        },
+        {
+          "description": "If true, additional statistical information about the data store is included in the response. This feature can't be used with a data store whose S3 storage is customer-managed",
+          "name": "--include-statistics"
+        },
+        {
+          "description": "If true, additional statistical information about the data store is included in the response. This feature can't be used with a data store whose S3 storage is customer-managed",
+          "name": "--no-include-statistics"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves the current settings of the IoT Analytics logging options",
+      "name": "describe-logging-options",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves information about a pipeline",
+      "name": "describe-pipeline",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the pipeline whose information is retrieved",
+          "name": "--pipeline-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves the contents of a dataset as presigned URIs",
+      "name": "get-dataset-content",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the dataset whose contents are retrieved",
+          "name": "--dataset-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The version of the dataset whose contents are retrieved. You can also use the strings \"$LATEST\" or \"$LATEST_SUCCEEDED\" to retrieve the contents of the latest or latest successfully completed dataset. If not specified, \"$LATEST_SUCCEEDED\" is the default",
+          "name": "--version-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves a list of channels",
+      "name": "list-channels",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token for the next set of results",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of results to return in this request. The default value is 100",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Lists information about dataset contents that have been created",
+      "name": "list-dataset-contents",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the dataset whose contents information you want to list",
+          "name": "--dataset-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token for the next set of results",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of results to return in this request",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "timestamp"
+            }
+          ],
+          "description": "A filter to limit results to those dataset contents whose creation is scheduled on or after the given time. See the field triggers.schedule in the CreateDataset request. (timestamp)",
+          "name": "--scheduled-on-or-after"
+        },
+        {
+          "args": [
+            {
+              "name": "timestamp"
+            }
+          ],
+          "description": "A filter to limit results to those dataset contents whose creation is scheduled before the given time. See the field triggers.schedule in the CreateDataset request. (timestamp)",
+          "name": "--scheduled-before"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves information about datasets",
+      "name": "list-datasets",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token for the next set of results",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of results to return in this request. The default value is 100",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves a list of data stores",
+      "name": "list-datastores",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token for the next set of results",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of results to return in this request. The default value is 100",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves a list of pipelines",
+      "name": "list-pipelines",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token for the next set of results",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of results to return in this request. The default value is 100",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Lists the tags (metadata) that you have assigned to the resource",
+      "name": "list-tags-for-resource",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the resource whose tags you want to list",
+          "name": "--resource-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Sets or updates the IoT Analytics logging options. If you update the value of any loggingOptions field, it takes up to one minute for the change to take effect. Also, if you change the policy attached to the role you specified in the roleArn field (for example, to correct an invalid policy), it takes up to five minutes for that change to take effect",
+      "name": "put-logging-options",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "The new values of the IoT Analytics logging options",
+          "name": "--logging-options"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Simulates the results of running a pipeline activity on a message payload",
+      "name": "run-pipeline-activity",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "The pipeline activity that is run. This must not be a channel activity or a data store activity because these activities are used in a pipeline only to load the original message and to store the (possibly) transformed message. If a Lambda activity is specified, only short-running Lambda functions (those with a timeout of less than 30 seconds or less) can be used",
+          "name": "--pipeline-activity"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The sample message payloads on which the pipeline activity is run",
+          "name": "--payloads"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves a sample of messages from the specified channel ingested during the specified timeframe. Up to 10 messages can be retrieved",
+      "name": "sample-channel-data",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the channel whose message samples are retrieved",
+          "name": "--channel-name"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The number of sample messages to be retrieved. The limit is 10. The default is also 10",
+          "name": "--max-messages"
+        },
+        {
+          "args": [
+            {
+              "name": "timestamp"
+            }
+          ],
+          "description": "The start of the time window from which sample messages are retrieved",
+          "name": "--start-time"
+        },
+        {
+          "args": [
+            {
+              "name": "timestamp"
+            }
+          ],
+          "description": "The end of the time window from which sample messages are retrieved",
+          "name": "--end-time"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Starts the reprocessing of raw message data through the pipeline",
+      "name": "start-pipeline-reprocessing",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the pipeline on which to start reprocessing",
+          "name": "--pipeline-name"
+        },
+        {
+          "args": [
+            {
+              "name": "timestamp"
+            }
+          ],
+          "description": "The start time (inclusive) of raw message data that is reprocessed. If you specify a value for the startTime parameter, you must not use the channelMessages object",
+          "name": "--start-time"
+        },
+        {
+          "args": [
+            {
+              "name": "timestamp"
+            }
+          ],
+          "description": "The end time (exclusive) of raw message data that is reprocessed. If you specify a value for the endTime parameter, you must not use the channelMessages object",
+          "name": "--end-time"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Specifies one or more sets of channel messages that you want to reprocess. If you use the channelMessages object, you must not specify a value for startTime and endTime",
+          "name": "--channel-messages"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Adds to or modifies the tags of the given resource. Tags are metadata that can be used to manage a resource",
+      "name": "tag-resource",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the resource whose tags you want to modify",
+          "name": "--resource-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The new or modified tags for the resource",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Removes the given tags (metadata) from the resource",
+      "name": "untag-resource",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the resource whose tags you want to remove",
+          "name": "--resource-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The keys of those tags which you want to remove",
+          "name": "--tag-keys"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Used to update the settings of a channel",
+      "name": "update-channel",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the channel to be updated",
+          "name": "--channel-name"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Where channel data is stored. You can choose one of serviceManagedS3 or customerManagedS3 storage. If not specified, the default is serviceManagedS3. You can't change this storage option after the channel is created",
+          "name": "--channel-storage"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "How long, in days, message data is kept for the channel. The retention period can't be updated if the channel's Amazon S3 storage is customer-managed",
+          "name": "--retention-period"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Updates the settings of a dataset",
+      "name": "update-dataset",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the dataset to update",
+          "name": "--dataset-name"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "A list of DatasetAction objects",
+          "name": "--actions"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "A list of DatasetTrigger objects. The list can be empty or can contain up to five DatasetTrigger objects",
+          "name": "--triggers"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "When dataset contents are created, they are delivered to destinations specified here",
+          "name": "--content-delivery-rules"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "How long, in days, dataset contents are kept for the dataset",
+          "name": "--retention-period"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Optional. How many versions of dataset contents are kept. If not specified or set to null, only the latest version plus the latest succeeded version (if they are different) are kept for the time period specified by the retentionPeriod parameter. For more information, see Keeping Multiple Versions of IoT Analytics datasets in the IoT Analytics User Guide",
+          "name": "--versioning-configuration"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "A list of data rules that send notifications to CloudWatch, when data arrives late. To specify lateDataRules, the dataset must use a DeltaTimer filter",
+          "name": "--late-data-rules"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Used to update the settings of a data store",
+      "name": "update-datastore",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the data store to be updated",
+          "name": "--datastore-name"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "How long, in days, message data is kept for the data store. The retention period can't be updated if the data store's Amazon S3 storage is customer-managed",
+          "name": "--retention-period"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Where data in a data store is stored.. You can choose serviceManagedS3 storage, customerManagedS3 storage, or iotSiteWiseMultiLayerStorage storage. The default is serviceManagedS3. You can't change the choice of Amazon S3 storage after your data store is created",
+          "name": "--datastore-storage"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Contains the configuration information of file formats. IoT Analytics data stores support JSON and Parquet. The default file format is JSON. You can specify only one format. You can't change the file format after you create the data store",
+          "name": "--file-format-configuration"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Updates the settings of a pipeline. You must specify both a channel and a datastore activity and, optionally, as many as 23 additional activities in the pipelineActivities array",
+      "name": "update-pipeline",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the pipeline to update",
+          "name": "--pipeline-name"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "A list of PipelineActivity objects. Activities perform transformations on your messages, such as removing, renaming or adding message attributes; filtering messages based on attribute values; invoking your Lambda functions on messages for advanced processing; or performing mathematical transformations to normalize device data. The list can be 2-25 PipelineActivity objects and must contain both a channel and a datastore activity. Each entry in the list must contain only one activity. For example:  pipelineActivities = [ { \"channel\": { ... } }, { \"lambda\": { ... } }, ... ]",
+          "name": "--pipeline-activities"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    }
+  ]
+}

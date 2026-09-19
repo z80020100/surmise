@@ -1,0 +1,1266 @@
+{
+  "description": "Manage Azure subscription information",
+  "name": "account",
+  "subcommands": [
+    {
+      "description": "Accept subscription ownership status",
+      "name": "accept-ownership-status",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "subscription-id"
+            }
+          ],
+          "description": "Subscription Id. Required",
+          "isRequired": true,
+          "name": "--subscription-id"
+        }
+      ]
+    },
+    {
+      "description": "Clear all subscriptions from the CLI's local cache",
+      "name": "clear"
+    },
+    {
+      "description": "Create a subscription",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "enrollment-account-object-id"
+            }
+          ],
+          "description": "The name of the enrollment account which should be used to create a subscription",
+          "isRequired": true,
+          "name": [
+            "--enrollment-account-object-id",
+            "--enrollment-account-name"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "offer-type",
+              "suggestions": [
+                "MS-AZR-0017P",
+                "MS-AZR-0148P",
+                "MS-AZR-USGOV-0015P",
+                "MS-AZR-USGOV-0017P",
+                "MS-AZR-USGOV-0148P"
+              ]
+            }
+          ],
+          "description": "The offer type of the subscription. For example, MS-AZR-0017P (EnterpriseAgreement) and MS-AZR-0148P (EnterpriseAgreement devTest) are available",
+          "isRequired": true,
+          "name": "--offer-type"
+        },
+        {
+          "args": [
+            {
+              "name": "display-name"
+            }
+          ],
+          "description": "The display name of the subscription",
+          "name": "--display-name"
+        },
+        {
+          "args": [
+            {
+              "name": "owner-object-id"
+            }
+          ],
+          "description": "The object id(s) of the owner(s) which should be granted access to the new subscription",
+          "name": "--owner-object-id"
+        },
+        {
+          "args": [
+            {
+              "name": "owner-spn"
+            }
+          ],
+          "description": "The service principal name(s) of the owner(s) which should be granted access to the new subscription",
+          "name": "--owner-spn"
+        },
+        {
+          "args": [
+            {
+              "name": "owner-upn"
+            }
+          ],
+          "description": "The user principal name(s) of owner(s) who should be granted access to the new subscription",
+          "name": "--owner-upn"
+        }
+      ]
+    },
+    {
+      "description": "Get a token for utilities to access Azure",
+      "name": "get-access-token",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription",
+          "name": [
+            "--subscription",
+            "--name",
+            "-n",
+            "-s"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource"
+            }
+          ],
+          "description": "Azure resource endpoints in AAD v1.0",
+          "name": "--resource"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-type",
+              "suggestions": [
+                "aad-graph",
+                "arm",
+                "batch",
+                "data-lake",
+                "media",
+                "ms-graph",
+                "oss-rdbms"
+              ]
+            }
+          ],
+          "description": "Type of well-known resource",
+          "name": "--resource-type"
+        },
+        {
+          "args": [
+            {
+              "name": "scope"
+            }
+          ],
+          "description": "Space-separated AAD scopes in AAD v2.0. Default to Azure Resource Manager",
+          "name": "--scope"
+        },
+        {
+          "args": [
+            {
+              "name": "tenant"
+            }
+          ],
+          "description": "Tenant ID for which the token is acquired. Only available for user and service principal account, not for MSI or Cloud Shell account",
+          "name": [
+            "--tenant",
+            "-t"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Get a list of subscriptions for the logged in account. By default, only 'Enabled' subscriptions from the current cloud is shown",
+      "name": "list",
+      "options": [
+        {
+          "description": "List all subscriptions from all clouds, rather than just 'Enabled' ones",
+          "name": "--all"
+        },
+        {
+          "description": "Retrieve up-to-date subscriptions from server",
+          "name": "--refresh"
+        }
+      ]
+    },
+    {
+      "description": "List supported regions for the current subscription",
+      "name": "list-locations",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "include-extended-locations",
+              "suggestions": [
+                "0",
+                "1",
+                "f",
+                "false",
+                "n",
+                "no",
+                "t",
+                "true",
+                "y",
+                "yes"
+              ]
+            }
+          ],
+          "description": "Whether to include extended locations",
+          "name": "--include-extended-locations"
+        }
+      ]
+    },
+    {
+      "description": "Set a subscription to be the current active subscription",
+      "name": "set",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription",
+          "isRequired": true,
+          "name": [
+            "--subscription",
+            "--name",
+            "-n",
+            "-s"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Get the details of a subscription",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription",
+          "name": [
+            "--subscription",
+            "--name",
+            "-n",
+            "-s"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage subscription alias",
+      "name": "alias",
+      "subcommands": [
+        {
+          "description": "Create Alias Subscription",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Alias Name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "billing-scope"
+                }
+              ],
+              "description": "Billing scope. It determines whether the subscription is Field-Led, Partner-Led or LegacyEA",
+              "name": "--billing-scope"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "The friendly name of the subscription",
+              "name": "--display-name"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "reseller-id"
+                }
+              ],
+              "description": "Reseller ID, basically MPN Id",
+              "name": "--reseller-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription-id"
+                }
+              ],
+              "description": "This parameter can be used to create alias for existing subscription ID",
+              "name": "--subscription-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "workload",
+                  "suggestions": [
+                    "DevTest",
+                    "Production"
+                  ]
+                }
+              ],
+              "description": "The workload type of the subscription. It can be either Production or DevTest",
+              "name": "--workload"
+            }
+          ]
+        },
+        {
+          "description": "Delete Alias",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Alias Name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List Alias Subscriptions",
+          "name": "list"
+        },
+        {
+          "description": "Get Alias Subscription",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Alias Name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a condition of the account alias is met",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Alias Name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure subscription level locks",
+      "name": "lock",
+      "subcommands": [
+        {
+          "description": "Create a subscription lock",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "lock-type",
+                  "suggestions": [
+                    "CanNotDelete",
+                    "ReadOnly"
+                  ]
+                }
+              ],
+              "description": "The type of lock restriction",
+              "isRequired": true,
+              "name": [
+                "--lock-type",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the lock",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "notes"
+                }
+              ],
+              "description": "Notes about this lock",
+              "name": "--notes"
+            }
+          ]
+        },
+        {
+          "description": "Delete a subscription lock",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). If provided, no other \"Resource Id\" arguments should be specified",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the lock",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List lock information in the subscription",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "filter-string"
+                }
+              ],
+              "description": "A query filter to use to restrict the results",
+              "name": "--filter-string"
+            }
+          ]
+        },
+        {
+          "description": "Show the details of a subscription lock",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). If provided, no other \"Resource Id\" arguments should be specified",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the lock",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update a subscription lock",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). If provided, no other \"Resource Id\" arguments should be specified",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "lock-type",
+                  "suggestions": [
+                    "CanNotDelete",
+                    "ReadOnly"
+                  ]
+                }
+              ],
+              "description": "The type of lock restriction",
+              "name": [
+                "--lock-type",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the lock",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "notes"
+                }
+              ],
+              "description": "Notes about this lock",
+              "name": "--notes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Management Groups",
+      "name": "management-group",
+      "subcommands": [
+        {
+          "description": "Check if a Management Group Name is Valid",
+          "name": "check-name-availability",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the management group",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Create a new management group",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the management group",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Sets the display name of the management group. If null, the group name is set as the display name",
+              "name": [
+                "--display-name",
+                "-d"
+              ]
+            },
+            {
+              "description": "Skip registration for resource provider Microsoft.Management",
+              "name": "--no-register"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "Sets the parent of the management group. Can be the fully qualified id or the name of the management group. If null, the root tenant group is set as the parent",
+              "name": [
+                "--parent",
+                "-p"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete an existing management group",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the management group",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Skip registration for resource provider Microsoft.Management",
+              "name": "--no-register"
+            }
+          ]
+        },
+        {
+          "description": "List all management groups",
+          "name": "list",
+          "options": [
+            {
+              "description": "Skip registration for resource provider Microsoft.Management",
+              "name": "--no-register"
+            }
+          ]
+        },
+        {
+          "description": "Get a specific management group",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the management group (the last segment of the resource ID). Do not use display name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "If given, lists the children in the first level of hierarchy",
+              "name": [
+                "--expand",
+                "-e"
+              ]
+            },
+            {
+              "description": "Skip registration for resource provider Microsoft.Management",
+              "name": "--no-register"
+            },
+            {
+              "description": "If given, lists the children in all levels of hierarchy",
+              "name": [
+                "--recurse",
+                "-r"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update an existing management group",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the management group",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Updates the display name of the management group. If null, no change is made",
+              "name": [
+                "--display-name",
+                "-d"
+              ]
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "Update the parent of the management group. Can be the fully qualified id or the name of the management group. If null, no change is made",
+              "name": [
+                "--parent",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            }
+          ]
+        },
+        {
+          "description": "Entity operations (Management Group and Subscriptions) for Management Groups",
+          "name": "entities",
+          "subcommands": [
+            {
+              "description": "List all entities for the authenticated user",
+              "name": "list"
+            }
+          ]
+        },
+        {
+          "description": "Provide operations for hierarchy settings defined at the management group level. Settings can only be set on the root Management Group of the hierarchy",
+          "name": "hierarchy-settings",
+          "subcommands": [
+            {
+              "description": "Create hierarchy settings defined at the Management Group level",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the management group",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "default-management-group"
+                    }
+                  ],
+                  "description": "Set the default Management Group under which new subscriptions get added in this tenant. Default setting is the Root Management Group",
+                  "name": [
+                    "--default-management-group",
+                    "-m"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "require-authorization-for-group-creation"
+                    }
+                  ],
+                  "description": "Indicate whether RBAC access is required upon group creation under the root Management Group. True means user will require Microsoft.Management/managementGroups/write action on the root Management Group. Default setting is false",
+                  "name": [
+                    "--require-authorization-for-group-creation",
+                    "-r"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Delete the hierarchy settings defined at the Management Group level",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the management group",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Get all the hierarchy settings defined at the Management Group level",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the management group",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Update the hierarchy settings defined at the Management Group level",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the management group",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "add"
+                    }
+                  ],
+                  "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+                  "name": "--add"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "default-management-group"
+                    }
+                  ],
+                  "description": "Set the default Management Group under which new subscriptions get added in this tenant. Default setting is the Root Management Group",
+                  "name": [
+                    "--default-management-group",
+                    "-m"
+                  ]
+                },
+                {
+                  "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+                  "name": "--force-string"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "remove"
+                    }
+                  ],
+                  "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+                  "name": "--remove"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "require-authorization-for-group-creation"
+                    }
+                  ],
+                  "description": "Indicate whether RBAC access is required upon group creation under the root Management Group. True means user will require Microsoft.Management/managementGroups/write action on the root Management Group. Default setting is false",
+                  "name": [
+                    "--require-authorization-for-group-creation",
+                    "-r"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "set"
+                    }
+                  ],
+                  "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+                  "name": "--set"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Subscription operations for Management Groups",
+          "name": "subscription",
+          "subcommands": [
+            {
+              "description": "Add a subscription to a management group",
+              "name": "add",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the management group",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Subscription Id or Name",
+                  "isRequired": true,
+                  "name": [
+                    "--subscription",
+                    "-s"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Remove an existing subscription from a management group",
+              "name": "remove",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the management group",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Subscription Id or Name",
+                  "isRequired": true,
+                  "name": [
+                    "--subscription",
+                    "-s"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Show the details of a subscription under a known management group",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the management group",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Subscription Id or Name",
+                  "isRequired": true,
+                  "name": [
+                    "--subscription",
+                    "-s"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Get the subscription under a management group",
+              "name": "show-sub-under-mg",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the management group",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Backfill Tenant Subscription Operations for Management Groups",
+          "name": "tenant-backfill",
+          "subcommands": [
+            {
+              "description": "Get the backfill status for a tenant",
+              "name": "get"
+            },
+            {
+              "description": "Start backfilling subscriptions for a tenant",
+              "name": "start"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage subscriptions",
+      "name": "subscription",
+      "subcommands": [
+        {
+          "description": "Cancel subscription",
+          "name": "cancel",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "subscription-id"
+                }
+              ],
+              "description": "Subscription Id",
+              "isRequired": true,
+              "name": [
+                "--subscription-id",
+                "--id"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Enable subscription",
+          "name": "enable",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "subscription-id"
+                }
+              ],
+              "description": "Subscription Id",
+              "isRequired": true,
+              "name": [
+                "--subscription-id",
+                "--id"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get all subscriptions for a tenant",
+          "name": "list"
+        },
+        {
+          "description": "This operation provides all the locations that are available for resource providers; however, each resource provider may support a subset of this list",
+          "name": "list-location",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "subscription-id"
+                }
+              ],
+              "description": "The ID of the target subscription",
+              "isRequired": true,
+              "name": [
+                "--subscription-id",
+                "--id"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Rename subscription",
+          "name": "rename",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "subscription-id"
+                }
+              ],
+              "description": "Subscription Id",
+              "isRequired": true,
+              "name": [
+                "--subscription-id",
+                "--id"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription-name"
+                }
+              ],
+              "description": "New subscription name",
+              "name": [
+                "--subscription-name",
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get details about a specified subscription",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "subscription-id"
+                }
+              ],
+              "description": "The ID of the target subscription",
+              "isRequired": true,
+              "name": [
+                "--subscription-id",
+                "--id"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage tenant",
+      "name": "tenant",
+      "subcommands": [
+        {
+          "description": "Get the tenants for your account",
+          "name": "list"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1263 @@
+{
+  "description": "Manage Azure Search services, admin keys and query keys",
+  "name": "search",
+  "subcommands": [
+    {
+      "description": "Manage Azure Search admin keys",
+      "name": "admin-key",
+      "subcommands": [
+        {
+          "description": "Regenerates either the primary or secondary admin API key",
+          "name": "renew",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "key-kind"
+                }
+              ],
+              "description": "The type (primary or secondary) of the admin key",
+              "isRequired": true,
+              "name": "--key-kind"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        },
+        {
+          "description": "Gets the primary and secondary admin API keys for the specified Azure Cognitive Search service",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Search private endpoint connections",
+      "name": "private-endpoint-connection",
+      "subcommands": [
+        {
+          "description": "Disconnects the private endpoint connection and deletes it from the search service",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "private-endpoint-connection-name"
+                }
+              ],
+              "description": "The name of the private endpoint connection to the Azure Cognitive Search service with the specified resource group. Required",
+              "isRequired": true,
+              "name": [
+                "--private-endpoint-connection-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets a list of all private endpoint connections in the given service",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        },
+        {
+          "description": "Gets the details of the private endpoint connection to the search service in the given resource group",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "private-endpoint-connection-name"
+                }
+              ],
+              "description": "The name of the private endpoint connection to the Azure Cognitive Search service with the specified resource group. Required",
+              "isRequired": true,
+              "name": [
+                "--private-endpoint-connection-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        },
+        {
+          "description": "Update an existing private endpoint connection in a Search service in the given resource group",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "actions-required"
+                }
+              ],
+              "description": "Custom 'actions required' message when updating the private endpoint connection resource",
+              "isRequired": true,
+              "name": "--actions-required"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Custom description when updating the private endpoint connection resource",
+              "isRequired": true,
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the private endpoint connection resource; for example: {the name of the private endpoint resource}.{guid}",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "status"
+                }
+              ],
+              "description": "The updated status of the private endpoint connection resource. Possible values include: \"Pending\", \"Approved\", \"Rejected\", \"Disconnected\"",
+              "isRequired": true,
+              "name": "--status"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Search private link resources",
+      "name": "private-link-resource",
+      "subcommands": [
+        {
+          "description": "Gets a list of all supported private link resource types for the given service",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Search query keys",
+      "name": "query-key",
+      "subcommands": [
+        {
+          "description": "Generates a new query key for the specified search service",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the query key",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        },
+        {
+          "description": "Deletes the specified query key",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "key-value"
+                }
+              ],
+              "description": "The value of the query key",
+              "isRequired": true,
+              "name": "--key-value"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        },
+        {
+          "description": "Returns the list of query API keys for the given Azure Cognitive Search service",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Search services",
+      "name": "service",
+      "subcommands": [
+        {
+          "description": "Creates a Search service in the given resource group",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "sku",
+                  "suggestions": [
+                    "Basic",
+                    "Free",
+                    "Standard",
+                    "Standard2",
+                    "Standard3"
+                  ]
+                }
+              ],
+              "description": "The SKU of the search service, which determines price tier and capacity limits. Accepted Values: Free, Basic, Standard, Standard2, Standard3",
+              "isRequired": true,
+              "name": "--sku"
+            },
+            {
+              "args": [
+                {
+                  "name": "aad-auth-failure-mode"
+                }
+              ],
+              "description": "Describes response code from calls to the search service that failed authentication; possible values include \"http401WithBearerChallenge\", \"http403\"; This cannot be combined with disable_local_auth",
+              "name": "--aad-auth-failure-mode"
+            },
+            {
+              "args": [
+                {
+                  "name": "auth-options"
+                }
+              ],
+              "description": "Options for authenticating calls to the search service; possible values include\"aadOrApiKey\", \"apiKeyOnly\"; This cannot be combined with disable_local_auth",
+              "name": "--auth-options"
+            },
+            {
+              "args": [
+                {
+                  "name": "disable-local-auth",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "If calls to the search service will not be permitted to utilize API keys for authentication; This cannot be combined with auth_options",
+              "name": "--disable-local-auth"
+            },
+            {
+              "args": [
+                {
+                  "name": "hosting-mode"
+                }
+              ],
+              "description": "The hosting mode; possible values include: \"default\", \"highDensity\"; Note that \"highDensity\" is only applicable to the standard3 SKU",
+              "name": "--hosting-mode"
+            },
+            {
+              "args": [
+                {
+                  "name": "identity-type"
+                }
+              ],
+              "description": "The identity type; possible values include: \"None\", \"SystemAssigned\"",
+              "name": "--identity-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "ip-rules"
+                }
+              ],
+              "description": "Public IP(v4) addresses or CIDR ranges to the search service, seperated by comma or semicolon; these IP rules are applicable only when --public-network-access is \"enabled\"",
+              "name": "--ip-rules"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "partition-count"
+                }
+              ],
+              "description": "Number of partitions in the search service",
+              "name": "--partition-count"
+            },
+            {
+              "args": [
+                {
+                  "name": "public-network-access"
+                }
+              ],
+              "description": "Public accessibility to the search service; allowed values are \"enabled\" or \"disabled\"",
+              "name": [
+                "--public-network-access",
+                "--public-access"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "replica-count"
+                }
+              ],
+              "description": "Number of replicas in the search service",
+              "name": "--replica-count"
+            }
+          ]
+        },
+        {
+          "description": "Deletes a search service in the given resource group, along with its associated resources",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets a list of all Search services in the given resource group",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets the search service with the given name in the given resource group",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update partition and replica of the given search service",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "aad-auth-failure-mode"
+                }
+              ],
+              "description": "Describes response code from calls to the search service that failed authentication; possible values include \"http401WithBearerChallenge\", \"http403\"; This cannot be combined with disable_local_auth",
+              "name": "--aad-auth-failure-mode"
+            },
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "auth-options"
+                }
+              ],
+              "description": "Options for authenticating calls to the search service; possible values include \"aadOrApiKey\", \"apiKeyOnly\"; This cannot be combined with disable_local_auth",
+              "name": "--auth-options"
+            },
+            {
+              "args": [
+                {
+                  "name": "disable-local-auth",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "If calls to the search service will not be permitted to utilize API keys for authentication. This cannot be combined with auth_options",
+              "name": "--disable-local-auth"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "identity-type"
+                }
+              ],
+              "description": "The identity type; possible values include: \"None\", \"SystemAssigned\"",
+              "name": "--identity-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "ip-rules"
+                }
+              ],
+              "description": "Public IP(v4) addresses or CIDR ranges to the search service, seperated by comma(',') or semicolon(';'); If spaces (' '), ',' or ';' is provided, any existing IP rule will be nullified and no public IP rule is applied. These IP rules are applicable only when public_network_access is \"enabled\"",
+              "name": "--ip-rules"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "partition-count"
+                }
+              ],
+              "description": "Number of partitions in the search service",
+              "name": "--partition-count"
+            },
+            {
+              "args": [
+                {
+                  "name": "public-network-access"
+                }
+              ],
+              "description": "Public accessibility to the search service; allowed values are \"enabled\" or \"disabled\"",
+              "name": [
+                "--public-network-access",
+                "--public-access"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "replica-count"
+                }
+              ],
+              "description": "Number of replicas in the search service",
+              "name": "--replica-count"
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            }
+          ]
+        },
+        {
+          "description": "Wait for async service operations",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Search shared private link resources",
+      "name": "shared-private-link-resource",
+      "subcommands": [
+        {
+          "description": "Create shared privatelink resources in a Search service in the given resource group",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "group-id"
+                }
+              ],
+              "description": "The group id of the resource; for example: blob, sql or vault",
+              "isRequired": true,
+              "name": "--group-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the shared private link resource",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-id"
+                }
+              ],
+              "description": "Fully qualified resource ID for the resource. for example: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/ {resourceProviderNamespace}/{resourceType}/{resourceName}",
+              "isRequired": true,
+              "name": "--resource-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "request-message"
+                }
+              ],
+              "description": "Custom request message when creating or updating the shared privatelink resources",
+              "name": "--request-message"
+            }
+          ]
+        },
+        {
+          "description": "Initiates the deletion of the shared private link resource from the search service",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the shared private link resource managed by the Azure Cognitive Search service within the specified resource group. Required",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets a list of all shared private link resources managed by the given service",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        },
+        {
+          "description": "Gets the details of the shared private link resource managed by the search service in the given resource group",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the shared private link resource managed by the Azure Cognitive Search service within the specified resource group. Required",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        },
+        {
+          "description": "Update shared privatelink resources in a Search service in the given resource group",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "group-id"
+                }
+              ],
+              "description": "The group id of the resource; for example: blob, sql or vault",
+              "isRequired": true,
+              "name": "--group-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the shared private link resource",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "request-message"
+                }
+              ],
+              "description": "Custom request message when creating or updating the shared privatelink resources",
+              "isRequired": true,
+              "name": "--request-message"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-id"
+                }
+              ],
+              "description": "Fully qualified resource ID for the resource; for example: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/ {resourceProviderNamespace}/{resourceType}/{resourceName}",
+              "isRequired": true,
+              "name": "--resource-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            }
+          ]
+        },
+        {
+          "description": "Wait for async shared private link resource operations",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the shared private link resource managed by the Azure Cognitive Search service within the specified resource group. Required",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the search service",
+              "isRequired": true,
+              "name": "--service-name"
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

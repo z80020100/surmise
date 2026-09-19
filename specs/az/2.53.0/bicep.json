@@ -1,0 +1,511 @@
+{
+  "description": "Bicep CLI command group.\n\n\t\tBicep CLI command group. There are two configurations that can be set for the command group, including bicep.check_version and bicep.use_binary_from_path:\n[1] az config set bicep.check_version=True/False\nTurn on/off Bicep CLI version check when executing az bicep commands.\n[2] az config set bicep.use_binary_from_path=True/False/if_found_in_ci\nSpecify whether to use Bicep CLI from PATH or not. The default value is if_found_in_ci",
+  "name": "bicep",
+  "subcommands": [
+    {
+      "description": "Build a Bicep file",
+      "name": "build",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "file"
+            }
+          ],
+          "description": "The path to the Bicep file to build in the file system",
+          "isRequired": true,
+          "name": [
+            "--file",
+            "-f"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "no-restore"
+            }
+          ],
+          "description": "When set, builds the bicep file without restoring external modules",
+          "name": "--no-restore"
+        },
+        {
+          "args": [
+            {
+              "name": "outdir"
+            }
+          ],
+          "description": "When set, saves the output at the specified directory",
+          "name": "--outdir"
+        },
+        {
+          "args": [
+            {
+              "name": "outfile"
+            }
+          ],
+          "description": "When set, saves the output as the specified file path",
+          "name": "--outfile"
+        },
+        {
+          "args": [
+            {
+              "name": "stdout"
+            }
+          ],
+          "description": "When set, prints all output to stdout instead of corresponding files",
+          "name": "--stdout"
+        }
+      ]
+    },
+    {
+      "description": "Build .bicepparam file",
+      "name": "build-params",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "file"
+            }
+          ],
+          "description": "The path to the .bicepparam file to build in the file system",
+          "isRequired": true,
+          "name": [
+            "--file",
+            "-f"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "no-restore"
+            }
+          ],
+          "description": "When set, builds the .bicepparam file without restoring external modules",
+          "name": "--no-restore"
+        },
+        {
+          "args": [
+            {
+              "name": "outdir"
+            }
+          ],
+          "description": "When set, saves the output at the specified directory",
+          "name": "--outdir"
+        },
+        {
+          "args": [
+            {
+              "name": "outfile"
+            }
+          ],
+          "description": "When set, saves the output as the specified file path",
+          "name": "--outfile"
+        },
+        {
+          "args": [
+            {
+              "name": "stdout"
+            }
+          ],
+          "description": "When set, prints all output to stdout instead of corresponding files",
+          "name": "--stdout"
+        }
+      ]
+    },
+    {
+      "description": "Attempt to decompile an ARM template file to a Bicep file",
+      "name": "decompile",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "file"
+            }
+          ],
+          "description": "The path to the ARM template to decompile in the file system",
+          "isRequired": true,
+          "name": [
+            "--file",
+            "-f"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "force"
+            }
+          ],
+          "description": "Allows overwriting the output file if it exists",
+          "name": "--force"
+        }
+      ]
+    },
+    {
+      "description": "Decompile a parameters .json file to .bicepparam",
+      "name": "decompile-params",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "file"
+            }
+          ],
+          "description": "The path to the parameters file to build in the file system",
+          "isRequired": true,
+          "name": [
+            "--file",
+            "-f"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "bicep-file"
+            }
+          ],
+          "description": "Path to the bicep template file (relative to the .bicepparam file) that will be referenced in the using declaration",
+          "name": "--bicep-file"
+        },
+        {
+          "args": [
+            {
+              "name": "outdir"
+            }
+          ],
+          "description": "When set, saves the output at the specified directory",
+          "name": "--outdir"
+        },
+        {
+          "args": [
+            {
+              "name": "outfile"
+            }
+          ],
+          "description": "When set, saves the output as the specified file path",
+          "name": "--outfile"
+        },
+        {
+          "args": [
+            {
+              "name": "stdout"
+            }
+          ],
+          "description": "When set, prints all output to stdout instead of corresponding files",
+          "name": "--stdout"
+        }
+      ]
+    },
+    {
+      "description": "Format a Bicep file",
+      "name": "format",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "file"
+            }
+          ],
+          "description": "The path to the Bicep file to format in the file system",
+          "isRequired": true,
+          "name": [
+            "--file",
+            "-f"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "indent-kind"
+            }
+          ],
+          "description": "Set indentation kind. Valid values are ( Space | Tab )",
+          "name": "--indent-kind"
+        },
+        {
+          "args": [
+            {
+              "name": "indent-size"
+            }
+          ],
+          "description": "Number of spaces to indent with (Only valid with --indent-kind set to Space)",
+          "name": "--indent-size"
+        },
+        {
+          "args": [
+            {
+              "name": "insert-final-newline"
+            }
+          ],
+          "description": "Insert a final newline",
+          "name": "--insert-final-newline"
+        },
+        {
+          "args": [
+            {
+              "name": "newline"
+            }
+          ],
+          "description": "Set newline char. Valid values are ( Auto | LF | CRLF | CR )",
+          "name": "--newline"
+        },
+        {
+          "args": [
+            {
+              "name": "outdir"
+            }
+          ],
+          "description": "When set, saves the output at the specified directory",
+          "name": "--outdir"
+        },
+        {
+          "args": [
+            {
+              "name": "outfile"
+            }
+          ],
+          "description": "When set, saves the output as the specified file path",
+          "name": "--outfile"
+        },
+        {
+          "args": [
+            {
+              "name": "stdout"
+            }
+          ],
+          "description": "When set, prints all output to stdout instead of corresponding files",
+          "name": "--stdout"
+        }
+      ]
+    },
+    {
+      "description": "Generate parameters file for a Bicep file",
+      "name": "generate-params",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "file"
+            }
+          ],
+          "description": "The path to the Bicep file to generate the parameters file from in the file system",
+          "isRequired": true,
+          "name": [
+            "--file",
+            "-f"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "include-params"
+            }
+          ],
+          "description": "Set include params. Valid values are ( all | required-only )",
+          "name": "--include-params"
+        },
+        {
+          "args": [
+            {
+              "name": "no-restore"
+            }
+          ],
+          "description": "When set, generates the parameters file without restoring external modules",
+          "name": "--no-restore"
+        },
+        {
+          "args": [
+            {
+              "name": "outdir"
+            }
+          ],
+          "description": "When set, saves the output at the specified directory",
+          "name": "--outdir"
+        },
+        {
+          "args": [
+            {
+              "name": "outfile"
+            }
+          ],
+          "description": "When set, saves the output as the specified file path",
+          "name": "--outfile"
+        },
+        {
+          "args": [
+            {
+              "name": "output-format"
+            }
+          ],
+          "description": "Set output format. Valid values are ( json | bicepparam )",
+          "name": "--output-format"
+        },
+        {
+          "args": [
+            {
+              "name": "stdout"
+            }
+          ],
+          "description": "When set, prints all output to stdout instead of corresponding files",
+          "name": "--stdout"
+        }
+      ]
+    },
+    {
+      "description": "Install Bicep CLI",
+      "name": "install",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "target-platform",
+              "suggestions": [
+                "linux-arm64",
+                "linux-musl-x64",
+                "linux-x64",
+                "osx-arm64",
+                "osx-x64",
+                "win-x64"
+              ]
+            }
+          ],
+          "description": "The platform the Bicep CLI will be running on. Set this to skip automatic platform detection if it does not work properly",
+          "name": [
+            "--target-platform",
+            "-t"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "version"
+            }
+          ],
+          "description": "The version of Bicep CLI to be installed. Default to the latest if not specified",
+          "name": [
+            "--version",
+            "-v"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List out all available versions of Bicep CLI",
+      "name": "list-versions"
+    },
+    {
+      "description": "Publish a bicep file to a remote module registry",
+      "name": "publish",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "file"
+            }
+          ],
+          "description": "The path to the Bicep module file to publish in the file system",
+          "isRequired": true,
+          "name": [
+            "--file",
+            "-f"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "target"
+            }
+          ],
+          "description": "The target location where the Bicep module will be published",
+          "isRequired": true,
+          "name": [
+            "--target",
+            "-t"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "documentationUri"
+            }
+          ],
+          "description": "The documentation uri of the Bicep module",
+          "name": [
+            "--documentationUri",
+            "-d"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "force"
+            }
+          ],
+          "description": "Allow overwriting an existing Bicep module version",
+          "name": "--force"
+        }
+      ]
+    },
+    {
+      "description": "Restore external modules for a bicep file",
+      "name": "restore",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "file"
+            }
+          ],
+          "description": "The path to the Bicep file to restore external modules for",
+          "isRequired": true,
+          "name": [
+            "--file",
+            "-f"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "force"
+            }
+          ],
+          "description": "Allows overwriting the cached external modules",
+          "name": "--force"
+        }
+      ]
+    },
+    {
+      "description": "Uninstall Bicep CLI",
+      "name": "uninstall"
+    },
+    {
+      "description": "Upgrade Bicep CLI to the latest version",
+      "name": "upgrade",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "target-platform",
+              "suggestions": [
+                "linux-arm64",
+                "linux-musl-x64",
+                "linux-x64",
+                "osx-arm64",
+                "osx-x64",
+                "win-x64"
+              ]
+            }
+          ],
+          "description": "The platform the Bicep CLI will be running on. Set this to skip automatic platform detection if it does not work properly",
+          "name": [
+            "--target-platform",
+            "-t"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Show the installed version of Bicep CLI",
+      "name": "version"
+    }
+  ]
+}

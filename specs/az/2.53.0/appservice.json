@@ -1,0 +1,1596 @@
+{
+  "description": "Manage App Service plans",
+  "name": "appservice",
+  "subcommands": [
+    {
+      "description": "Manage App Service Environments",
+      "name": "ase",
+      "subcommands": [
+        {
+          "description": "Create app service environment",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the app service environment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subnet"
+                }
+              ],
+              "description": "Name or ID of existing subnet. To create vnet and/or subnet use az network vnet [subnet] create",
+              "isRequired": true,
+              "name": "--subnet"
+            },
+            {
+              "description": "Override network security group for subnet. Applies to ASEv2 only",
+              "name": "--force-network-security-group"
+            },
+            {
+              "description": "Override route table for subnet. Applies to ASEv2 only",
+              "name": "--force-route-table"
+            },
+            {
+              "args": [
+                {
+                  "name": "front-end-scale-factor"
+                }
+              ],
+              "description": "Scale of front ends to app service plan instance ratio. Applies to ASEv2 only",
+              "name": "--front-end-scale-factor"
+            },
+            {
+              "args": [
+                {
+                  "name": "front-end-sku",
+                  "suggestions": [
+                    "I1",
+                    "I2",
+                    "I3"
+                  ]
+                }
+              ],
+              "description": "Size of front end servers. Applies to ASEv2 only",
+              "name": "--front-end-sku"
+            },
+            {
+              "description": "Configure network security group manually. Applies to ASEv2 only",
+              "name": "--ignore-network-security-group"
+            },
+            {
+              "description": "Configure route table manually. Applies to ASEv2 only",
+              "name": "--ignore-route-table"
+            },
+            {
+              "description": "Do not check if subnet is sized according to recommendations",
+              "name": "--ignore-subnet-size-validation"
+            },
+            {
+              "args": [
+                {
+                  "name": "kind",
+                  "suggestions": [
+                    "ASEv2",
+                    "ASEv3"
+                  ]
+                }
+              ],
+              "description": "Specify App Service Environment version",
+              "name": [
+                "--kind",
+                "-k"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "os-preference",
+                  "suggestions": [
+                    "Linux",
+                    "Windows"
+                  ]
+                }
+              ],
+              "description": "Determine if app service environment should start with Linux workers. Applies to ASEv2 only",
+              "name": "--os-preference"
+            },
+            {
+              "args": [
+                {
+                  "name": "virtual-ip-type",
+                  "suggestions": [
+                    "External",
+                    "Internal"
+                  ]
+                }
+              ],
+              "description": "Specify if app service environment should be accessible from internet",
+              "name": "--virtual-ip-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "vnet-name"
+                }
+              ],
+              "description": "Name of the vNet. Mandatory if only subnet name is specified",
+              "name": "--vnet-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "zone-redundant",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Configure App Service Environment as Zone Redundant. Applies to ASEv3 only",
+              "name": "--zone-redundant"
+            }
+          ]
+        },
+        {
+          "description": "Private DNS Zone for Internal (ILB) App Service Environments",
+          "name": "create-inbound-services",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the app service environment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subnet"
+                }
+              ],
+              "description": "Name or ID of existing subnet for DNS Zone link. To create vnet and/or subnet use az network vnet [subnet] create",
+              "isRequired": true,
+              "name": "--subnet"
+            },
+            {
+              "description": "Argument 'skip_dns' has been deprecated and will be removed in version '3.0.0'. Do not create Private DNS Zone and DNS records",
+              "name": "--skip-dns"
+            },
+            {
+              "args": [
+                {
+                  "name": "vnet-name"
+                }
+              ],
+              "description": "Name of the vNet. Mandatory if only subnet name is specified",
+              "name": "--vnet-name"
+            }
+          ]
+        },
+        {
+          "description": "Delete app service environment",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the app service environment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List app service environments",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List VIPs associated with an app service environment v2",
+          "name": "list-addresses",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the app service environment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List app service plans associated with an app service environment",
+          "name": "list-plans",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the app service environment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Send a test upgrade notification in app service environment v3",
+          "name": "send-test-notification",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the app service environment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show details of an app service environment",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the app service environment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update app service environment",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the app service environment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "allow-incoming-ftp-connections",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "(ASEv3 only) Configure App Service Environment to allow FTP access. This ftpEnabled setting allows you to allow or deny FTP connections on the App Service Environment level. Individual apps will still need to configure FTP access",
+              "name": [
+                "--allow-incoming-ftp-connections",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "allow-new-private-endpoint-connections",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "(ASEv3 only) Configure Apps in App Service Environment to allow new private endpoint connections",
+              "name": [
+                "--allow-new-private-endpoint-connections",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "allow-remote-debugging",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "(ASEv3 only) Configure App Service Environment to allow remote debugging. You will still have to configure remote debugging at the individual app level",
+              "name": [
+                "--allow-remote-debugging",
+                "-r"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "front-end-scale-factor"
+                }
+              ],
+              "description": "(ASEv2 only) Scale of front ends to app service plan instance ratio between 5 and 15",
+              "name": "--front-end-scale-factor"
+            },
+            {
+              "args": [
+                {
+                  "name": "front-end-sku",
+                  "suggestions": [
+                    "I1",
+                    "I2",
+                    "I3"
+                  ]
+                }
+              ],
+              "description": "(ASEv2 only) Size of front end servers",
+              "name": "--front-end-sku"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Upgrade app service environment v3",
+          "name": "upgrade",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the app service environment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage custom domains",
+      "name": "domain",
+      "subcommands": [
+        {
+          "description": "Create and purchase a custom domain",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "contact-info"
+                }
+              ],
+              "description": "The file path to a JSON object with your contact info for domain registration. Please see the following link for the format of the JSON file expected: https://github.com/AzureAppServiceCLI/appservice_domains_templates/blob/master/contact_info.json",
+              "isRequired": true,
+              "name": [
+                "--contact-info",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "hostname"
+                }
+              ],
+              "description": "Name of the custom domain",
+              "isRequired": true,
+              "name": [
+                "--hostname",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "By using this flag, you are accepting the conditions shown using the --show-hostname-purchase-terms flag",
+              "name": "--accept-terms"
+            },
+            {
+              "args": [
+                {
+                  "name": "auto-renew"
+                }
+              ],
+              "description": "Enable auto-renew on the domain",
+              "name": [
+                "--auto-renew",
+                "-a"
+              ]
+            },
+            {
+              "description": "Show summary of the purchase and create operation instead of executing it",
+              "name": "--dryrun"
+            },
+            {
+              "args": [
+                {
+                  "name": "privacy"
+                }
+              ],
+              "description": "Enable privacy protection",
+              "name": [
+                "--privacy",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Show the legal terms for purchasing and creating a custom domain",
+          "name": "show-terms",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "hostname"
+                }
+              ],
+              "description": "Name of the custom domain",
+              "isRequired": true,
+              "name": [
+                "--hostname",
+                "-n"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "A method that sets the key a hybrid-connection uses",
+      "name": "hybrid-connection",
+      "subcommands": [
+        {
+          "description": "Set the key that all apps in an appservice plan use to connect to the hybrid-connections in that appservice plan",
+          "name": "set-key",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "hybrid-connection"
+                }
+              ],
+              "description": "Hybrid connection name",
+              "isRequired": true,
+              "name": "--hybrid-connection"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-type"
+                }
+              ],
+              "description": "Which key (primary or secondary) should be used",
+              "isRequired": true,
+              "name": "--key-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Hybrid connection namespace",
+              "isRequired": true,
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "plan"
+                }
+              ],
+              "description": "AppService plan",
+              "isRequired": true,
+              "name": "--plan"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Kubernetes Environments",
+      "name": "kube",
+      "subcommands": [
+        {
+          "description": "Create a Kubernetes Environment",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "custom-location"
+                }
+              ],
+              "description": "ID of the custom location",
+              "isRequired": true,
+              "name": [
+                "--custom-location",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the kubernetes environment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "description": "Do not wait for the create to complete, and return immediately after queuing the create",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "static-ip"
+                }
+              ],
+              "description": "Static IP Address. This is required if an AKS resource ID is specified",
+              "name": "--static-ip"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Delete kubernetes environment",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Kubernetes Environment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List kubernetes environments by subscription or resource group",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show the details of a kubernetes environment",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Kubernetes Environment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update a Kubernetes Environment. Currently not supported",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the kubernetes environment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "custom-location"
+                }
+              ],
+              "description": "ID of the custom location",
+              "name": [
+                "--custom-location",
+                "-c"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "static-ip"
+                }
+              ],
+              "description": "New Static IP Address",
+              "name": "--static-ip"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Wait for a Kubernetes Environment to reach a desired state",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Kubernetes Environment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List regions where a plan sku is available",
+      "name": "list-locations",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "sku",
+              "suggestions": [
+                "B1",
+                "B2",
+                "B3",
+                "D1",
+                "F1",
+                "FREE",
+                "I1",
+                "I1v2",
+                "I2",
+                "I2v2",
+                "I3",
+                "I3v2",
+                "I4v2",
+                "I5v2",
+                "I6v2",
+                "P0V3",
+                "P1MV3",
+                "P1V2",
+                "P1V3",
+                "P2MV3",
+                "P2V2",
+                "P2V3",
+                "P3MV3",
+                "P3V2",
+                "P3V3",
+                "P4MV3",
+                "P5MV3",
+                "S1",
+                "S2",
+                "S3",
+                "SHARED",
+                "WS1",
+                "WS2",
+                "WS3"
+              ]
+            }
+          ],
+          "description": "The pricing tiers, e.g., F1(Free), D1(Shared), B1(Basic Small), B2(Basic Medium), B3(Basic Large), S1(Standard Small), P1V2(Premium V2 Small), P2V2(Premium V2 Medium), P3V2(Premium V2 Large), P0V3(Premium V3 Extra Small), P1V3(Premium V3 Small), P2V3(Premium V3 Medium), P3V3(Premium V3 Large), P1MV3(Premium Memory Optimized V3 Small), P2MV3(Premium Memory Optimized V3 Medium), P3MV3(Premium Memory Optimized V3 Large), P4MV3(Premium Memory Optimized V3 Extra Large), P5MV3(Premium Memory Optimized V3 Extra Extra Large), I1 (Isolated Small), I2 (Isolated Medium), I3 (Isolated Large), I1v2 (Isolated V2 Small), I2v2 (Isolated V2 Medium), I3v2 (Isolated V2 Large), I4v2 (Isolated V2 I4v2), I5v2 (Isolated V2 I5v2), I6v2 (Isolated V2 I6v2), WS1 (Logic Apps Workflow Standard 1), WS2 (Logic Apps Workflow Standard 2), WS3 (Logic Apps Workflow Standard 3)",
+          "isRequired": true,
+          "name": "--sku"
+        },
+        {
+          "args": [
+            {
+              "name": "linux-workers-enabled"
+            }
+          ],
+          "description": "Get regions which support hosting web apps on Linux workers",
+          "name": "--linux-workers-enabled"
+        }
+      ]
+    },
+    {
+      "description": "Manage app service plans",
+      "name": "plan",
+      "subcommands": [
+        {
+          "description": "Create an app service plan",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the new app service plan",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "app-service-environment"
+                }
+              ],
+              "description": "Name or ID of the app service environment. If you want to create the app service plan in different subscription than the app service environment, please use the resource ID for --app-service-environment parameter",
+              "name": [
+                "--app-service-environment",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "hyper-v"
+                }
+              ],
+              "description": "Host web app on Windows container",
+              "name": "--hyper-v"
+            },
+            {
+              "args": [
+                {
+                  "name": "is-linux"
+                }
+              ],
+              "description": "Host web app on Linux worker",
+              "name": "--is-linux"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "number-of-workers"
+                }
+              ],
+              "description": "Number of workers to be allocated",
+              "name": "--number-of-workers"
+            },
+            {
+              "description": "Enable per-app scaling at the App Service plan level to allow for scaling an app independently from the App Service plan that hosts it",
+              "name": "--per-site-scaling"
+            },
+            {
+              "args": [
+                {
+                  "name": "sku",
+                  "suggestions": [
+                    "B1",
+                    "B2",
+                    "B3",
+                    "D1",
+                    "F1",
+                    "FREE",
+                    "I1",
+                    "I1v2",
+                    "I2",
+                    "I2v2",
+                    "I3",
+                    "I3v2",
+                    "I4v2",
+                    "I5v2",
+                    "I6v2",
+                    "P0V3",
+                    "P1MV3",
+                    "P1V2",
+                    "P1V3",
+                    "P2MV3",
+                    "P2V2",
+                    "P2V3",
+                    "P3MV3",
+                    "P3V2",
+                    "P3V3",
+                    "P4MV3",
+                    "P5MV3",
+                    "S1",
+                    "S2",
+                    "S3",
+                    "SHARED",
+                    "WS1",
+                    "WS2",
+                    "WS3"
+                  ]
+                }
+              ],
+              "description": "The pricing tiers, e.g., F1(Free), D1(Shared), B1(Basic Small), B2(Basic Medium), B3(Basic Large), S1(Standard Small), P1V2(Premium V2 Small), P2V2(Premium V2 Medium), P3V2(Premium V2 Large), P0V3(Premium V3 Extra Small), P1V3(Premium V3 Small), P2V3(Premium V3 Medium), P3V3(Premium V3 Large), P1MV3(Premium Memory Optimized V3 Small), P2MV3(Premium Memory Optimized V3 Medium), P3MV3(Premium Memory Optimized V3 Large), P4MV3(Premium Memory Optimized V3 Extra Large), P5MV3(Premium Memory Optimized V3 Extra Extra Large), I1 (Isolated Small), I2 (Isolated Medium), I3 (Isolated Large), I1v2 (Isolated V2 Small), I2v2 (Isolated V2 Medium), I3v2 (Isolated V2 Large), I4v2 (Isolated V2 I4v2), I5v2 (Isolated V2 I5v2), I6v2 (Isolated V2 I6v2), WS1 (Logic Apps Workflow Standard 1), WS2 (Logic Apps Workflow Standard 2), WS3 (Logic Apps Workflow Standard 3)",
+              "name": "--sku"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            },
+            {
+              "description": "Enable zone redundancy for high availability. Cannot be changed after plan creation. Minimum instance count is 3",
+              "name": [
+                "--zone-redundant",
+                "-z"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete an app service plan",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the app service plan",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List app service plans",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the app service plans for a resource group or a set of resource groups",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the app service plan",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update an app service plan",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "elastic-scale",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Enable or disable automatic scaling. Set to \"true\" to enable elastic scale for this plan, or \"false\" to disable elastic scale for this plan. The SKU must be a Premium V2 SKU (P1V2, P2V2, P3V2) or a Premium V3 SKU (P1V3, P2V3, P3V3)",
+              "name": "--elastic-scale"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "max-elastic-worker-count"
+                }
+              ],
+              "description": "Maximum number of instances that the plan can scale out to. The plan must be an elastic scale plan",
+              "name": [
+                "--max-elastic-worker-count",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the app service plan",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "number-of-workers"
+                }
+              ],
+              "description": "Number of workers to be allocated",
+              "name": "--number-of-workers"
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "sku",
+                  "suggestions": [
+                    "B1",
+                    "B2",
+                    "B3",
+                    "D1",
+                    "F1",
+                    "FREE",
+                    "I1",
+                    "I1v2",
+                    "I2",
+                    "I2v2",
+                    "I3",
+                    "I3v2",
+                    "I4v2",
+                    "I5v2",
+                    "I6v2",
+                    "P0V3",
+                    "P1MV3",
+                    "P1V2",
+                    "P1V3",
+                    "P2MV3",
+                    "P2V2",
+                    "P2V3",
+                    "P3MV3",
+                    "P3V2",
+                    "P3V3",
+                    "P4MV3",
+                    "P5MV3",
+                    "S1",
+                    "S2",
+                    "S3",
+                    "SHARED",
+                    "WS1",
+                    "WS2",
+                    "WS3"
+                  ]
+                }
+              ],
+              "description": "The pricing tiers, e.g., F1(Free), D1(Shared), B1(Basic Small), B2(Basic Medium), B3(Basic Large), S1(Standard Small), P1V2(Premium V2 Small), P2V2(Premium V2 Medium), P3V2(Premium V2 Large), P0V3(Premium V3 Extra Small), P1V3(Premium V3 Small), P2V3(Premium V3 Medium), P3V3(Premium V3 Large), P1MV3(Premium Memory Optimized V3 Small), P2MV3(Premium Memory Optimized V3 Medium), P3MV3(Premium Memory Optimized V3 Large), P4MV3(Premium Memory Optimized V3 Extra Large), P5MV3(Premium Memory Optimized V3 Extra Extra Large), I1 (Isolated Small), I2 (Isolated Medium), I3 (Isolated Large), I1v2 (Isolated V2 Small), I2v2 (Isolated V2 Medium), I3v2 (Isolated V2 Large), I4v2 (Isolated V2 I4v2), I5v2 (Isolated V2 I5v2), I6v2 (Isolated V2 I6v2), WS1 (Logic Apps Workflow Standard 1), WS2 (Logic Apps Workflow Standard 2), WS3 (Logic Apps Workflow Standard 3)",
+              "name": "--sku"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "A method that lists the virtual network integrations used in an appservice plan",
+      "name": "vnet-integration",
+      "subcommands": [
+        {
+          "description": "List the virtual network integrations used in an appservice plan",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "plan"
+                }
+              ],
+              "description": "AppService plan",
+              "isRequired": true,
+              "name": "--plan"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

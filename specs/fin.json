@@ -1,0 +1,1115 @@
+{
+  "description": "Docksal command line utility",
+  "name": "fin",
+  "subcommands": [
+    {
+      "description": "Shows help",
+      "name": "help"
+    },
+    {
+      "description": "Addons management commands: install, remove (fin help addon)",
+      "name": "addon",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "See available addons in the Addons Repository https://github.com/docksal/addons",
+              "name": "Name"
+            }
+          ],
+          "description": "Install addon",
+          "name": "install"
+        },
+        {
+          "args": [
+            {
+              "name": "Name"
+            }
+          ],
+          "description": "Remove addon",
+          "name": "remove"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "path"
+        },
+        {
+          "name": "alias_name"
+        }
+      ],
+      "description": "Manage aliases that allow fin @alias execution (fin help alias). Create/update alias with <alias_name> that links to <path>",
+      "name": "alias",
+      "subcommands": [
+        {
+          "description": "Show aliases list",
+          "name": "list"
+        },
+        {
+          "args": [
+            {
+              "dyn": true,
+              "generators": [
+                {
+                  "script": [
+                    "fin",
+                    "alias",
+                    "list"
+                  ]
+                }
+              ],
+              "name": "alias_name"
+            }
+          ],
+          "description": "Remove alias",
+          "name": "remove"
+        }
+      ]
+    },
+    {
+      "description": "Manage databases (fin help db)",
+      "name": "db",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "database"
+            }
+          ],
+          "description": "Use another database (default is the one set with 'MYSQL_DATABASE')",
+          "name": "--db",
+          "requiresEquals": true
+        },
+        {
+          "args": [
+            {
+              "name": "user"
+            }
+          ],
+          "description": "Use another mysql username (default is 'root')",
+          "name": "--db-user",
+          "requiresEquals": true
+        },
+        {
+          "args": [
+            {
+              "name": "password"
+            }
+          ],
+          "description": "Use another database password (default is the one set with 'MYSQL_ROOT_PASSWORD', see fin config)",
+          "name": "--db-password",
+          "requiresEquals": true
+        },
+        {
+          "args": [
+            {
+              "name": "charset"
+            }
+          ],
+          "description": "Override charset when creating a database (default is utf8)",
+          "name": "--db-charset",
+          "requiresEquals": true
+        },
+        {
+          "args": [
+            {
+              "name": "collation"
+            }
+          ],
+          "description": "Override collation when creating a database (default is utf8_general_ci)",
+          "name": "--db-collation",
+          "requiresEquals": true
+        }
+      ],
+      "subcommands": [
+        {
+          "args": [
+            {
+              "name": "file",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Truncate the database and import from SQL dump file or stdin",
+          "name": "import",
+          "options": [
+            {
+              "description": "Show import progess (requires pv)",
+              "name": "--progress"
+            },
+            {
+              "description": "Do no truncate database before import",
+              "name": "--no-truncate"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "file",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Dump a database into an SQL dump file or stdout",
+          "name": "dump"
+        },
+        {
+          "description": "Show list of existing databases",
+          "name": [
+            "list",
+            "ls"
+          ]
+        },
+        {
+          "args": [
+            {
+              "isOptional": true,
+              "name": "query"
+            }
+          ],
+          "description": "Open command line interface to the DB server (and execute query if provided)",
+          "name": "cli"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Create a database",
+          "name": "create"
+        },
+        {
+          "args": [
+            {
+              "dyn": true,
+              "generators": [
+                {
+                  "script": [
+                    "fin",
+                    "db",
+                    "list"
+                  ]
+                }
+              ],
+              "name": "name"
+            }
+          ],
+          "description": "Delete a database",
+          "name": "drop"
+        },
+        {
+          "args": [
+            {
+              "isOptional": true,
+              "name": "name"
+            }
+          ],
+          "description": "Truncate a database (defaults to the `default`)",
+          "name": "truncate"
+        }
+      ]
+    },
+    {
+      "description": "Hosts file commands: add, remove, list (fin help hosts)",
+      "name": "hosts",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "name": "hostname"
+            }
+          ],
+          "description": "Add hostname to hosts file. If none provided uses VIRTUAL_HOST",
+          "name": "add"
+        },
+        {
+          "args": [
+            {
+              "dyn": true,
+              "generators": [
+                {
+                  "script": [
+                    "fin",
+                    "hosts"
+                  ]
+                }
+              ],
+              "name": "hostname"
+            }
+          ],
+          "description": "Remove lines containing hostname from hosts file. If none provided uses VIRTUAL_HOST",
+          "name": "remove"
+        },
+        {
+          "description": "Output hosts file",
+          "name": "list"
+        }
+      ]
+    },
+    {
+      "description": "Manage project(s) (fin help project)",
+      "name": "project",
+      "subcommands": [
+        {
+          "description": "Start project services (alias: fin start)",
+          "name": "start",
+          "priority": 65
+        },
+        {
+          "description": "Configuration re-read and start project services (alias: fin up)",
+          "name": "up"
+        },
+        {
+          "args": [
+            {
+              "generators": [
+                {
+                  "script": [
+                    "fin",
+                    "docker",
+                    "ps",
+                    "--format",
+                    "{{.Names}}"
+                  ],
+                  "splitOn": "\n"
+                }
+              ],
+              "isOptional": true,
+              "name": "service"
+            }
+          ],
+          "description": "Stop all or specified project services (alias: fin stop)",
+          "name": "stop",
+          "options": [
+            {
+              "description": "Stop all services on all Docksal projects",
+              "name": [
+                "--all",
+                "-a"
+              ]
+            }
+          ],
+          "priority": 60
+        },
+        {
+          "description": "List project services (alias: fin ps)",
+          "name": "status"
+        },
+        {
+          "description": "Restart project services (alias: fin restart)",
+          "name": "restart",
+          "priority": 75
+        },
+        {
+          "args": [
+            {
+              "generators": [
+                {
+                  "script": [
+                    "fin",
+                    "docker",
+                    "ps",
+                    "--format",
+                    "{{.Names}}"
+                  ],
+                  "splitOn": "\n"
+                }
+              ],
+              "name": "service"
+            }
+          ],
+          "description": "Recreate all or specified project services, their containers and volumes",
+          "name": "reset",
+          "priority": 70
+        },
+        {
+          "args": [
+            {
+              "generators": [
+                {
+                  "script": [
+                    "fin",
+                    "docker",
+                    "ps",
+                    "--format",
+                    "{{.Names}}"
+                  ],
+                  "splitOn": "\n"
+                }
+              ],
+              "name": "service"
+            }
+          ],
+          "description": "Remove all project services, networks and all their volumes, or specified services only",
+          "name": [
+            "remove",
+            "rm"
+          ],
+          "options": [
+            {
+              "description": "Do not ask for confirmation when deleting all project services",
+              "name": [
+                "--force",
+                "-f"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List running Docksal projects (alias: fin pl)",
+          "name": "list",
+          "options": [
+            {
+              "description": "List all Docksal projects (stopped as well)",
+              "name": [
+                "--all",
+                "-a"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Create a new project with a pre-configured boilerplate: Drupal, Wordpress, Magento, Laravel, Backdrop, Hugo, Gatsby, and others",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Provide project name upfront",
+              "name": "--name",
+              "requiresEquals": true
+            },
+            {
+              "args": [
+                {
+                  "name": "#"
+                }
+              ],
+              "description": "Provide software choice number upfront",
+              "name": "--choice",
+              "requiresEquals": true
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Clone from a custom repo: name (--choice is set to '0' automatically)",
+              "name": "--repo",
+              "requiresEquals": true
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Clone from a custom repo: branch name (optional)",
+              "name": "--branch",
+              "requiresEquals": true
+            },
+            {
+              "description": "Avoid confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show project configuration",
+          "name": "config"
+        },
+        {
+          "description": "Build or rebuild services (alias for 'docker-compose build')",
+          "name": "build"
+        }
+      ]
+    },
+    {
+      "description": "Manage SSH keys (fin help ssh-key)",
+      "name": "ssh-key",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "generators": [
+                {
+                  "script": [
+                    "bash",
+                    "-c",
+                    "\\command ls $HOME/.ssh | \\command grep --color=never -v 'pub'"
+                  ],
+                  "splitOn": "\n"
+                }
+              ],
+              "isOptional": true,
+              "name": "key-name"
+            }
+          ],
+          "description": "Add a private SSH key from $HOME/.ssh by file name. Adds all default keys (id_rsa/id_dsa/id_ecdsa/id_ed25519) if no file name is given",
+          "name": "add",
+          "options": [
+            {
+              "description": "Suppress key already loaded notifications",
+              "name": "--quiet"
+            }
+          ]
+        },
+        {
+          "description": "List SSH keys loaded in the docksal-ssh-agent",
+          "name": "ls"
+        },
+        {
+          "description": "Remove all keys from the docksal-ssh-agent",
+          "name": "rm"
+        },
+        {
+          "args": [
+            {
+              "name": "key-name"
+            }
+          ],
+          "description": "Generate a new SSH key pair",
+          "name": "new"
+        }
+      ]
+    },
+    {
+      "description": "Manage Docksal state (fin help system)",
+      "name": "system",
+      "subcommands": [
+        {
+          "description": "Reset Docksal",
+          "name": "reset"
+        },
+        {
+          "description": "Start Docksal",
+          "name": "start"
+        },
+        {
+          "description": "Stop Docksal",
+          "name": "stop"
+        },
+        {
+          "description": "Check Docksal status",
+          "name": "status"
+        }
+      ]
+    },
+    {
+      "description": "Manage Docksal VM (fin help vm)",
+      "name": "vm",
+      "subcommands": [
+        {
+          "description": "Start the machine (create if needed)",
+          "name": "start"
+        },
+        {
+          "description": "Stop the machine",
+          "name": "stop"
+        },
+        {
+          "description": "Forcibly stop the machine",
+          "name": "kill"
+        },
+        {
+          "description": "Restart the machine",
+          "name": "restart"
+        },
+        {
+          "description": "Get the status",
+          "name": "status"
+        },
+        {
+          "args": [
+            {
+              "name": "command"
+            }
+          ],
+          "description": "Log into ssh or run a command via ssh",
+          "name": "ssh"
+        },
+        {
+          "description": "Remove Docksal machine and cleanup after it",
+          "name": "remove"
+        },
+        {
+          "description": "Show the machine IP address",
+          "name": "ip"
+        },
+        {
+          "description": "List all docker machines",
+          "name": "ls"
+        },
+        {
+          "description": "Display the commands to set up the shell for direct use of Docker client",
+          "name": "env"
+        },
+        {
+          "description": "Try remounting host filesystem (NFS on macOS, SMB on Windows)",
+          "name": "mount"
+        },
+        {
+          "args": [
+            {
+              "description": "Set memory size. Default is 1024 (requires vm restart)",
+              "isOptional": true,
+              "name": "megabyte"
+            }
+          ],
+          "description": "Show memory size",
+          "name": "ram"
+        },
+        {
+          "description": "Show disk size and usage",
+          "name": "hdd"
+        },
+        {
+          "description": "Show CPU and network usage",
+          "name": "stats"
+        },
+        {
+          "description": "Regenerate TLS certificates and restart the VM",
+          "name": "regenerate-certs"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "generators": [
+            {
+              "script": [
+                "fin",
+                "docker",
+                "ps",
+                "--format",
+                "{{.Names}}"
+              ],
+              "splitOn": "\n"
+            }
+          ],
+          "name": "service"
+        }
+      ],
+      "description": "Open shell into service's container. Defaults to cli",
+      "name": "bash"
+    },
+    {
+      "description": "Show or change configuration (fin help config)",
+      "name": "config",
+      "subcommands": [
+        {
+          "description": "Display configuration for the current project",
+          "name": "show",
+          "options": [
+            {
+              "description": "Do not truncate value of SECRET_* environment vars",
+              "name": "--show-secrets"
+            }
+          ]
+        },
+        {
+          "description": "Display only environment variables section",
+          "name": "env"
+        },
+        {
+          "description": "Display static YML project config suitable for export (NOTE: SECRET_* values will not be hidden)",
+          "name": "yml"
+        },
+        {
+          "description": "Generate empty Docksal configuration for the project",
+          "name": "generate",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "stack"
+                }
+              ],
+              "description": "Set non-default DOCKSAL_STACK during config generate",
+              "name": "--stack",
+              "requiresEquals": true
+            },
+            {
+              "args": [
+                {
+                  "name": "directory"
+                }
+              ],
+              "description": "Set non-default DOCROOT during config generate",
+              "name": "--docroot",
+              "requiresEquals": true
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "isVariadic": true,
+              "name": "VAR=VAL"
+            }
+          ],
+          "description": "Set value(s) for the variable(s) in project ENV file",
+          "name": "set",
+          "options": [
+            {
+              "description": "Set for global ENV file",
+              "name": "--global"
+            },
+            {
+              "args": [
+                {
+                  "name": "name",
+                  "template": "filepaths"
+                }
+              ],
+              "description": "Set in environment specific project ENV file",
+              "name": "--env",
+              "requiresEquals": true
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "isVariadic": true,
+              "name": "VAR"
+            }
+          ],
+          "description": "Remove variable(s) from project ENV file",
+          "name": [
+            "remove",
+            "rm"
+          ],
+          "options": [
+            {
+              "description": "Remove from global ENV file",
+              "name": "--global"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Remove from environment specific project ENV file",
+              "name": "--env",
+              "requiresEquals": true
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "VAR"
+            }
+          ],
+          "description": "Get the value of the single variable from project ENV file",
+          "name": "get",
+          "options": [
+            {
+              "description": "Get value from global ENV file",
+              "name": "--global"
+            },
+            {
+              "args": [
+                {
+                  "name": "name",
+                  "template": "filepaths"
+                }
+              ],
+              "description": "Get value from environment specific project ENV file",
+              "name": "--env",
+              "requiresEquals": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "isCommand": true,
+          "name": "command|file"
+        }
+      ],
+      "description": "Execute a command or a script in cli",
+      "name": "exec"
+    },
+    {
+      "args": [
+        {
+          "name": "url"
+        }
+      ],
+      "description": "Download script from URL and run it on host (URL should be public)",
+      "name": "exec-url"
+    },
+    {
+      "description": "Initialize a project (override it with your own automation, see fin help init)",
+      "name": "init"
+    },
+    {
+      "description": "Image management commands: registry, save, load (fin help image)",
+      "name": "image",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Show all tags for a certain image",
+              "isOptional": true,
+              "name": "image name"
+            }
+          ],
+          "description": "Show all Docksal images on Docker Hub",
+          "name": "registry"
+        },
+        {
+          "description": "Save docker images into a tar archive",
+          "name": "save",
+          "options": [
+            {
+              "description": "Save Docksal system images",
+              "exclusiveOn": [
+                "--project",
+                "--all"
+              ],
+              "name": "--system"
+            },
+            {
+              "description": "Save current project's images",
+              "exclusiveOn": [
+                "--system",
+                "--all"
+              ],
+              "name": "--project"
+            },
+            {
+              "description": "Save all images available on the host",
+              "exclusiveOn": [
+                "--system",
+                "--project"
+              ],
+              "name": "--all"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "file",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Load docker images from a tar archive",
+          "name": "load"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "generators": [
+            {
+              "script": [
+                "fin",
+                "docker",
+                "ps",
+                "--format",
+                "{{.Names}}"
+              ],
+              "splitOn": "\n"
+            }
+          ],
+          "name": "service"
+        }
+      ],
+      "description": "Show service logs (e.g., Apache logs, MySQL logs) and Unison logs (fin help logs)",
+      "name": "logs",
+      "options": [
+        {
+          "description": "Follow log output",
+          "name": [
+            "-f",
+            "--follow"
+          ]
+        },
+        {
+          "description": "Produce monochrome output",
+          "name": "--no-color"
+        },
+        {
+          "description": "Don't print prefix in logs",
+          "name": "--no-log-prefix"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Show logs since timestamp (e.g. 2013-01-02T13:23:37Z) or relative (e.g. 42m for 42 minutes)",
+          "name": "--since"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Number of lines to show from the end of the logs for each container. (default \"all\")",
+          "name": "--tail"
+        },
+        {
+          "description": "Show timestamps",
+          "name": [
+            "-t",
+            "--timestamps"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Show logs before a timestamp (e.g. 2013-01-02T13:23:37Z) or relative (e.g. 42m for 42 minutes)",
+          "name": "--until"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "command"
+        }
+      ],
+      "description": "Run a command in a standalone cli container in the current directory (fin help run-cli)",
+      "name": [
+        "run-cli",
+        "rc"
+      ],
+      "options": [
+        {
+          "description": "Run command with a non-persistent $HOME directory",
+          "name": "--clean"
+        },
+        {
+          "description": "Clean the persistent $HOME directory and run command",
+          "name": "--clenup"
+        },
+        {
+          "description": "Print container debug output",
+          "name": "--debug"
+        },
+        {
+          "args": [
+            {
+              "name": "IMAGE"
+            }
+          ],
+          "description": "Override default container image",
+          "name": "--image",
+          "requiresEquals": true
+        },
+        {
+          "args": [
+            {
+              "name": "VAR=VALUE"
+            }
+          ],
+          "description": "Pass environment variable(s) to the container",
+          "name": "-e"
+        },
+        {
+          "description": "Disable pseudo-tty allocation (useful to get clean stdout)",
+          "name": "-T"
+        }
+      ]
+    },
+    {
+      "description": "Create temporary public url for current project using ngrok",
+      "name": "share",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "host"
+            }
+          ],
+          "description": "Override a hostname for ngrok to route to (default is $VIRTUAL_HOST)",
+          "name": "--host",
+          "requiresEquals": true
+        }
+      ]
+    },
+    {
+      "description": "Create a temporary public URL for the project using Cloudflare Tunnel",
+      "name": "share-v2",
+      "subcommands": [
+        {
+          "description": "Start tunnel and print public URL",
+          "name": "start"
+        },
+        {
+          "description": "Stop tunnel",
+          "name": "stop"
+        },
+        {
+          "description": "Prints tunnel status and public URL (if Active)",
+          "name": "status"
+        },
+        {
+          "description": "Prints tunnel public URL",
+          "name": "url"
+        },
+        {
+          "description": "Prints tunnel container logs",
+          "name": "logs"
+        }
+      ]
+    },
+    {
+      "description": "List all virtual *.docksal hosts registered in Docksal proxy",
+      "name": "vhosts"
+    },
+    {
+      "description": "Run Docker commands directly",
+      "loadSpec": "docker",
+      "name": [
+        "docker",
+        "d"
+      ]
+    },
+    {
+      "description": "Run Docker Compose commands directly",
+      "loadSpec": "docker-compose",
+      "name": [
+        "docker-compose",
+        "dc"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "command"
+        }
+      ],
+      "description": "Run Docker Machine commands directly",
+      "name": [
+        "docker-machine",
+        "dm"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "command"
+        }
+      ],
+      "description": "Run Composer commands",
+      "name": "composer"
+    },
+    {
+      "args": [
+        {
+          "name": "command"
+        }
+      ],
+      "description": "Drush command (requires Drupal)",
+      "name": "drush"
+    },
+    {
+      "args": [
+        {
+          "name": "command"
+        }
+      ],
+      "description": "Drupal Console command (requires Drupal 8)",
+      "name": "drupal"
+    },
+    {
+      "args": [
+        {
+          "name": "command"
+        }
+      ],
+      "description": "Platform.sh's CLI (requires docksal/cli 2.3+)",
+      "name": "platform"
+    },
+    {
+      "args": [
+        {
+          "name": "command"
+        }
+      ],
+      "description": "Pantheon's Terminus (requires docksal/cli 2.1+)",
+      "name": "terminus"
+    },
+    {
+      "args": [
+        {
+          "name": "command"
+        }
+      ],
+      "description": "WordPress CLI command (requires WordPress)",
+      "name": "wp"
+    },
+    {
+      "description": "Remove all unused Docker images, unused Docksal volumes and containers",
+      "name": "cleanup",
+      "options": [
+        {
+          "description": "Docker images cleanup Wizard",
+          "name": "--images"
+        },
+        {
+          "description": "Remove ALL stopped containers even unrelated to Docksal (potentially destructive operation)",
+          "name": "--hard"
+        }
+      ]
+    },
+    {
+      "description": "Show diagnostic information for troubleshooting and bug reporting",
+      "name": "diagnose"
+    },
+    {
+      "description": "Show system information",
+      "name": "sysinfo"
+    },
+    {
+      "description": "Update Docksal",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "develop"
+            }
+          ],
+          "description": "Update Docksal to the latest development version",
+          "name": "DOCKSAL_VERSION",
+          "requiresEquals": true
+        }
+      ]
+    },
+    {
+      "description": "Print fin version. [v, -v] prints short version",
+      "name": [
+        "version",
+        "--version",
+        "v",
+        "-v"
+      ]
+    }
+  ]
+}

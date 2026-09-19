@@ -1,0 +1,105 @@
+{
+  "description": "CLI interface for YoMo",
+  "name": "yomo",
+  "options": [
+    {
+      "description": "Show help for yomo",
+      "name": [
+        "--help",
+        "-h"
+      ]
+    }
+  ],
+  "subcommands": [
+    {
+      "args": [
+        {
+          "description": "StreamFunction name to initialize locally",
+          "name": "function name"
+        }
+      ],
+      "description": "Initial an example StreamFunction",
+      "name": "init",
+      "options": [
+        {
+          "description": "Generate Rx code template",
+          "name": "--rx"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "The .go file to build",
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "name": ".go file"
+        }
+      ],
+      "description": "Build a StreamFunction to WebAssembly",
+      "name": "build",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "wasm"
+            },
+            {
+              "name": "binary"
+            }
+          ],
+          "description": "Build to wasm or binary",
+          "name": "--target"
+        },
+        {
+          "args": [
+            {
+              "dyn": true,
+              "generators": [
+                {}
+              ],
+              "name": "module"
+            }
+          ],
+          "description": "Custom go.mod filepath",
+          "name": [
+            "-m",
+            "--modfile"
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "The .wasm file to run",
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "name": ".wasm file"
+        }
+      ],
+      "description": "Run a wasm stream function",
+      "name": "run",
+      "options": [
+        {
+          "description": "Zipper endpoint this StreamFunction will connect to",
+          "name": [
+            "-z",
+            "--zipper"
+          ]
+        },
+        {
+          "description": "Specify the name of this StreamFunction",
+          "name": [
+            "-n",
+            "--name"
+          ]
+        }
+      ]
+    }
+  ]
+}

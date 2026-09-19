@@ -1,0 +1,221 @@
+{
+  "description": "Command-line utility for running shortcuts",
+  "name": "shortcuts",
+  "subcommands": [
+    {
+      "args": [
+        {
+          "description": "The name of the shortcut to run",
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "shortcuts",
+                "list"
+              ]
+            }
+          ],
+          "name": "shortcut-name"
+        }
+      ],
+      "description": "Run a shortcut",
+      "icon": "▶️",
+      "name": "run",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "input-path",
+              "template": "filepaths"
+            }
+          ],
+          "description": "The input to provide to the shortcut",
+          "name": [
+            "-i",
+            "--input-path"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "output-path",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Where to write the shortcut output, if applicable",
+          "name": [
+            "-o",
+            "--output-path"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "output-type",
+              "suggestions": [
+                {
+                  "description": "JavaScript Object Notation (JSON)",
+                  "name": "public.json"
+                },
+                {
+                  "description": "Plain text",
+                  "name": "public.plain-text"
+                },
+                {
+                  "description": "HTML",
+                  "name": "public.html"
+                },
+                {
+                  "description": "XML",
+                  "name": "public.xml"
+                },
+                {
+                  "description": "Adobe PDF",
+                  "name": "com.adobe.pdf"
+                },
+                {
+                  "description": "VCard",
+                  "name": "public.vcard"
+                }
+              ]
+            }
+          ],
+          "description": "What type to output data in, in Universal Type Identifier format",
+          "name": "--output-type"
+        }
+      ]
+    },
+    {
+      "description": "List your shortcuts",
+      "icon": "📂",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "dyn": true,
+              "generators": [
+                {
+                  "script": [
+                    "shortcuts",
+                    "list",
+                    "--folders"
+                  ]
+                }
+              ],
+              "name": "folder-name"
+            }
+          ],
+          "description": "The name of the folder to list",
+          "name": [
+            "--folder-name",
+            "-f"
+          ]
+        },
+        {
+          "description": "List folders instead of shortcuts",
+          "icon": "📂",
+          "name": "--folders"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "The name of the shortcut to view",
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "shortcuts",
+                "list"
+              ]
+            }
+          ],
+          "name": "shortcut-name"
+        }
+      ],
+      "description": "View a shortcut in Shortcuts",
+      "icon": "🔍",
+      "name": "view"
+    },
+    {
+      "description": "Sign a shortcut file",
+      "icon": "🔏",
+      "name": "sign",
+      "options": [
+        {
+          "args": [
+            {
+              "dyn": true,
+              "generators": [
+                {}
+              ],
+              "name": "input"
+            }
+          ],
+          "description": "The shortcut file to sign",
+          "name": [
+            "--input",
+            "-i"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "output",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Output path for the signed shortcut file",
+          "name": [
+            "--output",
+            "-o"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "mode",
+              "suggestions": [
+                "people-who-know-me",
+                "anyone"
+              ]
+            }
+          ],
+          "description": "The signing mode. (default: people-who-know-me)",
+          "name": [
+            "--mode",
+            "-m"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Show help information",
+      "name": "help",
+      "subcommands": [
+        {
+          "description": "Run a shortcut",
+          "icon": "▶️",
+          "name": "run"
+        },
+        {
+          "description": "List your shortcuts",
+          "icon": "📂",
+          "name": "list"
+        },
+        {
+          "description": "View a shortcut in Shortcuts",
+          "icon": "🔍",
+          "name": "view"
+        },
+        {
+          "description": "Sign a shortcut file",
+          "icon": "🔏",
+          "name": "sign"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6005 @@
+{
+  "description": "Manipulating archive files",
+  "name": "tar",
+  "options": [
+    {
+      "args": [
+        {
+          "description": "The name of a snapshot file",
+          "name": "FILE"
+        }
+      ],
+      "description": "Handle new GNU-format incremental backups",
+      "exclusiveOn": [
+        "G",
+        "-G",
+        "--incremental"
+      ],
+      "isPersistent": true,
+      "name": [
+        "g",
+        "-g",
+        "--listed-incremental"
+      ]
+    },
+    {
+      "args": [
+        {
+          "default": "seek",
+          "isOptional": true,
+          "name": "METHOD",
+          "suggestions": [
+            "seek",
+            "raw"
+          ]
+        }
+      ],
+      "description": "Use METHOD to detect holes in sparse files",
+      "isPersistent": true,
+      "name": "--hole-detection"
+    },
+    {
+      "description": "Handle old GNU-format incremental backups",
+      "exclusiveOn": [
+        "g",
+        "-g",
+        "--listed-incremental"
+      ],
+      "isPersistent": true,
+      "name": [
+        "G",
+        "-G",
+        "--incremental"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "MAJOR[.MINOR]",
+          "suggestions": [
+            "0",
+            "0.1",
+            "1"
+          ]
+        }
+      ],
+      "dependsOn": [
+        "S",
+        "-S",
+        "--sparse"
+      ],
+      "description": "Set version of the sparse format to use",
+      "isPersistent": true,
+      "name": "--sparse-version"
+    },
+    {
+      "description": "Handle sparse files efficiently",
+      "isPersistent": true,
+      "name": [
+        "S",
+        "-S",
+        "--sparse"
+      ]
+    },
+    {
+      "description": "Ignore subprocess exit codes",
+      "exclusiveOn": [
+        "--no-ignore-command-error"
+      ],
+      "isPersistent": true,
+      "name": "--ignore-command-error"
+    },
+    {
+      "description": "Treat non-zero exit codes of children as error",
+      "exclusiveOn": [
+        "--ignore-command-error"
+      ],
+      "isPersistent": true,
+      "name": "--no-ignore-command-error"
+    },
+    {
+      "description": "Always use numbers for user/group names",
+      "isPersistent": true,
+      "name": "--numeric-owner"
+    },
+    {
+      "description": "Enable POSIX ACLs support",
+      "exclusiveOn": [
+        "--no-acls"
+      ],
+      "isPersistent": true,
+      "name": "--acls"
+    },
+    {
+      "description": "Disable POSIX ACLs support",
+      "exclusiveOn": [
+        "--acls"
+      ],
+      "isPersistent": true,
+      "name": "--no-acls"
+    },
+    {
+      "description": "Enable SELinux context support",
+      "exclusiveOn": [
+        "--no-selinux"
+      ],
+      "isPersistent": true,
+      "name": "--selinux"
+    },
+    {
+      "description": "Disable SELinux context support",
+      "exclusiveOn": [
+        "--selinux"
+      ],
+      "isPersistent": true,
+      "name": "--no-selinux"
+    },
+    {
+      "description": "Enable extended attributes support",
+      "exclusiveOn": [
+        "--no-xattrs"
+      ],
+      "isPersistent": true,
+      "name": "--xattrs"
+    },
+    {
+      "description": "Disable extended attributes support",
+      "exclusiveOn": [
+        "--xattrs",
+        "--xattrs-exclude",
+        "--xattrs-include"
+      ],
+      "isPersistent": true,
+      "name": "--no-xattrs"
+    },
+    {
+      "args": [
+        {
+          "description": "A POSIX regular expression",
+          "name": "PATTERN"
+        }
+      ],
+      "description": "Specify the exclude pattern for xattr keys",
+      "exclusiveOn": [
+        "--no-xattrs"
+      ],
+      "isPersistent": true,
+      "name": "--xattrs-exclude"
+    },
+    {
+      "args": [
+        {
+          "description": "A POSIX regular expression",
+          "name": "PATTERN"
+        }
+      ],
+      "description": "Specify the include pattern for xattr keys",
+      "isPersistent": true,
+      "name": "--xattrs-include"
+    },
+    {
+      "args": [
+        {
+          "default": "existing",
+          "isOptional": true,
+          "name": "CONTROL",
+          "suggestions": [
+            {
+              "description": "Never make backups",
+              "name": [
+                "none",
+                "off"
+              ]
+            },
+            {
+              "description": "Make numbered backups",
+              "name": [
+                "t",
+                "numbered"
+              ]
+            },
+            {
+              "description": "Make numbered backups if numbered backups  exist",
+              "name": [
+                "nil",
+                "existing"
+              ]
+            },
+            {
+              "description": "Always make simple backups",
+              "name": [
+                "never",
+                "simple"
+              ]
+            }
+          ]
+        }
+      ],
+      "description": "Backup before removal",
+      "isPersistent": true,
+      "name": "--backup"
+    },
+    {
+      "args": [
+        {
+          "name": "DIR",
+          "template": "folders"
+        }
+      ],
+      "description": "Change to DIR before performing any operations",
+      "isPersistent": true,
+      "isRepeatable": true,
+      "name": [
+        "C",
+        "-C",
+        "--directory"
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "If DATE starts with / or . it is taken to be a file name",
+          "name": "DATE",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Work on files whose data changed after the DATE",
+      "isPersistent": true,
+      "name": "--newer-mtime"
+    },
+    {
+      "dependsOn": [
+        "T",
+        "-T",
+        "--files-from"
+      ],
+      "description": "Disable the effect of the previous --null option",
+      "isPersistent": true,
+      "name": "--no-null"
+    },
+    {
+      "description": "Avoid descending automatically in directories",
+      "exclusiveOn": [
+        "--recursion"
+      ],
+      "isPersistent": true,
+      "name": "--no-recursion"
+    },
+    {
+      "description": "Do not unquote input file or member names",
+      "exclusiveOn": [
+        "--unquote"
+      ],
+      "isPersistent": true,
+      "name": "--no-unquote"
+    },
+    {
+      "dependsOn": [
+        "T",
+        "-T",
+        "--files-from"
+      ],
+      "description": "Treat each line read from a file list as if it were supplied in the command line",
+      "isPersistent": true,
+      "isRepeatable": true,
+      "name": "--no-verbatim-files-from"
+    },
+    {
+      "dependsOn": [
+        "T",
+        "-T",
+        "--files-from"
+      ],
+      "description": "Instruct subsequent -T options to read null-terminated names verbatim",
+      "isPersistent": true,
+      "name": "-null"
+    },
+    {
+      "description": "Recurse into directories",
+      "exclusiveOn": [
+        "--no-recursion"
+      ],
+      "isPersistent": true,
+      "name": "--recursion"
+    },
+    {
+      "args": [
+        {
+          "default": "~",
+          "name": "STRING"
+        }
+      ],
+      "dependsOn": [
+        "--backup"
+      ],
+      "description": "Backup before removal, override usual suffix",
+      "isPersistent": true,
+      "name": "--suffix"
+    },
+    {
+      "args": [
+        {
+          "name": "FILE",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Get names to extract or create from FILE",
+      "isPersistent": true,
+      "isRepeatable": true,
+      "name": [
+        "T",
+        "-T",
+        "--files-from"
+      ]
+    },
+    {
+      "description": "Unquote file or member names",
+      "exclusiveOn": [
+        "--no-unquote"
+      ],
+      "isPersistent": true,
+      "name": "--unquote"
+    },
+    {
+      "dependsOn": [
+        "T",
+        "-T",
+        "--files-from"
+      ],
+      "description": "Treat each line obtained from a file list as a file name, even if it starts with a dash",
+      "isPersistent": true,
+      "isRepeatable": true,
+      "name": "--verbatim-files-from"
+    },
+    {
+      "args": [
+        {
+          "name": "FILE",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Exclude files matching patterns listed in FILE",
+      "isPersistent": true,
+      "isRepeatable": true,
+      "name": [
+        "X",
+        "-X",
+        "--exclude-from"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "FILE"
+        }
+      ],
+      "description": "Send verbose output to FILE",
+      "isPersistent": true,
+      "name": "--index-file"
+    },
+    {
+      "args": [
+        {
+          "name": "STRING"
+        }
+      ],
+      "description": "Disable quoting for characters from STRING",
+      "isPersistent": true,
+      "name": "--no-quote-chars"
+    },
+    {
+      "args": [
+        {
+          "name": "STRING"
+        }
+      ],
+      "description": "Additionally quote characters from STRING",
+      "isPersistent": true,
+      "name": "--quote-chars"
+    },
+    {
+      "args": [
+        {
+          "name": "STYLE",
+          "suggestions": [
+            "literal",
+            "shell",
+            "shell-always",
+            "c",
+            "c-maybe",
+            "escape",
+            "locale",
+            "clocale"
+          ]
+        }
+      ],
+      "description": "Set quoting style for file and member names",
+      "isPersistent": true,
+      "name": "--quoting-style"
+    },
+    {
+      "description": "Show block number within archive with each message",
+      "isPersistent": true,
+      "name": [
+        "R",
+        "-R",
+        "--block-number"
+      ]
+    },
+    {
+      "description": "Show file or archive names after transformation by --strip and --transform options",
+      "isPersistent": true,
+      "name": [
+        "--show-transformed-names",
+        "--show-stored-names"
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Print total bytes when this signal is delivered",
+          "isOptional": true,
+          "name": "SIGNAL",
+          "suggestions": [
+            {
+              "name": [
+                "SIGHUP",
+                "HUP"
+              ]
+            },
+            {
+              "name": [
+                "SIGQUIT",
+                "QUIT"
+              ]
+            },
+            {
+              "name": [
+                "SIGINT",
+                "INT"
+              ]
+            },
+            {
+              "name": [
+                "SIGUSR1",
+                "USR1"
+              ]
+            },
+            {
+              "name": [
+                "SIGUSR2",
+                "USR2"
+              ]
+            }
+          ]
+        }
+      ],
+      "description": "Print total bytes after processing the archive",
+      "isPersistent": true,
+      "name": "--totals"
+    },
+    {
+      "description": "Verbosely list files processed",
+      "isPersistent": true,
+      "isRepeatable": true,
+      "name": [
+        "v",
+        "-v",
+        "--verbose"
+      ]
+    },
+    {
+      "description": "Ask for confirmation for every action",
+      "name": [
+        "w",
+        "-w",
+        "--interactive",
+        "--confirmation"
+      ]
+    }
+  ],
+  "parserDirectives": {
+    "flagsArePosixNoncompliant": true
+  },
+  "subcommands": [
+    {
+      "args": [
+        {
+          "isVariadic": true,
+          "name": "ARCHIVE",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Append archive to the end of another archive",
+      "name": [
+        "A",
+        "-A",
+        "--catenate",
+        "--concatenate"
+      ]
+    },
+    {
+      "args": [
+        {
+          "isVariadic": true,
+          "name": "FILE",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Create a new archive",
+      "name": [
+        "c",
+        "-c",
+        "--create"
+      ],
+      "options": [
+        {
+          "dependsOn": [
+            "g",
+            "-g",
+            "--listed-incremental"
+          ],
+          "description": "Check device numbers when creating incremental archives",
+          "exclusiveOn": [
+            "--no-check-device"
+          ],
+          "name": "--check-device"
+        },
+        {
+          "args": [
+            {
+              "default": "0",
+              "name": "NUMBER"
+            }
+          ],
+          "dependsOn": [
+            "g",
+            "-g",
+            "--listed-incremental"
+          ],
+          "description": "Set dump level for created listed-incremental archive",
+          "name": "--level",
+          "requiresSeparator": true
+        },
+        {
+          "dependsOn": [
+            "g",
+            "-g",
+            "--listed-incremental"
+          ],
+          "description": "Do not check device numbers when creating incremental archives",
+          "exclusiveOn": [
+            "--check-device"
+          ],
+          "name": "--no-check-device"
+        },
+        {
+          "description": "Do not exit with nonzero on unreadable files",
+          "name": "--ignore-failed-read"
+        },
+        {
+          "dependsOn": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ],
+          "description": "Disable the use of some potentially harmful options",
+          "name": "--restrict"
+        },
+        {
+          "description": "Remove files from disk after adding them to the archive",
+          "name": "--remove-files"
+        },
+        {
+          "description": "Verify the archive after writing it",
+          "name": [
+            "W",
+            "-W",
+            "--verify"
+          ]
+        },
+        {
+          "args": [
+            {
+              "default": "replace",
+              "isOptional": true,
+              "name": "METHOD",
+              "suggestions": [
+                {
+                  "description": "Restore the times after reading",
+                  "name": "replace"
+                },
+                {
+                  "description": "Not setting the times in the first place",
+                  "name": "system"
+                }
+              ]
+            }
+          ],
+          "description": "Preserve access times on dumped files",
+          "name": "--atime-preserve"
+        },
+        {
+          "args": [
+            {
+              "description": "If GID is not supplied, NAME can be either a user name or numeric GID",
+              "name": "NAME[:GID]"
+            }
+          ],
+          "description": "Force NAME as group for added files",
+          "name": "--group"
+        },
+        {
+          "args": [
+            {
+              "description": "Each non-empty line in FILE defines translation for a single group",
+              "name": "FILE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Read group translation map from FILE",
+          "name": "--group-map"
+        },
+        {
+          "args": [
+            {
+              "name": "CHANGES"
+            }
+          ],
+          "description": "Force symbolic mode CHANGES for added files",
+          "name": "--mode"
+        },
+        {
+          "args": [
+            {
+              "description": "Either a date/time in almost arbitrary format, or the name of an existing file",
+              "name": "DATE-OR-FILE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Set mtime for added files",
+          "name": "--mtime"
+        },
+        {
+          "args": [
+            {
+              "description": "If UID is not supplied, NAME can be either a user name or numeric UID",
+              "name": "NAME[:GID]"
+            }
+          ],
+          "description": "Force NAME as owner for added files",
+          "name": "--owner"
+        },
+        {
+          "args": [
+            {
+              "description": "Each non-empty line in FILE defines translation for a single UID",
+              "name": "FILE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Read owner translation map from FILE",
+          "name": "--owner-map"
+        },
+        {
+          "args": [
+            {
+              "default": "none",
+              "name": "ORDER",
+              "suggestions": [
+                "none",
+                "name",
+                "inode"
+              ]
+            }
+          ],
+          "description": "When creating an archive, sort directory entries according to ORDER",
+          "name": "--sort"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Add FILE to the archive",
+          "name": "--add-file"
+        },
+        {
+          "args": [
+            {
+              "description": "A glob-style wildcard pattern",
+              "name": "PATTERN"
+            }
+          ],
+          "description": "Exclude files matching PATTERN",
+          "name": "--exclude"
+        },
+        {
+          "description": "Exclude backup and lock files",
+          "name": "--exclude-backups"
+        },
+        {
+          "description": "Exclude contents of directories containing file CACHEDIR.TAG, except for the tag file itself",
+          "exclusiveOn": [
+            "--exclude-caches-all",
+            "--exclude-caches-under"
+          ],
+          "name": "--exclude-caches"
+        },
+        {
+          "description": "Exclude directories containing file CACHEDIR.TAG and the file itself",
+          "exclusiveOn": [
+            "--exclude-caches",
+            "--exclude-caches-under"
+          ],
+          "name": "--exclude-caches-all"
+        },
+        {
+          "description": "Exclude everything under directories containing CACHEDIR.TAG",
+          "exclusiveOn": [
+            "--exclude-caches",
+            "--exclude-caches-all"
+          ],
+          "name": "--exclude-caches-under"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Read exclusion patterns from FILE in directory before dumping",
+          "exclusiveOn": [
+            "--exclude-ignore-recursive"
+          ],
+          "name": "--exclude-ignore"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Same  as --exclude-ignore, except that patterns from FILE affect both the directory and all its subdirectories",
+          "exclusiveOn": [
+            "--exclude-ignore"
+          ],
+          "name": "--exclude-ignore-recursive"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Exclude contents of directories containing FILE, except for FILE itself",
+          "exclusiveOn": [
+            "--exclude-tag-all",
+            "--exclude-tag-under"
+          ],
+          "name": "--exclude-tag"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Exclude directories containing FILE",
+          "exclusiveOn": [
+            "--exclude-tag",
+            "--exclude-tag-under"
+          ],
+          "name": "--exclude-tag-all"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Exclude everything under directories containing FILE",
+          "exclusiveOn": [
+            "--exclude-tag",
+            "--exclude-tag-all"
+          ],
+          "name": "--exclude-tag-under"
+        },
+        {
+          "description": "Exclude version control system directories",
+          "exclusiveOn": [
+            "--exclude-vcs-ignores"
+          ],
+          "name": "--exclude-vcs"
+        },
+        {
+          "description": "Exclude files that match patterns read from VCS-specific ignore files",
+          "exclusiveOn": [
+            "--exclude-vcs"
+          ],
+          "name": "--exclude-vcs-ignores"
+        },
+        {
+          "description": "Follow symlinks; archive and dump the files they point to",
+          "name": [
+            "h",
+            "-h",
+            "--dereference"
+          ]
+        },
+        {
+          "description": "Follow hard links; archive and dump the files they refer to",
+          "name": "--hard-dereference"
+        },
+        {
+          "args": [
+            {
+              "description": "If DATE starts with / or . it is taken to be a file name",
+              "name": "DATE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Only store files newer than DATE",
+          "name": [
+            "N",
+            "-N",
+            "--newer",
+            "--after-date"
+          ]
+        },
+        {
+          "description": "Stay in local file system when creating archive",
+          "name": "--one-file-system"
+        },
+        {
+          "description": "Don't strip leading slashes from file names",
+          "name": [
+            "P",
+            "-P",
+            "--absolute-names"
+          ]
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Patterns match file name start",
+          "exclusiveOn": [
+            "--no-anchored"
+          ],
+          "name": "--anchored"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Ignore case",
+          "exclusiveOn": [
+            "--no-ignore-case"
+          ],
+          "name": "--ignore-case"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Patterns match after any /",
+          "exclusiveOn": [
+            "--anchored"
+          ],
+          "name": "--no-anchored"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Case sensitive matching",
+          "exclusiveOn": [
+            "--ignore-case"
+          ],
+          "name": "--no-ignore-case"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Verbatim string matching",
+          "exclusiveOn": [
+            "--wildcards"
+          ],
+          "name": "--no-wildcards"
+        },
+        {
+          "dependsOn": [
+            "--exclude",
+            "--wildcards"
+          ],
+          "description": "Wildcards do not match /",
+          "exclusiveOn": [
+            "--no-wildcards",
+            "--wildcards-match-slash"
+          ],
+          "name": "--no-wildcards-match-slash"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Use wildcards",
+          "exclusiveOn": [
+            "--no-wildcards"
+          ],
+          "name": "--wildcards"
+        },
+        {
+          "dependsOn": [
+            "--exclude",
+            "--wildcards"
+          ],
+          "description": "Wildcards match /",
+          "exclusiveOn": [
+            "--no-wildcards",
+            "--no-wildcards-match-slash"
+          ],
+          "name": "--wildcards-match-slash"
+        },
+        {
+          "dependsOn": [
+            "--mtime"
+          ],
+          "description": "Only set time when the file is more recent than what was given with --mtime",
+          "name": "--clamp-mtime"
+        },
+        {
+          "description": "Print a message if not all links are dumped",
+          "name": [
+            "l",
+            "-l",
+            "--check-links"
+          ]
+        },
+        {
+          "description": "Use archive suffix to determine the compression program",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "a",
+            "-a",
+            "--auto-compress"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Filter data through COMMAND",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "I",
+            "-I",
+            "--use-compress-program"
+          ]
+        },
+        {
+          "description": "Filter the archive through bzip2",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "j",
+            "-j",
+            "--bzip2"
+          ]
+        },
+        {
+          "description": "Filter the archive through xz",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "J",
+            "-J",
+            "--xz"
+          ]
+        },
+        {
+          "description": "Filter the archive through lzip",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzip"
+        },
+        {
+          "description": "Filter the archive through lzma",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzma"
+        },
+        {
+          "description": "Filter the archive through lzop",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzop"
+        },
+        {
+          "description": "Do not use archive suffix to determine the compression program",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--no-auto-compress"
+        },
+        {
+          "description": "Filter the archive through gzip",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip"
+          ]
+        },
+        {
+          "description": "Filter the archive through compress",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress"
+          ]
+        },
+        {
+          "description": "Filter the archive through zstd",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--zstd"
+        },
+        {
+          "args": [
+            {
+              "name": "EXPRESSION"
+            }
+          ],
+          "description": "Use sed replace EXPRESSION to transform file names",
+          "name": [
+            "--transform",
+            "--xform"
+          ]
+        },
+        {
+          "args": [
+            {
+              "default": "10",
+              "isOptional": true,
+              "name": "N"
+            }
+          ],
+          "description": "Display progress messages every Nth record",
+          "name": "--checkpoint"
+        },
+        {
+          "args": [
+            {
+              "name": "ACTION"
+            }
+          ],
+          "description": "Run ACTION on each checkpoint",
+          "name": "--checkpoint-action"
+        },
+        {
+          "dependsOn": [
+            "v",
+            "-v",
+            "--verbose"
+          ],
+          "description": "Print file time to its full resolution",
+          "name": "--full-time"
+        },
+        {
+          "dependsOn": [
+            "v",
+            "-v",
+            "--verbose"
+          ],
+          "description": "Print file modification times in UTC",
+          "name": "--utc"
+        },
+        {
+          "args": [
+            {
+              "name": "BLOCKS"
+            }
+          ],
+          "description": "Set record size to BLOCKSx512 bytes",
+          "name": [
+            "b",
+            "-b",
+            "--blocking-factor"
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "The number of bytes per record",
+              "name": "NUMBER",
+              "suggestions": [
+                {
+                  "insertValue": "{cursor}b",
+                  "name": "Blocks"
+                },
+                {
+                  "insertValue": "{cursor}c",
+                  "name": "Bytes"
+                },
+                {
+                  "insertValue": "{cursor}G",
+                  "name": "Gigabytes"
+                },
+                {
+                  "insertValue": "{cursor}K",
+                  "name": "Kilobytes"
+                },
+                {
+                  "insertValue": "{cursor}M",
+                  "name": "Megabytes"
+                },
+                {
+                  "insertValue": "{cursor}P",
+                  "name": "Petabytes"
+                },
+                {
+                  "insertValue": "{cursor}T",
+                  "name": "Terabytes"
+                },
+                {
+                  "insertValue": "{cursor}w",
+                  "name": "Words"
+                }
+              ]
+            }
+          ],
+          "description": "Set record size",
+          "name": "--record-size"
+        },
+        {
+          "args": [
+            {
+              "name": "FORMAT",
+              "suggestions": [
+                {
+                  "description": "GNU tar 1.13.x format",
+                  "name": "gnu"
+                },
+                {
+                  "description": "GNU format as per tar <= 1.12",
+                  "name": "oldgnu"
+                },
+                {
+                  "description": "POSIX 1003.1-2001 (pax) format",
+                  "name": [
+                    "pax",
+                    "posix"
+                  ]
+                },
+                {
+                  "description": "POSIX 1003.1-1988 (ustar) format",
+                  "name": "ustar"
+                },
+                {
+                  "description": "Old V7 tar format",
+                  "name": "v7"
+                }
+              ]
+            }
+          ],
+          "description": "Create archive of the given format",
+          "exclusiveOn": [
+            "--old-archive",
+            "--portability",
+            "--posix",
+            "o",
+            "-o"
+          ],
+          "name": [
+            "H",
+            "-H",
+            "--format"
+          ]
+        },
+        {
+          "description": "Same as --format=v7",
+          "exclusiveOn": [
+            "H",
+            "-H",
+            "--format",
+            "--pax-option",
+            "--posix",
+            "o",
+            "-o"
+          ],
+          "name": [
+            "--old-archive",
+            "--portability"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "keyword[[:]=value][,keyword[[:]=value]]..."
+            }
+          ],
+          "dependsOn": [
+            "H",
+            "-H",
+            "--format"
+          ],
+          "description": "Control pax keywords when creating PAX archives",
+          "exclusiveOn": [
+            "--old-archive",
+            "--portability",
+            "--old-archive",
+            "--portability",
+            "--posix",
+            "o",
+            "-o"
+          ],
+          "name": "--pax-option"
+        },
+        {
+          "description": "Same as --format=posix",
+          "exclusiveOn": [
+            "H",
+            "-H",
+            "--format",
+            "--old-archive",
+            "--portability",
+            "--pax-option"
+          ],
+          "name": "--posix"
+        },
+        {
+          "args": [
+            {
+              "name": "TEXT"
+            }
+          ],
+          "description": "Create archive with volume name TEXT",
+          "name": [
+            "V",
+            "-V",
+            "--label"
+          ]
+        },
+        {
+          "args": [
+            {
+              "default": "all",
+              "name": "KEYWORD",
+              "suggestions": [
+                {
+                  "description": "Enable all warning messages",
+                  "name": "all"
+                },
+                {
+                  "description": "Disable all warning messages",
+                  "name": "none"
+                },
+                {
+                  "description": "\"%s: file name read contains nul character\"",
+                  "name": "filename-with-nuls"
+                },
+                {
+                  "description": "No \"%s: file name read contains nul character\"",
+                  "name": "no-filename-with-nuls"
+                },
+                {
+                  "description": "\"A lone zero block at %s\"",
+                  "name": "alone-zero-block"
+                },
+                {
+                  "description": "No \"A lone zero block at %s\"",
+                  "name": "no-alone-zero-block"
+                },
+                {
+                  "description": "\"%s: contains a cache directory tag %s; %s\"",
+                  "name": "cachedir"
+                },
+                {
+                  "description": "No \"%s: contains a cache directory tag %s; %s\"",
+                  "name": "no-cachedir"
+                },
+                {
+                  "description": "\"%s: File shrank by %s bytes; padding with zeros\"",
+                  "name": "file-shrank"
+                },
+                {
+                  "description": "No \"%s: File shrank by %s bytes; padding with zeros\"",
+                  "name": "no-file-shrank"
+                },
+                {
+                  "description": "\"%s: file is on a different filesystem; not dumped\"",
+                  "name": "xdev"
+                },
+                {
+                  "description": "No \"%s: file is on a different filesystem; not dumped\"",
+                  "name": "no-xdev"
+                },
+                {
+                  "description": "\"%s: Unknown file type; file ignored\", \"%s: socket ignored\", \"%s: door ignored\"",
+                  "name": "file-ignored"
+                },
+                {
+                  "description": "No \"%s: Unknown file type; file ignored\", \"%s: socket ignored\", \"%s: door ignored\"",
+                  "name": "no-file-ignored"
+                },
+                {
+                  "description": "\"%s: file is unchanged; not dumped\"",
+                  "name": "file-unchanged"
+                },
+                {
+                  "description": "No \"%s: file is unchanged; not dumped\"",
+                  "name": "no-file-unchanged"
+                },
+                {
+                  "description": "\"%s: file is the archive; not dumped\"",
+                  "name": "ignore-archive"
+                },
+                {
+                  "description": "No \"%s: file is the archive; not dumped\"",
+                  "name": "no-ignore-archive"
+                },
+                {
+                  "description": "\"%s: File removed before we read it\"",
+                  "name": "file-removed"
+                },
+                {
+                  "description": "No \"%s: File removed before we read it\"",
+                  "name": "no-file-removed"
+                },
+                {
+                  "description": "\"%s: file changed as we read it\"",
+                  "name": "file-changed"
+                },
+                {
+                  "description": "No \"%s: file changed as we read it\"",
+                  "name": "no-file-changed"
+                },
+                {
+                  "description": "Enables warnings about unreadable files or directories",
+                  "name": "failed-read"
+                },
+                {
+                  "description": "Suppresses warnings about unreadable files or directories",
+                  "name": "no-failed-read"
+                }
+              ]
+            }
+          ],
+          "description": "Enable or disable warning messages identified by KEYWORD",
+          "isPersistent": true,
+          "isRepeatable": true,
+          "name": "--warning"
+        },
+        {
+          "description": "Same as --old-archive",
+          "exclusiveOn": [
+            "H",
+            "-H",
+            "--format",
+            "--old-archive",
+            "--portability",
+            "--posix",
+            "o",
+            "-o"
+          ],
+          "name": [
+            "o",
+            "-o"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ARCHIVE"
+            }
+          ],
+          "description": "Use archive file or device ARCHIVE",
+          "isRequired": true,
+          "name": [
+            "f",
+            "-f",
+            "--file"
+          ]
+        },
+        {
+          "dependsOn": [
+            "f",
+            "-f",
+            "--file"
+          ],
+          "description": "Archive file is local even if it has a colon",
+          "name": "--force-local"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Run  COMMAND  at the end of each tape",
+          "name": [
+            "F",
+            "-F",
+            "--info-script",
+            "--new-volume-script"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "N",
+              "suggestions": [
+                {
+                  "insertValue": "{cursor}b",
+                  "name": "Blocks"
+                },
+                {
+                  "insertValue": "{cursor}c",
+                  "name": "Bytes"
+                },
+                {
+                  "insertValue": "{cursor}G",
+                  "name": "Gigabytes"
+                },
+                {
+                  "insertValue": "{cursor}K",
+                  "name": "Kilobytes"
+                },
+                {
+                  "insertValue": "{cursor}M",
+                  "name": "Megabytes"
+                },
+                {
+                  "insertValue": "{cursor}P",
+                  "name": "Petabytes"
+                },
+                {
+                  "insertValue": "{cursor}T",
+                  "name": "Terabytes"
+                },
+                {
+                  "insertValue": "{cursor}w",
+                  "name": "Words"
+                }
+              ]
+            }
+          ],
+          "description": "Change tape after writing Nx1024 bytes",
+          "name": [
+            "L",
+            "-L",
+            "--tape-length"
+          ]
+        },
+        {
+          "description": "Create/list/extract multi-volume archive",
+          "name": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rmt when accessing remote archives",
+          "name": "--rmt-command"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rsh when accessing remote archives",
+          "name": "--rsh-command"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "dependsOn": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ],
+          "description": "Tar will keep track of which volume of a multi-volume archive it is working in FILE",
+          "name": "--volno-file"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "default": ".",
+          "isOptional": true,
+          "isVariadic": true,
+          "name": "FILE",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Find differences between archive and file system",
+      "name": [
+        "d",
+        "-d",
+        "--diff",
+        "--compare"
+      ],
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ARCHIVE"
+            }
+          ],
+          "description": "Use archive file or device ARCHIVE",
+          "isRequired": true,
+          "name": [
+            "f",
+            "-f",
+            "--file"
+          ]
+        },
+        {
+          "dependsOn": [
+            "f",
+            "-f",
+            "--file"
+          ],
+          "description": "Archive file is local even if it has a colon",
+          "name": "--force-local"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Run  COMMAND  at the end of each tape",
+          "name": [
+            "F",
+            "-F",
+            "--info-script",
+            "--new-volume-script"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "N",
+              "suggestions": [
+                {
+                  "insertValue": "{cursor}b",
+                  "name": "Blocks"
+                },
+                {
+                  "insertValue": "{cursor}c",
+                  "name": "Bytes"
+                },
+                {
+                  "insertValue": "{cursor}G",
+                  "name": "Gigabytes"
+                },
+                {
+                  "insertValue": "{cursor}K",
+                  "name": "Kilobytes"
+                },
+                {
+                  "insertValue": "{cursor}M",
+                  "name": "Megabytes"
+                },
+                {
+                  "insertValue": "{cursor}P",
+                  "name": "Petabytes"
+                },
+                {
+                  "insertValue": "{cursor}T",
+                  "name": "Terabytes"
+                },
+                {
+                  "insertValue": "{cursor}w",
+                  "name": "Words"
+                }
+              ]
+            }
+          ],
+          "description": "Change tape after writing Nx1024 bytes",
+          "name": [
+            "L",
+            "-L",
+            "--tape-length"
+          ]
+        },
+        {
+          "description": "Create/list/extract multi-volume archive",
+          "name": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rmt when accessing remote archives",
+          "name": "--rmt-command"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rsh when accessing remote archives",
+          "name": "--rsh-command"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "dependsOn": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ],
+          "description": "Tar will keep track of which volume of a multi-volume archive it is working in FILE",
+          "name": "--volno-file"
+        },
+        {
+          "args": [
+            {
+              "default": "1",
+              "isOptional": true,
+              "name": "N"
+            }
+          ],
+          "description": "Process only the Nth occurrence of each file in the archive",
+          "name": "--occurrence"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "isOptional": true,
+          "isVariadic": true,
+          "name": "MEMBER"
+        }
+      ],
+      "description": "List the contents of an archive",
+      "name": [
+        "t",
+        "-t",
+        "--list"
+      ],
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ARCHIVE"
+            }
+          ],
+          "description": "Use archive file or device ARCHIVE",
+          "isRequired": true,
+          "name": [
+            "f",
+            "-f",
+            "--file"
+          ]
+        },
+        {
+          "dependsOn": [
+            "f",
+            "-f",
+            "--file"
+          ],
+          "description": "Archive file is local even if it has a colon",
+          "name": "--force-local"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Run  COMMAND  at the end of each tape",
+          "name": [
+            "F",
+            "-F",
+            "--info-script",
+            "--new-volume-script"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "N",
+              "suggestions": [
+                {
+                  "insertValue": "{cursor}b",
+                  "name": "Blocks"
+                },
+                {
+                  "insertValue": "{cursor}c",
+                  "name": "Bytes"
+                },
+                {
+                  "insertValue": "{cursor}G",
+                  "name": "Gigabytes"
+                },
+                {
+                  "insertValue": "{cursor}K",
+                  "name": "Kilobytes"
+                },
+                {
+                  "insertValue": "{cursor}M",
+                  "name": "Megabytes"
+                },
+                {
+                  "insertValue": "{cursor}P",
+                  "name": "Petabytes"
+                },
+                {
+                  "insertValue": "{cursor}T",
+                  "name": "Terabytes"
+                },
+                {
+                  "insertValue": "{cursor}w",
+                  "name": "Words"
+                }
+              ]
+            }
+          ],
+          "description": "Change tape after writing Nx1024 bytes",
+          "name": [
+            "L",
+            "-L",
+            "--tape-length"
+          ]
+        },
+        {
+          "description": "Create/list/extract multi-volume archive",
+          "name": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rmt when accessing remote archives",
+          "name": "--rmt-command"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rsh when accessing remote archives",
+          "name": "--rsh-command"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "dependsOn": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ],
+          "description": "Tar will keep track of which volume of a multi-volume archive it is working in FILE",
+          "name": "--volno-file"
+        },
+        {
+          "description": "Assume the archive is seekable",
+          "exclusiveOn": [
+            "--no-seek"
+          ],
+          "name": [
+            "n",
+            "-n",
+            "--seek"
+          ]
+        },
+        {
+          "description": "Assume the archive is not seekable",
+          "exclusiveOn": [
+            "n",
+            "-n",
+            "--seek"
+          ],
+          "name": "--no-seek"
+        },
+        {
+          "args": [
+            {
+              "default": "1",
+              "isOptional": true,
+              "name": "N"
+            }
+          ],
+          "description": "Process only the Nth occurrence of each file in the archive",
+          "name": "--occurrence"
+        },
+        {
+          "description": "When listing or extracting, accept incomplete input records after end-of-file marker",
+          "name": [
+            "B",
+            "-B",
+            "--read-full-records"
+          ]
+        },
+        {
+          "description": "Ignore zeroed blocks in archive",
+          "name": [
+            "i",
+            "-i",
+            "--ignore-zeros"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "TEXT"
+            }
+          ],
+          "description": "Use TEXT as a globbing pattern for volume name",
+          "name": [
+            "V",
+            "-V",
+            "--label"
+          ]
+        },
+        {
+          "description": "Use archive suffix to determine the compression program",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "a",
+            "-a",
+            "--auto-compress"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Filter data through COMMAND",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "I",
+            "-I",
+            "--use-compress-program"
+          ]
+        },
+        {
+          "description": "Filter the archive through bzip2",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "j",
+            "-j",
+            "--bzip2"
+          ]
+        },
+        {
+          "description": "Filter the archive through xz",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "J",
+            "-J",
+            "--xz"
+          ]
+        },
+        {
+          "description": "Filter the archive through lzip",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzip"
+        },
+        {
+          "description": "Filter the archive through lzma",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzma"
+        },
+        {
+          "description": "Filter the archive through lzop",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzop"
+        },
+        {
+          "description": "Do not use archive suffix to determine the compression program",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--no-auto-compress"
+        },
+        {
+          "description": "Filter the archive through gzip",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip"
+          ]
+        },
+        {
+          "description": "Filter the archive through compress",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress"
+          ]
+        },
+        {
+          "description": "Filter the archive through zstd",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--zstd"
+        },
+        {
+          "args": [
+            {
+              "name": "EXPRESSION"
+            }
+          ],
+          "description": "Use sed replace EXPRESSION to transform file names",
+          "name": [
+            "--transform",
+            "--xform"
+          ]
+        },
+        {
+          "args": [
+            {
+              "default": "10",
+              "isOptional": true,
+              "name": "N"
+            }
+          ],
+          "description": "Display progress messages every Nth record",
+          "name": "--checkpoint"
+        },
+        {
+          "args": [
+            {
+              "name": "ACTION"
+            }
+          ],
+          "description": "Run ACTION on each checkpoint",
+          "name": "--checkpoint-action"
+        },
+        {
+          "dependsOn": [
+            "v",
+            "-v",
+            "--verbose"
+          ],
+          "description": "Print file time to its full resolution",
+          "name": "--full-time"
+        },
+        {
+          "dependsOn": [
+            "v",
+            "-v",
+            "--verbose"
+          ],
+          "description": "Print file modification times in UTC",
+          "name": "--utc"
+        },
+        {
+          "args": [
+            {
+              "name": "MEMBER"
+            }
+          ],
+          "description": "Begin at the given member in the archive",
+          "name": [
+            "K",
+            "-K",
+            "--starting-file"
+          ]
+        },
+        {
+          "description": "List each directory that does not match search criteria",
+          "name": "--show-omitted-dirs"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "isVariadic": true,
+          "name": "FILE",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Append files to the end of an archive",
+      "name": [
+        "r",
+        "-r",
+        "--append"
+      ],
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ARCHIVE"
+            }
+          ],
+          "description": "Use archive file or device ARCHIVE",
+          "isRequired": true,
+          "name": [
+            "f",
+            "-f",
+            "--file"
+          ]
+        },
+        {
+          "dependsOn": [
+            "f",
+            "-f",
+            "--file"
+          ],
+          "description": "Archive file is local even if it has a colon",
+          "name": "--force-local"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Run  COMMAND  at the end of each tape",
+          "name": [
+            "F",
+            "-F",
+            "--info-script",
+            "--new-volume-script"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "N",
+              "suggestions": [
+                {
+                  "insertValue": "{cursor}b",
+                  "name": "Blocks"
+                },
+                {
+                  "insertValue": "{cursor}c",
+                  "name": "Bytes"
+                },
+                {
+                  "insertValue": "{cursor}G",
+                  "name": "Gigabytes"
+                },
+                {
+                  "insertValue": "{cursor}K",
+                  "name": "Kilobytes"
+                },
+                {
+                  "insertValue": "{cursor}M",
+                  "name": "Megabytes"
+                },
+                {
+                  "insertValue": "{cursor}P",
+                  "name": "Petabytes"
+                },
+                {
+                  "insertValue": "{cursor}T",
+                  "name": "Terabytes"
+                },
+                {
+                  "insertValue": "{cursor}w",
+                  "name": "Words"
+                }
+              ]
+            }
+          ],
+          "description": "Change tape after writing Nx1024 bytes",
+          "name": [
+            "L",
+            "-L",
+            "--tape-length"
+          ]
+        },
+        {
+          "description": "Create/list/extract multi-volume archive",
+          "name": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rmt when accessing remote archives",
+          "name": "--rmt-command"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rsh when accessing remote archives",
+          "name": "--rsh-command"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "dependsOn": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ],
+          "description": "Tar will keep track of which volume of a multi-volume archive it is working in FILE",
+          "name": "--volno-file"
+        },
+        {
+          "description": "Do not exit with nonzero on unreadable files",
+          "name": "--ignore-failed-read"
+        },
+        {
+          "dependsOn": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ],
+          "description": "Disable the use of some potentially harmful options",
+          "name": "--restrict"
+        },
+        {
+          "description": "Remove files from disk after adding them to the archive",
+          "name": "--remove-files"
+        },
+        {
+          "description": "Verify the archive after writing it",
+          "name": [
+            "W",
+            "-W",
+            "--verify"
+          ]
+        },
+        {
+          "args": [
+            {
+              "default": "replace",
+              "isOptional": true,
+              "name": "METHOD",
+              "suggestions": [
+                {
+                  "description": "Restore the times after reading",
+                  "name": "replace"
+                },
+                {
+                  "description": "Not setting the times in the first place",
+                  "name": "system"
+                }
+              ]
+            }
+          ],
+          "description": "Preserve access times on dumped files",
+          "name": "--atime-preserve"
+        },
+        {
+          "args": [
+            {
+              "description": "If GID is not supplied, NAME can be either a user name or numeric GID",
+              "name": "NAME[:GID]"
+            }
+          ],
+          "description": "Force NAME as group for added files",
+          "name": "--group"
+        },
+        {
+          "args": [
+            {
+              "description": "Each non-empty line in FILE defines translation for a single group",
+              "name": "FILE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Read group translation map from FILE",
+          "name": "--group-map"
+        },
+        {
+          "args": [
+            {
+              "name": "CHANGES"
+            }
+          ],
+          "description": "Force symbolic mode CHANGES for added files",
+          "name": "--mode"
+        },
+        {
+          "args": [
+            {
+              "description": "Either a date/time in almost arbitrary format, or the name of an existing file",
+              "name": "DATE-OR-FILE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Set mtime for added files",
+          "name": "--mtime"
+        },
+        {
+          "args": [
+            {
+              "description": "If UID is not supplied, NAME can be either a user name or numeric UID",
+              "name": "NAME[:GID]"
+            }
+          ],
+          "description": "Force NAME as owner for added files",
+          "name": "--owner"
+        },
+        {
+          "args": [
+            {
+              "description": "Each non-empty line in FILE defines translation for a single UID",
+              "name": "FILE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Read owner translation map from FILE",
+          "name": "--owner-map"
+        },
+        {
+          "args": [
+            {
+              "default": "none",
+              "name": "ORDER",
+              "suggestions": [
+                "none",
+                "name",
+                "inode"
+              ]
+            }
+          ],
+          "description": "When creating an archive, sort directory entries according to ORDER",
+          "name": "--sort"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Add FILE to the archive",
+          "name": "--add-file"
+        },
+        {
+          "args": [
+            {
+              "description": "A glob-style wildcard pattern",
+              "name": "PATTERN"
+            }
+          ],
+          "description": "Exclude files matching PATTERN",
+          "name": "--exclude"
+        },
+        {
+          "description": "Exclude backup and lock files",
+          "name": "--exclude-backups"
+        },
+        {
+          "description": "Exclude contents of directories containing file CACHEDIR.TAG, except for the tag file itself",
+          "exclusiveOn": [
+            "--exclude-caches-all",
+            "--exclude-caches-under"
+          ],
+          "name": "--exclude-caches"
+        },
+        {
+          "description": "Exclude directories containing file CACHEDIR.TAG and the file itself",
+          "exclusiveOn": [
+            "--exclude-caches",
+            "--exclude-caches-under"
+          ],
+          "name": "--exclude-caches-all"
+        },
+        {
+          "description": "Exclude everything under directories containing CACHEDIR.TAG",
+          "exclusiveOn": [
+            "--exclude-caches",
+            "--exclude-caches-all"
+          ],
+          "name": "--exclude-caches-under"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Read exclusion patterns from FILE in directory before dumping",
+          "exclusiveOn": [
+            "--exclude-ignore-recursive"
+          ],
+          "name": "--exclude-ignore"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Same  as --exclude-ignore, except that patterns from FILE affect both the directory and all its subdirectories",
+          "exclusiveOn": [
+            "--exclude-ignore"
+          ],
+          "name": "--exclude-ignore-recursive"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Exclude contents of directories containing FILE, except for FILE itself",
+          "exclusiveOn": [
+            "--exclude-tag-all",
+            "--exclude-tag-under"
+          ],
+          "name": "--exclude-tag"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Exclude directories containing FILE",
+          "exclusiveOn": [
+            "--exclude-tag",
+            "--exclude-tag-under"
+          ],
+          "name": "--exclude-tag-all"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Exclude everything under directories containing FILE",
+          "exclusiveOn": [
+            "--exclude-tag",
+            "--exclude-tag-all"
+          ],
+          "name": "--exclude-tag-under"
+        },
+        {
+          "description": "Exclude version control system directories",
+          "exclusiveOn": [
+            "--exclude-vcs-ignores"
+          ],
+          "name": "--exclude-vcs"
+        },
+        {
+          "description": "Exclude files that match patterns read from VCS-specific ignore files",
+          "exclusiveOn": [
+            "--exclude-vcs"
+          ],
+          "name": "--exclude-vcs-ignores"
+        },
+        {
+          "description": "Follow symlinks; archive and dump the files they point to",
+          "name": [
+            "h",
+            "-h",
+            "--dereference"
+          ]
+        },
+        {
+          "description": "Follow hard links; archive and dump the files they refer to",
+          "name": "--hard-dereference"
+        },
+        {
+          "args": [
+            {
+              "description": "If DATE starts with / or . it is taken to be a file name",
+              "name": "DATE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Only store files newer than DATE",
+          "name": [
+            "N",
+            "-N",
+            "--newer",
+            "--after-date"
+          ]
+        },
+        {
+          "description": "Stay in local file system when creating archive",
+          "name": "--one-file-system"
+        },
+        {
+          "description": "Don't strip leading slashes from file names",
+          "name": [
+            "P",
+            "-P",
+            "--absolute-names"
+          ]
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Patterns match file name start",
+          "exclusiveOn": [
+            "--no-anchored"
+          ],
+          "name": "--anchored"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Ignore case",
+          "exclusiveOn": [
+            "--no-ignore-case"
+          ],
+          "name": "--ignore-case"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Patterns match after any /",
+          "exclusiveOn": [
+            "--anchored"
+          ],
+          "name": "--no-anchored"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Case sensitive matching",
+          "exclusiveOn": [
+            "--ignore-case"
+          ],
+          "name": "--no-ignore-case"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Verbatim string matching",
+          "exclusiveOn": [
+            "--wildcards"
+          ],
+          "name": "--no-wildcards"
+        },
+        {
+          "dependsOn": [
+            "--exclude",
+            "--wildcards"
+          ],
+          "description": "Wildcards do not match /",
+          "exclusiveOn": [
+            "--no-wildcards",
+            "--wildcards-match-slash"
+          ],
+          "name": "--no-wildcards-match-slash"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Use wildcards",
+          "exclusiveOn": [
+            "--no-wildcards"
+          ],
+          "name": "--wildcards"
+        },
+        {
+          "dependsOn": [
+            "--exclude",
+            "--wildcards"
+          ],
+          "description": "Wildcards match /",
+          "exclusiveOn": [
+            "--no-wildcards",
+            "--no-wildcards-match-slash"
+          ],
+          "name": "--wildcards-match-slash"
+        },
+        {
+          "dependsOn": [
+            "--mtime"
+          ],
+          "description": "Only set time when the file is more recent than what was given with --mtime",
+          "name": "--clamp-mtime"
+        },
+        {
+          "description": "Print a message if not all links are dumped",
+          "name": [
+            "l",
+            "-l",
+            "--check-links"
+          ]
+        },
+        {
+          "description": "Use archive suffix to determine the compression program",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "a",
+            "-a",
+            "--auto-compress"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Filter data through COMMAND",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "I",
+            "-I",
+            "--use-compress-program"
+          ]
+        },
+        {
+          "description": "Filter the archive through bzip2",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "j",
+            "-j",
+            "--bzip2"
+          ]
+        },
+        {
+          "description": "Filter the archive through xz",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "J",
+            "-J",
+            "--xz"
+          ]
+        },
+        {
+          "description": "Filter the archive through lzip",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzip"
+        },
+        {
+          "description": "Filter the archive through lzma",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzma"
+        },
+        {
+          "description": "Filter the archive through lzop",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzop"
+        },
+        {
+          "description": "Do not use archive suffix to determine the compression program",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--no-auto-compress"
+        },
+        {
+          "description": "Filter the archive through gzip",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip"
+          ]
+        },
+        {
+          "description": "Filter the archive through compress",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress"
+          ]
+        },
+        {
+          "description": "Filter the archive through zstd",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--zstd"
+        },
+        {
+          "args": [
+            {
+              "name": "EXPRESSION"
+            }
+          ],
+          "description": "Use sed replace EXPRESSION to transform file names",
+          "name": [
+            "--transform",
+            "--xform"
+          ]
+        },
+        {
+          "args": [
+            {
+              "default": "10",
+              "isOptional": true,
+              "name": "N"
+            }
+          ],
+          "description": "Display progress messages every Nth record",
+          "name": "--checkpoint"
+        },
+        {
+          "args": [
+            {
+              "name": "ACTION"
+            }
+          ],
+          "description": "Run ACTION on each checkpoint",
+          "name": "--checkpoint-action"
+        },
+        {
+          "dependsOn": [
+            "v",
+            "-v",
+            "--verbose"
+          ],
+          "description": "Print file time to its full resolution",
+          "name": "--full-time"
+        },
+        {
+          "dependsOn": [
+            "v",
+            "-v",
+            "--verbose"
+          ],
+          "description": "Print file modification times in UTC",
+          "name": "--utc"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "isVariadic": true,
+          "name": "FILE",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Append files which are newer than the corresponding copy in  the archive",
+      "name": [
+        "u",
+        "-u",
+        "--update"
+      ],
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ARCHIVE"
+            }
+          ],
+          "description": "Use archive file or device ARCHIVE",
+          "isRequired": true,
+          "name": [
+            "f",
+            "-f",
+            "--file"
+          ]
+        },
+        {
+          "dependsOn": [
+            "f",
+            "-f",
+            "--file"
+          ],
+          "description": "Archive file is local even if it has a colon",
+          "name": "--force-local"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Run  COMMAND  at the end of each tape",
+          "name": [
+            "F",
+            "-F",
+            "--info-script",
+            "--new-volume-script"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "N",
+              "suggestions": [
+                {
+                  "insertValue": "{cursor}b",
+                  "name": "Blocks"
+                },
+                {
+                  "insertValue": "{cursor}c",
+                  "name": "Bytes"
+                },
+                {
+                  "insertValue": "{cursor}G",
+                  "name": "Gigabytes"
+                },
+                {
+                  "insertValue": "{cursor}K",
+                  "name": "Kilobytes"
+                },
+                {
+                  "insertValue": "{cursor}M",
+                  "name": "Megabytes"
+                },
+                {
+                  "insertValue": "{cursor}P",
+                  "name": "Petabytes"
+                },
+                {
+                  "insertValue": "{cursor}T",
+                  "name": "Terabytes"
+                },
+                {
+                  "insertValue": "{cursor}w",
+                  "name": "Words"
+                }
+              ]
+            }
+          ],
+          "description": "Change tape after writing Nx1024 bytes",
+          "name": [
+            "L",
+            "-L",
+            "--tape-length"
+          ]
+        },
+        {
+          "description": "Create/list/extract multi-volume archive",
+          "name": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rmt when accessing remote archives",
+          "name": "--rmt-command"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rsh when accessing remote archives",
+          "name": "--rsh-command"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "dependsOn": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ],
+          "description": "Tar will keep track of which volume of a multi-volume archive it is working in FILE",
+          "name": "--volno-file"
+        },
+        {
+          "description": "Do not exit with nonzero on unreadable files",
+          "name": "--ignore-failed-read"
+        },
+        {
+          "dependsOn": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ],
+          "description": "Disable the use of some potentially harmful options",
+          "name": "--restrict"
+        },
+        {
+          "description": "Remove files from disk after adding them to the archive",
+          "name": "--remove-files"
+        },
+        {
+          "description": "Verify the archive after writing it",
+          "name": [
+            "W",
+            "-W",
+            "--verify"
+          ]
+        },
+        {
+          "args": [
+            {
+              "default": "replace",
+              "isOptional": true,
+              "name": "METHOD",
+              "suggestions": [
+                {
+                  "description": "Restore the times after reading",
+                  "name": "replace"
+                },
+                {
+                  "description": "Not setting the times in the first place",
+                  "name": "system"
+                }
+              ]
+            }
+          ],
+          "description": "Preserve access times on dumped files",
+          "name": "--atime-preserve"
+        },
+        {
+          "args": [
+            {
+              "description": "If GID is not supplied, NAME can be either a user name or numeric GID",
+              "name": "NAME[:GID]"
+            }
+          ],
+          "description": "Force NAME as group for added files",
+          "name": "--group"
+        },
+        {
+          "args": [
+            {
+              "description": "Each non-empty line in FILE defines translation for a single group",
+              "name": "FILE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Read group translation map from FILE",
+          "name": "--group-map"
+        },
+        {
+          "args": [
+            {
+              "name": "CHANGES"
+            }
+          ],
+          "description": "Force symbolic mode CHANGES for added files",
+          "name": "--mode"
+        },
+        {
+          "args": [
+            {
+              "description": "Either a date/time in almost arbitrary format, or the name of an existing file",
+              "name": "DATE-OR-FILE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Set mtime for added files",
+          "name": "--mtime"
+        },
+        {
+          "args": [
+            {
+              "description": "If UID is not supplied, NAME can be either a user name or numeric UID",
+              "name": "NAME[:GID]"
+            }
+          ],
+          "description": "Force NAME as owner for added files",
+          "name": "--owner"
+        },
+        {
+          "args": [
+            {
+              "description": "Each non-empty line in FILE defines translation for a single UID",
+              "name": "FILE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Read owner translation map from FILE",
+          "name": "--owner-map"
+        },
+        {
+          "args": [
+            {
+              "default": "none",
+              "name": "ORDER",
+              "suggestions": [
+                "none",
+                "name",
+                "inode"
+              ]
+            }
+          ],
+          "description": "When creating an archive, sort directory entries according to ORDER",
+          "name": "--sort"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Add FILE to the archive",
+          "name": "--add-file"
+        },
+        {
+          "args": [
+            {
+              "description": "A glob-style wildcard pattern",
+              "name": "PATTERN"
+            }
+          ],
+          "description": "Exclude files matching PATTERN",
+          "name": "--exclude"
+        },
+        {
+          "description": "Exclude backup and lock files",
+          "name": "--exclude-backups"
+        },
+        {
+          "description": "Exclude contents of directories containing file CACHEDIR.TAG, except for the tag file itself",
+          "exclusiveOn": [
+            "--exclude-caches-all",
+            "--exclude-caches-under"
+          ],
+          "name": "--exclude-caches"
+        },
+        {
+          "description": "Exclude directories containing file CACHEDIR.TAG and the file itself",
+          "exclusiveOn": [
+            "--exclude-caches",
+            "--exclude-caches-under"
+          ],
+          "name": "--exclude-caches-all"
+        },
+        {
+          "description": "Exclude everything under directories containing CACHEDIR.TAG",
+          "exclusiveOn": [
+            "--exclude-caches",
+            "--exclude-caches-all"
+          ],
+          "name": "--exclude-caches-under"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Read exclusion patterns from FILE in directory before dumping",
+          "exclusiveOn": [
+            "--exclude-ignore-recursive"
+          ],
+          "name": "--exclude-ignore"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Same  as --exclude-ignore, except that patterns from FILE affect both the directory and all its subdirectories",
+          "exclusiveOn": [
+            "--exclude-ignore"
+          ],
+          "name": "--exclude-ignore-recursive"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Exclude contents of directories containing FILE, except for FILE itself",
+          "exclusiveOn": [
+            "--exclude-tag-all",
+            "--exclude-tag-under"
+          ],
+          "name": "--exclude-tag"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Exclude directories containing FILE",
+          "exclusiveOn": [
+            "--exclude-tag",
+            "--exclude-tag-under"
+          ],
+          "name": "--exclude-tag-all"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "description": "Exclude everything under directories containing FILE",
+          "exclusiveOn": [
+            "--exclude-tag",
+            "--exclude-tag-all"
+          ],
+          "name": "--exclude-tag-under"
+        },
+        {
+          "description": "Exclude version control system directories",
+          "exclusiveOn": [
+            "--exclude-vcs-ignores"
+          ],
+          "name": "--exclude-vcs"
+        },
+        {
+          "description": "Exclude files that match patterns read from VCS-specific ignore files",
+          "exclusiveOn": [
+            "--exclude-vcs"
+          ],
+          "name": "--exclude-vcs-ignores"
+        },
+        {
+          "description": "Follow symlinks; archive and dump the files they point to",
+          "name": [
+            "h",
+            "-h",
+            "--dereference"
+          ]
+        },
+        {
+          "description": "Follow hard links; archive and dump the files they refer to",
+          "name": "--hard-dereference"
+        },
+        {
+          "args": [
+            {
+              "description": "If DATE starts with / or . it is taken to be a file name",
+              "name": "DATE",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Only store files newer than DATE",
+          "name": [
+            "N",
+            "-N",
+            "--newer",
+            "--after-date"
+          ]
+        },
+        {
+          "description": "Stay in local file system when creating archive",
+          "name": "--one-file-system"
+        },
+        {
+          "description": "Don't strip leading slashes from file names",
+          "name": [
+            "P",
+            "-P",
+            "--absolute-names"
+          ]
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Patterns match file name start",
+          "exclusiveOn": [
+            "--no-anchored"
+          ],
+          "name": "--anchored"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Ignore case",
+          "exclusiveOn": [
+            "--no-ignore-case"
+          ],
+          "name": "--ignore-case"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Patterns match after any /",
+          "exclusiveOn": [
+            "--anchored"
+          ],
+          "name": "--no-anchored"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Case sensitive matching",
+          "exclusiveOn": [
+            "--ignore-case"
+          ],
+          "name": "--no-ignore-case"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Verbatim string matching",
+          "exclusiveOn": [
+            "--wildcards"
+          ],
+          "name": "--no-wildcards"
+        },
+        {
+          "dependsOn": [
+            "--exclude",
+            "--wildcards"
+          ],
+          "description": "Wildcards do not match /",
+          "exclusiveOn": [
+            "--no-wildcards",
+            "--wildcards-match-slash"
+          ],
+          "name": "--no-wildcards-match-slash"
+        },
+        {
+          "dependsOn": [
+            "--exclude"
+          ],
+          "description": "Use wildcards",
+          "exclusiveOn": [
+            "--no-wildcards"
+          ],
+          "name": "--wildcards"
+        },
+        {
+          "dependsOn": [
+            "--exclude",
+            "--wildcards"
+          ],
+          "description": "Wildcards match /",
+          "exclusiveOn": [
+            "--no-wildcards",
+            "--no-wildcards-match-slash"
+          ],
+          "name": "--wildcards-match-slash"
+        },
+        {
+          "dependsOn": [
+            "--mtime"
+          ],
+          "description": "Only set time when the file is more recent than what was given with --mtime",
+          "name": "--clamp-mtime"
+        },
+        {
+          "description": "Print a message if not all links are dumped",
+          "name": [
+            "l",
+            "-l",
+            "--check-links"
+          ]
+        },
+        {
+          "description": "Use archive suffix to determine the compression program",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "a",
+            "-a",
+            "--auto-compress"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Filter data through COMMAND",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "I",
+            "-I",
+            "--use-compress-program"
+          ]
+        },
+        {
+          "description": "Filter the archive through bzip2",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "j",
+            "-j",
+            "--bzip2"
+          ]
+        },
+        {
+          "description": "Filter the archive through xz",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "J",
+            "-J",
+            "--xz"
+          ]
+        },
+        {
+          "description": "Filter the archive through lzip",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzip"
+        },
+        {
+          "description": "Filter the archive through lzma",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzma"
+        },
+        {
+          "description": "Filter the archive through lzop",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzop"
+        },
+        {
+          "description": "Do not use archive suffix to determine the compression program",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--no-auto-compress"
+        },
+        {
+          "description": "Filter the archive through gzip",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip"
+          ]
+        },
+        {
+          "description": "Filter the archive through compress",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress"
+          ]
+        },
+        {
+          "description": "Filter the archive through zstd",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--zstd"
+        },
+        {
+          "args": [
+            {
+              "name": "EXPRESSION"
+            }
+          ],
+          "description": "Use sed replace EXPRESSION to transform file names",
+          "name": [
+            "--transform",
+            "--xform"
+          ]
+        },
+        {
+          "args": [
+            {
+              "default": "10",
+              "isOptional": true,
+              "name": "N"
+            }
+          ],
+          "description": "Display progress messages every Nth record",
+          "name": "--checkpoint"
+        },
+        {
+          "args": [
+            {
+              "name": "ACTION"
+            }
+          ],
+          "description": "Run ACTION on each checkpoint",
+          "name": "--checkpoint-action"
+        },
+        {
+          "dependsOn": [
+            "v",
+            "-v",
+            "--verbose"
+          ],
+          "description": "Print file time to its full resolution",
+          "name": "--full-time"
+        },
+        {
+          "dependsOn": [
+            "v",
+            "-v",
+            "--verbose"
+          ],
+          "description": "Print file modification times in UTC",
+          "name": "--utc"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "isOptional": true,
+          "isVariadic": true,
+          "name": "MEMBER"
+        }
+      ],
+      "description": "Extract files from an archive",
+      "name": [
+        "x",
+        "-x",
+        "--extract",
+        "--get"
+      ],
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ARCHIVE"
+            }
+          ],
+          "description": "Use archive file or device ARCHIVE",
+          "isRequired": true,
+          "name": [
+            "f",
+            "-f",
+            "--file"
+          ]
+        },
+        {
+          "dependsOn": [
+            "f",
+            "-f",
+            "--file"
+          ],
+          "description": "Archive file is local even if it has a colon",
+          "name": "--force-local"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Run  COMMAND  at the end of each tape",
+          "name": [
+            "F",
+            "-F",
+            "--info-script",
+            "--new-volume-script"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "N",
+              "suggestions": [
+                {
+                  "insertValue": "{cursor}b",
+                  "name": "Blocks"
+                },
+                {
+                  "insertValue": "{cursor}c",
+                  "name": "Bytes"
+                },
+                {
+                  "insertValue": "{cursor}G",
+                  "name": "Gigabytes"
+                },
+                {
+                  "insertValue": "{cursor}K",
+                  "name": "Kilobytes"
+                },
+                {
+                  "insertValue": "{cursor}M",
+                  "name": "Megabytes"
+                },
+                {
+                  "insertValue": "{cursor}P",
+                  "name": "Petabytes"
+                },
+                {
+                  "insertValue": "{cursor}T",
+                  "name": "Terabytes"
+                },
+                {
+                  "insertValue": "{cursor}w",
+                  "name": "Words"
+                }
+              ]
+            }
+          ],
+          "description": "Change tape after writing Nx1024 bytes",
+          "name": [
+            "L",
+            "-L",
+            "--tape-length"
+          ]
+        },
+        {
+          "description": "Create/list/extract multi-volume archive",
+          "name": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rmt when accessing remote archives",
+          "name": "--rmt-command"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rsh when accessing remote archives",
+          "name": "--rsh-command"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "dependsOn": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ],
+          "description": "Tar will keep track of which volume of a multi-volume archive it is working in FILE",
+          "name": "--volno-file"
+        },
+        {
+          "description": "Assume the archive is seekable",
+          "exclusiveOn": [
+            "--no-seek"
+          ],
+          "name": [
+            "n",
+            "-n",
+            "--seek"
+          ]
+        },
+        {
+          "description": "Assume the archive is not seekable",
+          "exclusiveOn": [
+            "n",
+            "-n",
+            "--seek"
+          ],
+          "name": "--no-seek"
+        },
+        {
+          "args": [
+            {
+              "default": "1",
+              "isOptional": true,
+              "name": "N"
+            }
+          ],
+          "description": "Process only the Nth occurrence of each file in the archive",
+          "name": "--occurrence"
+        },
+        {
+          "description": "When listing or extracting, accept incomplete input records after end-of-file marker",
+          "name": [
+            "B",
+            "-B",
+            "--read-full-records"
+          ]
+        },
+        {
+          "description": "Ignore zeroed blocks in archive",
+          "name": [
+            "i",
+            "-i",
+            "--ignore-zeros"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "TEXT"
+            }
+          ],
+          "description": "Use TEXT as a globbing pattern for volume name",
+          "name": [
+            "V",
+            "-V",
+            "--label"
+          ]
+        },
+        {
+          "description": "Use archive suffix to determine the compression program",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "a",
+            "-a",
+            "--auto-compress"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Filter data through COMMAND",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "I",
+            "-I",
+            "--use-compress-program"
+          ]
+        },
+        {
+          "description": "Filter the archive through bzip2",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "j",
+            "-j",
+            "--bzip2"
+          ]
+        },
+        {
+          "description": "Filter the archive through xz",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "J",
+            "-J",
+            "--xz"
+          ]
+        },
+        {
+          "description": "Filter the archive through lzip",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzip"
+        },
+        {
+          "description": "Filter the archive through lzma",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzma"
+        },
+        {
+          "description": "Filter the archive through lzop",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--lzop"
+        },
+        {
+          "description": "Do not use archive suffix to determine the compression program",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--no-auto-compress"
+        },
+        {
+          "description": "Filter the archive through gzip",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip"
+          ]
+        },
+        {
+          "description": "Filter the archive through compress",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": [
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress"
+          ]
+        },
+        {
+          "description": "Filter the archive through zstd",
+          "exclusiveOn": [
+            "a",
+            "-a",
+            "--auto-compress",
+            "I",
+            "-I",
+            "--use-compress-program",
+            "j",
+            "-j",
+            "--bzip2",
+            "J",
+            "-J",
+            "--xz",
+            "--lzip",
+            "--lzma",
+            "--lzop",
+            "--no-auto-compress",
+            "z",
+            "-z",
+            "--gzip",
+            "--gunzip",
+            "--ungzip",
+            "Z",
+            "-Z",
+            "--compress",
+            "--uncompress",
+            "--zstd"
+          ],
+          "name": "--zstd"
+        },
+        {
+          "args": [
+            {
+              "name": "EXPRESSION"
+            }
+          ],
+          "description": "Use sed replace EXPRESSION to transform file names",
+          "name": [
+            "--transform",
+            "--xform"
+          ]
+        },
+        {
+          "args": [
+            {
+              "default": "10",
+              "isOptional": true,
+              "name": "N"
+            }
+          ],
+          "description": "Display progress messages every Nth record",
+          "name": "--checkpoint"
+        },
+        {
+          "args": [
+            {
+              "name": "ACTION"
+            }
+          ],
+          "description": "Run ACTION on each checkpoint",
+          "name": "--checkpoint-action"
+        },
+        {
+          "dependsOn": [
+            "v",
+            "-v",
+            "--verbose"
+          ],
+          "description": "Print file time to its full resolution",
+          "name": "--full-time"
+        },
+        {
+          "dependsOn": [
+            "v",
+            "-v",
+            "--verbose"
+          ],
+          "description": "Print file modification times in UTC",
+          "name": "--utc"
+        },
+        {
+          "args": [
+            {
+              "name": "MEMBER"
+            }
+          ],
+          "description": "Begin at the given member in the archive",
+          "name": [
+            "K",
+            "-K",
+            "--starting-file"
+          ]
+        },
+        {
+          "description": "List each directory that does not match search criteria",
+          "name": "--show-omitted-dirs"
+        },
+        {
+          "description": "Don't replace existing files when extracting",
+          "exclusiveOn": [
+            "--keep-newer-files",
+            "--keep-directory-symlink",
+            "--no-overwrite-dir",
+            "k",
+            "-k",
+            "--keep-old-files",
+            "--overwrite",
+            "--overwrite-dir",
+            "--recursive-unlink",
+            "--skip-old-files",
+            "U",
+            "-U",
+            "--unlink-first",
+            "O",
+            "-O",
+            "--to-stdout"
+          ],
+          "name": [
+            "k",
+            "-k",
+            "--keep-old-files"
+          ]
+        },
+        {
+          "description": "Don't replace existing files that are newer than their archive copies",
+          "exclusiveOn": [
+            "k",
+            "-k",
+            "--keep-old-files",
+            "--overwrite",
+            "--overwrite-dir",
+            "--recursive-unlink",
+            "--skip-old-files",
+            "U",
+            "-U",
+            "--unlink-first",
+            "O",
+            "-O",
+            "--to-stdout"
+          ],
+          "name": "--keep-newer-files"
+        },
+        {
+          "description": "Don't replace existing symlinks to directories when extracting",
+          "exclusiveOn": [
+            "k",
+            "-k",
+            "--keep-old-files",
+            "--overwrite",
+            "--overwrite-dir",
+            "--recursive-unlink",
+            "--skip-old-files",
+            "U",
+            "-U",
+            "--unlink-first",
+            "O",
+            "-O",
+            "--to-stdout"
+          ],
+          "name": "--keep-directory-symlink"
+        },
+        {
+          "description": "Preserve metadata of existing directories",
+          "exclusiveOn": [
+            "k",
+            "-k",
+            "--keep-old-files",
+            "--overwrite",
+            "--overwrite-dir",
+            "--recursive-unlink",
+            "--skip-old-files",
+            "U",
+            "-U",
+            "--unlink-first",
+            "O",
+            "-O",
+            "--to-stdout"
+          ],
+          "name": "--no-overwrite-dir"
+        },
+        {
+          "args": [
+            {
+              "name": "DIR"
+            }
+          ],
+          "description": "Extract all files into DIR",
+          "name": "--one-top-level"
+        },
+        {
+          "description": "Overwrite existing files when extracting",
+          "exclusiveOn": [
+            "--overwrite-dir",
+            "--recursive-unlink",
+            "k",
+            "-k",
+            "--keep-old-files",
+            "--keep-newer-files",
+            "--keep-directory-symlink",
+            "--no-overwrite-dir",
+            "--overwrite",
+            "--skip-old-files",
+            "U",
+            "-U",
+            "--unlink-first",
+            "O",
+            "-O",
+            "--to-stdout"
+          ],
+          "name": "--overwrite"
+        },
+        {
+          "description": "Overwrite metadata of existing directories when extracting",
+          "exclusiveOn": [
+            "k",
+            "-k",
+            "--keep-old-files",
+            "--keep-newer-files",
+            "--keep-directory-symlink",
+            "--no-overwrite-dir",
+            "--overwrite",
+            "--skip-old-files",
+            "U",
+            "-U",
+            "--unlink-first",
+            "O",
+            "-O",
+            "--to-stdout"
+          ],
+          "name": "--overwrite-dir"
+        },
+        {
+          "description": "Recursively remove all files in the directory prior to extracting it",
+          "exclusiveOn": [
+            "k",
+            "-k",
+            "--keep-old-files",
+            "--keep-newer-files",
+            "--keep-directory-symlink",
+            "--no-overwrite-dir",
+            "--overwrite",
+            "--skip-old-files",
+            "U",
+            "-U",
+            "--unlink-first",
+            "O",
+            "-O",
+            "--to-stdout"
+          ],
+          "name": "--recursive-unlink"
+        },
+        {
+          "description": "Don't replace existing files when extracting, silently skip over them",
+          "exclusiveOn": [
+            "k",
+            "-k",
+            "--keep-old-files",
+            "--overwrite",
+            "--overwrite-dir",
+            "--recursive-unlink",
+            "--skip-old-files",
+            "U",
+            "-U",
+            "--unlink-first",
+            "O",
+            "-O",
+            "--to-stdout",
+            "k",
+            "-k",
+            "--keep-old-files",
+            "--keep-newer-files",
+            "--keep-directory-symlink",
+            "--no-overwrite-dir",
+            "--overwrite",
+            "--skip-old-files",
+            "U",
+            "-U",
+            "--unlink-first",
+            "O",
+            "-O",
+            "--to-stdout"
+          ],
+          "name": "--skip-old-files"
+        },
+        {
+          "description": "Remove each file prior to extracting over it",
+          "exclusiveOn": [
+            "k",
+            "-k",
+            "--keep-old-files",
+            "--overwrite",
+            "--overwrite-dir",
+            "--recursive-unlink",
+            "--skip-old-files",
+            "U",
+            "-U",
+            "--unlink-first",
+            "O",
+            "-O",
+            "--to-stdout",
+            "k",
+            "-k",
+            "--keep-old-files",
+            "--keep-newer-files",
+            "--keep-directory-symlink",
+            "--no-overwrite-dir",
+            "--overwrite",
+            "--skip-old-files",
+            "U",
+            "-U",
+            "--unlink-first",
+            "O",
+            "-O",
+            "--to-stdout"
+          ],
+          "name": [
+            "U",
+            "-U",
+            "--unlink-first"
+          ]
+        },
+        {
+          "description": "Extract files to standard output",
+          "exclusiveOn": [
+            "k",
+            "-k",
+            "--keep-old-files",
+            "--overwrite",
+            "--overwrite-dir",
+            "--recursive-unlink",
+            "--skip-old-files",
+            "U",
+            "-U",
+            "--unlink-first",
+            "O",
+            "-O",
+            "--to-stdout",
+            "k",
+            "-k",
+            "--keep-old-files",
+            "--keep-newer-files",
+            "--keep-directory-symlink",
+            "--no-overwrite-dir",
+            "--overwrite",
+            "--skip-old-files",
+            "U",
+            "-U",
+            "--unlink-first",
+            "O",
+            "-O",
+            "--to-stdout"
+          ],
+          "name": [
+            "O",
+            "-O",
+            "--to-stdout"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Pipe extracted files to COMMAND",
+          "name": "--to-command"
+        },
+        {
+          "description": "Delay setting modification times and permissions of extracted directories until the end of extraction",
+          "exclusiveOn": [
+            "--no-delay-directory-restore"
+          ],
+          "name": "--delay-directory-restore"
+        },
+        {
+          "description": "Don't extract file modified time",
+          "name": [
+            "m",
+            "-m",
+            "--touch"
+          ]
+        },
+        {
+          "description": "Cancel the effect of the prior --delay-directory-restore option",
+          "exclusiveOn": [
+            "--delay-directory-restore"
+          ],
+          "name": "--no-delay-directory-restore"
+        },
+        {
+          "description": "Extract files as yourself",
+          "exclusiveOn": [
+            "--same-owner"
+          ],
+          "name": "--no-same-owner"
+        },
+        {
+          "description": "Apply the user's umask when extracting permissions from the archive",
+          "exclusiveOn": [
+            "p",
+            "-p",
+            "--preserve-permissions",
+            "--same-permissions"
+          ],
+          "name": "--no-same-permissions"
+        },
+        {
+          "description": "Extract information about file permissions",
+          "exclusiveOn": [
+            "--no-same-permissions"
+          ],
+          "name": [
+            "p",
+            "-p",
+            "--preserve-permissions",
+            "--same-permissions"
+          ]
+        },
+        {
+          "description": "Same as both -p and -s",
+          "name": "--preserve"
+        },
+        {
+          "description": "Try extracting files with the same ownership as exists in the archive",
+          "exclusiveOn": [
+            "--no-same-owner"
+          ],
+          "name": "--same-owner"
+        },
+        {
+          "description": "Sort names to extract to match archive",
+          "name": [
+            "s",
+            "-s",
+            "--preserve-order",
+            "--same-order"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "NUMBER"
+            }
+          ],
+          "description": "Strip NUMBER leading components from file names on extraction",
+          "name": "--strip-components"
+        },
+        {
+          "args": [
+            {
+              "default": "all",
+              "name": "KEYWORD",
+              "suggestions": [
+                {
+                  "description": "Enable all warning messages",
+                  "name": "all"
+                },
+                {
+                  "description": "Disable all warning messages",
+                  "name": "none"
+                },
+                {
+                  "description": "\"%s: file name read contains nul character\"",
+                  "name": "filename-with-nuls"
+                },
+                {
+                  "description": "No \"%s: file name read contains nul character\"",
+                  "name": "no-filename-with-nuls"
+                },
+                {
+                  "description": "\"A lone zero block at %s\"",
+                  "name": "alone-zero-block"
+                },
+                {
+                  "description": "No \"A lone zero block at %s\"",
+                  "name": "no-alone-zero-block"
+                },
+                {
+                  "description": "\"%s: skipping existing file\"",
+                  "name": "existing-file"
+                },
+                {
+                  "description": "No \"%s: skipping existing file\"",
+                  "name": "no-existing-file"
+                },
+                {
+                  "description": "\"%s: implausibly old time stamp %s\", \"%s: time stamp %s is %s s in the future\"",
+                  "name": "timestamp"
+                },
+                {
+                  "description": "No \"%s: implausibly old time stamp %s\", \"%s: time stamp %s is %s s in the future\"",
+                  "name": "no-timestamp"
+                },
+                {
+                  "description": "\"Extracting contiguous files as regular files\"",
+                  "name": "contiguous-cast"
+                },
+                {
+                  "description": "No \"Extracting contiguous files as regular files\"",
+                  "name": "no-contiguous-cast"
+                },
+                {
+                  "description": "\"Attempting extraction of symbolic links as hard links\"",
+                  "name": "symlink-cast"
+                },
+                {
+                  "description": "No \"Attempting extraction of symbolic links as hard links\"",
+                  "name": "no-symlink-cast"
+                },
+                {
+                  "description": "\"%s: Unknown file type '%c', extracted as normal file\"",
+                  "name": "unknown-cast"
+                },
+                {
+                  "description": "No \"%s: Unknown file type '%c', extracted as normal file\"",
+                  "name": "no-unknown-cast"
+                },
+                {
+                  "description": "\"Current %s is newer or same age\"",
+                  "name": "ignore-newer"
+                },
+                {
+                  "description": "No \"Current %s is newer or same age\"",
+                  "name": "no-ignore-newer"
+                },
+                {
+                  "description": "\"Ignoring unknown extended header keyword '%s'\"",
+                  "name": "unknown-keyword"
+                },
+                {
+                  "description": "No \"Ignoring unknown extended header keyword '%s'\"",
+                  "name": "no-unknown-keyword"
+                },
+                {
+                  "description": "Enables verbose description of failures occurring when trying to run alternative decompressor programs",
+                  "name": "decompress-program"
+                },
+                {
+                  "description": "Suppresses verbose description of failures occurring when trying to run alternative decompressor programs",
+                  "name": "no-decompress-program"
+                },
+                {
+                  "description": "\"Record size = %lu blocks\"",
+                  "name": "record-size"
+                },
+                {
+                  "description": "No \"Record size = %lu blocks\"",
+                  "name": "no-record-size"
+                },
+                {
+                  "description": "\"%s: Directory has been renamed from %s\", \"%s: Directory has been renamed\"",
+                  "name": "rename-directory"
+                },
+                {
+                  "description": "No \"%s: Directory has been renamed from %s\", \"%s: Directory has been renamed\"",
+                  "name": "no-rename-directory"
+                },
+                {
+                  "description": "\"%s: Directory is new\"",
+                  "name": "new-directory"
+                },
+                {
+                  "description": "No \"%s: Directory is new\"",
+                  "name": "no-new-directory"
+                },
+                {
+                  "description": "\"%s: directory is on a different device: not purging\"",
+                  "name": "xdev"
+                },
+                {
+                  "description": "No \"%s: directory is on a different device: not purging\"",
+                  "name": "no-xdev"
+                },
+                {
+                  "description": "\"Malformed dumpdir: 'X' never used\"",
+                  "name": "bad-dumpdir"
+                }
+              ]
+            }
+          ],
+          "description": "Enable or disable warning messages identified by KEYWORD",
+          "isPersistent": true,
+          "isRepeatable": true,
+          "name": "--warning"
+        },
+        {
+          "description": "Same as --no-same-owner",
+          "exclusiveOn": [
+            "--no-same-owner",
+            "--same-owner"
+          ],
+          "name": [
+            "o",
+            "-o"
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "isVariadic": true,
+          "name": "MEMBER"
+        }
+      ],
+      "description": "Delete from the archive",
+      "name": "--delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ARCHIVE"
+            }
+          ],
+          "description": "Use archive file or device ARCHIVE",
+          "isRequired": true,
+          "name": [
+            "f",
+            "-f",
+            "--file"
+          ]
+        },
+        {
+          "dependsOn": [
+            "f",
+            "-f",
+            "--file"
+          ],
+          "description": "Archive file is local even if it has a colon",
+          "name": "--force-local"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Run  COMMAND  at the end of each tape",
+          "name": [
+            "F",
+            "-F",
+            "--info-script",
+            "--new-volume-script"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "N",
+              "suggestions": [
+                {
+                  "insertValue": "{cursor}b",
+                  "name": "Blocks"
+                },
+                {
+                  "insertValue": "{cursor}c",
+                  "name": "Bytes"
+                },
+                {
+                  "insertValue": "{cursor}G",
+                  "name": "Gigabytes"
+                },
+                {
+                  "insertValue": "{cursor}K",
+                  "name": "Kilobytes"
+                },
+                {
+                  "insertValue": "{cursor}M",
+                  "name": "Megabytes"
+                },
+                {
+                  "insertValue": "{cursor}P",
+                  "name": "Petabytes"
+                },
+                {
+                  "insertValue": "{cursor}T",
+                  "name": "Terabytes"
+                },
+                {
+                  "insertValue": "{cursor}w",
+                  "name": "Words"
+                }
+              ]
+            }
+          ],
+          "description": "Change tape after writing Nx1024 bytes",
+          "name": [
+            "L",
+            "-L",
+            "--tape-length"
+          ]
+        },
+        {
+          "description": "Create/list/extract multi-volume archive",
+          "name": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rmt when accessing remote archives",
+          "name": "--rmt-command"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rsh when accessing remote archives",
+          "name": "--rsh-command"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "dependsOn": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ],
+          "description": "Tar will keep track of which volume of a multi-volume archive it is working in FILE",
+          "name": "--volno-file"
+        },
+        {
+          "args": [
+            {
+              "default": "1",
+              "isOptional": true,
+              "name": "N"
+            }
+          ],
+          "description": "Process only the Nth occurrence of each file in the archive",
+          "name": "--occurrence"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "isOptional": true,
+          "isVariadic": true,
+          "name": "LABEL"
+        }
+      ],
+      "description": "Test the archive volume label and exit",
+      "name": "--test-label",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ARCHIVE"
+            }
+          ],
+          "description": "Use archive file or device ARCHIVE",
+          "isRequired": true,
+          "name": [
+            "f",
+            "-f",
+            "--file"
+          ]
+        },
+        {
+          "dependsOn": [
+            "f",
+            "-f",
+            "--file"
+          ],
+          "description": "Archive file is local even if it has a colon",
+          "name": "--force-local"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Run  COMMAND  at the end of each tape",
+          "name": [
+            "F",
+            "-F",
+            "--info-script",
+            "--new-volume-script"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "N",
+              "suggestions": [
+                {
+                  "insertValue": "{cursor}b",
+                  "name": "Blocks"
+                },
+                {
+                  "insertValue": "{cursor}c",
+                  "name": "Bytes"
+                },
+                {
+                  "insertValue": "{cursor}G",
+                  "name": "Gigabytes"
+                },
+                {
+                  "insertValue": "{cursor}K",
+                  "name": "Kilobytes"
+                },
+                {
+                  "insertValue": "{cursor}M",
+                  "name": "Megabytes"
+                },
+                {
+                  "insertValue": "{cursor}P",
+                  "name": "Petabytes"
+                },
+                {
+                  "insertValue": "{cursor}T",
+                  "name": "Terabytes"
+                },
+                {
+                  "insertValue": "{cursor}w",
+                  "name": "Words"
+                }
+              ]
+            }
+          ],
+          "description": "Change tape after writing Nx1024 bytes",
+          "name": [
+            "L",
+            "-L",
+            "--tape-length"
+          ]
+        },
+        {
+          "description": "Create/list/extract multi-volume archive",
+          "name": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rmt when accessing remote archives",
+          "name": "--rmt-command"
+        },
+        {
+          "args": [
+            {
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Use  COMMAND instead of rsh when accessing remote archives",
+          "name": "--rsh-command"
+        },
+        {
+          "args": [
+            {
+              "name": "FILE"
+            }
+          ],
+          "dependsOn": [
+            "M",
+            "-M",
+            "--multi-volume"
+          ],
+          "description": "Tar will keep track of which volume of a multi-volume archive it is working in FILE",
+          "name": "--volno-file"
+        }
+      ]
+    },
+    {
+      "description": "Show built-in defaults for various tar options and exit",
+      "name": "--show-defaults"
+    },
+    {
+      "description": "Display a short option summary and exit",
+      "name": [
+        "?",
+        "-?",
+        "--help"
+      ]
+    },
+    {
+      "description": "Display a list of available options and exit",
+      "name": "--usage"
+    },
+    {
+      "description": "Print program version and copyright information and exit",
+      "name": "--version"
+    }
+  ]
+}

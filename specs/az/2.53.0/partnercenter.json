@@ -1,0 +1,1513 @@
+{
+  "description": "Partner Center management",
+  "name": "partnercenter",
+  "subcommands": [
+    {
+      "description": "Commands to manage the Partner Center Marketplace",
+      "name": "marketplace",
+      "subcommands": [
+        {
+          "description": "Manage Marketplace offers",
+          "name": "offer",
+          "subcommands": [
+            {
+              "description": "Create a marketplace offer",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "alias"
+                    }
+                  ],
+                  "description": "This name won't be used in the marketplace listing and is solely for reference within Partner Center",
+                  "isRequired": true,
+                  "name": [
+                    "--alias",
+                    "-a"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "offer-id"
+                    }
+                  ],
+                  "description": "Use only lowercase, alphanumeric characters, dashes or underscores. ID cannot be modified",
+                  "isRequired": true,
+                  "name": [
+                    "--offer-id",
+                    "--id"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "type",
+                      "suggestions": [
+                        "AzureApplication",
+                        "AzureConsultingService",
+                        "AzureContainer",
+                        "AzureDynamics365BusinessCentral",
+                        "AzureDynamics365ForCustomerEngagement",
+                        "AzureDynamics365ForOperations",
+                        "AzureIoTEdgeModule",
+                        "AzureManagedService",
+                        "AzurePowerBIApp",
+                        "AzurePowerBIVisual",
+                        "AzureThirdPartyVirtualMachine",
+                        "SoftwareAsAService"
+                      ]
+                    }
+                  ],
+                  "description": "The type of offer to create",
+                  "isRequired": true,
+                  "name": [
+                    "--type",
+                    "-t"
+                  ]
+                },
+                {
+                  "description": "Do not wait for the long-running operation to finish",
+                  "name": "--no-wait"
+                }
+              ]
+            },
+            {
+              "description": "Delete a marketplace offer",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "offer-id"
+                    }
+                  ],
+                  "description": "The offer ID",
+                  "isRequired": true,
+                  "name": [
+                    "--offer-id",
+                    "--id"
+                  ]
+                },
+                {
+                  "description": "Do not wait for the long-running operation to finish",
+                  "name": "--no-wait"
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List marketplace offers",
+              "name": "list"
+            },
+            {
+              "description": "Publishes all draft changes made to a marketplace offer",
+              "name": "publish",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "offer-id"
+                    }
+                  ],
+                  "description": "The offer ID",
+                  "isRequired": true,
+                  "name": [
+                    "--offer-id",
+                    "--id"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "target",
+                      "suggestions": [
+                        "draft",
+                        "live",
+                        "preview"
+                      ]
+                    }
+                  ],
+                  "description": "The target environment type to publish all draft resources",
+                  "isRequired": true,
+                  "name": "--target"
+                }
+              ]
+            },
+            {
+              "description": "Get a marketplace offer",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "offer-id"
+                    }
+                  ],
+                  "description": "The offer ID",
+                  "isRequired": true,
+                  "name": [
+                    "--offer-id",
+                    "--id"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Manage a Marketplace Offer's listing",
+              "name": "listing",
+              "subcommands": [
+                {
+                  "description": "Get the listing of a marketplace offer",
+                  "name": "show",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "offer-id"
+                        }
+                      ],
+                      "description": "The offer ID",
+                      "isRequired": true,
+                      "name": "--offer-id"
+                    }
+                  ]
+                },
+                {
+                  "description": "Update the listing of a marketplace offer",
+                  "name": "update",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "offer-id"
+                        }
+                      ],
+                      "description": "The offer ID",
+                      "isRequired": true,
+                      "name": "--offer-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "add"
+                        }
+                      ],
+                      "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+                      "name": "--add"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "description"
+                        }
+                      ],
+                      "description": "The description of the listing",
+                      "name": "--description"
+                    },
+                    {
+                      "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+                      "name": "--force-string"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "remove"
+                        }
+                      ],
+                      "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+                      "name": "--remove"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "set"
+                        }
+                      ],
+                      "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+                      "name": "--set"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "short-description"
+                        }
+                      ],
+                      "description": "The short description of the listing",
+                      "name": "--short-description"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "summary"
+                        }
+                      ],
+                      "description": "The summary that appears in search results",
+                      "name": "--summary"
+                    }
+                  ]
+                },
+                {
+                  "description": "Manage a Marketplace Offer listing's contacts",
+                  "name": "contact",
+                  "subcommands": [
+                    {
+                      "description": "Add a contact to a marketplace offer listing",
+                      "name": "add",
+                      "options": [
+                        {
+                          "args": [
+                            {
+                              "name": "offer-id"
+                            }
+                          ],
+                          "description": "The offerid",
+                          "isRequired": true,
+                          "name": "--offer-id"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "type"
+                            }
+                          ],
+                          "description": "The contact type",
+                          "isRequired": true,
+                          "name": "--type"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "add"
+                            }
+                          ],
+                          "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+                          "name": "--add"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "email"
+                            }
+                          ],
+                          "description": "The email address of the contact",
+                          "name": "--email"
+                        },
+                        {
+                          "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+                          "name": "--force-string"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "name"
+                            }
+                          ],
+                          "description": "The name of the contact",
+                          "name": "--name"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "phone"
+                            }
+                          ],
+                          "description": "The phone number of the contact",
+                          "name": "--phone"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "remove"
+                            }
+                          ],
+                          "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+                          "name": "--remove"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "set"
+                            }
+                          ],
+                          "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+                          "name": "--set"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "uri"
+                            }
+                          ],
+                          "description": "The uri associated with the contact",
+                          "name": "--uri"
+                        }
+                      ]
+                    },
+                    {
+                      "description": "Delete a contact to a marketplace offer listing",
+                      "name": "delete",
+                      "options": [
+                        {
+                          "args": [
+                            {
+                              "name": "offer-id"
+                            }
+                          ],
+                          "description": "The offerid",
+                          "isRequired": true,
+                          "name": "--offer-id"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "type"
+                            }
+                          ],
+                          "description": "The contact type",
+                          "isRequired": true,
+                          "name": "--type"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "email"
+                            }
+                          ],
+                          "description": "The email address of the contact",
+                          "name": "--email"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "name"
+                            }
+                          ],
+                          "description": "The name of the contact",
+                          "name": "--name"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "phone"
+                            }
+                          ],
+                          "description": "The phone number of the contact",
+                          "name": "--phone"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "uri"
+                            }
+                          ],
+                          "description": "The uri associated with the contact",
+                          "name": "--uri"
+                        },
+                        {
+                          "description": "Do not prompt for confirmation",
+                          "name": [
+                            "--yes",
+                            "-y"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "description": "List the contacts for a marketplace offer listing",
+                      "name": "list",
+                      "options": [
+                        {
+                          "args": [
+                            {
+                              "name": "offer-id"
+                            }
+                          ],
+                          "description": "The offerid",
+                          "isRequired": true,
+                          "name": "--offer-id"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "description": "Manage a Marketplace Offer listing's media including images, videos, and thumbnails",
+                  "name": "media",
+                  "subcommands": [
+                    {
+                      "description": "Add media for a marketplace offer listing",
+                      "name": "add",
+                      "options": [
+                        {
+                          "args": [
+                            {
+                              "name": "file"
+                            }
+                          ],
+                          "description": "The path to the media file",
+                          "isRequired": true,
+                          "name": [
+                            "--file",
+                            "-f"
+                          ]
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "offer-id"
+                            }
+                          ],
+                          "description": "The Offer ID",
+                          "isRequired": true,
+                          "name": [
+                            "--offer-id",
+                            "--id"
+                          ]
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "type",
+                              "suggestions": [
+                                "AzureLogoLarge",
+                                "AzureLogoMedium",
+                                "AzureLogoSmall",
+                                "AzureLogoWide",
+                                "Image",
+                                "Video"
+                              ]
+                            }
+                          ],
+                          "description": "The media type",
+                          "isRequired": true,
+                          "name": [
+                            "--type",
+                            "-t"
+                          ]
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "streaming-uri"
+                            }
+                          ],
+                          "description": "The streaming URI",
+                          "name": "--streaming-uri"
+                        }
+                      ]
+                    },
+                    {
+                      "description": "Delete media for a marketplace offer listing",
+                      "name": "delete",
+                      "options": [
+                        {
+                          "args": [
+                            {
+                              "name": "offer-id"
+                            }
+                          ],
+                          "description": "The Offer ID",
+                          "isRequired": true,
+                          "name": [
+                            "--offer-id",
+                            "--id"
+                          ]
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "type",
+                              "suggestions": [
+                                "AzureLogoLarge",
+                                "AzureLogoMedium",
+                                "AzureLogoSmall",
+                                "AzureLogoWide",
+                                "Image",
+                                "Video"
+                              ]
+                            }
+                          ],
+                          "description": "The media type",
+                          "isRequired": true,
+                          "name": [
+                            "--type",
+                            "-t"
+                          ]
+                        },
+                        {
+                          "description": "Do not prompt for confirmation",
+                          "name": [
+                            "--yes",
+                            "-y"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "description": "List the media for a marketplace offer listing",
+                      "name": "list",
+                      "options": [
+                        {
+                          "args": [
+                            {
+                              "name": "offer-id"
+                            }
+                          ],
+                          "description": "The Offer ID",
+                          "isRequired": true,
+                          "name": [
+                            "--offer-id",
+                            "--id"
+                          ]
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "type",
+                              "suggestions": [
+                                "AzureLogoLarge",
+                                "AzureLogoMedium",
+                                "AzureLogoSmall",
+                                "AzureLogoWide",
+                                "Image",
+                                "Video"
+                              ]
+                            }
+                          ],
+                          "description": "The media type",
+                          "isRequired": true,
+                          "name": [
+                            "--type",
+                            "-t"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "description": "Manage a Marketplace Offer listing's URIs",
+                  "name": "uri",
+                  "subcommands": [
+                    {
+                      "description": "Add a URI for a marketplace offer listing",
+                      "name": "add",
+                      "options": [
+                        {
+                          "args": [
+                            {
+                              "name": "display-text"
+                            }
+                          ],
+                          "description": "The display text of the uri",
+                          "isRequired": true,
+                          "name": "--display-text"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "offer-id"
+                            }
+                          ],
+                          "description": "The offer id",
+                          "isRequired": true,
+                          "name": "--offer-id"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "subtype"
+                            }
+                          ],
+                          "description": "The subtype of the uri",
+                          "isRequired": true,
+                          "name": "--subtype"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "type"
+                            }
+                          ],
+                          "description": "The type of the uri",
+                          "isRequired": true,
+                          "name": "--type"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "uri"
+                            }
+                          ],
+                          "description": "The value of the uri",
+                          "isRequired": true,
+                          "name": "--uri"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "add"
+                            }
+                          ],
+                          "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+                          "name": "--add"
+                        },
+                        {
+                          "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+                          "name": "--force-string"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "remove"
+                            }
+                          ],
+                          "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+                          "name": "--remove"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "set"
+                            }
+                          ],
+                          "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+                          "name": "--set"
+                        }
+                      ]
+                    },
+                    {
+                      "description": "Delete a URI for a marketplace offer listing",
+                      "name": "delete",
+                      "options": [
+                        {
+                          "args": [
+                            {
+                              "name": "offer-id"
+                            }
+                          ],
+                          "description": "The offer id",
+                          "isRequired": true,
+                          "name": "--offer-id"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "display-text"
+                            }
+                          ],
+                          "description": "The display text of the uri",
+                          "name": "--display-text"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "subtype"
+                            }
+                          ],
+                          "description": "The subtype of the uri",
+                          "name": "--subtype"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "type"
+                            }
+                          ],
+                          "description": "The type of the uri",
+                          "name": "--type"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "uri"
+                            }
+                          ],
+                          "description": "The value of the uri",
+                          "name": "--uri"
+                        },
+                        {
+                          "description": "Do not prompt for confirmation",
+                          "name": [
+                            "--yes",
+                            "-y"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "description": "List the uri for a marketplace offer listing",
+                      "name": "list",
+                      "options": [
+                        {
+                          "args": [
+                            {
+                              "name": "offer-id"
+                            }
+                          ],
+                          "description": "The offer id",
+                          "isRequired": true,
+                          "name": "--offer-id"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Manage the creation of offer packages, including CNAB bundles for AKS (Azure Container offerings that you sell through Microsoft)",
+              "name": "package",
+              "subcommands": [
+                {
+                  "description": "Builds the package for an offer, preparing it for upload or publishing to the offer's technical configuration",
+                  "name": "build",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "offer-id"
+                        }
+                      ],
+                      "description": "The Offer ID",
+                      "isRequired": true,
+                      "name": "--offer-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "manifest-file"
+                        }
+                      ],
+                      "description": "The path to the package manifest YAML file that describes the package, the CNAB bundle, and dependent artifacts",
+                      "name": "--manifest-file"
+                    },
+                    {
+                      "description": "Do not wait for the long-running operation to finish",
+                      "name": "--no-wait"
+                    }
+                  ]
+                },
+                {
+                  "description": "Verifies the package contents for an offer prior to building it",
+                  "name": "verify",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "offer-id"
+                        }
+                      ],
+                      "description": "The Offer ID",
+                      "isRequired": true,
+                      "name": "--offer-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "manifest-file"
+                        }
+                      ],
+                      "description": "The path to the package manifest YAML file that describes the package, the CNAB bundle, and dependent artifacts",
+                      "name": "--manifest-file"
+                    },
+                    {
+                      "description": "Do not wait for the long-running operation to finish",
+                      "name": "--no-wait"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Manage a Marketplace offer plans",
+              "name": "plan",
+              "subcommands": [
+                {
+                  "description": "Create a plan for a marketplace offer",
+                  "name": "create",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "plan-id"
+                        }
+                      ],
+                      "description": "The Plan ID",
+                      "isRequired": true,
+                      "name": [
+                        "--plan-id",
+                        "--id"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "name"
+                        }
+                      ],
+                      "description": "The friendly name of the Plan",
+                      "isRequired": true,
+                      "name": [
+                        "--name",
+                        "-n"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "offer-id"
+                        }
+                      ],
+                      "description": "The Offer ID",
+                      "isRequired": true,
+                      "name": "--offer-id"
+                    },
+                    {
+                      "description": "Do not wait for the long-running operation to finish",
+                      "name": "--no-wait"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "subtype"
+                        }
+                      ],
+                      "description": "SubType of Azure Application plan. Allowed Values: solution-template, managed-application. Default: None",
+                      "name": [
+                        "--subtype",
+                        "-s"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "description": "Delete a plan for a marketplace offer",
+                  "name": "delete",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "plan-id"
+                        }
+                      ],
+                      "description": "The Plan ID",
+                      "isRequired": true,
+                      "name": [
+                        "--plan-id",
+                        "--id"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "offer-id"
+                        }
+                      ],
+                      "description": "The Offer ID",
+                      "isRequired": true,
+                      "name": "--offer-id"
+                    }
+                  ]
+                },
+                {
+                  "description": "List the plans of a marketplace offer",
+                  "name": "list",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "offer-id"
+                        }
+                      ],
+                      "description": "The Offer ID",
+                      "isRequired": true,
+                      "name": "--offer-id"
+                    }
+                  ]
+                },
+                {
+                  "description": "Get the plan of a marketplace offer",
+                  "name": "show",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "plan-id"
+                        }
+                      ],
+                      "description": "The Plan ID",
+                      "isRequired": true,
+                      "name": [
+                        "--plan-id",
+                        "--id"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "offer-id"
+                        }
+                      ],
+                      "description": "The Offer ID",
+                      "isRequired": true,
+                      "name": "--offer-id"
+                    }
+                  ]
+                },
+                {
+                  "description": "Manage a Marketplace offer plan's listing",
+                  "name": "listing",
+                  "subcommands": [
+                    {
+                      "description": "Get the plan listing of a marketplace offer",
+                      "name": "show",
+                      "options": [
+                        {
+                          "args": [
+                            {
+                              "name": "plan-id"
+                            }
+                          ],
+                          "description": "The Plan ID",
+                          "isRequired": true,
+                          "name": [
+                            "--plan-id",
+                            "--id"
+                          ]
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "offer-id"
+                            }
+                          ],
+                          "description": "The Offer ID",
+                          "isRequired": true,
+                          "name": "--offer-id"
+                        }
+                      ]
+                    },
+                    {
+                      "description": "Update the plan listing of a marketplace offer",
+                      "name": "update",
+                      "options": [
+                        {
+                          "args": [
+                            {
+                              "name": "plan-id"
+                            }
+                          ],
+                          "description": "The Plan ID",
+                          "isRequired": true,
+                          "name": [
+                            "--plan-id",
+                            "--id"
+                          ]
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "offer-id"
+                            }
+                          ],
+                          "description": "The Offer ID",
+                          "isRequired": true,
+                          "name": "--offer-id"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "add"
+                            }
+                          ],
+                          "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+                          "name": "--add"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "description"
+                            }
+                          ],
+                          "description": "The description of the plan listing",
+                          "name": [
+                            "--description",
+                            "-d"
+                          ]
+                        },
+                        {
+                          "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+                          "name": "--force-string"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "name"
+                            }
+                          ],
+                          "description": "The name of the plan listing",
+                          "name": [
+                            "--name",
+                            "-n"
+                          ]
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "remove"
+                            }
+                          ],
+                          "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+                          "name": "--remove"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "set"
+                            }
+                          ],
+                          "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+                          "name": "--set"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "summary"
+                            }
+                          ],
+                          "description": "The summary of the plan listing",
+                          "name": [
+                            "--summary",
+                            "-s"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "description": "Manage a Marketplace offer plan's technical configuration",
+                  "name": "technical-configuration",
+                  "subcommands": [
+                    {
+                      "description": "Show a plan's technical configuration",
+                      "name": "show",
+                      "options": [
+                        {
+                          "args": [
+                            {
+                              "name": "offer-id"
+                            }
+                          ],
+                          "description": "The Offer id",
+                          "isRequired": true,
+                          "name": "--offer-id"
+                        },
+                        {
+                          "args": [
+                            {
+                              "name": "plan-id"
+                            }
+                          ],
+                          "description": "The Plan id",
+                          "isRequired": true,
+                          "name": "--plan-id"
+                        }
+                      ]
+                    },
+                    {
+                      "description": "Manage packages for a plan's technical configuration",
+                      "name": "package",
+                      "subcommands": [
+                        {
+                          "description": "Adds a package to the technical configuration of a plan",
+                          "name": "add",
+                          "options": [
+                            {
+                              "args": [
+                                {
+                                  "name": "offer-id"
+                                }
+                              ],
+                              "description": "The Offer id",
+                              "isRequired": true,
+                              "name": "--offer-id"
+                            },
+                            {
+                              "args": [
+                                {
+                                  "name": "plan-id"
+                                }
+                              ],
+                              "description": "The Plan id",
+                              "isRequired": true,
+                              "name": "--plan-id"
+                            },
+                            {
+                              "args": [
+                                {
+                                  "name": "cluster-extension-type"
+                                }
+                              ],
+                              "description": "The Cluster Extension Type",
+                              "name": "--cluster-extension-type"
+                            },
+                            {
+                              "args": [
+                                {
+                                  "name": "digest"
+                                }
+                              ],
+                              "description": "The digest of the bundle with a format of sha256:",
+                              "name": "--digest"
+                            },
+                            {
+                              "description": "Do not wait for the long-running operation to finish",
+                              "name": "--no-wait"
+                            },
+                            {
+                              "args": [
+                                {
+                                  "name": "registry"
+                                }
+                              ],
+                              "description": "The name of the Azure Container Registry",
+                              "name": "--registry"
+                            },
+                            {
+                              "args": [
+                                {
+                                  "name": "repository"
+                                }
+                              ],
+                              "description": "The name of the image repository in the Azure Container Registry",
+                              "name": "--repository"
+                            },
+                            {
+                              "args": [
+                                {
+                                  "name": "resource-group"
+                                }
+                              ],
+                              "description": "The Resource Group name for the Azure Container Registry",
+                              "name": [
+                                "--resource-group",
+                                "-g"
+                              ]
+                            },
+                            {
+                              "args": [
+                                {
+                                  "name": "subscription-id"
+                                }
+                              ],
+                              "description": "The Subscription ID",
+                              "name": [
+                                "--subscription-id",
+                                "-s"
+                              ]
+                            },
+                            {
+                              "args": [
+                                {
+                                  "name": "tag"
+                                }
+                              ],
+                              "description": "The name of the image repository",
+                              "name": "--tag"
+                            },
+                            {
+                              "args": [
+                                {
+                                  "name": "tenant-id"
+                                }
+                              ],
+                              "description": "The AAD tenant ID",
+                              "name": [
+                                "--tenant-id",
+                                "-t"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "description": "Deletes a package to the technical configuration of a plan",
+                          "name": "delete",
+                          "options": [
+                            {
+                              "args": [
+                                {
+                                  "name": "offer-id"
+                                }
+                              ],
+                              "description": "The Offer id",
+                              "isRequired": true,
+                              "name": "--offer-id"
+                            },
+                            {
+                              "args": [
+                                {
+                                  "name": "plan-id"
+                                }
+                              ],
+                              "description": "The Plan id",
+                              "isRequired": true,
+                              "name": "--plan-id"
+                            },
+                            {
+                              "description": "Do not wait for the long-running operation to finish",
+                              "name": "--no-wait"
+                            },
+                            {
+                              "args": [
+                                {
+                                  "name": "repository"
+                                }
+                              ],
+                              "description": "The name of the image repository in the Azure Container Registry",
+                              "name": "--repository"
+                            },
+                            {
+                              "args": [
+                                {
+                                  "name": "tag"
+                                }
+                              ],
+                              "description": "The name of the image repository",
+                              "name": "--tag"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Manage a Marketplace Offer's setup",
+              "name": "setup",
+              "subcommands": [
+                {
+                  "description": "Show the offer setup",
+                  "name": "show",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "offer-id"
+                        }
+                      ],
+                      "description": "The Offer ID",
+                      "isRequired": true,
+                      "name": [
+                        "--offer-id",
+                        "--id"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "description": "Update a marketplace offer",
+                  "name": "update",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "offer-id"
+                        }
+                      ],
+                      "description": "The Offer ID",
+                      "isRequired": true,
+                      "name": [
+                        "--offer-id",
+                        "--id"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "add"
+                        }
+                      ],
+                      "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+                      "name": "--add"
+                    },
+                    {
+                      "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+                      "name": "--force-string"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "remove"
+                        }
+                      ],
+                      "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+                      "name": "--remove"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "reseller",
+                          "suggestions": [
+                            "false",
+                            "true"
+                          ]
+                        }
+                      ],
+                      "description": "Indicates to enable the reseller channel for the offer",
+                      "name": "--reseller"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "sell-through-microsoft",
+                          "suggestions": [
+                            "false",
+                            "true"
+                          ]
+                        }
+                      ],
+                      "description": "Whether to sell through microsoft or list the offer through the marketplace and process transactions independently",
+                      "name": "--sell-through-microsoft"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "set"
+                        }
+                      ],
+                      "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+                      "name": "--set"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "test-drive",
+                          "suggestions": [
+                            "false",
+                            "true"
+                          ]
+                        }
+                      ],
+                      "description": "Whether test drive is enabled for the offer. The test drive option in the Microsoft commercial marketplace lets you configure a hands-on, self-guided tour of your product's key features",
+                      "name": "--test-drive"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "trial-uri"
+                        }
+                      ],
+                      "description": "The trial uri",
+                      "name": "--trial-uri"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Manage a Marketplace Offer's submissions",
+              "name": "submission",
+              "subcommands": [
+                {
+                  "description": "List the submissions of a marketplace offer",
+                  "name": "list",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "offer-id"
+                        }
+                      ],
+                      "description": "The offer ID",
+                      "isRequired": true,
+                      "name": "--offer-id"
+                    }
+                  ]
+                },
+                {
+                  "description": "Publish the submissions of a marketplace offer",
+                  "name": "publish",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "offer-id"
+                        }
+                      ],
+                      "description": "The offer ID",
+                      "isRequired": true,
+                      "name": "--offer-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "submission-id"
+                        }
+                      ],
+                      "description": "The offer submission ID",
+                      "isRequired": true,
+                      "name": "--submission-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "target",
+                          "suggestions": [
+                            "draft",
+                            "live",
+                            "preview"
+                          ]
+                        }
+                      ],
+                      "description": "The target environment type to publish changes for the submission to",
+                      "isRequired": true,
+                      "name": "--target"
+                    }
+                  ]
+                },
+                {
+                  "description": "Get the submission of a marketplace offer",
+                  "name": "show",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "offer-id"
+                        }
+                      ],
+                      "description": "The offer ID",
+                      "isRequired": true,
+                      "name": "--offer-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "submission-id"
+                        }
+                      ],
+                      "description": "The offer submission ID",
+                      "isRequired": true,
+                      "name": "--submission-id"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

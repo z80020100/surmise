@@ -1,0 +1,765 @@
+{
+  "description": "Disk Encryption Set resource",
+  "name": "disk-encryption-set",
+  "subcommands": [
+    {
+      "description": "Create a disk encryption set",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "key-url"
+            }
+          ],
+          "description": "URL pointing to a key or secret in KeyVault",
+          "isRequired": true,
+          "name": "--key-url"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of disk encryption set",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "enable-auto-key-rotation",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable automatic rotation of keys",
+          "name": [
+            "--enable-auto-key-rotation",
+            "--auto-rotation"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "encryption-type",
+              "suggestions": [
+                "ConfidentialVmEncryptedWithCustomerKey",
+                "EncryptionAtRestWithCustomerKey",
+                "EncryptionAtRestWithPlatformAndCustomerKeys",
+                "EncryptionAtRestWithPlatformKey"
+              ]
+            }
+          ],
+          "description": "The type of key used to encrypt the data of the disk. EncryptionAtRestWithPlatformKey: Disk is encrypted at rest with Platform managed key. It is the default encryption type. EncryptionAtRestWithCustomerKey: Disk is encrypted at rest with Customer managed key that can be changed and revoked by a customer. EncryptionAtRestWithPlatformAndCustomerKeys: Disk is encrypted at rest with 2 layers of encryption. One of the keys is Customer managed and the other key is Platform managed. ConfidentialVmEncryptedWithCustomerKey: An additional encryption type accepted for confidential VM. Disk is encrypted at rest with Customer managed key",
+          "name": "--encryption-type"
+        },
+        {
+          "args": [
+            {
+              "name": "federated-client-id"
+            }
+          ],
+          "description": "The federated client id used in cross tenant scenario",
+          "name": "--federated-client-id"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "mi-system-assigned",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Provide this flag to use system assigned identity. Check out help for more examples",
+          "name": "--mi-system-assigned"
+        },
+        {
+          "args": [
+            {
+              "name": "mi-user-assigned"
+            }
+          ],
+          "description": "User Assigned Identity ids to be used for disk encryption set. Check out help for more examples",
+          "name": "--mi-user-assigned"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "source-vault"
+            }
+          ],
+          "description": "Name or ID of the KeyVault containing the key or secret",
+          "name": "--source-vault"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        }
+      ]
+    },
+    {
+      "description": "Delete a disk encryption set",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "disk-encryption-set-name"
+            }
+          ],
+          "description": "Name of disk encryption set",
+          "name": [
+            "--disk-encryption-set-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "no-wait",
+              "suggestions": [
+                "0",
+                "1",
+                "f",
+                "false",
+                "n",
+                "no",
+                "t",
+                "true",
+                "y",
+                "yes"
+              ]
+            }
+          ],
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "List disk encryption sets",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "max-items"
+            }
+          ],
+          "description": "Total number of items to return in the command's output. If the total number of items available is more than the value specified, a token is provided in the command's output. To resume pagination, provide the token value in --next-token argument of a subsequent command",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "next-token"
+            }
+          ],
+          "description": "Token to specify where to start paginating. This is the token value from a previously truncated response",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List all resources that are encrypted with this disk encryption set",
+      "name": "list-associated-resources",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "disk-encryption-set-name"
+            }
+          ],
+          "description": "Name of disk encryption set",
+          "isRequired": true,
+          "name": [
+            "--disk-encryption-set-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "max-items"
+            }
+          ],
+          "description": "Total number of items to return in the command's output. If the total number of items available is more than the value specified, a token is provided in the command's output. To resume pagination, provide the token value in --next-token argument of a subsequent command",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "next-token"
+            }
+          ],
+          "description": "Token to specify where to start paginating. This is the token value from a previously truncated response",
+          "name": "--next-token"
+        }
+      ]
+    },
+    {
+      "description": "Get information about a disk encryption set",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "disk-encryption-set-name"
+            }
+          ],
+          "description": "Name of disk encryption set",
+          "name": [
+            "--disk-encryption-set-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Update a disk encryption set",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "add"
+            }
+          ],
+          "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+          "name": "--add"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-auto-key-rotation",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable automatic rotation of keys",
+          "name": [
+            "--enable-auto-key-rotation",
+            "--auto-rotation"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "federated-client-id"
+            }
+          ],
+          "description": "The federated client id used in cross tenant scenario",
+          "name": "--federated-client-id"
+        },
+        {
+          "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+          "name": "--force-string"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "key-url"
+            }
+          ],
+          "description": "URL pointing to a key or secret in KeyVault",
+          "name": "--key-url"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of disk encryption set",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "remove"
+            }
+          ],
+          "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+          "name": "--remove"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "set"
+            }
+          ],
+          "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+          "name": "--set"
+        },
+        {
+          "args": [
+            {
+              "name": "source-vault"
+            }
+          ],
+          "description": "Name or ID of the KeyVault containing the key or secret",
+          "name": "--source-vault"
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Place the CLI in a waiting state until a condition is met",
+      "name": "wait",
+      "options": [
+        {
+          "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+          "name": "--created"
+        },
+        {
+          "args": [
+            {
+              "name": "custom"
+            }
+          ],
+          "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+          "name": "--custom"
+        },
+        {
+          "description": "Wait until deleted",
+          "name": "--deleted"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-encryption-set-name"
+            }
+          ],
+          "description": "Name of disk encryption set",
+          "name": [
+            "--disk-encryption-set-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "description": "Wait until the resource exists",
+          "name": "--exists"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "interval"
+            }
+          ],
+          "description": "Polling interval in seconds",
+          "name": "--interval"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "args": [
+            {
+              "name": "timeout"
+            }
+          ],
+          "description": "Maximum wait in seconds",
+          "name": "--timeout"
+        },
+        {
+          "description": "Wait until updated with provisioningState at 'Succeeded'",
+          "name": "--updated"
+        }
+      ]
+    },
+    {
+      "description": "Manage identities of a disk encryption set",
+      "name": "identity",
+      "subcommands": [
+        {
+          "description": "Add managed identities to an existing disk encryption set",
+          "name": "assign",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of disk encryption set",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "system-assigned",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Provide this flag to use system assigned identity for disk encryption set. Check out help for more examples",
+              "name": "--system-assigned"
+            },
+            {
+              "args": [
+                {
+                  "name": "user-assigned"
+                }
+              ],
+              "description": "User Assigned Identity ids to be used for disk encryption set. Check out help for more examples",
+              "name": "--user-assigned"
+            }
+          ]
+        },
+        {
+          "description": "Remove managed identities from an existing disk encryption set",
+          "name": "remove",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of disk encryption set",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "system-assigned",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Provide this flag to use system assigned identity for disk encryption set. Check out help for more examples",
+              "name": "--system-assigned"
+            },
+            {
+              "args": [
+                {
+                  "name": "user-assigned"
+                }
+              ],
+              "description": "User Assigned Identity ids to be used for disk encryption set. Check out help for more examples",
+              "name": "--user-assigned"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Display managed identities of a disk encryption set",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of disk encryption set",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

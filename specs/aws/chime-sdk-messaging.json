@@ -1,0 +1,3134 @@
+{
+  "description": "The Amazon Chime SDK messaging APIs in this section allow software developers to send and receive messages in custom messaging applications. These APIs depend on the frameworks provided by the Amazon Chime SDK identity APIs. For more information about the messaging APIs, see Amazon Chime SDK messaging",
+  "name": "chime-sdk-messaging",
+  "subcommands": [
+    {
+      "description": "Associates a channel flow with a channel. Once associated, all messages to that channel go through channel flow processors. To stop processing, use the DisassociateChannelFlow API.  Only administrators or channel moderators can associate a channel flow. The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "associate-channel-flow",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel flow",
+          "name": "--channel-flow-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The AppInstanceUserArn of the user making the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Adds a specified number of users and bots to a channel",
+      "name": "batch-create-channel-membership",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel to which you're adding users or bots",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The membership type of a user, DEFAULT or HIDDEN. Default members are always returned as part of ListChannelMemberships. Hidden members are only returned if the type filter in ListChannelMemberships equals HIDDEN. Otherwise hidden members are not returned. This is only supported by moderators",
+          "name": "--type"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The ARNs of the members you want to add to the channel. Only AppInstanceUsers and AppInstanceBots can be added as a channel member",
+          "name": "--member-arns"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the SubChannel in the request.   Only required when creating membership in a SubChannel for a moderator in an elastic channel",
+          "name": "--sub-channel-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Calls back Amazon Chime SDK messaging with a processing response message. This should be invoked from the processor Lambda. This is a developer API. You can return one of the following processing responses:   Update message content or metadata   Deny a message   Make no changes to the message",
+      "name": "channel-flow-callback",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The identifier passed to the processor by the service when invoked. Use the identifier to call back the service",
+          "name": "--callback-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "description": "When a processor determines that a message needs to be DENIED, pass this parameter with a value of true",
+          "name": "--delete-resource"
+        },
+        {
+          "description": "When a processor determines that a message needs to be DENIED, pass this parameter with a value of true",
+          "name": "--no-delete-resource"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Stores information about the processed message",
+          "name": "--channel-message"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Creates a channel to which you can add users and send messages.  Restriction: You can't change a channel's privacy.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "create-channel",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel request",
+          "name": "--app-instance-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the channel",
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The channel mode: UNRESTRICTED or RESTRICTED. Administrators, moderators, and channel members can add themselves and other members to unrestricted channels. Only administrators and moderators can add members to restricted channels",
+          "name": "--mode"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The channel's privacy level: PUBLIC or PRIVATE. Private channels aren't discoverable by users outside the channel. Public channels are discoverable by anyone in the AppInstance",
+          "name": "--privacy"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The metadata of the creation request. Limited to 1KB and UTF-8",
+          "name": "--metadata"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The client token for the request. An Idempotency token",
+          "name": "--client-request-token"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The tags for the creation request",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the channel in the request",
+          "name": "--channel-id"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The ARNs of the channel members in the request",
+          "name": "--member-arns"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The ARNs of the channel moderators in the request",
+          "name": "--moderator-arns"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "The attributes required to configure and create an elastic channel. An elastic channel can support a maximum of 1-million users, excluding moderators",
+          "name": "--elastic-channel-configuration"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Settings that control the interval after which the channel is automatically deleted",
+          "name": "--expiration-settings"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Permanently bans a member from a channel. Moderators can't add banned members to a channel. To undo a ban, you first have to DeleteChannelBan, and then CreateChannelMembership. Bans are cleaned up when you delete users or channels. If you ban a user who is already part of a channel, that user is automatically kicked from the channel.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "create-channel-ban",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the ban request",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The AppInstanceUserArn of the member being banned",
+          "name": "--member-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Creates a channel flow, a container for processors. Processors are AWS Lambda functions that perform actions on chat messages, such as stripping out profanity. You can associate channel flows with channels, and the processors in the channel flow then take action on all messages sent to that channel. This is a developer API. Channel flows process the following items:   New and updated messages   Persistent and non-persistent messages   The Standard message type    Channel flows don't process Control or System messages. For more information about the message types provided by Chime SDK messaging, refer to Message types in the Amazon Chime developer guide",
+      "name": "create-channel-flow",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel flow request",
+          "name": "--app-instance-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "Information about the processor Lambda functions",
+          "name": "--processors"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the channel flow",
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The tags for the creation request",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The client token for the request. An Idempotency token",
+          "name": "--client-request-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Adds a member to a channel. The InvitedBy field in ChannelMembership is derived from the request header. A channel member can:   List messages   Send messages   Receive messages   Edit their own messages   Leave the channel   Privacy settings impact this action as follows:   Public Channels: You do not need to be a member to list messages, but you must be a member to send messages.   Private Channels: You must be a member to list or send messages.    The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUserArn or AppInstanceBot that makes the API call as the value in the header",
+      "name": "create-channel-membership",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel to which you're adding users",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The AppInstanceUserArn of the member you want to add to the channel",
+          "name": "--member-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The membership type of a user, DEFAULT or HIDDEN. Default members are always returned as part of ListChannelMemberships. Hidden members are only returned if the type filter in ListChannelMemberships equals HIDDEN. Otherwise hidden members are not returned. This is only supported by moderators",
+          "name": "--type"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the SubChannel in the request.  Only required when creating membership in a SubChannel for a moderator in an elastic channel",
+          "name": "--sub-channel-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Creates a new ChannelModerator. A channel moderator can:   Add and remove other members of the channel.   Add and remove other moderators of the channel.   Add and remove user bans for the channel.   Redact messages in the channel.   List messages in the channel.    The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBotof the user that makes the API call as the value in the header",
+      "name": "create-channel-moderator",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The AppInstanceUserArn of the moderator",
+          "name": "--channel-moderator-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Immediately makes a channel and its memberships inaccessible and marks them for deletion. This is an irreversible process.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUserArn or AppInstanceBot that makes the API call as the value in the header",
+      "name": "delete-channel",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel being deleted",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Removes a member from a channel's ban list.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "delete-channel-ban",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel from which the AppInstanceUser was banned",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser that you want to reinstate",
+          "name": "--member-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes a channel flow, an irreversible process. This is a developer API.   This API works only when the channel flow is not associated with any channel. To get a list of all channels that a channel flow is associated with, use the ListChannelsAssociatedWithChannelFlow API. Use the DisassociateChannelFlow API to disassociate a channel flow from all channels",
+      "name": "delete-channel-flow",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel flow",
+          "name": "--channel-flow-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Removes a member from a channel.  The x-amz-chime-bearer request header is mandatory. Use the AppInstanceUserArn of the user that makes the API call as the value in the header",
+      "name": "delete-channel-membership",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel from which you want to remove the user",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The AppInstanceUserArn of the member that you're removing from the channel",
+          "name": "--member-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the SubChannel in the request.  Only for use by moderators",
+          "name": "--sub-channel-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes a channel message. Only admins can perform this action. Deletion makes messages inaccessible immediately. A background process deletes any revisions created by UpdateChannelMessage.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "delete-channel-message",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the message being deleted",
+          "name": "--message-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the SubChannel in the request.  Only required when deleting messages in a SubChannel that the user belongs to",
+          "name": "--sub-channel-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes a channel moderator.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "delete-channel-moderator",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The AppInstanceUserArn of the moderator being deleted",
+          "name": "--channel-moderator-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes the streaming configurations for an AppInstance. For more information, see Streaming messaging data in the Amazon Chime SDK Developer Guide",
+      "name": "delete-messaging-streaming-configurations",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the streaming configurations being deleted",
+          "name": "--app-instance-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns the full details of a channel in an Amazon Chime AppInstance.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "describe-channel",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns the full details of a channel ban.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "describe-channel-ban",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel from which the user is banned",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The AppInstanceUserArn of the member being banned",
+          "name": "--member-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns the full details of a channel flow in an Amazon Chime AppInstance. This is a developer API",
+      "name": "describe-channel-flow",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel flow",
+          "name": "--channel-flow-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns the full details of a user's channel membership.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "describe-channel-membership",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The AppInstanceUserArn of the member",
+          "name": "--member-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the SubChannel in the request. The response contains an ElasticChannelConfiguration object.  Only required to get a user’s SubChannel membership details",
+          "name": "--sub-channel-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns the details of a channel based on the membership of the specified AppInstanceUser or AppInstanceBot.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "describe-channel-membership-for-app-instance-user",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel to which the user belongs",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the user or bot in a channel",
+          "name": "--app-instance-user-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns the full details of a channel moderated by the specified AppInstanceUser or AppInstanceBot.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "describe-channel-moderated-by-app-instance-user",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the moderated channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the user or bot in the moderated channel",
+          "name": "--app-instance-user-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns the full details of a single ChannelModerator.  The x-amz-chime-bearer request header is mandatory. Use the AppInstanceUserArn of the user that makes the API call as the value in the header",
+      "name": "describe-channel-moderator",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The AppInstanceUserArn of the channel moderator",
+          "name": "--channel-moderator-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Disassociates a channel flow from all its channels. Once disassociated, all messages to that channel stop going through the channel flow processor.  Only administrators or channel moderators can disassociate a channel flow. The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "disassociate-channel-flow",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel flow",
+          "name": "--channel-flow-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The AppInstanceUserArn of the user making the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Gets the membership preferences of an AppInstanceUser or AppInstanceBot for the specified channel. A user or a bot must be a member of the channel and own the membership in order to retrieve membership preferences. Users or bots in the AppInstanceAdmin and channel moderator roles can't retrieve preferences for other users or bots. Banned users or bots can't retrieve membership preferences for the channel from which they are banned.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "get-channel-membership-preferences",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The AppInstanceUserArn of the member retrieving the preferences",
+          "name": "--member-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Gets the full details of a channel message.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "get-channel-message",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the message",
+          "name": "--message-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the SubChannel in the request.  Only required when getting messages in a SubChannel that the user belongs to",
+          "name": "--sub-channel-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Gets message status for a specified messageId. Use this API to determine the intermediate status of messages going through channel flow processing. The API provides an alternative to retrieving message status if the event was not received because a client wasn't connected to a websocket.  Messages can have any one of these statuses.  SENT  Message processed successfully  PENDING  Ongoing processing  FAILED  Processing failed  DENIED  Message denied by the processor      This API does not return statuses for denied messages, because we don't store them once the processor denies them.    Only the message sender can invoke this API.   The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "get-channel-message-status",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the message",
+          "name": "--message-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The AppInstanceUserArn of the user making the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the SubChannel in the request.  Only required when getting message status in a SubChannel that the user belongs to",
+          "name": "--sub-channel-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "The details of the endpoint for the messaging session",
+      "name": "get-messaging-session-endpoint",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves the data streaming configuration for an AppInstance. For more information, see Streaming messaging data in the Amazon Chime SDK Developer Guide",
+      "name": "get-messaging-streaming-configurations",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the streaming configurations",
+          "name": "--app-instance-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Lists all the users and bots banned from a particular channel.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "list-channel-bans",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of bans that you want returned",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token passed by previous API calls until all requested bans are returned",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Returns a paginated lists of all the channel flows created under a single Chime. This is a developer API",
+      "name": "list-channel-flows",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the app instance",
+          "name": "--app-instance-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of channel flows that you want to return",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token passed by previous API calls until all requested channel flows are returned",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Lists all channel memberships in a channel.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header.  If you want to list the channels to which a specific app instance user belongs, see the ListChannelMembershipsForAppInstanceUser API",
+      "name": "list-channel-memberships",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The maximum number of channel memberships that you want returned",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The membership type of a user, DEFAULT or HIDDEN. Default members are returned as part of ListChannelMemberships if no type is specified. Hidden members are only returned if the type filter in ListChannelMemberships equals HIDDEN",
+          "name": "--type"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of channel memberships that you want returned",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token passed by previous API calls until all requested channel memberships are returned",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the SubChannel in the request.  Only required when listing a user's memberships in a particular sub-channel of an elastic channel",
+          "name": "--sub-channel-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Lists all channels that an AppInstanceUser or AppInstanceBot is a part of. Only an AppInstanceAdmin can call the API with a user ARN that is not their own.   The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "list-channel-memberships-for-app-instance-user",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the user or bot",
+          "name": "--app-instance-user-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of users that you want returned",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token returned from previous API requests until the number of channel memberships is reached",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "List all the messages in a channel. Returns a paginated list of ChannelMessages. By default, sorted by creation timestamp in descending order.  Redacted messages appear in the results as empty, since they are only redacted, not deleted. Deleted messages do not appear in the results. This action always returns the latest version of an edited message. Also, the x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "list-channel-messages",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The order in which you want messages sorted. Default is Descending, based on time created",
+          "name": "--sort-order"
+        },
+        {
+          "args": [
+            {
+              "name": "timestamp"
+            }
+          ],
+          "description": "The initial or starting time stamp for your requested messages",
+          "name": "--not-before"
+        },
+        {
+          "args": [
+            {
+              "name": "timestamp"
+            }
+          ],
+          "description": "The final or ending time stamp for your requested messages",
+          "name": "--not-after"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of messages that you want returned",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token passed by previous API calls until all requested messages are returned",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the SubChannel in the request.  Only required when listing the messages in a SubChannel that the user belongs to",
+          "name": "--sub-channel-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Lists all the moderators for a channel.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "list-channel-moderators",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of moderators that you want returned",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token passed by previous API calls until all requested moderators are returned",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Lists all Channels created under a single Chime App as a paginated list. You can specify filters to narrow results.  Functionality & restrictions    Use privacy = PUBLIC to retrieve all public channels in the account.   Only an AppInstanceAdmin can set privacy = PRIVATE to list the private channels in an account.    The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "list-channels",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstance",
+          "name": "--app-instance-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The privacy setting. PUBLIC retrieves all the public channels. PRIVATE retrieves private channels. Only an AppInstanceAdmin can retrieve private channels",
+          "name": "--privacy"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of channels that you want to return",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token passed by previous API calls until all requested channels are returned",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Lists all channels associated with a specified channel flow. You can associate a channel flow with multiple channels, but you can only associate a channel with one channel flow. This is a developer API",
+      "name": "list-channels-associated-with-channel-flow",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel flow",
+          "name": "--channel-flow-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of channels that you want to return",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token passed by previous API calls until all requested channels are returned",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "A list of the channels moderated by an AppInstanceUser.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "list-channels-moderated-by-app-instance-user",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the user or bot in the moderated channel",
+          "name": "--app-instance-user-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of channels in the request",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token returned from previous API requests until the number of channels moderated by the user is reached",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Lists all the SubChannels in an elastic channel when given a channel ID. Available only to the app instance admins and channel moderators of elastic channels",
+      "name": "list-sub-channels",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of elastic channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The AppInstanceUserArn of the user making the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of sub-channels that you want to return",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token passed by previous API calls until all requested sub-channels are returned",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Lists the tags applied to an Amazon Chime SDK messaging resource",
+      "name": "list-tags-for-resource",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the resource",
+          "name": "--resource-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Sets the number of days before the channel is automatically deleted.    A background process deletes expired channels within 6 hours of expiration. Actual deletion times may vary.   Expired channels that have not yet been deleted appear as active, and you can update their expiration settings. The system honors the new settings.   The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "put-channel-expiration-settings",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Settings that control the interval after which a channel is deleted",
+          "name": "--expiration-settings"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Sets the membership preferences of an AppInstanceUser or AppInstanceBot for the specified channel. The user or bot must be a member of the channel. Only the user or bot who owns the membership can set preferences. Users or bots in the AppInstanceAdmin and channel moderator roles can't set preferences for other users. Banned users or bots can't set membership preferences for the channel from which they are banned.  The x-amz-chime-bearer request header is mandatory. Use the ARN of an AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "put-channel-membership-preferences",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the member setting the preferences",
+          "name": "--member-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "The channel membership preferences of an AppInstanceUser",
+          "name": "--preferences"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Sets the data streaming configuration for an AppInstance. For more information, see Streaming messaging data in the Amazon Chime SDK Developer Guide",
+      "name": "put-messaging-streaming-configurations",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the streaming configuration",
+          "name": "--app-instance-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The streaming configurations",
+          "name": "--streaming-configurations"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Redacts message content, but not metadata. The message exists in the back end, but the action returns null content, and the state shows as redacted.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "redact-channel-message",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel containing the messages that you want to redact",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the message being redacted",
+          "name": "--message-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the SubChannel in the request",
+          "name": "--sub-channel-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Allows the ChimeBearer to search channels by channel members. Users or bots can search across the channels that they belong to. Users in the AppInstanceAdmin role can search across all channels. The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "search-channels",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The AppInstanceUserArn of the user making the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "A list of the Field objects in the channel being searched",
+          "name": "--fields"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of channels that you want returned",
+          "name": "--max-results"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The token returned from previous API requests until the number of channels is reached",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Sends a message to a particular channel that the member is a part of.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header. Also, STANDARD messages can be up to 4KB in size and contain metadata. Metadata is arbitrary, and you can use it in a variety of ways, such as containing a link to an attachment.  CONTROL messages are limited to 30 bytes and do not contain metadata",
+      "name": "send-channel-message",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The content of the channel message",
+          "name": "--content"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The type of message, STANDARD or CONTROL.  STANDARD messages can be up to 4KB in size and contain metadata. Metadata is arbitrary, and you can use it in a variety of ways, such as containing a link to an attachment.  CONTROL messages are limited to 30 bytes and do not contain metadata",
+          "name": "--type"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Boolean that controls whether the message is persisted on the back end. Required",
+          "name": "--persistence"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The optional metadata for each message",
+          "name": "--metadata"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The Idempotency token for each client request",
+          "name": "--client-request-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "The push notification configuration of the message",
+          "name": "--push-notification"
+        },
+        {
+          "args": [
+            {
+              "name": "map"
+            }
+          ],
+          "description": "The attributes for the message, used for message filtering along with a FilterRule defined in the PushNotificationPreferences",
+          "name": "--message-attributes"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the SubChannel in the request",
+          "name": "--sub-channel-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The content type of the channel message",
+          "name": "--content-type"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The target of a message. Must be a member of the channel, such as another user, a bot, or the sender. Only the target and the sender can view targeted messages. Only users who can see targeted messages can take actions on them. However, administrators can delete targeted messages that they can’t see",
+          "name": "--target"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Applies the specified tags to the specified Amazon Chime SDK messaging resource",
+      "name": "tag-resource",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The resource ARN",
+          "name": "--resource-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The tag key-value pairs",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Removes the specified tags from the specified Amazon Chime SDK messaging resource",
+      "name": "untag-resource",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The resource ARN",
+          "name": "--resource-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The tag keys",
+          "name": "--tag-keys"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Update a channel's attributes.  Restriction: You can't change a channel's privacy.   The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "update-channel",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the channel",
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The mode of the update request",
+          "name": "--mode"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The metadata for the update request",
+          "name": "--metadata"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Updates channel flow attributes. This is a developer API",
+      "name": "update-channel-flow",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel flow",
+          "name": "--channel-flow-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "Information about the processor Lambda functions",
+          "name": "--processors"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the channel flow",
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Updates the content of a message.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "update-channel-message",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID string of the message being updated",
+          "name": "--message-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The content of the channel message",
+          "name": "--content"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The metadata of the message being updated",
+          "name": "--metadata"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the SubChannel in the request.  Only required when updating messages in a SubChannel that the user belongs to",
+          "name": "--sub-channel-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The content type of the channel message",
+          "name": "--content-type"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "The details of the time when a user last read messages in a channel.  The x-amz-chime-bearer request header is mandatory. Use the ARN of the AppInstanceUser or AppInstanceBot that makes the API call as the value in the header",
+      "name": "update-channel-read-marker",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the channel",
+          "name": "--channel-arn"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ARN of the AppInstanceUser or AppInstanceBot that makes the API call",
+          "name": "--chime-bearer"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    }
+  ]
+}

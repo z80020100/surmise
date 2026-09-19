@@ -1,0 +1,354 @@
+{
+  "description": "Manage cost and billing in Azure",
+  "name": "costmanagement",
+  "subcommands": [
+    {
+      "description": "Costmanagement export",
+      "name": "export",
+      "subcommands": [
+        {
+          "description": "The operation to create an export",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Export Name",
+              "isRequired": true,
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "The scope associated with query and export operations. This includes '/subscriptions/{subscriptionId}/' for subscription scope, '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}' for resourceGroup scope, '/providers/Microsoft.Management/managementGroups/{managementGroupId} for Management Group scope",
+              "isRequired": true,
+              "name": "--scope"
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-account-id"
+                }
+              ],
+              "description": "The ID of the storage account to store exports",
+              "isRequired": true,
+              "name": "--storage-account-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-container"
+                }
+              ],
+              "description": "The storage container to deliver exports",
+              "isRequired": true,
+              "name": "--storage-container"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeframe",
+                  "suggestions": [
+                    "BillingMonthToDate",
+                    "Custom",
+                    "MonthToDate",
+                    "TheLastBillingMonth",
+                    "TheLastMonth",
+                    "WeekToDate"
+                  ]
+                }
+              ],
+              "description": "The time frame for pulling data for the query. If custom, then a specific time period must be provided",
+              "isRequired": true,
+              "name": "--timeframe"
+            },
+            {
+              "args": [
+                {
+                  "name": "dataset-configuration"
+                }
+              ],
+              "description": "Has configuration information for the data in the export. The configuration will be ignored if aggregation and grouping are provided. Expect value: columns=xx",
+              "name": "--dataset-configuration"
+            },
+            {
+              "args": [
+                {
+                  "name": "recurrence",
+                  "suggestions": [
+                    "Annually",
+                    "Daily",
+                    "Monthly",
+                    "Weekly"
+                  ]
+                }
+              ],
+              "description": "The schedule recurrence",
+              "name": "--recurrence"
+            },
+            {
+              "args": [
+                {
+                  "name": "recurrence-period"
+                }
+              ],
+              "description": "Has start and end date of the recurrence. The start date must be in future. If present, the end date must be greater than start date. Expect value: KEY1=VALUE1 KEY2=VALUE2 ... , available KEYs are: from, to. The time format is like 2020-05-01T00:00:00",
+              "name": "--recurrence-period"
+            },
+            {
+              "args": [
+                {
+                  "name": "schedule-status",
+                  "suggestions": [
+                    "Active",
+                    "Inactive"
+                  ]
+                }
+              ],
+              "description": "The status of the export's schedule. If inactive, the export's scheduled execution is paused",
+              "name": "--schedule-status"
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-directory"
+                }
+              ],
+              "description": "The root directory in the storage container to store exports",
+              "name": "--storage-directory"
+            },
+            {
+              "args": [
+                {
+                  "name": "time-period"
+                }
+              ],
+              "description": "Has time period for pulling data for the query. Expect value: from=TIMESTAMP1 to=TIMESTAMP2. The timestamp format is like 2020-05-01T00:00:00.The TIMESTAMP1 must in the future and TIMESTAMP2 must be greater than TIMESTAMP1",
+              "name": "--time-period"
+            },
+            {
+              "args": [
+                {
+                  "name": "type",
+                  "suggestions": [
+                    "ActualCost",
+                    "AmortizedCost",
+                    "Usage"
+                  ]
+                }
+              ],
+              "description": "The type of the query",
+              "name": "--type"
+            }
+          ]
+        },
+        {
+          "description": "The operation to delete an export",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Export Name",
+              "isRequired": true,
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "The scope associated with query and export operations. This includes '/subscriptions/{subscriptionId}/' for subscription scope, '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}' for resourceGroup scope, '/providers/Microsoft.Management/managementGroups/{managementGroupId} for Management Group scope",
+              "isRequired": true,
+              "name": "--scope"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "The operation to list all exports at the given scope",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "The scope associated with query and export operations. This includes '/subscriptions/{subscriptionId}/' for subscription scope, '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}' for resourceGroup scope, '/providers/Microsoft.Management/managementGroups/{managementGroupId} for Management Group scope",
+              "isRequired": true,
+              "name": "--scope"
+            }
+          ]
+        },
+        {
+          "description": "The operation to get the execution history of an export for the defined scope by export name",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Export Name",
+              "isRequired": true,
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "The scope associated with query and export operations. This includes '/subscriptions/{subscriptionId}/' for subscription scope, '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}' for resourceGroup scope, '/providers/Microsoft.Management/managementGroups/{managementGroupId} for Management Group scope",
+              "isRequired": true,
+              "name": "--scope"
+            }
+          ]
+        },
+        {
+          "description": "The operation to update an export",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Export Name",
+              "isRequired": true,
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "The scope associated with query and export operations. This includes '/subscriptions/{subscriptionId}/' for subscription scope, '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}' for resourceGroup scope, '/providers/Microsoft.Management/managementGroups/{managementGroupId} for Management Group scope",
+              "isRequired": true,
+              "name": "--scope"
+            },
+            {
+              "args": [
+                {
+                  "name": "dataset-configuration"
+                }
+              ],
+              "description": "Has configuration information for the data in the export. The configuration will be ignored if aggregation and grouping are provided. Expect value: columns=xx",
+              "name": "--dataset-configuration"
+            },
+            {
+              "args": [
+                {
+                  "name": "recurrence",
+                  "suggestions": [
+                    "Annually",
+                    "Daily",
+                    "Monthly",
+                    "Weekly"
+                  ]
+                }
+              ],
+              "description": "The schedule recurrence",
+              "name": "--recurrence"
+            },
+            {
+              "args": [
+                {
+                  "name": "recurrence-period"
+                }
+              ],
+              "description": "Has start and end date of the recurrence. The start date must be in future. If present, the end date must be greater than start date. Expect value: KEY1=VALUE1 KEY2=VALUE2 ... , available KEYs are: from, to. The time format is like 2020-05-01T00:00:00",
+              "name": "--recurrence-period"
+            },
+            {
+              "args": [
+                {
+                  "name": "schedule-status",
+                  "suggestions": [
+                    "Active",
+                    "Inactive"
+                  ]
+                }
+              ],
+              "description": "The status of the export's schedule. If inactive, the export's scheduled execution is paused",
+              "name": "--schedule-status"
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-account-id"
+                }
+              ],
+              "description": "The ID of the storage account to store exports",
+              "name": "--storage-account-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-container"
+                }
+              ],
+              "description": "The storage container to deliver exports",
+              "name": "--storage-container"
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-directory"
+                }
+              ],
+              "description": "The root directory in the storage container to store exports",
+              "name": "--storage-directory"
+            },
+            {
+              "args": [
+                {
+                  "name": "time-period"
+                }
+              ],
+              "description": "Has time period for pulling data for the query. Expect value: from=TIMESTAMP1 to=TIMESTAMP2. The timestamp format is like 2020-05-01T00:00:00.The TIMESTAMP1 must in the future and TIMESTAMP2 must be greater than TIMESTAMP1",
+              "name": "--time-period"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeframe",
+                  "suggestions": [
+                    "BillingMonthToDate",
+                    "Custom",
+                    "MonthToDate",
+                    "TheLastBillingMonth",
+                    "TheLastMonth",
+                    "WeekToDate"
+                  ]
+                }
+              ],
+              "description": "The time frame for pulling data for the query. If custom, then a specific time period must be provided",
+              "name": "--timeframe"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

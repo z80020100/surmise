@@ -1,0 +1,3291 @@
+{
+  "description": "The Amazon WorkDocs API is designed for the following use cases:   File Migration: File migration applications are supported for users who want to migrate their files from an on-premises or off-premises file system or service. Users can insert files into a user directory structure, as well as allow for basic metadata changes, such as modifications to the permissions of files.   Security: Support security applications are supported for users who have additional security needs, such as antivirus or data loss prevention. The API actions, along with CloudTrail, allow these applications to detect when changes occur in Amazon WorkDocs. Then, the application can take the necessary actions and replace the target file. If the target file violates the policy, the application can also choose to email the user.   eDiscovery/Analytics: General administrative applications are supported, such as eDiscovery and analytics. These applications can choose to mimic or record the actions in an Amazon WorkDocs site, along with CloudTrail, to replicate data for eDiscovery, backup, or analytical applications.   All Amazon WorkDocs API actions are Amazon authenticated and certificate-signed. They not only require the use of the Amazon Web Services SDK, but also allow for the exclusive use of IAM users and roles to help facilitate access, trust, and permission policies. By creating a role and allowing an IAM user to access the Amazon WorkDocs site, the IAM user gains full administrative visibility into the entire Amazon WorkDocs site (or as set in the IAM policy). This includes, but is not limited to, the ability to modify file permissions and upload any file to any user. This allows developers to perform the three use cases above, as well as give users the ability to grant access on a selective basis using the IAM model.  The pricing for Amazon WorkDocs APIs varies depending on the API call type for these actions:    READ (Get*)     WRITE (Activate*, Add*, Create*, Deactivate*, Initiate*, Update*)     LIST (Describe*)     DELETE*, CANCEL    For information about Amazon WorkDocs API pricing, see Amazon WorkDocs Pricing",
+  "name": "workdocs",
+  "subcommands": [
+    {
+      "description": "Aborts the upload of the specified document version that was previously initiated by InitiateDocumentVersionUpload. The client should make this call only when it no longer intends to upload the document version, or fails to do so",
+      "name": "abort-document-version-upload",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document",
+          "name": "--document-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the version",
+          "name": "--version-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Activates the specified user. Only active users can access Amazon WorkDocs",
+      "name": "activate-user",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the user",
+          "name": "--user-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Creates a set of permissions for the specified folder or document. The resource permissions are overwritten if the principals already have different permissions",
+      "name": "add-resource-permissions",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the resource",
+          "name": "--resource-id"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "The users, groups, or organization being granted permission",
+          "name": "--principals"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "The notification options",
+          "name": "--notification-options"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Adds a new comment to the specified document version",
+      "name": "create-comment",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document",
+          "name": "--document-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document version",
+          "name": "--version-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the parent comment",
+          "name": "--parent-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the root comment in the thread",
+          "name": "--thread-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The text of the comment",
+          "name": "--text"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The visibility of the comment. Options are either PRIVATE, where the comment is visible only to the comment author and document owner and co-owners, or PUBLIC, where the comment is visible to document owners, co-owners, and contributors",
+          "name": "--visibility"
+        },
+        {
+          "description": "Set this parameter to TRUE to send an email out to the document collaborators after the comment is created",
+          "name": "--notify-collaborators"
+        },
+        {
+          "description": "Set this parameter to TRUE to send an email out to the document collaborators after the comment is created",
+          "name": "--no-notify-collaborators"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Adds one or more custom properties to the specified resource (a folder, document, or version)",
+      "name": "create-custom-metadata",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the resource",
+          "name": "--resource-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the version, if the custom metadata is being added to a document version",
+          "name": "--version-id"
+        },
+        {
+          "args": [
+            {
+              "name": "map"
+            }
+          ],
+          "description": "Custom metadata in the form of name-value pairs",
+          "name": "--custom-metadata"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Creates a folder with the specified name and parent folder",
+      "name": "create-folder",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the new folder",
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the parent folder",
+          "name": "--parent-folder-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Adds the specified list of labels to the given resource (a document or folder)",
+      "name": "create-labels",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the resource",
+          "name": "--resource-id"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "List of labels to add to the resource",
+          "name": "--labels"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Configure Amazon WorkDocs to use Amazon SNS notifications. The endpoint receives a confirmation message, and must confirm the subscription. For more information, see Setting up notifications for an IAM user or role in the Amazon WorkDocs Developer Guide",
+      "name": "create-notification-subscription",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the organization",
+          "name": "--organization-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The protocol to use. The supported value is https, which delivers JSON-encoded messages using HTTPS POST",
+          "name": "--protocol"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The notification type",
+          "name": "--subscription-type"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The endpoint to receive the notifications. If the protocol is HTTPS, the endpoint is a URL that begins with https",
+          "name": "--notification-endpoint"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Creates a user in a Simple AD or Microsoft AD directory. The status of a newly created user is \"ACTIVE\". New users can access Amazon WorkDocs",
+      "name": "create-user",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the organization",
+          "name": "--organization-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The login name of the user",
+          "name": "--username"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The email address of the user",
+          "name": "--email-address"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The given name of the user",
+          "name": "--given-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The surname of the user",
+          "name": "--surname"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The password of the user",
+          "name": "--password"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The time zone ID of the user",
+          "name": "--time-zone-id"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "The amount of storage for the user",
+          "name": "--storage-rule"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deactivates the specified user, which revokes the user's access to Amazon WorkDocs",
+      "name": "deactivate-user",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the user",
+          "name": "--user-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes the specified comment from the document version",
+      "name": "delete-comment",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document",
+          "name": "--document-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document version",
+          "name": "--version-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the comment",
+          "name": "--comment-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes custom metadata from the specified resource",
+      "name": "delete-custom-metadata",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the resource, either a document or folder",
+          "name": "--resource-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the version, if the custom metadata is being deleted from a document version",
+          "name": "--version-id"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "List of properties to remove",
+          "name": "--keys"
+        },
+        {
+          "description": "Flag to indicate removal of all custom metadata properties from the specified resource",
+          "name": "--delete-all"
+        },
+        {
+          "description": "Flag to indicate removal of all custom metadata properties from the specified resource",
+          "name": "--no-delete-all"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Permanently deletes the specified document and its associated metadata",
+      "name": "delete-document",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document",
+          "name": "--document-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes a specific version of a document",
+      "name": "delete-document-version",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document associated with the version being deleted",
+          "name": "--document-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the version being deleted",
+          "name": "--version-id"
+        },
+        {
+          "description": "Deletes all versions of a document prior to the current version",
+          "name": "--delete-prior-versions"
+        },
+        {
+          "description": "Deletes all versions of a document prior to the current version",
+          "name": "--no-delete-prior-versions"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Permanently deletes the specified folder and its contents",
+      "name": "delete-folder",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the folder",
+          "name": "--folder-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes the contents of the specified folder",
+      "name": "delete-folder-contents",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the folder",
+          "name": "--folder-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes the specified list of labels from a resource",
+      "name": "delete-labels",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the resource",
+          "name": "--resource-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "List of labels to delete from the resource",
+          "name": "--labels"
+        },
+        {
+          "description": "Flag to request removal of all labels from the specified resource",
+          "name": "--delete-all"
+        },
+        {
+          "description": "Flag to request removal of all labels from the specified resource",
+          "name": "--no-delete-all"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes the specified subscription from the specified organization",
+      "name": "delete-notification-subscription",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the subscription",
+          "name": "--subscription-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the organization",
+          "name": "--organization-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Deletes the specified user from a Simple AD or Microsoft AD directory.  Deleting a user immediately and permanently deletes all content in that user's folder structure. Site retention policies do NOT apply to this type of deletion",
+      "name": "delete-user",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Do not set this field when using administrative API actions, as in accessing the API using Amazon Web Services credentials",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the user",
+          "name": "--user-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Describes the user activities in a specified time period",
+      "name": "describe-activities",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "timestamp"
+            }
+          ],
+          "description": "The timestamp that determines the starting time of the activities. The response includes the activities performed after the specified timestamp",
+          "name": "--start-time"
+        },
+        {
+          "args": [
+            {
+              "name": "timestamp"
+            }
+          ],
+          "description": "The timestamp that determines the end time of the activities. The response includes the activities performed before the specified timestamp",
+          "name": "--end-time"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the organization. This is a mandatory parameter when using administrative API (SigV4) requests",
+          "name": "--organization-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Specifies which activity types to include in the response. If this field is left empty, all activity types are returned",
+          "name": "--activity-types"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The document or folder ID for which to describe activity types",
+          "name": "--resource-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the user who performed the action. The response includes activities pertaining to this user. This is an optional parameter and is only applicable for administrative API (SigV4) requests",
+          "name": "--user-id"
+        },
+        {
+          "description": "Includes indirect activities. An indirect activity results from a direct activity performed on a parent resource. For example, sharing a parent folder (the direct activity) shares all of the subfolders and documents within the parent folder (the indirect activity)",
+          "name": "--include-indirect-activities"
+        },
+        {
+          "description": "Includes indirect activities. An indirect activity results from a direct activity performed on a parent resource. For example, sharing a parent folder (the direct activity) shares all of the subfolders and documents within the parent folder (the indirect activity)",
+          "name": "--no-include-indirect-activities"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of items to return",
+          "name": "--limit"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The marker for the next set of results",
+          "name": "--marker"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "List all the comments for the specified document version",
+      "name": "describe-comments",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document",
+          "name": "--document-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document version",
+          "name": "--version-id"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of items to return",
+          "name": "--limit"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The marker for the next set of results. This marker was received from a previous call",
+          "name": "--marker"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves the document versions for the specified document. By default, only active versions are returned",
+      "name": "describe-document-versions",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document",
+          "name": "--document-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The marker for the next set of results. (You received this marker from a previous call.)",
+          "name": "--marker"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of versions to return with this call",
+          "name": "--limit"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A comma-separated list of values. Specify \"INITIALIZED\" to include incomplete versions",
+          "name": "--include"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Specify \"SOURCE\" to include initialized versions and a URL for the source document",
+          "name": "--fields"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Describes the contents of the specified folder, including its documents and subfolders. By default, Amazon WorkDocs returns the first 100 active document and folder metadata items. If there are more results, the response includes a marker that you can use to request the next set of results. You can also request initialized documents",
+      "name": "describe-folder-contents",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the folder",
+          "name": "--folder-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The sorting criteria",
+          "name": "--sort"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The order for the contents of the folder",
+          "name": "--order"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of items to return with this call",
+          "name": "--limit"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The marker for the next set of results. This marker was received from a previous call",
+          "name": "--marker"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The type of items",
+          "name": "--type"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The contents to include. Specify \"INITIALIZED\" to include initialized documents",
+          "name": "--include"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Describes the groups specified by the query. Groups are defined by the underlying Active Directory",
+      "name": "describe-groups",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A query to describe groups by group name",
+          "name": "--search-query"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the organization",
+          "name": "--organization-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The marker for the next set of results. (You received this marker from a previous call.)",
+          "name": "--marker"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of items to return with this call",
+          "name": "--limit"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Lists the specified notification subscriptions",
+      "name": "describe-notification-subscriptions",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the organization",
+          "name": "--organization-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The marker for the next set of results. (You received this marker from a previous call.)",
+          "name": "--marker"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of items to return with this call",
+          "name": "--limit"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Describes the permissions of a specified resource",
+      "name": "describe-resource-permissions",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the resource",
+          "name": "--resource-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the principal to filter permissions by",
+          "name": "--principal-id"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of items to return with this call",
+          "name": "--limit"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The marker for the next set of results. (You received this marker from a previous call)",
+          "name": "--marker"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Describes the current user's special folders; the RootFolder and the RecycleBin. RootFolder is the root of user's files and folders and RecycleBin is the root of recycled items. This is not a valid action for SigV4 (administrative API) clients. This action requires an authentication token. To get an authentication token, register an application with Amazon WorkDocs. For more information, see Authentication and Access Control for User Applications in the Amazon WorkDocs Developer Guide",
+      "name": "describe-root-folders",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of items to return",
+          "name": "--limit"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The marker for the next set of results. (You received this marker from a previous call.)",
+          "name": "--marker"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Describes the specified users. You can describe all users or filter the results (for example, by status or organization). By default, Amazon WorkDocs returns the first 24 active or pending users. If there are more results, the response includes a marker that you can use to request the next set of results",
+      "name": "describe-users",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the organization",
+          "name": "--organization-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The IDs of the users",
+          "name": "--user-ids"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The state of the users. Specify \"ALL\" to include inactive users",
+          "name": "--include"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The order for the results",
+          "name": "--order"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The sorting criteria",
+          "name": "--sort"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The marker for the next set of results. (You received this marker from a previous call.)",
+          "name": "--marker"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of items to return",
+          "name": "--limit"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A comma-separated list of values. Specify \"STORAGE_METADATA\" to include the user storage quota and utilization information",
+          "name": "--fields"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A query to filter users by user name. Remember the following about the Userids and Query parameters:   If you don't use either parameter, the API returns a paginated list of all users on the site.   If you use both parameters, the API ignores the Query parameter.   The Userid parameter only returns user names that match a corresponding user ID.   The Query parameter runs a \"prefix\" search for users by the GivenName, SurName, or UserName fields included in a CreateUser API call. For example, querying on Ma returns Márcia Oliveira, María García, and Mateo Jackson. If you use multiple characters, the API only returns data that matches all characters. For example, querying on Ma J only returns Mateo Jackson",
+          "name": "--user-query"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves details of the current user for whom the authentication token was generated. This is not a valid action for SigV4 (administrative API) clients. This action requires an authentication token. To get an authentication token, register an application with Amazon WorkDocs. For more information, see Authentication and Access Control for User Applications in the Amazon WorkDocs Developer Guide",
+      "name": "get-current-user",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves details of a document",
+      "name": "get-document",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document",
+          "name": "--document-id"
+        },
+        {
+          "description": "Set this to TRUE to include custom metadata in the response",
+          "name": "--include-custom-metadata"
+        },
+        {
+          "description": "Set this to TRUE to include custom metadata in the response",
+          "name": "--no-include-custom-metadata"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves the path information (the hierarchy from the root folder) for the requested document. By default, Amazon WorkDocs returns a maximum of 100 levels upwards from the requested document and only includes the IDs of the parent folders in the path. You can limit the maximum number of levels. You can also request the names of the parent folders",
+      "name": "get-document-path",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document",
+          "name": "--document-id"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of levels in the hierarchy to return",
+          "name": "--limit"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A comma-separated list of values. Specify NAME to include the names of the parent folders",
+          "name": "--fields"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "This value is not supported",
+          "name": "--marker"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves version metadata for the specified document",
+      "name": "get-document-version",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document",
+          "name": "--document-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The version ID of the document",
+          "name": "--version-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A comma-separated list of values. Specify \"SOURCE\" to include a URL for the source document",
+          "name": "--fields"
+        },
+        {
+          "description": "Set this to TRUE to include custom metadata in the response",
+          "name": "--include-custom-metadata"
+        },
+        {
+          "description": "Set this to TRUE to include custom metadata in the response",
+          "name": "--no-include-custom-metadata"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves the metadata of the specified folder",
+      "name": "get-folder",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the folder",
+          "name": "--folder-id"
+        },
+        {
+          "description": "Set to TRUE to include custom metadata in the response",
+          "name": "--include-custom-metadata"
+        },
+        {
+          "description": "Set to TRUE to include custom metadata in the response",
+          "name": "--no-include-custom-metadata"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves the path information (the hierarchy from the root folder) for the specified folder. By default, Amazon WorkDocs returns a maximum of 100 levels upwards from the requested folder and only includes the IDs of the parent folders in the path. You can limit the maximum number of levels. You can also request the parent folder names",
+      "name": "get-folder-path",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the folder",
+          "name": "--folder-id"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of levels in the hierarchy to return",
+          "name": "--limit"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A comma-separated list of values. Specify \"NAME\" to include the names of the parent folders",
+          "name": "--fields"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "This value is not supported",
+          "name": "--marker"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Retrieves a collection of resources, including folders and documents. The only CollectionType supported is SHARED_WITH_ME",
+      "name": "get-resources",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The user ID for the resource collection. This is a required field for accessing the API operation using IAM credentials",
+          "name": "--user-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The collection type",
+          "name": "--collection-type"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The maximum number of resources to return",
+          "name": "--limit"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The marker for the next set of results. This marker was received from a previous call",
+          "name": "--marker"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Creates a new document object and version object. The client specifies the parent folder ID and name of the document to upload. The ID is optionally specified when creating a new version of an existing document. This is the first step to upload a document. Next, upload the document to the URL returned from the call, and then call UpdateDocumentVersion. To cancel the document upload, call AbortDocumentVersionUpload",
+      "name": "initiate-document-version-upload",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document",
+          "name": "--id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the document",
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "timestamp"
+            }
+          ],
+          "description": "The timestamp when the content of the document was originally created",
+          "name": "--content-created-timestamp"
+        },
+        {
+          "args": [
+            {
+              "name": "timestamp"
+            }
+          ],
+          "description": "The timestamp when the content of the document was modified",
+          "name": "--content-modified-timestamp"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The content type of the document",
+          "name": "--content-type"
+        },
+        {
+          "args": [
+            {
+              "name": "long"
+            }
+          ],
+          "description": "The size of the document, in bytes",
+          "name": "--document-size-in-bytes"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the parent folder",
+          "name": "--parent-folder-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Removes all the permissions from the specified resource",
+      "name": "remove-all-resource-permissions",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the resource",
+          "name": "--resource-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Removes the permission for the specified principal from the specified resource",
+      "name": "remove-resource-permission",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the resource",
+          "name": "--resource-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The principal ID of the resource",
+          "name": "--principal-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The principal type of the resource",
+          "name": "--principal-type"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Recovers a deleted version of an Amazon WorkDocs document",
+      "name": "restore-document-versions",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document",
+          "name": "--document-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Searches metadata and the content of folders, documents, document versions, and comments",
+      "name": "search-resources",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The String to search for. Searches across different text fields based on request parameters. Use double quotes around the query string for exact phrase matches",
+          "name": "--query-text"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "Filter based on the text field type. A Folder has only a name and no content. A Comment has only content and no name. A Document or Document Version has a name and content",
+          "name": "--query-scopes"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Filters based on the resource owner OrgId. This is a mandatory parameter when using Admin SigV4 credentials",
+          "name": "--organization-id"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "A list of attributes to include in the response. Used to request fields that are not normally returned in a standard response",
+          "name": "--additional-response-fields"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "Filters results based on entity metadata",
+          "name": "--filters"
+        },
+        {
+          "args": [
+            {
+              "name": "list"
+            }
+          ],
+          "description": "Order by results in one or more categories",
+          "name": "--order-by"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "Max results count per page",
+          "name": "--limit"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The marker for the next set of results",
+          "name": "--marker"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "A token to specify where to start paginating.  This is the\nNextToken from a previously truncated response.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--starting-token"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The size of each page to get in the AWS service call.  This\ndoes not affect the number of items returned in the command's\noutput.  Setting a smaller page size results in more calls to\nthe AWS service, retrieving fewer items in each call.  This can\nhelp prevent the AWS service calls from timing out.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--page-size"
+        },
+        {
+          "args": [
+            {
+              "name": "integer"
+            }
+          ],
+          "description": "The total number of items to return in the command's output.\nIf the total number of items available is more than the value\nspecified, a NextToken is provided in the command's\noutput.  To resume pagination, provide the\nNextToken value in the starting-token\nargument of a subsequent command.  Do not use the\nNextToken response element directly outside of the\nAWS CLI.\nFor usage examples, see Pagination in the AWS Command Line Interface User\nGuide",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Updates the specified attributes of a document. The user must have access to both the document and its parent folder, if applicable",
+      "name": "update-document",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document",
+          "name": "--document-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the document",
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the parent folder",
+          "name": "--parent-folder-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The resource state of the document. Only ACTIVE and RECYCLED are supported",
+          "name": "--resource-state"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Changes the status of the document version to ACTIVE.  Amazon WorkDocs also sets its document container to ACTIVE. This is the last step in a document upload, after the client uploads the document to an S3-presigned URL returned by InitiateDocumentVersionUpload",
+      "name": "update-document-version",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the document",
+          "name": "--document-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The version ID of the document",
+          "name": "--version-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The status of the version",
+          "name": "--version-status"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Updates the specified attributes of the specified folder. The user must have access to both the folder and its parent folder, if applicable",
+      "name": "update-folder",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the folder",
+          "name": "--folder-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The name of the folder",
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the parent folder",
+          "name": "--parent-folder-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The resource state of the folder. Only ACTIVE and RECYCLED are accepted values from the API",
+          "name": "--resource-state"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    },
+    {
+      "description": "Updates the specified attributes of the specified user, and grants or revokes administrative privileges to the Amazon WorkDocs site",
+      "name": "update-user",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Amazon WorkDocs authentication token. Not required when using Amazon Web Services administrator credentials to access the API",
+          "name": "--authentication-token"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The ID of the user",
+          "name": "--user-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The given name of the user",
+          "name": "--given-name"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The surname of the user",
+          "name": "--surname"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The type of the user",
+          "name": "--type"
+        },
+        {
+          "args": [
+            {
+              "name": "structure"
+            }
+          ],
+          "description": "The amount of storage for the user",
+          "name": "--storage-rule"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The time zone ID of the user",
+          "name": "--time-zone-id"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "The locale of the user",
+          "name": "--locale"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Boolean value to determine whether the user is granted Power user privileges",
+          "name": "--grant-poweruser-privileges"
+        },
+        {
+          "args": [
+            {
+              "name": "string"
+            }
+          ],
+          "description": "Performs service operation based on the JSON string provided. The JSON string follows the format provided by ``--generate-cli-skeleton``. If other arguments are provided on the command line, the CLI values will override the JSON-provided values. It is not possible to pass arbitrary binary values using a JSON-provided value as the string will be taken literally",
+          "name": "--cli-input-json"
+        },
+        {
+          "args": [
+            {
+              "name": "string",
+              "suggestions": [
+                "input",
+                "output"
+              ]
+            }
+          ],
+          "description": "Prints a JSON skeleton to standard output without sending an API request. If provided with no value or the value ``input``, prints a sample input JSON that can be used as an argument for ``--cli-input-json``. If provided with the value ``output``, it validates the command inputs and returns a sample output JSON for that command",
+          "name": "--generate-cli-skeleton"
+        }
+      ]
+    }
+  ]
+}

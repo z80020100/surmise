@@ -1,0 +1,5036 @@
+{
+  "description": "Manage Azure API Management services",
+  "name": "apim",
+  "subcommands": [
+    {
+      "description": "Manage Azure API Management API's",
+      "name": "api",
+      "subcommands": [
+        {
+          "description": "Create an API Management API",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "api-id"
+                }
+              ],
+              "description": "Unique name of the api to be created",
+              "isRequired": true,
+              "name": "--api-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Display name of the API to be created",
+              "isRequired": true,
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "path"
+                }
+              ],
+              "description": "Path to the API",
+              "isRequired": true,
+              "name": "--path"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the API Management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-type",
+                  "suggestions": [
+                    "graphql",
+                    "http",
+                    "soap",
+                    "websocket"
+                  ]
+                }
+              ],
+              "description": "The type of the API",
+              "name": "--api-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "authorization-scope"
+                }
+              ],
+              "description": "Specifies the OAuth operations scope",
+              "name": "--authorization-scope"
+            },
+            {
+              "args": [
+                {
+                  "name": "authorization-server-id"
+                }
+              ],
+              "description": "Specifies the OAuth authorization server ID",
+              "name": "--authorization-server-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "bearer-token-sending-methods"
+                }
+              ],
+              "description": "Specifies the sending methods for bearer token",
+              "name": "--bearer-token-sending-methods"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Description of the API. May include HTML formatting tags",
+              "name": "--description"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "open-id-provider-id"
+                }
+              ],
+              "description": "Specifies the openid in the authentication setting",
+              "name": "--open-id-provider-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "protocols",
+                  "suggestions": [
+                    "http",
+                    "https",
+                    "ws",
+                    "wss"
+                  ]
+                }
+              ],
+              "description": "Describes on which protocols the operations in this API can be invoked",
+              "name": "--protocols"
+            },
+            {
+              "args": [
+                {
+                  "name": "service-url"
+                }
+              ],
+              "description": "Absolute URL of the backend service implementing this API. Cannot be more than 2000 characters long",
+              "name": "--service-url"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription-key-header-name"
+                }
+              ],
+              "description": "Specifies the subscription key header name",
+              "name": "--subscription-key-header-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription-key-query-param-name"
+                }
+              ],
+              "description": "Specifies the subscription key query string parameter name",
+              "name": "--subscription-key-query-param-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription-key-required"
+                }
+              ],
+              "description": "Specifies whether subscription key is required during call to this API, true - API is included into closed products only, false - API is included into open products alone, null - there is a mix of products",
+              "name": "--subscription-key-required"
+            },
+            {
+              "description": "If true, the API requires a subscription key on requests",
+              "name": "--subscription-required"
+            }
+          ]
+        },
+        {
+          "description": "Delete an API Management API",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "api-id"
+                }
+              ],
+              "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+              "isRequired": true,
+              "name": "--api-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the API Management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "delete-revisions"
+                }
+              ],
+              "description": "Delete all revisions of the Api",
+              "name": "--delete-revisions"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the Entity",
+              "name": "--if-match"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Import an API Management API",
+          "name": "import",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "path"
+                }
+              ],
+              "description": "Required. Relative URL uniquely identifying this API and all of its resource paths within the API Management service instance",
+              "isRequired": true,
+              "name": "--path"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the api management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "specification-format",
+                  "suggestions": [
+                    "GraphQL",
+                    "OpenApi",
+                    "OpenApiJson",
+                    "Swagger",
+                    "Wadl",
+                    "Wsdl"
+                  ]
+                }
+              ],
+              "description": "Specify the format of the imported API",
+              "isRequired": true,
+              "name": "--specification-format"
+            },
+            {
+              "args": [
+                {
+                  "name": "api-id"
+                }
+              ],
+              "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+              "name": "--api-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "api-revision"
+                }
+              ],
+              "description": "Describes the Revision of the Api. If no value is provided, default revision 1 is created",
+              "name": "--api-revision"
+            },
+            {
+              "args": [
+                {
+                  "name": "api-type",
+                  "suggestions": [
+                    "graphql",
+                    "http",
+                    "soap",
+                    "websocket"
+                  ]
+                }
+              ],
+              "description": "The type of the API",
+              "name": "--api-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "api-version"
+                }
+              ],
+              "description": "Describes the Version of the Api. If you add a version to a non-versioned API, an Original version will be automatically created and will respond on the default URL",
+              "name": "--api-version"
+            },
+            {
+              "args": [
+                {
+                  "name": "api-version-set-id"
+                }
+              ],
+              "description": "Describes the Version Set to be used with the API",
+              "name": "--api-version-set-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Description of the API. May include HTML formatting tags",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Display name of this API",
+              "name": "--display-name"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "protocols",
+                  "suggestions": [
+                    "http",
+                    "https",
+                    "ws",
+                    "wss"
+                  ]
+                }
+              ],
+              "description": "Describes on which protocols(one or more) the operations in this API can be invoked",
+              "name": "--protocols"
+            },
+            {
+              "args": [
+                {
+                  "name": "service-url"
+                }
+              ],
+              "description": "Absolute URL of the backend service implementing this API. Cannot be more than 2000 characters long",
+              "name": "--service-url"
+            },
+            {
+              "args": [
+                {
+                  "name": "soap-api-type"
+                }
+              ],
+              "description": "The type of API when file format is WSDL",
+              "name": "--soap-api-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "specification-path"
+                }
+              ],
+              "description": "File path specified to import the API",
+              "name": "--specification-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "specification-url"
+                }
+              ],
+              "description": "Url specified to import the API",
+              "name": "--specification-url"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription-key-header-name"
+                }
+              ],
+              "description": "Specifies the subscription key header name",
+              "name": "--subscription-key-header-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription-key-query-param-name"
+                }
+              ],
+              "description": "Specifies the subscription key query string parameter name",
+              "name": "--subscription-key-query-param-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription-required",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "If true, the API requires a subscription key on requests",
+              "name": "--subscription-required"
+            },
+            {
+              "args": [
+                {
+                  "name": "wsdl-endpoint-name"
+                }
+              ],
+              "description": "Local name of WSDL Endpoint (port) to be imported",
+              "name": "--wsdl-endpoint-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "wsdl-service-name"
+                }
+              ],
+              "description": "Local name of WSDL Service to be imported",
+              "name": "--wsdl-service-name"
+            }
+          ]
+        },
+        {
+          "description": "List API Management API's",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the API Management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "filter-display-name"
+                }
+              ],
+              "description": "Filter of APIs by displayName",
+              "name": "--filter-display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "skip"
+                }
+              ],
+              "description": "Number of records to skip",
+              "name": "--skip"
+            },
+            {
+              "args": [
+                {
+                  "name": "top"
+                }
+              ],
+              "description": "Number of records to return",
+              "name": "--top"
+            }
+          ]
+        },
+        {
+          "description": "Show details of an API Management API",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "api-id"
+                }
+              ],
+              "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+              "isRequired": true,
+              "name": "--api-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the API Management service instance",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        },
+        {
+          "description": "Update an API Management API",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "api-id"
+                }
+              ],
+              "description": "Unique name of the api to be created",
+              "isRequired": true,
+              "name": "--api-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the API Management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "api-type",
+                  "suggestions": [
+                    "graphql",
+                    "http",
+                    "soap",
+                    "websocket"
+                  ]
+                }
+              ],
+              "description": "The type of the API",
+              "name": "--api-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Description of the API. May include HTML formatting tags",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "API name. Must be 1 to 300 characters long",
+              "name": "--display-name"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the Entity. Not required when creating an entity, but required when updating an entity. Default value is None",
+              "name": "--if-match"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "path"
+                }
+              ],
+              "description": "Required. Relative URL uniquely identifying this API and all of its resource paths within the API Management service instance",
+              "name": "--path"
+            },
+            {
+              "args": [
+                {
+                  "name": "protocols",
+                  "suggestions": [
+                    "http",
+                    "https",
+                    "ws",
+                    "wss"
+                  ]
+                }
+              ],
+              "description": "Describes on which protocols the operations in this API can be invoked",
+              "name": "--protocols"
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "service-url"
+                }
+              ],
+              "description": "Absolute URL of the backend service implementing this API. Cannot be more than 2000 characters long",
+              "name": "--service-url"
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription-key-header-name"
+                }
+              ],
+              "description": "Specifies the subscription key header name",
+              "name": "--subscription-key-header-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription-key-query-param-name"
+                }
+              ],
+              "description": "Specifies the subscription key query string parameter name",
+              "name": "--subscription-key-query-param-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription-required",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "If true, the API requires a subscription key on requests",
+              "name": "--subscription-required"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a condition of an apim api is met",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "api-id"
+                }
+              ],
+              "description": "API revision identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number. Required",
+              "isRequired": true,
+              "name": "--api-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the api management service instance",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        },
+        {
+          "description": "Manage Azure API Management API Operations",
+          "name": "operation",
+          "subcommands": [
+            {
+              "description": "Creates a new operation in the API",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "display-name"
+                    }
+                  ],
+                  "description": "Required. Operation Name",
+                  "isRequired": true,
+                  "name": "--display-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "method"
+                    }
+                  ],
+                  "description": "Required. A Valid HTTP Operation Method. Typical Http Methods like GET, PUT, POST but not limited by only them",
+                  "isRequired": true,
+                  "name": "--method"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "url-template"
+                    }
+                  ],
+                  "description": "Relative URL template identifying the target resource for this operation. May include parameters",
+                  "isRequired": true,
+                  "name": "--url-template"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "description"
+                    }
+                  ],
+                  "description": "Description of the operation. May include HTML formatting tags",
+                  "name": "--description"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "if-match"
+                    }
+                  ],
+                  "description": "ETag of the Entity",
+                  "name": "--if-match"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "operation-id"
+                    }
+                  ],
+                  "description": "Operation identifier within an API. Must be unique in the current API Management service instance",
+                  "name": "--operation-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "template-parameters"
+                    }
+                  ],
+                  "description": "Collection of URL template parameters",
+                  "name": [
+                    "--template-parameters",
+                    "--params",
+                    "-p"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Deletes the specified operation in the API",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "operation-id"
+                    }
+                  ],
+                  "description": "Operation identifier within an API. Must be unique in the current API Management service instance",
+                  "isRequired": true,
+                  "name": "--operation-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "if-match"
+                    }
+                  ],
+                  "description": "ETag of the Entity",
+                  "name": "--if-match"
+                }
+              ]
+            },
+            {
+              "description": "List a collection of the operations for the specified API",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Gets the details of the API Operation specified by its identifier",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "operation-id"
+                    }
+                  ],
+                  "description": "Operation identifier within an API. Must be unique in the current API Management service instance",
+                  "isRequired": true,
+                  "name": "--operation-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Updates the details of the operation in the API specified by its identifier",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "operation-id"
+                    }
+                  ],
+                  "description": "Operation identifier within an API. Must be unique in the current API Management service instance",
+                  "isRequired": true,
+                  "name": "--operation-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "add"
+                    }
+                  ],
+                  "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+                  "name": "--add"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "description"
+                    }
+                  ],
+                  "description": "Description of the operation. May include HTML formatting tags",
+                  "name": "--description"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "display-name"
+                    }
+                  ],
+                  "description": "Required. Operation Name",
+                  "name": "--display-name"
+                },
+                {
+                  "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+                  "name": "--force-string"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "if-match"
+                    }
+                  ],
+                  "description": "ETag of the Entity",
+                  "name": "--if-match"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "method"
+                    }
+                  ],
+                  "description": "Required. A Valid HTTP Operation Method. Typical Http Methods like GET, PUT, POST but not limited by only them",
+                  "name": "--method"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "remove"
+                    }
+                  ],
+                  "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+                  "name": "--remove"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "set"
+                    }
+                  ],
+                  "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+                  "name": "--set"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "url-template"
+                    }
+                  ],
+                  "description": "Relative URL template identifying the target resource for this operation. May include parameters",
+                  "name": "--url-template"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage Azure API Management API Release",
+          "name": "release",
+          "subcommands": [
+            {
+              "description": "Creates a new Release for the API",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "api-revision"
+                    }
+                  ],
+                  "description": "API revision number",
+                  "isRequired": true,
+                  "name": "--api-revision"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "if-match"
+                    }
+                  ],
+                  "description": "ETag of the Entity",
+                  "name": "--if-match"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "notes"
+                    }
+                  ],
+                  "description": "Release Notes",
+                  "name": "--notes"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "release-id"
+                    }
+                  ],
+                  "description": "Release identifier within an API. Must be unique in the current API Management service instance",
+                  "name": "--release-id"
+                }
+              ]
+            },
+            {
+              "description": "Deletes the specified release in the API",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "release-id"
+                    }
+                  ],
+                  "description": "Release identifier within an API. Must be unique in the current API Management service instance",
+                  "isRequired": true,
+                  "name": "--release-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "if-match"
+                    }
+                  ],
+                  "description": "ETag of the Entity",
+                  "name": "--if-match"
+                }
+              ]
+            },
+            {
+              "description": "Lists all releases of an API",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Returns the details of an API release",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "release-id"
+                    }
+                  ],
+                  "description": "Release identifier within an API. Must be unique in the current API Management service instance",
+                  "isRequired": true,
+                  "name": "--release-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Updates the details of the release of the API specified by its identifier",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "release-id"
+                    }
+                  ],
+                  "description": "Release identifier within an API. Must be unique in the current API Management service instance",
+                  "isRequired": true,
+                  "name": "--release-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "add"
+                    }
+                  ],
+                  "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+                  "name": "--add"
+                },
+                {
+                  "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+                  "name": "--force-string"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "if-match"
+                    }
+                  ],
+                  "description": "ETag of the Entity",
+                  "name": "--if-match"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "notes"
+                    }
+                  ],
+                  "description": "Release Notes",
+                  "name": "--notes"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "remove"
+                    }
+                  ],
+                  "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+                  "name": "--remove"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "set"
+                    }
+                  ],
+                  "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+                  "name": "--set"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage Azure API Management API Revision",
+          "name": "revision",
+          "subcommands": [
+            {
+              "description": "Create API revision",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "api-revision"
+                    }
+                  ],
+                  "description": "Describes the Revision of the Api",
+                  "isRequired": true,
+                  "name": "--api-revision"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "api-revision-description"
+                    }
+                  ],
+                  "description": "Description of the Api Revision",
+                  "name": [
+                    "--api-revision-description",
+                    "--rev-description"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Lists all revisions of an API",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage Azure API Management API Schema's",
+          "name": "schema",
+          "subcommands": [
+            {
+              "description": "Create an API Management API Schema",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "Unique name of the api for which schema needs to be created",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "schema-id"
+                    }
+                  ],
+                  "description": "Unique name of the api schema to be created",
+                  "isRequired": true,
+                  "name": "--schema-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "schema-type"
+                    }
+                  ],
+                  "description": "Schema type (e.g. application/json, application/vnd.ms-azure-apim.graphql.schema)",
+                  "isRequired": true,
+                  "name": "--schema-type"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "description": "Do not wait for the long-running operation to finish",
+                  "name": "--no-wait"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-type"
+                    }
+                  ],
+                  "description": "The type of the resource. E.g. \"Microsoft.Compute/virtualMachines\" or \"Microsoft.Storage/storageAccounts\"",
+                  "name": "--resource-type"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "schema-content"
+                    }
+                  ],
+                  "description": "Json escaped string defining the document representing the Schema",
+                  "name": "--schema-content"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "schema-name"
+                    }
+                  ],
+                  "description": "The name of the schema resource",
+                  "name": "--schema-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "schema-path"
+                    }
+                  ],
+                  "description": "File path specified to import schema of the API",
+                  "name": "--schema-path"
+                }
+              ]
+            },
+            {
+              "description": "Delete an API Management API Schema",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "schema-id"
+                    }
+                  ],
+                  "description": "Schema identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--schema-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "if-match"
+                    }
+                  ],
+                  "description": "ETag of the Entity",
+                  "name": "--if-match"
+                },
+                {
+                  "description": "Do not wait for the long-running operation to finish",
+                  "name": "--no-wait"
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Get etag of an API Management API schema",
+              "name": "get-etag",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "schema-id"
+                    }
+                  ],
+                  "description": "Schema identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--schema-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List API Management API schema's",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "filter-display-name"
+                    }
+                  ],
+                  "description": "Filter of APIs by displayName",
+                  "name": "--filter-display-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "skip"
+                    }
+                  ],
+                  "description": "Number of records to skip",
+                  "name": "--skip"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "top"
+                    }
+                  ],
+                  "description": "Number of records to return",
+                  "name": "--top"
+                }
+              ]
+            },
+            {
+              "description": "Show details of an API Management API Schema",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "schema-id"
+                    }
+                  ],
+                  "description": "Schema identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--schema-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Place the CLI in a waiting state until a condition of an apim api schema is met",
+              "name": "wait",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API revision identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number. Required",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the api management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "schema-id"
+                    }
+                  ],
+                  "description": "Schema id identifier. Must be unique in the current API Management service instance. Required",
+                  "isRequired": true,
+                  "name": "--schema-id"
+                },
+                {
+                  "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+                  "name": "--created"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "custom"
+                    }
+                  ],
+                  "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+                  "name": "--custom"
+                },
+                {
+                  "description": "Wait until deleted",
+                  "name": "--deleted"
+                },
+                {
+                  "description": "Wait until the resource exists",
+                  "name": "--exists"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "interval"
+                    }
+                  ],
+                  "description": "Polling interval in seconds",
+                  "name": "--interval"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "timeout"
+                    }
+                  ],
+                  "description": "Maximum wait in seconds",
+                  "name": "--timeout"
+                },
+                {
+                  "description": "Wait until updated with provisioningState at 'Succeeded'",
+                  "name": "--updated"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage Azure API Management API Version Set",
+          "name": "versionset",
+          "subcommands": [
+            {
+              "description": "Creates a Api Version Set",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "display-name"
+                    }
+                  ],
+                  "description": "Required. Name of API Version Set",
+                  "isRequired": true,
+                  "name": "--display-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "versioning-scheme"
+                    }
+                  ],
+                  "description": "Required. An value that determines where the API Version identifer will be located in a HTTP request. Possible values include: 'Segment', 'Query', 'Header'",
+                  "isRequired": true,
+                  "name": "--versioning-scheme"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "description"
+                    }
+                  ],
+                  "description": "Description of API Version Set",
+                  "name": "--description"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "if-match"
+                    }
+                  ],
+                  "description": "ETag of the Entity",
+                  "name": "--if-match"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "version-header-name"
+                    }
+                  ],
+                  "description": "Name of HTTP header parameter that indicates the API Version if versioningScheme is set to header",
+                  "name": "--version-header-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "version-query-name"
+                    }
+                  ],
+                  "description": "Name of query parameter that indicates the API Version if versioningScheme is set to query",
+                  "name": "--version-query-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "version-set-id"
+                    }
+                  ],
+                  "description": "A resource identifier for the related ApiVersionSet",
+                  "name": "--version-set-id"
+                }
+              ]
+            },
+            {
+              "description": "Deletes specific Api Version Set",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "version-set-id"
+                    }
+                  ],
+                  "description": "A resource identifier for the related ApiVersionSet",
+                  "isRequired": true,
+                  "name": "--version-set-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "if-match"
+                    }
+                  ],
+                  "description": "ETag of the Entity",
+                  "name": "--if-match"
+                }
+              ]
+            },
+            {
+              "description": "Lists a collection of API Version Sets in the specified service instance",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Gets the details of the Api Version Set specified by its identifier",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "version-set-id"
+                    }
+                  ],
+                  "description": "A resource identifier for the related ApiVersionSet",
+                  "isRequired": true,
+                  "name": "--version-set-id"
+                }
+              ]
+            },
+            {
+              "description": "Updates the details of the Api VersionSet specified by its identifier",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "version-set-id"
+                    }
+                  ],
+                  "description": "A resource identifier for the related ApiVersionSet",
+                  "isRequired": true,
+                  "name": "--version-set-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "add"
+                    }
+                  ],
+                  "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+                  "name": "--add"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "description"
+                    }
+                  ],
+                  "description": "Description of API Version Set",
+                  "name": "--description"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "display-name"
+                    }
+                  ],
+                  "description": "Required. Name of API Version Set",
+                  "name": "--display-name"
+                },
+                {
+                  "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+                  "name": "--force-string"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "if-match"
+                    }
+                  ],
+                  "description": "ETag of the Entity",
+                  "name": "--if-match"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "remove"
+                    }
+                  ],
+                  "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+                  "name": "--remove"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "set"
+                    }
+                  ],
+                  "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+                  "name": "--set"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "version-header-name"
+                    }
+                  ],
+                  "description": "Name of HTTP header parameter that indicates the API Version if versioningScheme is set to header",
+                  "name": "--version-header-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "version-query-name"
+                    }
+                  ],
+                  "description": "Name of query parameter that indicates the API Version if versioningScheme is set to query",
+                  "name": "--version-query-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "versioning-scheme"
+                    }
+                  ],
+                  "description": "Required. An value that determines where the API Version identifer will be located in a HTTP request. Possible values include: 'Segment', 'Query', 'Header'",
+                  "name": "--versioning-scheme"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Update the API Management resource running in the virtual network to pick the updated network settings",
+      "name": "apply-network-updates",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the api management service instance",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        }
+      ]
+    },
+    {
+      "description": "Creates a backup of the API Management service to the given Azure Storage Account. This is long running operation and could take several minutes to complete",
+      "name": "backup",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "backup-name"
+            }
+          ],
+          "description": "The name of the backup file to create",
+          "isRequired": true,
+          "name": "--backup-name"
+        },
+        {
+          "args": [
+            {
+              "name": "storage-account-container"
+            }
+          ],
+          "description": "The name of the storage account container used to place the backup",
+          "isRequired": true,
+          "name": [
+            "--storage-account-container",
+            "--container-name"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the api management service instance",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "storage-account-key"
+            }
+          ],
+          "description": "The access key of the storage account used to place the backup",
+          "isRequired": true,
+          "name": "--storage-account-key"
+        },
+        {
+          "args": [
+            {
+              "name": "storage-account-name"
+            }
+          ],
+          "description": "The name of the storage account used to place the backup",
+          "isRequired": true,
+          "name": "--storage-account-name"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        }
+      ]
+    },
+    {
+      "description": "Checks to see if a service name is available to use",
+      "name": "check-name",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the api management service instance",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Create an API Management service instance",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Unique name of the service instance to be created",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "publisher-email"
+            }
+          ],
+          "description": "The e-mail address to receive all system notifications",
+          "isRequired": true,
+          "name": "--publisher-email"
+        },
+        {
+          "args": [
+            {
+              "name": "publisher-name"
+            }
+          ],
+          "description": "The name of your organization for use in the developer portal and e-mail notifications",
+          "isRequired": true,
+          "name": "--publisher-name"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "disable-gateway",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Disable gateway in the master region. Only valid for an Api Management service deployed in multiple locations",
+          "name": "--disable-gateway"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-client-certificate",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enforces a client certificate to be presented on each request to the gateway and also enables the ability to authenticate the certificate in the policy on the gateway",
+          "name": "--enable-client-certificate"
+        },
+        {
+          "description": "Create a managed identity for the API Management service to access other Azure resources. Only meant to be used for Consumption SKU Service",
+          "name": "--enable-managed-identity"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "public-network-access",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Whether or not public endpoint access is allowed for this API Management service. If set to true, private endpoints are the exclusive access method",
+          "name": "--public-network-access"
+        },
+        {
+          "args": [
+            {
+              "name": "sku-capacity"
+            }
+          ],
+          "description": "The number of deployed units of the SKU",
+          "name": "--sku-capacity"
+        },
+        {
+          "args": [
+            {
+              "name": "sku-name",
+              "suggestions": [
+                "Basic",
+                "Consumption",
+                "Developer",
+                "Isolated",
+                "Premium",
+                "Standard"
+              ]
+            }
+          ],
+          "description": "The sku of the api management instance",
+          "name": "--sku-name"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "virtual-network",
+              "suggestions": [
+                "External",
+                "Internal",
+                "None"
+              ]
+            }
+          ],
+          "description": "The virtual network type",
+          "name": [
+            "--virtual-network",
+            "-v"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Deletes an API Management service",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the api management service instance",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List API Management service instances",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Restores a backup of an API Management service created using the ApiManagementService_Backup operation on the current service. This is a long running operation and could take several minutes to complete",
+      "name": "restore",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "backup-name"
+            }
+          ],
+          "description": "The name of the backup file to restore",
+          "isRequired": true,
+          "name": "--backup-name"
+        },
+        {
+          "args": [
+            {
+              "name": "storage-account-container"
+            }
+          ],
+          "description": "The name of the storage account container used to retrieve the backup from",
+          "isRequired": true,
+          "name": [
+            "--storage-account-container",
+            "--container-name"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the api management service instance",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "storage-account-key"
+            }
+          ],
+          "description": "The access key of the storage account used to retrieve the backup from",
+          "isRequired": true,
+          "name": "--storage-account-key"
+        },
+        {
+          "args": [
+            {
+              "name": "storage-account-name"
+            }
+          ],
+          "description": "The name of the storage account used to retrieve the backup from",
+          "isRequired": true,
+          "name": "--storage-account-name"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        }
+      ]
+    },
+    {
+      "description": "Show details of an API Management service instance",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the api management service instance",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Update an API Management service instance",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the api management service instance",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "add"
+            }
+          ],
+          "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+          "name": "--add"
+        },
+        {
+          "args": [
+            {
+              "name": "disable-gateway",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Disable gateway in the master region. Only valid for an Api Management service deployed in multiple locations",
+          "name": "--disable-gateway"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-client-certificate",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enforces a client certificate to be presented on each request to the gateway and also enables the ability to authenticate the certificate in the policy on the gateway",
+          "name": "--enable-client-certificate"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-managed-identity",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Create a managed identity for the API Management service to access other Azure resources. Only meant to be used for Consumption SKU Service",
+          "name": "--enable-managed-identity"
+        },
+        {
+          "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+          "name": "--force-string"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "public-network-access",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Whether or not public endpoint access is allowed for this API Management service. If set to true, private endpoints are the exclusive access method",
+          "name": "--public-network-access"
+        },
+        {
+          "args": [
+            {
+              "name": "publisher-email"
+            }
+          ],
+          "description": "The e-mail address to receive all system notifications",
+          "name": "--publisher-email"
+        },
+        {
+          "args": [
+            {
+              "name": "publisher-name"
+            }
+          ],
+          "description": "The name of your organization for use in the developer portal and e-mail notifications",
+          "name": "--publisher-name"
+        },
+        {
+          "args": [
+            {
+              "name": "remove"
+            }
+          ],
+          "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+          "name": "--remove"
+        },
+        {
+          "args": [
+            {
+              "name": "set"
+            }
+          ],
+          "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+          "name": "--set"
+        },
+        {
+          "args": [
+            {
+              "name": "sku-capacity"
+            }
+          ],
+          "description": "The number of deployed units of the SKU",
+          "name": "--sku-capacity"
+        },
+        {
+          "args": [
+            {
+              "name": "sku-name",
+              "suggestions": [
+                "Basic",
+                "Consumption",
+                "Developer",
+                "Isolated",
+                "Premium",
+                "Standard"
+              ]
+            }
+          ],
+          "description": "The sku of the api management instance",
+          "name": "--sku-name"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "virtual-network",
+              "suggestions": [
+                "External",
+                "Internal",
+                "None"
+              ]
+            }
+          ],
+          "description": "The virtual network type",
+          "name": [
+            "--virtual-network",
+            "-v"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Place the CLI in a waiting state until a condition of an apim is met",
+      "name": "wait",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the api management service instance",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+          "name": "--created"
+        },
+        {
+          "args": [
+            {
+              "name": "custom"
+            }
+          ],
+          "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+          "name": "--custom"
+        },
+        {
+          "description": "Wait until deleted",
+          "name": "--deleted"
+        },
+        {
+          "description": "Wait until the resource exists",
+          "name": "--exists"
+        },
+        {
+          "args": [
+            {
+              "name": "interval"
+            }
+          ],
+          "description": "Polling interval in seconds",
+          "name": "--interval"
+        },
+        {
+          "args": [
+            {
+              "name": "timeout"
+            }
+          ],
+          "description": "Maximum wait in seconds",
+          "name": "--timeout"
+        },
+        {
+          "description": "Wait until updated with provisioningState at 'Succeeded'",
+          "name": "--updated"
+        }
+      ]
+    },
+    {
+      "description": "Manage soft-deleted Azure API Management services",
+      "name": "deletedservice",
+      "subcommands": [
+        {
+          "description": "List all soft-deleted Api Management services instances available for undelete for the given subscription",
+          "name": "list"
+        },
+        {
+          "description": "Purge soft-deleted Api Management service instance (deletes it with no option to undelete)",
+          "name": "purge",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the soft deleted API Management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get soft-deleted Api Management service instances available for undelete by name",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the soft deleted API Management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure API Management GraphQL API's",
+      "name": "graphql",
+      "subcommands": [
+        {
+          "description": "Manage Azure API Management GraphQL API's Resolvers",
+          "name": "resolver",
+          "subcommands": [
+            {
+              "description": "Create a new resolver in the GraphQL API or updates an existing one",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "display-name"
+                    }
+                  ],
+                  "description": "Resolver Name",
+                  "isRequired": true,
+                  "name": "--display-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "Resolver identifier within a GraphQL API. Must be unique in the current API Management service instance",
+                  "isRequired": true,
+                  "name": "--path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resolver-id"
+                    }
+                  ],
+                  "description": "Resolver identifier within a GraphQL API. Must be unique in the current API Management service instance",
+                  "isRequired": true,
+                  "name": "--resolver-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "description"
+                    }
+                  ],
+                  "description": "Description of the resolver. May include HTML formatting tags",
+                  "name": "--description"
+                }
+              ]
+            },
+            {
+              "description": "Delete the specified resolver in the GraphQL API",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resolver-id"
+                    }
+                  ],
+                  "description": "Resolver identifier within a GraphQL API. Must be unique in the current API Management service instance",
+                  "isRequired": true,
+                  "name": "--resolver-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "if-match"
+                    }
+                  ],
+                  "description": "ETag of the Entity",
+                  "name": "--if-match"
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List a collection of the resolvers for the specified GraphQL API",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Get the details of the GraphQL API Resolver specified by its identifier",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resolver-id"
+                    }
+                  ],
+                  "description": "Resolver identifier within a GraphQL API. Must be unique in the current API Management service instance",
+                  "isRequired": true,
+                  "name": "--resolver-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the API Management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Manage Azure API Management GraphQL API's Resolvers Policies",
+              "name": "policy",
+              "subcommands": [
+                {
+                  "description": "Create or updates policy configuration for the GraphQL API Resolver level",
+                  "name": "create",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "api-id"
+                        }
+                      ],
+                      "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                      "isRequired": true,
+                      "name": "--api-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "resolver-id"
+                        }
+                      ],
+                      "description": "Resolver identifier within a GraphQL API. Must be unique in the current API Management service instance",
+                      "isRequired": true,
+                      "name": "--resolver-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "resource-group"
+                        }
+                      ],
+                      "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                      "isRequired": true,
+                      "name": [
+                        "--resource-group",
+                        "-g"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "service-name"
+                        }
+                      ],
+                      "description": "The name of the API Management service instance",
+                      "isRequired": true,
+                      "name": [
+                        "--service-name",
+                        "-n"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "value-path"
+                        }
+                      ],
+                      "description": "Contents of the Policy as defined by the format",
+                      "isRequired": true,
+                      "name": "--value-path"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "policy-format"
+                        }
+                      ],
+                      "description": "Format of the policyContent",
+                      "name": "--policy-format"
+                    }
+                  ]
+                },
+                {
+                  "description": "Delete the policy configuration at the GraphQL Api Resolver",
+                  "name": "delete",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "api-id"
+                        }
+                      ],
+                      "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                      "isRequired": true,
+                      "name": "--api-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "resolver-id"
+                        }
+                      ],
+                      "description": "Resolver identifier within a GraphQL API. Must be unique in the current API Management service instance",
+                      "isRequired": true,
+                      "name": "--resolver-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "resource-group"
+                        }
+                      ],
+                      "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                      "isRequired": true,
+                      "name": [
+                        "--resource-group",
+                        "-g"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "service-name"
+                        }
+                      ],
+                      "description": "The name of the API Management service instance",
+                      "isRequired": true,
+                      "name": [
+                        "--service-name",
+                        "-n"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "if-match"
+                        }
+                      ],
+                      "description": "ETag of the Entity",
+                      "name": "--if-match"
+                    },
+                    {
+                      "description": "Do not prompt for confirmation",
+                      "name": [
+                        "--yes",
+                        "-y"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "description": "Get the list of policy configuration at the GraphQL API Resolver level",
+                  "name": "list",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "api-id"
+                        }
+                      ],
+                      "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                      "isRequired": true,
+                      "name": "--api-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "resolver-id"
+                        }
+                      ],
+                      "description": "Resolver identifier within a GraphQL API. Must be unique in the current API Management service instance",
+                      "isRequired": true,
+                      "name": "--resolver-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "resource-group"
+                        }
+                      ],
+                      "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                      "isRequired": true,
+                      "name": [
+                        "--resource-group",
+                        "-g"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "service-name"
+                        }
+                      ],
+                      "description": "The name of the API Management service instance",
+                      "isRequired": true,
+                      "name": [
+                        "--service-name",
+                        "-n"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "description": "Get the policy configuration at the GraphQL API Resolver level",
+                  "name": "show",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "api-id"
+                        }
+                      ],
+                      "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                      "isRequired": true,
+                      "name": "--api-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "resolver-id"
+                        }
+                      ],
+                      "description": "Resolver identifier within a GraphQL API. Must be unique in the current API Management service instance",
+                      "isRequired": true,
+                      "name": "--resolver-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "resource-group"
+                        }
+                      ],
+                      "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                      "isRequired": true,
+                      "name": [
+                        "--resource-group",
+                        "-g"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "service-name"
+                        }
+                      ],
+                      "description": "The name of the API Management service instance",
+                      "isRequired": true,
+                      "name": [
+                        "--service-name",
+                        "-n"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure API Management Named Values",
+      "name": "nv",
+      "subcommands": [
+        {
+          "description": "Create an API Management Named Value",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "The Display name of the Named Value",
+              "isRequired": true,
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "named-value-id"
+                }
+              ],
+              "description": "Unique name for the Named Value to be created",
+              "isRequired": true,
+              "name": "--named-value-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the API Management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the Entity",
+              "name": "--if-match"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "description": "Determines whether the value is a secret and should be encrypted or not. Default value is false",
+              "name": "--secret"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            },
+            {
+              "args": [
+                {
+                  "name": "value"
+                }
+              ],
+              "description": "The value of the Named Value",
+              "name": "--value"
+            }
+          ]
+        },
+        {
+          "description": "Delete an API Management Named Value",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "named-value-id"
+                }
+              ],
+              "description": "Identifier of the NamedValue",
+              "isRequired": true,
+              "name": "--named-value-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the API Management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List API Management Named Values",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the API Management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show details of an API Management Named Value",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "named-value-id"
+                }
+              ],
+              "description": "Identifier of the NamedValue",
+              "isRequired": true,
+              "name": "--named-value-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the API Management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets the secret of an API Management Named Value",
+          "name": "show-secret",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "named-value-id"
+                }
+              ],
+              "description": "Identifier of the NamedValue",
+              "isRequired": true,
+              "name": "--named-value-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the API Management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update an API Management Named Value",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "named-value-id"
+                }
+              ],
+              "description": "Unique name of the api to be created",
+              "isRequired": true,
+              "name": "--named-value-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the API Management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the Entity",
+              "name": "--if-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "secret",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Determines whether the value is a secret and should be encrypted or not. Default value is false",
+              "name": "--secret"
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            },
+            {
+              "args": [
+                {
+                  "name": "value"
+                }
+              ],
+              "description": "The value of the Named Value",
+              "name": "--value"
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a condition of an apim named value is met",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "named-value-id"
+                }
+              ],
+              "description": "Identifier of the NamedValue",
+              "isRequired": true,
+              "name": "--named-value-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the API Management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure API Management Product's",
+      "name": "product",
+      "subcommands": [
+        {
+          "description": "Creates a product",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "product-name"
+                }
+              ],
+              "description": "Product name",
+              "isRequired": true,
+              "name": "--product-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the api management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "approval-required",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Whether subscription approval is required. If false, new subscriptions will be approved automatically enabling developers to call the product’s APIs immediately after subscribing. If true, administrators must manually approve the subscription before the developer can use any of the product’s APIs. Can be present only if subscriptionRequired property is present and has a value of false",
+              "name": "--approval-required"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Product description. May include HTML formatting tags",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "legal-terms"
+                }
+              ],
+              "description": "Product terms of use. Developers trying to subscribe to the product will be presented and required to accept these terms before they can complete the subscription process",
+              "name": "--legal-terms"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "product-id"
+                }
+              ],
+              "description": "Product identifier. Must be unique in the current API Management service instance",
+              "name": "--product-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "state",
+                  "suggestions": [
+                    "notPublished",
+                    "published"
+                  ]
+                }
+              ],
+              "description": "Whether product is published or not. Published products are discoverable by users of developer portal. Non published products are visible only to administrators. Default state of Product is notPublished. Possible values include: 'notPublished', 'published'",
+              "name": "--state"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription-required",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Whether a product subscription is required for accessing APIs included in this product",
+              "name": [
+                "--subscription-required",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscriptions-limit"
+                }
+              ],
+              "description": "Whether the number of subscriptions a user can have to this product at the same time. Set to null or omit to allow unlimited per user subscriptions. Can be present only if subscriptionRequired property is present and has a value of false",
+              "name": "--subscriptions-limit"
+            }
+          ]
+        },
+        {
+          "description": "Delete product",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "product-id"
+                }
+              ],
+              "description": "Product identifier. Must be unique in the current API Management service instance",
+              "isRequired": true,
+              "name": "--product-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the api management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "delete-subscriptions"
+                }
+              ],
+              "description": "Delete existing subscriptions associated with the product or not",
+              "name": "--delete-subscriptions"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the Entity",
+              "name": "--if-match"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists a collection of products in the specified service instance",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the api management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets the details of the product specified by its identifier",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "product-id"
+                }
+              ],
+              "description": "Product identifier. Must be unique in the current API Management service instance",
+              "isRequired": true,
+              "name": "--product-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the api management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update existing product details",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "product-id"
+                }
+              ],
+              "description": "Product identifier. Must be unique in the current API Management service instance",
+              "isRequired": true,
+              "name": "--product-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the api management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "approval-required",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Whether subscription approval is required. If false, new subscriptions will be approved automatically enabling developers to call the product’s APIs immediately after subscribing. If true, administrators must manually approve the subscription before the developer can use any of the product’s APIs. Can be present only if subscriptionRequired property is present and has a value of false",
+              "name": "--approval-required"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Product description. May include HTML formatting tags",
+              "name": "--description"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the Entity",
+              "name": "--if-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "legal-terms"
+                }
+              ],
+              "description": "Product terms of use. Developers trying to subscribe to the product will be presented and required to accept these terms before they can complete the subscription process",
+              "name": "--legal-terms"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "product-name"
+                }
+              ],
+              "description": "Product name",
+              "name": "--product-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "state",
+                  "suggestions": [
+                    "notPublished",
+                    "published"
+                  ]
+                }
+              ],
+              "description": "Whether product is published or not. Published products are discoverable by users of developer portal. Non published products are visible only to administrators. Default state of Product is notPublished. Possible values include: 'notPublished', 'published'",
+              "name": "--state"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription-required",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Whether a product subscription is required for accessing APIs included in this product",
+              "name": [
+                "--subscription-required",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscriptions-limit"
+                }
+              ],
+              "description": "Whether the number of subscriptions a user can have to this product at the same time. Set to null or omit to allow unlimited per user subscriptions. Can be present only if subscriptionRequired property is present and has a value of false",
+              "name": "--subscriptions-limit"
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a condition of an apim product is met",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "product-id"
+                }
+              ],
+              "description": "Product identifier. Must be unique in the current API Management service instance",
+              "isRequired": true,
+              "name": "--product-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the api management service instance",
+              "isRequired": true,
+              "name": [
+                "--service-name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        },
+        {
+          "description": "Manage Azure API Management Product's APIs",
+          "name": "api",
+          "subcommands": [
+            {
+              "description": "Add an API to the specified product",
+              "name": "add",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "product-id"
+                    }
+                  ],
+                  "description": "Product identifier. Must be unique in the current API Management service instance",
+                  "isRequired": true,
+                  "name": "--product-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the api management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Checks that API entity specified by identifier is associated with the Product entity",
+              "name": "check",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "product-id"
+                    }
+                  ],
+                  "description": "Product identifier. Must be unique in the current API Management service instance",
+                  "isRequired": true,
+                  "name": "--product-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the api management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Deletes the specified API from the specified product",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api-id"
+                    }
+                  ],
+                  "description": "API identifier. Must be unique in the current API Management service instance. Non-current revision has ;rev=n as a suffix where n is the revision number",
+                  "isRequired": true,
+                  "name": "--api-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "product-id"
+                    }
+                  ],
+                  "description": "Product identifier. Must be unique in the current API Management service instance",
+                  "isRequired": true,
+                  "name": "--product-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the api management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Lists a collection of the APIs associated with a product",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "product-id"
+                    }
+                  ],
+                  "description": "Product identifier. Must be unique in the current API Management service instance",
+                  "isRequired": true,
+                  "name": "--product-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the api management service instance",
+                  "isRequired": true,
+                  "name": [
+                    "--service-name",
+                    "-n"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

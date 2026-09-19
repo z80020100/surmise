@@ -1,0 +1,3230 @@
+{
+  "description": "Manage resource policies",
+  "name": "policy",
+  "subcommands": [
+    {
+      "description": "Manage resource policy assignments",
+      "name": "assignment",
+      "subcommands": [
+        {
+          "description": "Create a resource policy assignment",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Description of the policy assignment",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Display name of the policy assignment",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "enforcement-mode",
+                  "suggestions": [
+                    "Default",
+                    "DoNotEnforce"
+                  ]
+                }
+              ],
+              "description": "Enforcement mode of the policy assignment, e.g. Default, DoNotEnforce. Please visit https://aka.ms/azure-policyAssignment-enforcement-mode for more information",
+              "name": [
+                "--enforcement-mode",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "identity-scope"
+                }
+              ],
+              "description": "Scope that the system assigned identity can access",
+              "name": "--identity-scope"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The location of the policy assignment. Only required when utilizing managed identity",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "mi-system-assigned"
+                }
+              ],
+              "description": "Provide this flag to use system assigned identity for policy assignment. Check out help for more examples",
+              "name": "--mi-system-assigned"
+            },
+            {
+              "args": [
+                {
+                  "name": "mi-user-assigned"
+                }
+              ],
+              "description": "UserAssigned Identity Id to be used for policy assignment. Check out help for more examples",
+              "name": "--mi-user-assigned"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the new policy assignment",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "not-scopes"
+                }
+              ],
+              "description": "Space-separated scopes where the policy assignment does not apply",
+              "name": "--not-scopes"
+            },
+            {
+              "args": [
+                {
+                  "name": "params"
+                }
+              ],
+              "description": "JSON formatted string or a path to a file or uri with parameter values of the policy rule",
+              "name": [
+                "--params",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "policy"
+                }
+              ],
+              "description": "Name or id of the policy definition. If not provided, a policy set definition parameter must be provided",
+              "name": "--policy"
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-set-definition"
+                }
+              ],
+              "description": "Name or id of the policy set definition. If not provided, a policy definition parameter must be provided",
+              "name": [
+                "--policy-set-definition",
+                "-d"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group where the policy will be applied",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "role"
+                }
+              ],
+              "description": "Role name or id that will be assigned to the managed identity",
+              "name": "--role"
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "Scope to which this policy assignment applies",
+              "name": "--scope"
+            }
+          ]
+        },
+        {
+          "description": "Delete a resource policy assignment",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the policy assignment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group where the policy will be applied",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "Scope at which this policy assignment subcommand applies. Defaults to current context subscription",
+              "name": "--scope"
+            }
+          ]
+        },
+        {
+          "description": "List resource policy assignments",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "disable-scope-strict-match"
+                }
+              ],
+              "description": "Include policy assignments either inherited from parent scope or at child scope",
+              "name": "--disable-scope-strict-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group where the policy will be applied",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "Scope at which this policy assignment subcommand applies. Defaults to current context subscription",
+              "name": "--scope"
+            }
+          ]
+        },
+        {
+          "description": "Show a resource policy assignment",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the policy assignment",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group where the policy will be applied",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "Scope at which this policy assignment subcommand applies. Defaults to current context subscription",
+              "name": "--scope"
+            }
+          ]
+        },
+        {
+          "description": "Update a resource policy assignment",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Description of the policy assignment",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Display name of the policy assignment",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "enforcement-mode",
+                  "suggestions": [
+                    "Default",
+                    "DoNotEnforce"
+                  ]
+                }
+              ],
+              "description": "Enforcement mode of the policy assignment, e.g. Default, DoNotEnforce. Please visit https://aka.ms/azure-policyAssignment-enforcement-mode for more information",
+              "name": [
+                "--enforcement-mode",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the policy assignment",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "not-scopes"
+                }
+              ],
+              "description": "Space-separated scopes where the policy assignment does not apply",
+              "name": "--not-scopes"
+            },
+            {
+              "args": [
+                {
+                  "name": "params"
+                }
+              ],
+              "description": "JSON formatted string or a path to a file or uri with parameter values of the policy rule",
+              "name": [
+                "--params",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group where the policy will be applied",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "Scope at which this policy assignment subcommand applies. Defaults to current context subscription",
+              "name": "--scope"
+            }
+          ]
+        },
+        {
+          "description": "Manage a policy assignment's managed identity",
+          "name": "identity",
+          "subcommands": [
+            {
+              "description": "Add a system assigned identity or a user assigned identity to a policy assignment",
+              "name": "assign",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the policy assignment",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "identity-scope"
+                    }
+                  ],
+                  "description": "Scope that the system assigned identity can access",
+                  "name": "--identity-scope"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "The resource group where the policy will be applied",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "role"
+                    }
+                  ],
+                  "description": "Role name or id that will be assigned to the managed identity",
+                  "name": "--role"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "scope"
+                    }
+                  ],
+                  "description": "Scope at which this policy assignment subcommand applies. Defaults to current context subscription",
+                  "name": "--scope"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "system-assigned"
+                    }
+                  ],
+                  "description": "Provide this flag to use system assigned identity for policy assignment. Check out help for more examples",
+                  "name": "--system-assigned"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "user-assigned"
+                    }
+                  ],
+                  "description": "UserAssigned Identity Id to be used for policy assignment. Check out help for more examples",
+                  "name": "--user-assigned"
+                }
+              ]
+            },
+            {
+              "description": "Remove a managed identity from a policy assignment",
+              "name": "remove",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the policy assignment",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "The resource group where the policy will be applied",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "scope"
+                    }
+                  ],
+                  "description": "Scope at which this policy assignment subcommand applies. Defaults to current context subscription",
+                  "name": "--scope"
+                }
+              ]
+            },
+            {
+              "description": "Show a policy assignment's managed identity",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the policy assignment",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "The resource group where the policy will be applied",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "scope"
+                    }
+                  ],
+                  "description": "Scope at which this policy assignment subcommand applies. Defaults to current context subscription",
+                  "name": "--scope"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage a policy assignment's non-compliance messages",
+          "name": "non-compliance-message",
+          "subcommands": [
+            {
+              "description": "Add a non-compliance message to a policy assignment",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "message"
+                    }
+                  ],
+                  "description": "Message that will be shown when a resource is denied by policy or evaluation details are inspected",
+                  "isRequired": true,
+                  "name": [
+                    "--message",
+                    "-m"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the policy assignment",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "policy-definition-reference-id"
+                    }
+                  ],
+                  "description": "Policy definition reference ID within the assigned initiative (policy set) that the message applies to",
+                  "name": [
+                    "--policy-definition-reference-id",
+                    "-r"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "The resource group where the policy will be applied",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "scope"
+                    }
+                  ],
+                  "description": "Scope at which this policy assignment subcommand applies. Defaults to current context subscription",
+                  "name": "--scope"
+                }
+              ]
+            },
+            {
+              "description": "Remove one or more non-compliance messages from a policy assignment",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "message"
+                    }
+                  ],
+                  "description": "Message that will be shown when a resource is denied by policy or evaluation details are inspected",
+                  "isRequired": true,
+                  "name": [
+                    "--message",
+                    "-m"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the policy assignment",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "policy-definition-reference-id"
+                    }
+                  ],
+                  "description": "Policy definition reference ID within the assigned initiative (policy set) that the message applies to",
+                  "name": [
+                    "--policy-definition-reference-id",
+                    "-r"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "The resource group where the policy will be applied",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "scope"
+                    }
+                  ],
+                  "description": "Scope at which this policy assignment subcommand applies. Defaults to current context subscription",
+                  "name": "--scope"
+                }
+              ]
+            },
+            {
+              "description": "List the non-compliance messages for a policy assignment",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the policy assignment",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "The resource group where the policy will be applied",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "scope"
+                    }
+                  ],
+                  "description": "Scope at which this policy assignment subcommand applies. Defaults to current context subscription",
+                  "name": "--scope"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage resource policy attestations",
+      "name": "attestation",
+      "subcommands": [
+        {
+          "description": "Create a policy attestation",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "attestation-name"
+                }
+              ],
+              "description": "The name of the attestation",
+              "isRequired": true,
+              "name": [
+                "--attestation-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-assignment-id"
+                }
+              ],
+              "description": "The resource ID of the policy assignment that the attestation is setting the state for",
+              "isRequired": true,
+              "name": [
+                "--policy-assignment-id",
+                "--policy-assignment",
+                "-a"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "assessment-date"
+                }
+              ],
+              "description": "The time the evidence was assessed",
+              "name": "--assessment-date"
+            },
+            {
+              "args": [
+                {
+                  "name": "comments"
+                }
+              ],
+              "description": "Comments describing why this attestation was created",
+              "name": "--comments"
+            },
+            {
+              "args": [
+                {
+                  "name": "compliance-state",
+                  "suggestions": [
+                    "Compliant",
+                    "NonCompliant",
+                    "Unknown"
+                  ]
+                }
+              ],
+              "description": "The compliance state that should be set on the resource",
+              "name": "--compliance-state"
+            },
+            {
+              "args": [
+                {
+                  "name": "definition-reference-id"
+                }
+              ],
+              "description": "The policy definition reference ID from a policy set definition that the attestation is setting the state for. If the policy assignment assigns a policy set definition the attestation can choose a definition within the set definition with this property or omit this and set the state for the entire set definition",
+              "name": "--definition-reference-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "evidence"
+                }
+              ],
+              "description": "The evidence supporting the compliance state set in this attestation",
+              "name": "--evidence"
+            },
+            {
+              "args": [
+                {
+                  "name": "expires-on"
+                }
+              ],
+              "description": "The time the compliance state should expire",
+              "name": "--expires-on"
+            },
+            {
+              "args": [
+                {
+                  "name": "metadata"
+                }
+              ],
+              "description": "Additional metadata in space-separated key=value pairs for an attestation. This overwrites any existing metadata for the attestation",
+              "name": "--metadata"
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: Microsoft.Provider)",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "owner"
+                }
+              ],
+              "description": "The person responsible for setting the state of the resource. This value is typically an Azure Active Directory object ID",
+              "name": "--owner"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: resourceTypeA/nameA/resourceTypeB/nameB)",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-id"
+                }
+              ],
+              "description": "Resource ID or resource name. If a name is given, please provide the resource group and other relevant resource id arguments",
+              "name": [
+                "--resource-id",
+                "--resource"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "Resource type (Ex: resourceTypeC)",
+              "name": "--resource-type"
+            }
+          ]
+        },
+        {
+          "description": "Delete an existing policy attestation",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "attestation-name"
+                }
+              ],
+              "description": "The name of the attestation",
+              "isRequired": true,
+              "name": [
+                "--attestation-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: Microsoft.Provider)",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: resourceTypeA/nameA/resourceTypeB/nameB)",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-id"
+                }
+              ],
+              "description": "Resource ID or resource name. If a name is given, please provide the resource group and other relevant resource id arguments",
+              "name": [
+                "--resource-id",
+                "--resource"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "Resource type (Ex: resourceTypeC)",
+              "name": "--resource-type"
+            }
+          ]
+        },
+        {
+          "description": "List all attestations for a resource",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "OData filter expression",
+              "name": "--filter"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-id"
+                }
+              ],
+              "description": "Resource ID",
+              "name": [
+                "--resource-id",
+                "--resource"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "top"
+                }
+              ],
+              "description": "Maximum number of records to return",
+              "name": "--top"
+            }
+          ]
+        },
+        {
+          "description": "Get a policy attestation",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "attestation-name"
+                }
+              ],
+              "description": "The name of the attestation",
+              "isRequired": true,
+              "name": [
+                "--attestation-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: Microsoft.Provider)",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: resourceTypeA/nameA/resourceTypeB/nameB)",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-id"
+                }
+              ],
+              "description": "Resource ID or resource name. If a name is given, please provide the resource group and other relevant resource id arguments",
+              "name": [
+                "--resource-id",
+                "--resource"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "Resource type (Ex: resourceTypeC)",
+              "name": "--resource-type"
+            }
+          ]
+        },
+        {
+          "description": "Update an existing policy attestation",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "attestation-name"
+                }
+              ],
+              "description": "The name of the attestation",
+              "isRequired": true,
+              "name": [
+                "--attestation-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "assessment-date"
+                }
+              ],
+              "description": "The time the evidence was assessed",
+              "name": "--assessment-date"
+            },
+            {
+              "args": [
+                {
+                  "name": "comments"
+                }
+              ],
+              "description": "Comments describing why this attestation was created",
+              "name": "--comments"
+            },
+            {
+              "args": [
+                {
+                  "name": "compliance-state",
+                  "suggestions": [
+                    "Compliant",
+                    "NonCompliant",
+                    "Unknown"
+                  ]
+                }
+              ],
+              "description": "The compliance state that should be set on the resource",
+              "name": "--compliance-state"
+            },
+            {
+              "args": [
+                {
+                  "name": "definition-reference-id"
+                }
+              ],
+              "description": "The policy definition reference ID from a policy set definition that the attestation is setting the state for. If the policy assignment assigns a policy set definition the attestation can choose a definition within the set definition with this property or omit this and set the state for the entire set definition",
+              "name": "--definition-reference-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "evidence"
+                }
+              ],
+              "description": "The evidence supporting the compliance state set in this attestation",
+              "name": "--evidence"
+            },
+            {
+              "args": [
+                {
+                  "name": "expires-on"
+                }
+              ],
+              "description": "The time the compliance state should expire",
+              "name": "--expires-on"
+            },
+            {
+              "args": [
+                {
+                  "name": "metadata"
+                }
+              ],
+              "description": "Additional metadata in space-separated key=value pairs for an attestation. This overwrites any existing metadata for the attestation",
+              "name": "--metadata"
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: Microsoft.Provider)",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "owner"
+                }
+              ],
+              "description": "The person responsible for setting the state of the resource. This value is typically an Azure Active Directory object ID",
+              "name": "--owner"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: resourceTypeA/nameA/resourceTypeB/nameB)",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-assignment-id"
+                }
+              ],
+              "description": "The resource ID of the policy assignment that the attestation is setting the state for",
+              "name": [
+                "--policy-assignment-id",
+                "--policy-assignment",
+                "-a"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-id"
+                }
+              ],
+              "description": "Resource ID or resource name. If a name is given, please provide the resource group and other relevant resource id arguments",
+              "name": [
+                "--resource-id",
+                "--resource"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "Resource type (Ex: resourceTypeC)",
+              "name": "--resource-type"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage resource policy definitions",
+      "name": "definition",
+      "subcommands": [
+        {
+          "description": "Create a policy definition",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the new policy definition",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Description of policy definition",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Display name of policy definition",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "Name of the management group the new policy definition can be assigned in",
+              "name": "--management-group"
+            },
+            {
+              "args": [
+                {
+                  "name": "metadata"
+                }
+              ],
+              "description": "Metadata in space-separated key=value pairs",
+              "name": "--metadata"
+            },
+            {
+              "args": [
+                {
+                  "name": "mode"
+                }
+              ],
+              "description": "Mode of the policy definition, e.g. All, Indexed. Please visit https://aka.ms/azure-policy-mode for more information",
+              "name": [
+                "--mode",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "params"
+                }
+              ],
+              "description": "JSON formatted string or a path to a file or uri with parameter definitions",
+              "name": "--params"
+            },
+            {
+              "args": [
+                {
+                  "name": "rules"
+                }
+              ],
+              "description": "Policy rules in JSON format, or a path to a file containing JSON rules",
+              "name": "--rules"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or id of the subscription the new policy definition can be assigned in",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Delete a policy definition",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The policy definition name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "The name of the management group of the policy [set] definition. This parameter is required if your policy set is scoped to a management group",
+              "name": "--management-group"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "The subscription id of the policy [set] definition",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "List policy definitions",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "The name of the management group of the policy [set] definition. This parameter is required if your policy set is scoped to a management group",
+              "name": "--management-group"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "The subscription id of the policy [set] definition",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Show a policy definition",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The policy definition name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "The name of the management group of the policy [set] definition. This parameter is required if your policy set is scoped to a management group",
+              "name": "--management-group"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "The subscription id of the policy [set] definition",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update a policy definition",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The policy definition name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Description of policy definition",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Display name of policy definition",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "The name of the management group of the policy [set] definition. This parameter is required if your policy set is scoped to a management group",
+              "name": "--management-group"
+            },
+            {
+              "args": [
+                {
+                  "name": "metadata"
+                }
+              ],
+              "description": "Metadata in space-separated key=value pairs",
+              "name": "--metadata"
+            },
+            {
+              "args": [
+                {
+                  "name": "mode"
+                }
+              ],
+              "description": "Mode of the policy definition, e.g. All, Indexed. Please visit https://aka.ms/azure-policy-mode for more information",
+              "name": [
+                "--mode",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "params"
+                }
+              ],
+              "description": "JSON formatted string or a path to a file or uri with parameter definitions",
+              "name": "--params"
+            },
+            {
+              "args": [
+                {
+                  "name": "rules"
+                }
+              ],
+              "description": "JSON formatted string or a path to a file with such content",
+              "name": "--rules"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "The subscription id of the policy [set] definition",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage policy events",
+      "name": "event",
+      "subcommands": [
+        {
+          "description": "List policy events",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "apply"
+                }
+              ],
+              "description": "Apply expression for aggregations using OData notation",
+              "name": "--apply"
+            },
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "Filter expression using OData notation",
+              "name": "--filter"
+            },
+            {
+              "args": [
+                {
+                  "name": "from"
+                }
+              ],
+              "description": "ISO 8601 formatted timestamp specifying the start time of the interval to query",
+              "name": "--from"
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "Name of management group",
+              "name": [
+                "--management-group",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: Microsoft.Provider)",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "order-by"
+                }
+              ],
+              "description": "Ordering expression using OData notation",
+              "name": "--order-by"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: resourceTypeA/nameA/resourceTypeB/nameB)",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-assignment"
+                }
+              ],
+              "description": "Name of policy assignment",
+              "name": [
+                "--policy-assignment",
+                "-a"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-definition"
+                }
+              ],
+              "description": "Name of policy definition",
+              "name": [
+                "--policy-definition",
+                "-d"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-set-definition"
+                }
+              ],
+              "description": "Name of policy set definition",
+              "name": [
+                "--policy-set-definition",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource"
+                }
+              ],
+              "description": "Resource ID or resource name. If a name is given, please provide the resource group and other relevant resource id arguments",
+              "name": "--resource"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "Resource type (Ex: resourceTypeC)",
+              "name": "--resource-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "select"
+                }
+              ],
+              "description": "Select expression using OData notation",
+              "name": "--select"
+            },
+            {
+              "args": [
+                {
+                  "name": "to"
+                }
+              ],
+              "description": "ISO 8601 formatted timestamp specifying the end time of the interval to query",
+              "name": "--to"
+            },
+            {
+              "args": [
+                {
+                  "name": "top"
+                }
+              ],
+              "description": "Maximum number of records to return",
+              "name": "--top"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage resource policy exemptions",
+      "name": "exemption",
+      "subcommands": [
+        {
+          "description": "Create a policy exemption",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the new policy exemption",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Description of policy exemption",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Display name of the policy exemption",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "exemption-category"
+                }
+              ],
+              "description": "The policy exemption category of the policy exemption",
+              "name": [
+                "--exemption-category",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "expires-on"
+                }
+              ],
+              "description": "The expiration date and time (in UTC ISO 8601 format yyyy-MM-ddTHH:mm:ssZ) of the policy exemption",
+              "name": "--expires-on"
+            },
+            {
+              "args": [
+                {
+                  "name": "metadata"
+                }
+              ],
+              "description": "Metadata in space-separated key=value pairs",
+              "name": "--metadata"
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-assignment"
+                }
+              ],
+              "description": "The referenced policy assignment Id for the policy exemption",
+              "name": [
+                "--policy-assignment",
+                "-a"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-definition-reference-ids"
+                }
+              ],
+              "description": "The policy definition reference ids to exempt in the initiative (policy set)",
+              "name": [
+                "--policy-definition-reference-ids",
+                "-r"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group where the policy will be applied",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "Scope to which this policy exemption applies",
+              "name": "--scope"
+            }
+          ]
+        },
+        {
+          "description": "Delete a policy exemption",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the policy exemption",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group where the policy will be applied",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "Scope to which this policy exemption applies",
+              "name": "--scope"
+            }
+          ]
+        },
+        {
+          "description": "List policy exemptions",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "disable-scope-strict-match"
+                }
+              ],
+              "description": "Include policy exemptions either inherited from parent scope or at child scope",
+              "name": [
+                "--disable-scope-strict-match",
+                "-i"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group where the policy will be applied",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "Scope to which this policy exemption applies",
+              "name": "--scope"
+            }
+          ]
+        },
+        {
+          "description": "Show a policy exemption",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the policy exemption",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group where the policy will be applied",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "Scope to which this policy exemption applies",
+              "name": "--scope"
+            }
+          ]
+        },
+        {
+          "description": "Update a policy exemption",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the policy exemption",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Description of policy exemption",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Display name of the policy exemption",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "exemption-category"
+                }
+              ],
+              "description": "The policy exemption category of the policy exemption",
+              "name": [
+                "--exemption-category",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "expires-on"
+                }
+              ],
+              "description": "The expiration date and time (in UTC ISO 8601 format yyyy-MM-ddTHH:mm:ssZ) of the policy exemption",
+              "name": "--expires-on"
+            },
+            {
+              "args": [
+                {
+                  "name": "metadata"
+                }
+              ],
+              "description": "Metadata in space-separated key=value pairs",
+              "name": "--metadata"
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-definition-reference-ids"
+                }
+              ],
+              "description": "The policy definition reference ids to exempt in the initiative (policy set)",
+              "name": [
+                "--policy-definition-reference-ids",
+                "-r"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group where the policy will be applied",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "Scope to which this policy exemption applies",
+              "name": "--scope"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Get policy metadata resources",
+      "name": "metadata",
+      "subcommands": [
+        {
+          "description": "List policy metadata resources",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "top"
+                }
+              ],
+              "description": "Maximum number of records to return",
+              "name": "--top"
+            }
+          ]
+        },
+        {
+          "description": "Get a single policy metadata resource",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the metadata resource",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage resource policy remediations",
+      "name": "remediation",
+      "subcommands": [
+        {
+          "description": "Cancel a resource policy remediation",
+          "name": "cancel",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the remediation",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "Name of management group",
+              "name": [
+                "--management-group",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: Microsoft.Provider)",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: resourceTypeA/nameA/resourceTypeB/nameB)",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource"
+                }
+              ],
+              "description": "Resource ID or resource name. If a name is given, please provide the resource group and other relevant resource id arguments",
+              "name": "--resource"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "Resource type (Ex: resourceTypeC)",
+              "name": "--resource-type"
+            }
+          ]
+        },
+        {
+          "description": "Create a resource policy remediation",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the remediation",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-assignment"
+                }
+              ],
+              "description": "Name or resource ID of the policy assignment",
+              "isRequired": true,
+              "name": [
+                "--policy-assignment",
+                "-a"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "definition-reference-id"
+                }
+              ],
+              "description": "Policy definition reference ID inside the policy set definition. Only required when the policy assignment is assigning a policy set definition",
+              "name": "--definition-reference-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "location-filters"
+                }
+              ],
+              "description": "Space separated list of resource locations that should be remediated (Ex: centralus westeurope)",
+              "name": "--location-filters"
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "Name of management group",
+              "name": [
+                "--management-group",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: Microsoft.Provider)",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: resourceTypeA/nameA/resourceTypeB/nameB)",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource"
+                }
+              ],
+              "description": "Resource ID or resource name. If a name is given, please provide the resource group and other relevant resource id arguments",
+              "name": "--resource"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-discovery-mode",
+                  "suggestions": [
+                    "ExistingNonCompliant",
+                    "ReEvaluateCompliance"
+                  ]
+                }
+              ],
+              "description": "The way resources to remediate are discovered. Defaults to ExistingNonCompliant if not specified",
+              "name": "--resource-discovery-mode"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "Resource type (Ex: resourceTypeC)",
+              "name": "--resource-type"
+            }
+          ]
+        },
+        {
+          "description": "Delete a resource policy remediation",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the remediation",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "Name of management group",
+              "name": [
+                "--management-group",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: Microsoft.Provider)",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: resourceTypeA/nameA/resourceTypeB/nameB)",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource"
+                }
+              ],
+              "description": "Resource ID or resource name. If a name is given, please provide the resource group and other relevant resource id arguments",
+              "name": "--resource"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "Resource type (Ex: resourceTypeC)",
+              "name": "--resource-type"
+            }
+          ]
+        },
+        {
+          "description": "List resource policy remediations",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "Name of management group",
+              "name": [
+                "--management-group",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: Microsoft.Provider)",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: resourceTypeA/nameA/resourceTypeB/nameB)",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource"
+                }
+              ],
+              "description": "Resource ID or resource name. If a name is given, please provide the resource group and other relevant resource id arguments",
+              "name": "--resource"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "Resource type (Ex: resourceTypeC)",
+              "name": "--resource-type"
+            }
+          ]
+        },
+        {
+          "description": "Show a resource policy remediation",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the remediation",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "Name of management group",
+              "name": [
+                "--management-group",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: Microsoft.Provider)",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: resourceTypeA/nameA/resourceTypeB/nameB)",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource"
+                }
+              ],
+              "description": "Resource ID or resource name. If a name is given, please provide the resource group and other relevant resource id arguments",
+              "name": "--resource"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "Resource type (Ex: resourceTypeC)",
+              "name": "--resource-type"
+            }
+          ]
+        },
+        {
+          "description": "Manage resource policy remediation deployments",
+          "name": "deployment",
+          "subcommands": [
+            {
+              "description": "Lists deployments for a resource policy remediation",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the remediation",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "management-group"
+                    }
+                  ],
+                  "description": "Name of management group",
+                  "name": [
+                    "--management-group",
+                    "-m"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "namespace"
+                    }
+                  ],
+                  "description": "Provider namespace (Ex: Microsoft.Provider)",
+                  "name": "--namespace"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "parent"
+                    }
+                  ],
+                  "description": "The parent path (Ex: resourceTypeA/nameA/resourceTypeB/nameB)",
+                  "name": "--parent"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource"
+                    }
+                  ],
+                  "description": "Resource ID or resource name. If a name is given, please provide the resource group and other relevant resource id arguments",
+                  "name": "--resource"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-type"
+                    }
+                  ],
+                  "description": "Resource type (Ex: resourceTypeC)",
+                  "name": "--resource-type"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage resource policy set definitions",
+      "name": "set-definition",
+      "subcommands": [
+        {
+          "description": "Create a policy set definition",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "definitions"
+                }
+              ],
+              "description": "Policy definitions in JSON format, or a path to a file or URI containing JSON rules",
+              "isRequired": true,
+              "name": "--definitions"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the new policy set definition",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "definition-groups"
+                }
+              ],
+              "description": "JSON formatted string or a path to a file or uri containing policy definition groups. Groups are used to organize policy definitions within a policy set",
+              "name": "--definition-groups"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Description of policy set definition",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Display name of policy set definition",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "Name of management group the new policy set definition can be assigned in",
+              "name": "--management-group"
+            },
+            {
+              "args": [
+                {
+                  "name": "metadata"
+                }
+              ],
+              "description": "Metadata in space-separated key=value pairs",
+              "name": "--metadata"
+            },
+            {
+              "args": [
+                {
+                  "name": "params"
+                }
+              ],
+              "description": "JSON formatted string or a path to a file or uri with parameter definitions",
+              "name": "--params"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or id of the subscription the new policy set definition can be assigned in",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Delete a policy set definition",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The policy set definition name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "The name of the management group of the policy [set] definition. This parameter is required if your policy set is scoped to a management group",
+              "name": "--management-group"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "The subscription id of the policy [set] definition",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "List policy set definitions",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "The name of the management group of the policy [set] definition. This parameter is required if your policy set is scoped to a management group",
+              "name": "--management-group"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "The subscription id of the policy [set] definition",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Show a policy set definition",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The policy set definition name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "The name of the management group of the policy [set] definition. This parameter is required if your policy set is scoped to a management group",
+              "name": "--management-group"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "The subscription id of the policy [set] definition",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update a policy set definition",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The policy set definition name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "definition-groups"
+                }
+              ],
+              "description": "JSON formatted string or a path to a file or uri containing policy definition groups. Groups are used to organize policy definitions within a policy set",
+              "name": "--definition-groups"
+            },
+            {
+              "args": [
+                {
+                  "name": "definitions"
+                }
+              ],
+              "description": "JSON formatted string or a path to a file or uri containing definitions",
+              "name": "--definitions"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Description of policy set definition",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Display name of policy set definition",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "The name of the management group of the policy [set] definition. This parameter is required if your policy set is scoped to a management group",
+              "name": "--management-group"
+            },
+            {
+              "args": [
+                {
+                  "name": "metadata"
+                }
+              ],
+              "description": "Metadata in space-separated key=value pairs",
+              "name": "--metadata"
+            },
+            {
+              "args": [
+                {
+                  "name": "params"
+                }
+              ],
+              "description": "JSON formatted string or a path to a file or uri with parameter definitions",
+              "name": "--params"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "The subscription id of the policy [set] definition",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage policy compliance states",
+      "name": "state",
+      "subcommands": [
+        {
+          "description": "List policy compliance states",
+          "name": "list",
+          "options": [
+            {
+              "description": "Within the specified time interval, get all policy states instead of the latest only",
+              "name": "--all"
+            },
+            {
+              "args": [
+                {
+                  "name": "apply"
+                }
+              ],
+              "description": "Apply expression for aggregations using OData notation",
+              "name": "--apply"
+            },
+            {
+              "args": [
+                {
+                  "name": "expand"
+                }
+              ],
+              "description": "Expand expression using OData notation",
+              "name": "--expand"
+            },
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "Filter expression using OData notation",
+              "name": "--filter"
+            },
+            {
+              "args": [
+                {
+                  "name": "from"
+                }
+              ],
+              "description": "ISO 8601 formatted timestamp specifying the start time of the interval to query",
+              "name": "--from"
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "Name of management group",
+              "name": [
+                "--management-group",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: Microsoft.Provider)",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "order-by"
+                }
+              ],
+              "description": "Ordering expression using OData notation",
+              "name": "--order-by"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: resourceTypeA/nameA/resourceTypeB/nameB)",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-assignment"
+                }
+              ],
+              "description": "Name of policy assignment",
+              "name": [
+                "--policy-assignment",
+                "-a"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-definition"
+                }
+              ],
+              "description": "Name of policy definition",
+              "name": [
+                "--policy-definition",
+                "-d"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-set-definition"
+                }
+              ],
+              "description": "Name of policy set definition",
+              "name": [
+                "--policy-set-definition",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource"
+                }
+              ],
+              "description": "Resource ID or resource name. If a name is given, please provide the resource group and other relevant resource id arguments",
+              "name": "--resource"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "Resource type (Ex: resourceTypeC)",
+              "name": "--resource-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "select"
+                }
+              ],
+              "description": "Select expression using OData notation",
+              "name": "--select"
+            },
+            {
+              "args": [
+                {
+                  "name": "to"
+                }
+              ],
+              "description": "ISO 8601 formatted timestamp specifying the end time of the interval to query",
+              "name": "--to"
+            },
+            {
+              "args": [
+                {
+                  "name": "top"
+                }
+              ],
+              "description": "Maximum number of records to return",
+              "name": "--top"
+            }
+          ]
+        },
+        {
+          "description": "Summarize policy compliance states",
+          "name": "summarize",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "Filter expression using OData notation",
+              "name": "--filter"
+            },
+            {
+              "args": [
+                {
+                  "name": "from"
+                }
+              ],
+              "description": "ISO 8601 formatted timestamp specifying the start time of the interval to query",
+              "name": "--from"
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group"
+                }
+              ],
+              "description": "Name of management group",
+              "name": [
+                "--management-group",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: Microsoft.Provider)",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: resourceTypeA/nameA/resourceTypeB/nameB)",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-assignment"
+                }
+              ],
+              "description": "Name of policy assignment",
+              "name": [
+                "--policy-assignment",
+                "-a"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-definition"
+                }
+              ],
+              "description": "Name of policy definition",
+              "name": [
+                "--policy-definition",
+                "-d"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-set-definition"
+                }
+              ],
+              "description": "Name of policy set definition",
+              "name": [
+                "--policy-set-definition",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource"
+                }
+              ],
+              "description": "Resource ID or resource name. If a name is given, please provide the resource group and other relevant resource id arguments",
+              "name": "--resource"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "Resource type (Ex: resourceTypeC)",
+              "name": "--resource-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "to"
+                }
+              ],
+              "description": "ISO 8601 formatted timestamp specifying the end time of the interval to query",
+              "name": "--to"
+            },
+            {
+              "args": [
+                {
+                  "name": "top"
+                }
+              ],
+              "description": "Maximum number of records to return",
+              "name": "--top"
+            }
+          ]
+        },
+        {
+          "description": "Trigger a policy compliance evaluation for a scope",
+          "name": "trigger-scan",
+          "options": [
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1123 @@
+{
+  "args": [
+    {
+      "isCommand": true
+    }
+  ],
+  "name": "kitty",
+  "options": [
+    {
+      "args": [
+        {
+          "name": "TITLE"
+        }
+      ],
+      "description": "Set the OS window title",
+      "name": [
+        "-T",
+        "--title"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "CONFIG",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Specify a path to the configuration file(s) to use",
+      "name": [
+        "-C",
+        "--config"
+      ]
+    },
+    {
+      "description": "Override individual configuration options",
+      "isRepeatable": true,
+      "name": [
+        "-o",
+        "--override"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "DIRECTORY",
+          "template": "folders"
+        }
+      ],
+      "description": "Change to the specified directory when launching",
+      "name": [
+        "-d",
+        "--directory",
+        "--working-directory"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "SESSION",
+          "suggestions": [
+            {
+              "description": "Read from stdin",
+              "name": "-"
+            }
+          ],
+          "template": "filepaths"
+        }
+      ],
+      "description": "Path to a file containing the startup session",
+      "name": "--session"
+    },
+    {
+      "description": "Remain open after child process exits",
+      "name": "--hold"
+    },
+    {
+      "description": "Only a single instance of kitty will run",
+      "name": [
+        "-1",
+        "--single-instance"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "INSTANCE_GROUP"
+        }
+      ],
+      "dependsOn": [
+        "-1",
+        "--single-instance"
+      ],
+      "description": "Kitty will open a new window in an existing instance and quit immediately",
+      "name": "--instance-group"
+    },
+    {
+      "dependsOn": [
+        "-1",
+        "--single-instance"
+      ],
+      "description": "The new window will not quit till the newly opened window is closed",
+      "name": "--wait-for-single-instance-window-close"
+    },
+    {
+      "args": [
+        {
+          "name": "LISTEN_ON"
+        }
+      ],
+      "description": "Tell kitty to listen on the specified address for control messages",
+      "name": "--listen-on"
+    },
+    {
+      "args": [
+        {
+          "name": "START_AS",
+          "suggestions": [
+            "normal",
+            "fullscreen",
+            "maximized",
+            "minimized"
+          ]
+        }
+      ],
+      "description": "Control how the initial kitty window is created",
+      "name": "--start-as"
+    },
+    {
+      "description": "The current kitty version",
+      "name": [
+        "-v",
+        "--version"
+      ]
+    },
+    {
+      "description": "Display this help message",
+      "name": [
+        "-h",
+        "--help"
+      ]
+    }
+  ],
+  "subcommands": [
+    {
+      "name": "@",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "TO"
+            }
+          ],
+          "description": "An address for the kitty instance to control",
+          "name": "--to"
+        }
+      ],
+      "subcommands": [
+        {
+          "description": "Close the specified tab(s)",
+          "name": "close-tab",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "MATCH"
+                }
+              ],
+              "description": "The tab to match",
+              "name": [
+                "-m",
+                "--match"
+              ]
+            },
+            {
+              "description": "Close the tab of the window this command is run in, rather than the active tab",
+              "name": "--self"
+            },
+            {
+              "args": [
+                {
+                  "name": "TARGET_GROUP"
+                }
+              ],
+              "description": "Close the specified group of tabs",
+              "name": "--target-group"
+            }
+          ]
+        },
+        {
+          "description": "Close the specified window(s)",
+          "name": "close-window",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "MATCH"
+                }
+              ],
+              "description": "The window to match",
+              "name": [
+                "-m",
+                "--match"
+              ]
+            },
+            {
+              "description": "Close the window this command is run in, rather than the active window",
+              "name": "--self"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "MARKER"
+            },
+            {
+              "name": "SPECIFICATION"
+            }
+          ],
+          "name": "create-marker",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "MATCH"
+                }
+              ],
+              "description": "The window to match",
+              "name": [
+                "-m",
+                "--match"
+              ]
+            },
+            {
+              "description": "Close the window this command is run in, rather than the active window",
+              "name": "--self"
+            }
+          ]
+        },
+        {
+          "description": "Detach the specified tab",
+          "name": "detach-tab",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "MATCH"
+                }
+              ],
+              "description": "The tab to match",
+              "name": [
+                "-m",
+                "--match"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "TARGET_TAB"
+                }
+              ],
+              "description": "The tab to match",
+              "name": [
+                "-t",
+                "--target-tab"
+              ]
+            },
+            {
+              "description": "Detach the tab this command is run in, rather than the active tab",
+              "name": "--self"
+            }
+          ]
+        },
+        {
+          "description": "Detach the specified window",
+          "name": "detach-window",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "MATCH"
+                }
+              ],
+              "description": "The window to match",
+              "name": [
+                "-m",
+                "--match"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "TARGET_TAB"
+                }
+              ],
+              "description": "The tab to match",
+              "name": [
+                "-t",
+                "--target-tab"
+              ]
+            },
+            {
+              "description": "Detach the window this command is run in, rather than the active window",
+              "name": "--self"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "STRATEGY",
+              "suggestions": [
+                "never",
+                "always",
+                "cursor"
+              ]
+            }
+          ],
+          "description": "Control ligature rendering for the specified windows/tabs",
+          "name": "disable-ligatures",
+          "options": [
+            {
+              "description": "Disable in all windows",
+              "name": [
+                "-a",
+                "--all"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "MATCH"
+                }
+              ],
+              "description": "The window to match",
+              "name": [
+                "-m",
+                "--match"
+              ]
+            },
+            {
+              "description": "The tab to match",
+              "name": [
+                "-t",
+                "--match-tab"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "isVariadic": true,
+              "name": "ENV"
+            }
+          ],
+          "description": "Change the environment variables seen by processing in newly launched windows",
+          "name": "env"
+        },
+        {
+          "description": "The active window in the specified tab will be focused",
+          "name": "focus-tab",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "MATCH"
+                }
+              ],
+              "description": "The tab to match",
+              "name": [
+                "-m",
+                "--match"
+              ]
+            },
+            {
+              "description": "Don't wait for a response indicating the success of the action",
+              "name": "--no-response"
+            }
+          ]
+        },
+        {
+          "description": "Focus the specified window, if no window is specified, focus the window this command is run inside",
+          "name": "focus-window",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "MATCH"
+                }
+              ],
+              "description": "The window to match",
+              "name": [
+                "-m",
+                "--match"
+              ]
+            },
+            {
+              "description": "Don't wait for a response indicating the success of the action",
+              "name": "--no-response"
+            }
+          ]
+        },
+        {
+          "description": "Get the terminal colors for the specified window",
+          "name": "get-colors",
+          "options": [
+            {
+              "description": "Instead of outputting the colors for the specified window, output the currently configured colors",
+              "name": [
+                "-c",
+                "--configured"
+              ]
+            },
+            {
+              "description": "The window to match",
+              "name": [
+                "-m",
+                "--match"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "get-text"
+        },
+        {
+          "name": "goto-layout"
+        },
+        {
+          "icon": "🐱",
+          "name": "kitten"
+        },
+        {
+          "name": "last-used-layout"
+        },
+        {
+          "name": "launch"
+        },
+        {
+          "name": "ls"
+        },
+        {
+          "name": "new-window"
+        },
+        {
+          "name": "remove-marker"
+        },
+        {
+          "name": "resize-os-window"
+        },
+        {
+          "name": "resize-window"
+        },
+        {
+          "name": "scroll-window"
+        },
+        {
+          "name": "select-window"
+        },
+        {
+          "name": "send-text"
+        },
+        {
+          "name": "set-background-image"
+        },
+        {
+          "name": "set-background-opacity"
+        },
+        {
+          "name": "set-colors"
+        },
+        {
+          "name": "set-enabled-layouts"
+        },
+        {
+          "name": "set-font-size"
+        },
+        {
+          "name": "set-spacing"
+        },
+        {
+          "description": "The foreground and background colors when active and inactive can be overridden using this command",
+          "name": "set-tab-color",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "MATCH"
+                }
+              ],
+              "description": "The tab to match",
+              "name": [
+                "-m",
+                "--match"
+              ]
+            },
+            {
+              "description": "Close the window this command is run in, rather than the active window",
+              "name": "--self"
+            }
+          ]
+        },
+        {
+          "description": "Set the title for the specified tab(s)",
+          "name": "set-tab-title",
+          "options": [
+            {
+              "description": "The tab to match",
+              "name": [
+                "-m",
+                "--match"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "set-window-logo"
+        },
+        {
+          "description": "Set the title of the specified window(s)",
+          "name": "set-window-title",
+          "options": [
+            {
+              "description": "The window to match",
+              "name": [
+                "-m",
+                "--match"
+              ]
+            },
+            {
+              "description": "The title can be overwritten by escape sequences",
+              "name": "--temporary"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "isVariadic": true,
+              "name": "SIGNAL"
+            }
+          ],
+          "description": "Send one or more signals to the foreground process in the specified window(s)",
+          "name": "signal-child",
+          "options": [
+            {
+              "description": "The window to match",
+              "name": [
+                "-m",
+                "--match"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "image-file-or-url-or-directory",
+          "template": "filepaths"
+        }
+      ],
+      "description": "A cat like utility to display images in the terminal",
+      "name": "icat",
+      "options": [
+        {
+          "args": [
+            {
+              "default": "center",
+              "name": "ALIGN",
+              "suggestions": [
+                "center",
+                "left",
+                "right"
+              ]
+            }
+          ],
+          "description": "Horizontal alignment for the displayed image",
+          "name": "--align"
+        },
+        {
+          "args": [
+            {
+              "description": "<width>x<height>@<left>x<top>",
+              "name": "PLACE"
+            }
+          ],
+          "description": "Choose where on the screen to display the image",
+          "name": "--place"
+        },
+        {
+          "dependsOn": [
+            "--place"
+          ],
+          "description": "Images that are smaller than the specified area to be scaled up to use as much of the specified area as possible",
+          "name": "--scale-up"
+        },
+        {
+          "args": [
+            {
+              "default": "none",
+              "name": "COLOR",
+              "suggestions": [
+                {
+                  "icon": "fig://template?color=000000",
+                  "name": "none"
+                },
+                {
+                  "icon": "fig://template?color=000000",
+                  "name": "black"
+                },
+                {
+                  "icon": "fig://template?color=ffffff",
+                  "name": "white"
+                },
+                {
+                  "icon": "fig://template?color=808080",
+                  "name": "gray"
+                },
+                {
+                  "icon": "fig://template?color=ff0000",
+                  "name": "red"
+                },
+                {
+                  "icon": "fig://template?color=00ff00",
+                  "name": "green"
+                },
+                {
+                  "icon": "fig://template?color=0000ff",
+                  "name": "blue"
+                },
+                {
+                  "icon": "fig://template?color=ffff00",
+                  "name": "yellow"
+                },
+                {
+                  "icon": "fig://template?color=ff00ff",
+                  "name": "magenta"
+                },
+                {
+                  "icon": "fig://template?color=00ffff",
+                  "name": "cyan"
+                }
+              ]
+            }
+          ],
+          "description": "Specify a background color, this will cause transparent images to be composited on top of the specified color",
+          "name": "--background"
+        },
+        {
+          "args": [
+            {
+              "default": "none",
+              "name": "AXIS",
+              "suggestions": [
+                "horizontal",
+                "both",
+                "none",
+                "vertical"
+              ]
+            }
+          ],
+          "description": "Mirror the image about a horizontal or vertical axis or both",
+          "name": "--mirror"
+        },
+        {
+          "description": "Remove all images currently displayed on the screen",
+          "name": "--clear"
+        },
+        {
+          "args": [
+            {
+              "default": "detect",
+              "name": "TRANSFER_MODE",
+              "suggestions": [
+                "file",
+                "detect",
+                "stream"
+              ]
+            }
+          ],
+          "description": "Which mechanism to use to transfer images to the terminal",
+          "name": "--transfer-mode"
+        },
+        {
+          "description": "Detect support for image display in the terminal",
+          "name": "--detect-support"
+        },
+        {
+          "args": [
+            {
+              "default": "10",
+              "name": "TIMEOUT"
+            }
+          ],
+          "dependsOn": [
+            "--detect-support"
+          ],
+          "description": "How long to wait for detection to complete before aborting",
+          "name": "--detection-timeout"
+        },
+        {
+          "description": "Print the current terminal window size in pixels",
+          "name": "--print-window-size"
+        },
+        {
+          "description": "Read an image from stdin",
+          "name": "--stdin"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "image-file-or-url-or-directory",
+          "template": "filepaths"
+        }
+      ],
+      "description": "A cat like utility to display images in the terminal",
+      "name": "+icat",
+      "options": [
+        {
+          "args": [
+            {
+              "default": "center",
+              "name": "ALIGN",
+              "suggestions": [
+                "center",
+                "left",
+                "right"
+              ]
+            }
+          ],
+          "description": "Horizontal alignment for the displayed image",
+          "name": "--align"
+        },
+        {
+          "args": [
+            {
+              "description": "<width>x<height>@<left>x<top>",
+              "name": "PLACE"
+            }
+          ],
+          "description": "Choose where on the screen to display the image",
+          "name": "--place"
+        },
+        {
+          "dependsOn": [
+            "--place"
+          ],
+          "description": "Images that are smaller than the specified area to be scaled up to use as much of the specified area as possible",
+          "name": "--scale-up"
+        },
+        {
+          "args": [
+            {
+              "default": "none",
+              "name": "COLOR",
+              "suggestions": [
+                {
+                  "icon": "fig://template?color=000000",
+                  "name": "none"
+                },
+                {
+                  "icon": "fig://template?color=000000",
+                  "name": "black"
+                },
+                {
+                  "icon": "fig://template?color=ffffff",
+                  "name": "white"
+                },
+                {
+                  "icon": "fig://template?color=808080",
+                  "name": "gray"
+                },
+                {
+                  "icon": "fig://template?color=ff0000",
+                  "name": "red"
+                },
+                {
+                  "icon": "fig://template?color=00ff00",
+                  "name": "green"
+                },
+                {
+                  "icon": "fig://template?color=0000ff",
+                  "name": "blue"
+                },
+                {
+                  "icon": "fig://template?color=ffff00",
+                  "name": "yellow"
+                },
+                {
+                  "icon": "fig://template?color=ff00ff",
+                  "name": "magenta"
+                },
+                {
+                  "icon": "fig://template?color=00ffff",
+                  "name": "cyan"
+                }
+              ]
+            }
+          ],
+          "description": "Specify a background color, this will cause transparent images to be composited on top of the specified color",
+          "name": "--background"
+        },
+        {
+          "args": [
+            {
+              "default": "none",
+              "name": "AXIS",
+              "suggestions": [
+                "horizontal",
+                "both",
+                "none",
+                "vertical"
+              ]
+            }
+          ],
+          "description": "Mirror the image about a horizontal or vertical axis or both",
+          "name": "--mirror"
+        },
+        {
+          "description": "Remove all images currently displayed on the screen",
+          "name": "--clear"
+        },
+        {
+          "args": [
+            {
+              "default": "detect",
+              "name": "TRANSFER_MODE",
+              "suggestions": [
+                "file",
+                "detect",
+                "stream"
+              ]
+            }
+          ],
+          "description": "Which mechanism to use to transfer images to the terminal",
+          "name": "--transfer-mode"
+        },
+        {
+          "description": "Detect support for image display in the terminal",
+          "name": "--detect-support"
+        },
+        {
+          "args": [
+            {
+              "default": "10",
+              "name": "TIMEOUT"
+            }
+          ],
+          "dependsOn": [
+            "--detect-support"
+          ],
+          "description": "How long to wait for detection to complete before aborting",
+          "name": "--detection-timeout"
+        },
+        {
+          "description": "Print the current terminal window size in pixels",
+          "name": "--print-window-size"
+        },
+        {
+          "description": "Read an image from stdin",
+          "name": "--stdin"
+        }
+      ]
+    },
+    {
+      "name": "+list-fonts"
+    },
+    {
+      "name": "+hold"
+    },
+    {
+      "name": "+complete"
+    },
+    {
+      "name": "+runpy"
+    },
+    {
+      "name": "+launch"
+    },
+    {
+      "name": "+open"
+    },
+    {
+      "name": "+kitten",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "name": "image-file-or-url-or-directory",
+              "template": "filepaths"
+            }
+          ],
+          "description": "A cat like utility to display images in the terminal",
+          "name": "icat",
+          "options": [
+            {
+              "args": [
+                {
+                  "default": "center",
+                  "name": "ALIGN",
+                  "suggestions": [
+                    "center",
+                    "left",
+                    "right"
+                  ]
+                }
+              ],
+              "description": "Horizontal alignment for the displayed image",
+              "name": "--align"
+            },
+            {
+              "args": [
+                {
+                  "description": "<width>x<height>@<left>x<top>",
+                  "name": "PLACE"
+                }
+              ],
+              "description": "Choose where on the screen to display the image",
+              "name": "--place"
+            },
+            {
+              "dependsOn": [
+                "--place"
+              ],
+              "description": "Images that are smaller than the specified area to be scaled up to use as much of the specified area as possible",
+              "name": "--scale-up"
+            },
+            {
+              "args": [
+                {
+                  "default": "none",
+                  "name": "COLOR",
+                  "suggestions": [
+                    {
+                      "icon": "fig://template?color=000000",
+                      "name": "none"
+                    },
+                    {
+                      "icon": "fig://template?color=000000",
+                      "name": "black"
+                    },
+                    {
+                      "icon": "fig://template?color=ffffff",
+                      "name": "white"
+                    },
+                    {
+                      "icon": "fig://template?color=808080",
+                      "name": "gray"
+                    },
+                    {
+                      "icon": "fig://template?color=ff0000",
+                      "name": "red"
+                    },
+                    {
+                      "icon": "fig://template?color=00ff00",
+                      "name": "green"
+                    },
+                    {
+                      "icon": "fig://template?color=0000ff",
+                      "name": "blue"
+                    },
+                    {
+                      "icon": "fig://template?color=ffff00",
+                      "name": "yellow"
+                    },
+                    {
+                      "icon": "fig://template?color=ff00ff",
+                      "name": "magenta"
+                    },
+                    {
+                      "icon": "fig://template?color=00ffff",
+                      "name": "cyan"
+                    }
+                  ]
+                }
+              ],
+              "description": "Specify a background color, this will cause transparent images to be composited on top of the specified color",
+              "name": "--background"
+            },
+            {
+              "args": [
+                {
+                  "default": "none",
+                  "name": "AXIS",
+                  "suggestions": [
+                    "horizontal",
+                    "both",
+                    "none",
+                    "vertical"
+                  ]
+                }
+              ],
+              "description": "Mirror the image about a horizontal or vertical axis or both",
+              "name": "--mirror"
+            },
+            {
+              "description": "Remove all images currently displayed on the screen",
+              "name": "--clear"
+            },
+            {
+              "args": [
+                {
+                  "default": "detect",
+                  "name": "TRANSFER_MODE",
+                  "suggestions": [
+                    "file",
+                    "detect",
+                    "stream"
+                  ]
+                }
+              ],
+              "description": "Which mechanism to use to transfer images to the terminal",
+              "name": "--transfer-mode"
+            },
+            {
+              "description": "Detect support for image display in the terminal",
+              "name": "--detect-support"
+            },
+            {
+              "args": [
+                {
+                  "default": "10",
+                  "name": "TIMEOUT"
+                }
+              ],
+              "dependsOn": [
+                "--detect-support"
+              ],
+              "description": "How long to wait for detection to complete before aborting",
+              "name": "--detection-timeout"
+            },
+            {
+              "description": "Print the current terminal window size in pixels",
+              "name": "--print-window-size"
+            },
+            {
+              "description": "Read an image from stdin",
+              "name": "--stdin"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "file1",
+              "template": "filepaths"
+            },
+            {
+              "name": "file2",
+              "template": "filepaths"
+            }
+          ],
+          "name": "diff"
+        },
+        {
+          "name": "show_key"
+        },
+        {
+          "name": "clipboard"
+        },
+        {
+          "name": "unicode_input"
+        },
+        {
+          "name": "panel"
+        },
+        {
+          "name": "transfer"
+        },
+        {
+          "name": "query_terminal"
+        },
+        {
+          "name": "broadcast"
+        },
+        {
+          "loadSpec": "rg",
+          "name": "hyperlinked_grep"
+        },
+        {
+          "loadSpec": "ssh",
+          "name": "ssh"
+        },
+        {
+          "name": "choose"
+        },
+        {
+          "name": "ask"
+        },
+        {
+          "description": "Change the kitty theme",
+          "name": "themes"
+        },
+        {
+          "name": "hints"
+        },
+        {
+          "name": "remote_file"
+        },
+        {
+          "name": "show_error"
+        },
+        {
+          "name": "resize_window"
+        },
+        {
+          "name": "mouse_demo"
+        }
+      ]
+    },
+    {
+      "name": "+edit-config"
+    },
+    {
+      "name": "+shebang"
+    }
+  ]
+}

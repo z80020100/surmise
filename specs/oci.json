@@ -1,0 +1,535 @@
+{
+  "description": "Oracle Cloud Infrastructure CLI",
+  "name": "oci",
+  "options": [
+    {
+      "description": "Show help for oci",
+      "name": [
+        "--help",
+        "-h"
+      ]
+    },
+    {
+      "args": [
+        {
+          "default": "DEFAULT",
+          "name": "profile"
+        }
+      ],
+      "description": "The profile to load from the config file",
+      "name": [
+        "--profile",
+        "-p"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "file",
+          "template": "filepaths"
+        }
+      ],
+      "description": "The path to the config file",
+      "name": "--config-file"
+    },
+    {
+      "args": [
+        {
+          "suggestions": [
+            "us-ashburn-1",
+            "us-phoenix-1",
+            "us-chicago-1",
+            "ca-montreal-1",
+            "ca-toronto-1",
+            "sa-saopaulo-1",
+            "sa-vinhedo-1",
+            "sa-santiago-1",
+            "eu-frankfurt-1",
+            "eu-amsterdam-1",
+            "eu-zurich-1",
+            "eu-madrid-1",
+            "uk-london-1",
+            "uk-cardiff-1",
+            "ap-tokyo-1",
+            "ap-osaka-1",
+            "ap-seoul-1",
+            "ap-sydney-1",
+            "ap-melbourne-1",
+            "ap-hyderabad-1",
+            "ap-mumbai-1",
+            "me-dubai-1"
+          ]
+        }
+      ],
+      "description": "The region to make calls against",
+      "name": "--region"
+    },
+    {
+      "args": [
+        {
+          "suggestions": [
+            "json",
+            "table",
+            "text"
+          ]
+        }
+      ],
+      "description": "The output format",
+      "name": "--output"
+    },
+    {
+      "description": "Turn on debug logging",
+      "name": "--debug"
+    },
+    {
+      "args": [
+        {
+          "suggestions": [
+            "api_key",
+            "instance_principal",
+            "resource_principal",
+            "security_token",
+            "raw_token"
+          ]
+        }
+      ],
+      "description": "The type of auth to use",
+      "name": "--auth"
+    },
+    {
+      "args": [
+        {
+          "template": "filepaths"
+        }
+      ],
+      "description": "The path to the private key file",
+      "name": "--key-file"
+    },
+    {
+      "args": [
+        {
+          "suggestions": [
+            "ACCEPTED",
+            "AVAILABLE",
+            "RUNNING",
+            "PROVISIONING",
+            "STOPPED",
+            "TERMINATED",
+            "FAILED"
+          ]
+        }
+      ],
+      "description": "Wait until resource reaches a given state",
+      "name": "--wait-for-state"
+    },
+    {
+      "args": [
+        {
+          "default": "30",
+          "name": "seconds"
+        }
+      ],
+      "description": "Check interval seconds for --wait-for-state",
+      "name": "--wait-interval-seconds"
+    },
+    {
+      "args": [
+        {
+          "default": "1200",
+          "name": "seconds"
+        }
+      ],
+      "description": "Maximum time to wait",
+      "name": "--max-wait-seconds"
+    },
+    {
+      "description": "Output raw response from OCI API",
+      "name": "--raw-output"
+    },
+    {
+      "args": [
+        {
+          "suggestions": [
+            "json",
+            "table",
+            "text"
+          ]
+        }
+      ],
+      "description": "The output format for commands",
+      "name": "--output-format"
+    },
+    {
+      "description": "JMESPath query to filter the output",
+      "name": "--query"
+    }
+  ],
+  "subcommands": [
+    {
+      "description": "Manage Compute resources like instances and images",
+      "name": "compute",
+      "subcommands": [
+        {
+          "description": "Manage Compute instances",
+          "name": "instance",
+          "subcommands": [
+            {
+              "description": "Launch a new compute instance",
+              "name": "launch",
+              "options": [
+                {
+                  "description": "The availability domain of the instance",
+                  "isRequired": true,
+                  "name": "--availability-domain"
+                },
+                {
+                  "description": "The OCID of the compartment",
+                  "isRequired": true,
+                  "name": "--compartment-id"
+                },
+                {
+                  "description": "The shape of the instance",
+                  "isRequired": true,
+                  "name": "--shape"
+                }
+              ]
+            },
+            {
+              "description": "Terminate a compute instance",
+              "name": "terminate",
+              "options": [
+                {
+                  "description": "The OCID of the instance",
+                  "isRequired": true,
+                  "name": "--instance-id"
+                }
+              ]
+            },
+            {
+              "description": "Start a stopped instance",
+              "name": "start",
+              "options": [
+                {
+                  "description": "The OCID of the instance",
+                  "isRequired": true,
+                  "name": "--instance-id"
+                }
+              ]
+            },
+            {
+              "description": "Stop a running instance",
+              "name": "stop",
+              "options": [
+                {
+                  "description": "The OCID of the instance",
+                  "isRequired": true,
+                  "name": "--instance-id"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage Custom Images",
+          "name": "image",
+          "subcommands": [
+            {
+              "description": "List available compute images",
+              "name": "list",
+              "options": [
+                {
+                  "description": "The OCID of the compartment",
+                  "isRequired": true,
+                  "name": "--compartment-id"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Virtual Cloud Network resources",
+      "name": "network",
+      "subcommands": [
+        {
+          "description": "Manage Virtual Cloud Networks",
+          "name": "vcn",
+          "subcommands": [
+            {
+              "description": "Create a new VCN",
+              "name": "create",
+              "options": [
+                {
+                  "description": "The OCID of the compartment",
+                  "isRequired": true,
+                  "name": "--compartment-id"
+                },
+                {
+                  "description": "The CIDR block of the VCN",
+                  "isRequired": true,
+                  "name": "--cidr-block"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Database resources",
+      "name": "db",
+      "subcommands": [
+        {
+          "description": "Manage Autonomous Databases",
+          "name": "autonomous-database",
+          "subcommands": [
+            {
+              "description": "Create an Autonomous Database",
+              "name": "create",
+              "options": [
+                {
+                  "description": "The OCID of the compartment",
+                  "isRequired": true,
+                  "name": "--compartment-id"
+                },
+                {
+                  "description": "The database name",
+                  "isRequired": true,
+                  "name": "--db-name"
+                },
+                {
+                  "description": "Number of CPU cores",
+                  "isRequired": true,
+                  "name": "--cpu-core-count"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Object Storage commands",
+      "name": "os",
+      "subcommands": [
+        {
+          "description": "Manage buckets",
+          "name": "bucket",
+          "subcommands": [
+            {
+              "description": "Create a new bucket",
+              "name": "create",
+              "options": [
+                {
+                  "description": "The OCID of the compartment",
+                  "isRequired": true,
+                  "name": "--compartment-id"
+                },
+                {
+                  "description": "The name of the bucket",
+                  "isRequired": true,
+                  "name": "--name"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Identity and Access Management resources",
+      "name": "iam",
+      "subcommands": [
+        {
+          "description": "Manage users",
+          "name": "user",
+          "subcommands": [
+            {
+              "description": "Create a new user",
+              "name": "create",
+              "options": [
+                {
+                  "description": "Name of the user",
+                  "isRequired": true,
+                  "name": "--name"
+                },
+                {
+                  "description": "Description for the user",
+                  "name": "--description"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage IAM policies",
+          "name": "policy",
+          "subcommands": [
+            {
+              "description": "Create a new policy",
+              "name": "create",
+              "options": [
+                {
+                  "description": "Name of the policy",
+                  "isRequired": true,
+                  "name": "--name"
+                },
+                {
+                  "description": "Policy statements",
+                  "isRequired": true,
+                  "name": "--statements"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage IAM groups",
+          "name": "group",
+          "subcommands": [
+            {
+              "description": "Create a new group",
+              "name": "create",
+              "options": [
+                {
+                  "description": "The name of the group",
+                  "isRequired": true,
+                  "name": "--name"
+                },
+                {
+                  "description": "Description for the group",
+                  "name": "--description"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage compartments",
+          "name": "compartment",
+          "subcommands": [
+            {
+              "description": "Create a new compartment",
+              "name": "create",
+              "options": [
+                {
+                  "description": "The name of the compartment",
+                  "isRequired": true,
+                  "name": "--name"
+                },
+                {
+                  "description": "Description for the compartment",
+                  "name": "--description"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Key Management resources",
+      "name": "kms",
+      "subcommands": [
+        {
+          "description": "Manage encryption keys",
+          "name": "key",
+          "subcommands": [
+            {
+              "description": "Create a new key",
+              "name": "create",
+              "options": [
+                {
+                  "description": "The OCID of the compartment",
+                  "isRequired": true,
+                  "name": "--compartment-id"
+                },
+                {
+                  "description": "Display name of the key",
+                  "isRequired": true,
+                  "name": "--display-name"
+                },
+                {
+                  "args": [
+                    {
+                      "suggestions": [
+                        "AES",
+                        "RSA",
+                        "ECDSA"
+                      ]
+                    }
+                  ],
+                  "description": "Shape of the key",
+                  "name": "--key-shape"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Monitoring and Alerts",
+      "name": "monitoring",
+      "subcommands": [
+        {
+          "description": "Manage monitoring alarms",
+          "name": "alarm",
+          "subcommands": [
+            {
+              "description": "Create a new alarm",
+              "name": "create",
+              "options": [
+                {
+                  "description": "Display name of the alarm",
+                  "isRequired": true,
+                  "name": "--display-name"
+                },
+                {
+                  "description": "Compartment OCID containing the metric",
+                  "isRequired": true,
+                  "name": "--metric-compartment-id"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Budgets and Cost Controls",
+      "name": "budget",
+      "subcommands": [
+        {
+          "description": "Create a new budget",
+          "name": "create",
+          "options": [
+            {
+              "description": "The OCID of the compartment",
+              "isRequired": true,
+              "name": "--compartment-id"
+            },
+            {
+              "description": "The amount for the budget",
+              "isRequired": true,
+              "name": "--amount"
+            },
+            {
+              "args": [
+                {
+                  "suggestions": [
+                    "MONTHLY",
+                    "YEARLY"
+                  ]
+                }
+              ],
+              "description": "The reset period for the budget",
+              "name": "--reset-period"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,194 @@
+{
+  "description": "CLI interface for Angular",
+  "name": "ng",
+  "options": [
+    {
+      "description": "View your Angular CLI version",
+      "name": "--version"
+    }
+  ],
+  "subcommands": [
+    {
+      "args": [
+        {
+          "name": "name"
+        }
+      ],
+      "description": "Create a new Angular app",
+      "name": "new",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "project",
+              "suggestions": [
+                "true",
+                "false"
+              ]
+            }
+          ],
+          "description": "Create a default application?",
+          "name": "--create-application"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "schematic"
+        }
+      ],
+      "description": "Generate new files",
+      "name": "generate",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Name of the new app",
+              "name": "name"
+            }
+          ],
+          "description": "Generates a new application",
+          "name": "application",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "extension",
+                  "suggestions": [
+                    "css",
+                    "scss",
+                    "sass",
+                    "less",
+                    "styl"
+                  ]
+                }
+              ],
+              "name": "--style"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Component name",
+              "isOptional": true,
+              "name": "name"
+            }
+          ],
+          "description": "Generate a new component",
+          "name": "component",
+          "options": [
+            {
+              "args": [
+                {
+                  "dyn": true,
+                  "generators": [
+                    {
+                      "script": [
+                        "ng",
+                        "config",
+                        "projects"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "description": "Project name",
+              "name": "--project"
+            },
+            {
+              "args": [
+                {
+                  "name": "strategy",
+                  "suggestions": [
+                    "Default",
+                    "OnPush"
+                  ]
+                }
+              ],
+              "description": "The change detection strategy to use",
+              "name": [
+                "--change-detection",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "boolean",
+                  "suggestions": [
+                    "true",
+                    "false"
+                  ]
+                }
+              ],
+              "description": "Add :host block to styles",
+              "name": [
+                "--display-block",
+                "-b"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "boolean",
+                  "suggestions": [
+                    "true",
+                    "false"
+                  ]
+                }
+              ],
+              "description": "Create at the top level",
+              "name": "--flat"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "isOptional": true,
+              "name": "name"
+            }
+          ],
+          "description": "Generates a new library",
+          "name": "library"
+        },
+        {
+          "args": [
+            {
+              "isOptional": true,
+              "name": "name"
+            }
+          ],
+          "description": "Generates a class",
+          "name": "class",
+          "options": [
+            {
+              "args": [
+                {
+                  "dyn": true,
+                  "generators": [
+                    {
+                      "script": [
+                        "ng",
+                        "config",
+                        "projects"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "description": "Project name",
+              "name": "--project"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "View your Angular CLI version (update for Angular 14+)",
+      "name": "version"
+    }
+  ]
+}

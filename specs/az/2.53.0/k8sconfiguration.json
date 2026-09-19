@@ -1,0 +1,513 @@
+{
+  "description": "Commands to manage Kubernetes configuration",
+  "name": "k8sconfiguration",
+  "subcommands": [
+    {
+      "description": "Create a Kubernetes configuration",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "cluster-name"
+            }
+          ],
+          "description": "Name of the Kubernetes cluster",
+          "isRequired": true,
+          "name": [
+            "--cluster-name",
+            "-c"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "cluster-type",
+              "suggestions": [
+                "connectedClusters",
+                "managedClusters"
+              ]
+            }
+          ],
+          "description": "Specify Arc clusters or AKS managed clusters",
+          "isRequired": true,
+          "name": "--cluster-type"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Kubernetes Configuration",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "repository-url"
+            }
+          ],
+          "description": "Url of the source control repository",
+          "isRequired": true,
+          "name": [
+            "--repository-url",
+            "-u"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "scope",
+              "suggestions": [
+                "cluster",
+                "namespace"
+              ]
+            }
+          ],
+          "description": "Specify scope of the operator to be 'namespace' or 'cluster'",
+          "isRequired": true,
+          "name": "--scope"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-helm-operator",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable support for Helm chart deployments",
+          "name": "--enable-helm-operator"
+        },
+        {
+          "args": [
+            {
+              "name": "helm-operator-params"
+            }
+          ],
+          "description": "Chart values for the Helm Operator (if enabled)",
+          "name": "--helm-operator-params"
+        },
+        {
+          "args": [
+            {
+              "name": "helm-operator-version"
+            }
+          ],
+          "description": "Chart version of the Helm Operator (if enabled)",
+          "name": "--helm-operator-version"
+        },
+        {
+          "args": [
+            {
+              "name": "https-key"
+            }
+          ],
+          "description": "Specify HTTPS token/password for private repository sync",
+          "name": "--https-key"
+        },
+        {
+          "args": [
+            {
+              "name": "https-user"
+            }
+          ],
+          "description": "Specify HTTPS username for private repository sync",
+          "name": "--https-user"
+        },
+        {
+          "args": [
+            {
+              "name": "operator-instance-name"
+            }
+          ],
+          "description": "Instance name of the Operator",
+          "name": "--operator-instance-name"
+        },
+        {
+          "args": [
+            {
+              "name": "operator-namespace"
+            }
+          ],
+          "description": "Namespace in which to install the Operator",
+          "name": "--operator-namespace"
+        },
+        {
+          "args": [
+            {
+              "name": "operator-params"
+            }
+          ],
+          "description": "Parameters for the Operator",
+          "name": "--operator-params"
+        },
+        {
+          "args": [
+            {
+              "name": "operator-type"
+            }
+          ],
+          "description": "Type of the operator. Valid value is 'flux'",
+          "name": "--operator-type"
+        },
+        {
+          "args": [
+            {
+              "name": "ssh-known-hosts"
+            }
+          ],
+          "description": "Specify Base64-encoded known_hosts contents containing public SSH keys required to access private Git instances",
+          "name": "--ssh-known-hosts"
+        },
+        {
+          "args": [
+            {
+              "name": "ssh-known-hosts-file"
+            }
+          ],
+          "description": "Specify filepath to known_hosts contents containing public SSH keys required to access private Git instances",
+          "name": "--ssh-known-hosts-file"
+        },
+        {
+          "args": [
+            {
+              "name": "ssh-private-key"
+            }
+          ],
+          "description": "Specify Base64-encoded private ssh key for private repository sync",
+          "name": "--ssh-private-key"
+        },
+        {
+          "args": [
+            {
+              "name": "ssh-private-key-file"
+            }
+          ],
+          "description": "Specify filepath to private ssh key for private repository sync",
+          "name": "--ssh-private-key-file"
+        }
+      ]
+    },
+    {
+      "description": "Delete a Kubernetes configuration",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "cluster-name"
+            }
+          ],
+          "description": "Name of the Kubernetes cluster",
+          "isRequired": true,
+          "name": [
+            "--cluster-name",
+            "-c"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "cluster-type",
+              "suggestions": [
+                "connectedClusters",
+                "managedClusters"
+              ]
+            }
+          ],
+          "description": "Specify Arc clusters or AKS managed clusters",
+          "isRequired": true,
+          "name": "--cluster-type"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Kubernetes Configuration",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List Kubernetes configurations",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "cluster-name"
+            }
+          ],
+          "description": "Name of the Kubernetes cluster",
+          "isRequired": true,
+          "name": [
+            "--cluster-name",
+            "-c"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "cluster-type",
+              "suggestions": [
+                "connectedClusters",
+                "managedClusters"
+              ]
+            }
+          ],
+          "description": "Specify Arc clusters or AKS managed clusters",
+          "isRequired": true,
+          "name": "--cluster-type"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Show details of a Kubernetes configuration",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "cluster-name"
+            }
+          ],
+          "description": "Name of the Kubernetes cluster",
+          "isRequired": true,
+          "name": [
+            "--cluster-name",
+            "-c"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "cluster-type",
+              "suggestions": [
+                "connectedClusters",
+                "managedClusters"
+              ]
+            }
+          ],
+          "description": "Specify Arc clusters or AKS managed clusters",
+          "isRequired": true,
+          "name": "--cluster-type"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Kubernetes Configuration",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Update a Kubernetes configuration",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "cluster-name"
+            }
+          ],
+          "description": "Name of the Kubernetes cluster",
+          "isRequired": true,
+          "name": [
+            "--cluster-name",
+            "-c"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "cluster-type",
+              "suggestions": [
+                "connectedClusters",
+                "managedClusters"
+              ]
+            }
+          ],
+          "description": "Specify Arc clusters or AKS managed clusters",
+          "isRequired": true,
+          "name": "--cluster-type"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Kubernetes Configuration",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "enable-helm-operator",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable support for Helm chart deployments",
+          "name": "--enable-helm-operator"
+        },
+        {
+          "args": [
+            {
+              "name": "helm-operator-params"
+            }
+          ],
+          "description": "Chart values for the Helm Operator (if enabled)",
+          "name": "--helm-operator-params"
+        },
+        {
+          "args": [
+            {
+              "name": "helm-operator-version"
+            }
+          ],
+          "description": "Chart version of the Helm Operator (if enabled)",
+          "name": "--helm-operator-version"
+        },
+        {
+          "args": [
+            {
+              "name": "operator-params"
+            }
+          ],
+          "description": "Parameters for the Operator",
+          "name": "--operator-params"
+        },
+        {
+          "args": [
+            {
+              "name": "repository-url"
+            }
+          ],
+          "description": "Url of the source control repository",
+          "name": [
+            "--repository-url",
+            "-u"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ssh-known-hosts"
+            }
+          ],
+          "description": "Specify Base64-encoded known_hosts contents containing public SSH keys required to access private Git instances",
+          "name": "--ssh-known-hosts"
+        },
+        {
+          "args": [
+            {
+              "name": "ssh-known-hosts-file"
+            }
+          ],
+          "description": "Specify filepath to known_hosts contents containing public SSH keys required to access private Git instances",
+          "name": "--ssh-known-hosts-file"
+        }
+      ]
+    }
+  ]
+}

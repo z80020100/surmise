@@ -1,0 +1,1112 @@
+{
+  "description": "Azure Managed Cassandra",
+  "name": "managed-cassandra",
+  "subcommands": [
+    {
+      "description": "Azure Managed Cassandra Cluster",
+      "name": "cluster",
+      "subcommands": [
+        {
+          "description": "Create a Managed Cassandra Cluster",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "Cluster Name",
+              "isRequired": true,
+              "name": [
+                "--cluster-name",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "delegated-management-subnet-id"
+                }
+              ],
+              "description": "The resource id of a subnet where the ip address of the cassandra management server will be allocated. This subnet must have connectivity to the delegated_subnet_id subnet of each data center",
+              "isRequired": true,
+              "name": [
+                "--delegated-management-subnet-id",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Azure Location of the Cluster",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "authentication-method",
+                  "suggestions": [
+                    "Cassandra",
+                    "None"
+                  ]
+                }
+              ],
+              "description": "Authentication mode can be None or Cassandra. If None, no authentication will be required to connect to the Cassandra API. If Cassandra, then passwords will be used",
+              "name": "--authentication-method"
+            },
+            {
+              "args": [
+                {
+                  "name": "cassandra-version"
+                }
+              ],
+              "description": "The version of Cassandra chosen",
+              "name": "--cassandra-version"
+            },
+            {
+              "args": [
+                {
+                  "name": "client-certificates"
+                }
+              ],
+              "description": "If specified, enables client certificate authentication to the Cassandra API",
+              "name": "--client-certificates"
+            },
+            {
+              "args": [
+                {
+                  "name": "cluster-name-override"
+                }
+              ],
+              "description": "If a cluster must have a name that is not a valid azure resource name, this field can be specified to choose the Cassandra cluster name. Otherwise, the resource name will be used as the cluster name",
+              "name": "--cluster-name-override"
+            },
+            {
+              "args": [
+                {
+                  "name": "external-gossip-certificates"
+                }
+              ],
+              "description": "A list of certificates that the managed cassandra data center's should accept",
+              "name": [
+                "--external-gossip-certificates",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "external-seed-nodes"
+                }
+              ],
+              "description": "A list of ip addresses of the seed nodes of on-premise data centers",
+              "name": "--external-seed-nodes"
+            },
+            {
+              "args": [
+                {
+                  "name": "hours-between-backups"
+                }
+              ],
+              "description": "The number of hours between backup attempts",
+              "name": "--hours-between-backups"
+            },
+            {
+              "args": [
+                {
+                  "name": "identity-type",
+                  "suggestions": [
+                    "None",
+                    "SystemAssigned"
+                  ]
+                }
+              ],
+              "description": "Type of identity used for Customer Managed Disk Key",
+              "name": "--identity-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "initial-cassandra-admin-password"
+                }
+              ],
+              "description": "The intial password to be configured when a cluster is created for authentication_method Cassandra",
+              "name": [
+                "--initial-cassandra-admin-password",
+                "-i"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "repair-enabled",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Enables automatic repair",
+              "name": "--repair-enabled"
+            },
+            {
+              "args": [
+                {
+                  "name": "restore-from-backup-id"
+                }
+              ],
+              "description": "The resource id of a backup. If provided on create, the backup will be used to prepopulate the cluster. The cluster data center count and node counts must match the backup",
+              "name": "--restore-from-backup-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Deallocate the Managed Cassandra Cluster and Associated Data Centers. Deallocation will deallocate the host virtual machine of this cluster, and reserved the data disk. This won't do anything on an already deallocated cluster. Use Start to restart the cluster",
+          "name": "deallocate",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "Cluster Name",
+              "isRequired": true,
+              "name": [
+                "--cluster-name",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            }
+          ]
+        },
+        {
+          "description": "Deletes a Managed Cassandra Cluster",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "Cluster Name",
+              "isRequired": true,
+              "name": [
+                "--cluster-name",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Invoke a command like nodetool for cassandra maintenance",
+          "name": "invoke-command",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "Cluster Name",
+              "isRequired": true,
+              "name": [
+                "--cluster-name",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "command-name"
+                }
+              ],
+              "description": "The command which should be run",
+              "isRequired": true,
+              "name": "--command-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "host"
+                }
+              ],
+              "description": "IP address of the cassandra host to run the command on",
+              "isRequired": true,
+              "name": "--host"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "arguments"
+                }
+              ],
+              "description": "The key=\"value\" of arguments for the command",
+              "name": "--arguments"
+            },
+            {
+              "args": [
+                {
+                  "name": "cassandra-stop-start",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "If true, stops cassandra before executing the command and then start it again",
+              "name": "--cassandra-stop-start"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "readwrite",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "If true, allows the command to write to the cassandra directory, otherwise read-only",
+              "name": "--readwrite"
+            }
+          ]
+        },
+        {
+          "description": "List the Managed Cassandra Clusters in a ResourceGroup and Subscription. If the ResourceGroup is not specified all the clusters in this Subscription are returned",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get a Managed Cassandra Cluster Resource",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "Cluster Name",
+              "isRequired": true,
+              "name": [
+                "--cluster-name",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Start the Managed Cassandra Cluster and Associated Data Centers. Start will start the host virtual machine of this cluster with reserved data disk. This won't do anything on an already running cluster. Use Deallocate to deallocate the cluster",
+          "name": "start",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "Cluster Name",
+              "isRequired": true,
+              "name": [
+                "--cluster-name",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            }
+          ]
+        },
+        {
+          "description": "Gets the CPU, memory, and disk usage statistics for each Cassandra node in a cluster",
+          "name": "status",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "Cluster Name",
+              "isRequired": true,
+              "name": [
+                "--cluster-name",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update a Managed Cassandra Cluster",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "Cluster Name",
+              "isRequired": true,
+              "name": [
+                "--cluster-name",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "authentication-method",
+                  "suggestions": [
+                    "Cassandra",
+                    "None"
+                  ]
+                }
+              ],
+              "description": "Authentication mode can be None or Cassandra. If None, no authentication will be required to connect to the Cassandra API. If Cassandra, then passwords will be used",
+              "name": "--authentication-method"
+            },
+            {
+              "args": [
+                {
+                  "name": "cassandra-version"
+                }
+              ],
+              "description": "The version of Cassandra chosen",
+              "name": "--cassandra-version"
+            },
+            {
+              "args": [
+                {
+                  "name": "client-certificates"
+                }
+              ],
+              "description": "If specified, enables client certificate authentication to the Cassandra API",
+              "name": "--client-certificates"
+            },
+            {
+              "args": [
+                {
+                  "name": "external-gossip-certificates"
+                }
+              ],
+              "description": "A list of certificates that the managed cassandra data center's should accept",
+              "name": [
+                "--external-gossip-certificates",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "external-seed-nodes"
+                }
+              ],
+              "description": "A list of ip addresses of the seed nodes of on-premise data centers",
+              "name": "--external-seed-nodes"
+            },
+            {
+              "args": [
+                {
+                  "name": "hours-between-backups"
+                }
+              ],
+              "description": "The number of hours between backup attempts",
+              "name": "--hours-between-backups"
+            },
+            {
+              "args": [
+                {
+                  "name": "identity-type",
+                  "suggestions": [
+                    "None",
+                    "SystemAssigned"
+                  ]
+                }
+              ],
+              "description": "Type of identity used for Customer Managed Disk Key",
+              "name": "--identity-type"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "repair-enabled",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Enables automatic repair",
+              "name": "--repair-enabled"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Azure Managed Cassandra cluster Backup",
+          "name": "backup",
+          "subcommands": [
+            {
+              "description": "List the backups of this cluster that are available to restore",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "cluster-name"
+                    }
+                  ],
+                  "description": "Cluster Name",
+                  "isRequired": true,
+                  "name": [
+                    "--cluster-name",
+                    "-c"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Get a managed cassandra backup resource of this cluster",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "backup-id"
+                    }
+                  ],
+                  "description": "The resource id of the backup",
+                  "isRequired": true,
+                  "name": "--backup-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "cluster-name"
+                    }
+                  ],
+                  "description": "Cluster Name",
+                  "isRequired": true,
+                  "name": [
+                    "--cluster-name",
+                    "-c"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Azure Managed Cassandra DataCenter",
+      "name": "datacenter",
+      "subcommands": [
+        {
+          "description": "Create a Datacenter in an Azure Managed Cassandra Cluster",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "Cluster Name",
+              "isRequired": true,
+              "name": [
+                "--cluster-name",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "data-center-location"
+                }
+              ],
+              "description": "Azure Location of the Datacenter",
+              "isRequired": true,
+              "name": [
+                "--data-center-location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "data-center-name"
+                }
+              ],
+              "description": "Datacenter Name",
+              "isRequired": true,
+              "name": [
+                "--data-center-name",
+                "-d"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "delegated-subnet-id"
+                }
+              ],
+              "description": "The resource id of a subnet where ip addresses of the Cassandra virtual machines will be allocated. This must be in the same region as data_center_location",
+              "isRequired": true,
+              "name": [
+                "--delegated-subnet-id",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "node-count"
+                }
+              ],
+              "description": "The number of Cassandra virtual machines in this data center. The minimum value is 3",
+              "isRequired": true,
+              "name": [
+                "--node-count",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "availability-zone",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "If the data center haves Availability Zone feature, apply it to the Virtual Machine ScaleSet that host the data center virtual machines",
+              "name": [
+                "--availability-zone",
+                "-z"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "backup-storage-customer-key-uri"
+                }
+              ],
+              "description": "Indicates the Key Uri of the customer key to use for encryption of the backup storage account",
+              "name": [
+                "--backup-storage-customer-key-uri",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "base64-encoded-cassandra-yaml-fragment"
+                }
+              ],
+              "description": "This is a Base64 encoded yaml file that is a subset of cassandra.yaml. Supported fields will be honored and others will be ignored",
+              "name": [
+                "--base64-encoded-cassandra-yaml-fragment",
+                "-b"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "disk-capacity"
+                }
+              ],
+              "description": "Number of disk used for data centers. Default value is 4",
+              "name": "--disk-capacity"
+            },
+            {
+              "args": [
+                {
+                  "name": "disk-sku"
+                }
+              ],
+              "description": "Disk SKU used for data centers. Default value is P30",
+              "name": "--disk-sku"
+            },
+            {
+              "args": [
+                {
+                  "name": "managed-disk-customer-key-uri"
+                }
+              ],
+              "description": "Key uri to use for encryption of managed disks. Ensure the system assigned identity of the cluster has been assigned appropriate permissions(key get/wrap/unwrap permissions) on the key",
+              "name": [
+                "--managed-disk-customer-key-uri",
+                "-k"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "sku"
+                }
+              ],
+              "description": "Virtual Machine SKU used for data centers. Default value is Standard_DS14_v2",
+              "name": "--sku"
+            }
+          ]
+        },
+        {
+          "description": "Deletes a Managed Cassandra Datacenter",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "Cluster Name",
+              "isRequired": true,
+              "name": [
+                "--cluster-name",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "data-center-name"
+                }
+              ],
+              "description": "Datacenter Name",
+              "isRequired": true,
+              "name": [
+                "--data-center-name",
+                "-d"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List the Managed Cassandra Datacenters in a given Cluster",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "Cluster Name",
+              "isRequired": true,
+              "name": [
+                "--cluster-name",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get a Managed Cassandra DataCenter Resource",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "Cluster Name",
+              "isRequired": true,
+              "name": [
+                "--cluster-name",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "data-center-name"
+                }
+              ],
+              "description": "Datacenter Name",
+              "isRequired": true,
+              "name": [
+                "--data-center-name",
+                "-d"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update a Datacenter in an Azure Managed Cassandra Cluster",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "Cluster Name",
+              "isRequired": true,
+              "name": [
+                "--cluster-name",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "data-center-name"
+                }
+              ],
+              "description": "Datacenter Name",
+              "isRequired": true,
+              "name": [
+                "--data-center-name",
+                "-d"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "backup-storage-customer-key-uri"
+                }
+              ],
+              "description": "Indicates the Key Uri of the customer key to use for encryption of the backup storage account",
+              "name": [
+                "--backup-storage-customer-key-uri",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "base64-encoded-cassandra-yaml-fragment"
+                }
+              ],
+              "description": "This is a Base64 encoded yaml file that is a subset of cassandra.yaml. Supported fields will be honored and others will be ignored",
+              "name": [
+                "--base64-encoded-cassandra-yaml-fragment",
+                "-b"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "managed-disk-customer-key-uri"
+                }
+              ],
+              "description": "Key uri to use for encryption of managed disks. Ensure the system assigned identity of the cluster has been assigned appropriate permissions(key get/wrap/unwrap permissions) on the key",
+              "name": [
+                "--managed-disk-customer-key-uri",
+                "-k"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "node-count"
+                }
+              ],
+              "description": "The number of Cassandra virtual machines in this data center. The minimum value is 3",
+              "name": [
+                "--node-count",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "sku"
+                }
+              ],
+              "description": "Virtual Machine SKU used for data centers. Default value is Standard_DS14_v2",
+              "name": "--sku"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

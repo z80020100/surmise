@@ -1,0 +1,353 @@
+{
+  "description": "Dev tools for fig's autocomplete",
+  "icon": "https://fig.io/icons/fig-light.png",
+  "name": "@withfig/autocomplete-tools",
+  "options": [
+    {
+      "description": "Output the version number",
+      "name": [
+        "-V",
+        "--version"
+      ]
+    },
+    {
+      "description": "Display help for command",
+      "name": [
+        "-h",
+        "--help"
+      ],
+      "priority": 49
+    }
+  ],
+  "subcommands": [
+    {
+      "description": "Initialize fig custom spec boilerplate in current directory",
+      "name": "init",
+      "options": [
+        {
+          "description": "Display help for command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "isOptional": true,
+          "name": "name"
+        }
+      ],
+      "description": "Create spec with given name",
+      "name": "create-spec",
+      "options": [
+        {
+          "description": "Display help for command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "description": "Compile specs in the current directory",
+      "name": "compile",
+      "options": [
+        {
+          "description": "Watch files and re-compile on change",
+          "name": [
+            "-w",
+            "--watch"
+          ]
+        },
+        {
+          "description": "Display help for command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "description": "Watch for changes and compile specs",
+      "name": "dev",
+      "options": [
+        {
+          "description": "Display help for command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "oldspec",
+          "template": "filepaths"
+        },
+        {
+          "name": "newspec",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Deep merge new spec into old spec",
+      "name": "merge",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "path",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Create a new spec file instead of updating the old one",
+          "name": [
+            "-n",
+            "--new-file"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "props"
+            }
+          ],
+          "description": "The props that should always be overridden",
+          "exclusiveOn": [
+            "--preset"
+          ],
+          "name": [
+            "-i",
+            "--ignore-props"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "props"
+            }
+          ],
+          "description": "The command props that should always be overridden",
+          "exclusiveOn": [
+            "--preset"
+          ],
+          "name": "--ignore-command-props"
+        },
+        {
+          "args": [
+            {
+              "name": "props"
+            }
+          ],
+          "description": "The option props that should always be overridden",
+          "exclusiveOn": [
+            "--preset"
+          ],
+          "name": "--ignore-option-props"
+        },
+        {
+          "args": [
+            {
+              "name": "props"
+            }
+          ],
+          "description": "The arg props that should always be overridden",
+          "exclusiveOn": [
+            "--preset"
+          ],
+          "name": "--ignore-arg-props"
+        },
+        {
+          "args": [
+            {
+              "name": "name",
+              "suggestions": [
+                "commander",
+                "oclif",
+                "cobra",
+                "clap",
+                "swift-argument-parser",
+                "click",
+                "argparse",
+                "cement"
+              ]
+            }
+          ],
+          "description": "Use a preset",
+          "exclusiveOn": [
+            "--ignore-props",
+            "--ignore-command-props",
+            "--ignore-option-props",
+            "--ignore-arg-props"
+          ],
+          "name": [
+            "-p",
+            "--preset"
+          ],
+          "priority": 76
+        },
+        {
+          "description": "Display help for command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "name": "version",
+      "options": [
+        {
+          "description": "Display help for command",
+          "name": [
+            "-h",
+            "--help"
+          ],
+          "priority": 49
+        }
+      ],
+      "subcommands": [
+        {
+          "args": [
+            {
+              "name": "specName"
+            },
+            {
+              "dyn": true,
+              "generators": [
+                {}
+              ],
+              "name": "newSpecFilePath"
+            },
+            {
+              "name": "diffVersion"
+            }
+          ],
+          "description": "Generate version diff from new spec and add into old spec",
+          "name": "add-diff",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "path"
+                }
+              ],
+              "description": "The root folder where the updated spec will be saved. Note: this must NOT include the folder spec name",
+              "name": [
+                "-n",
+                "--new-path"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": "folders"
+                }
+              ],
+              "description": "Resolve the spec name relative to this directory",
+              "name": "--cwd"
+            },
+            {
+              "description": "Create a new version file per minor version",
+              "name": "--use-minor-base"
+            },
+            {
+              "description": "Display help for command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Generate versioned spec in folder specified by path",
+          "name": "init-spec",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": "folders"
+                }
+              ],
+              "description": "Generate the spec relative to this directory",
+              "name": "--cwd"
+            },
+            {
+              "description": "Display help for command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "isVariadic": true,
+              "name": "files"
+            }
+          ],
+          "description": "[Unimplemented] Precompute versioned specs before publishing the specs repo (unimplemented)",
+          "name": "precompute-specs",
+          "options": [
+            {
+              "description": "Display help for command",
+              "name": [
+                "-h",
+                "--help"
+              ],
+              "priority": 49
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "isOptional": true,
+              "name": "command",
+              "template": "help"
+            }
+          ],
+          "description": "Display help for command",
+          "name": "help",
+          "priority": 49
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "isOptional": true,
+          "name": "command",
+          "template": "help"
+        }
+      ],
+      "description": "Display help for command",
+      "name": "help",
+      "priority": 49
+    }
+  ]
+}

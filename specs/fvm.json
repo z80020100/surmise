@@ -1,0 +1,246 @@
+{
+  "description": "Flutter Version Management: A cli to manage Flutter SDK versions",
+  "name": "fvm",
+  "options": [
+    {
+      "description": "Print this usage information",
+      "name": [
+        "-h",
+        "--help"
+      ]
+    },
+    {
+      "description": "Print verbose output",
+      "name": "--verbose"
+    },
+    {
+      "description": "Current FVM version",
+      "name": "--version"
+    }
+  ],
+  "subcommands": [
+    {
+      "description": "Set configuration for FVM",
+      "name": "config",
+      "options": [
+        {
+          "description": "Print this usage information",
+          "name": [
+            "-h",
+            "--help"
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Path to the Flutter versions cache",
+              "name": "path",
+              "template": "filepaths"
+            }
+          ],
+          "description": "Set the path which FVM will cache the version. Priority over FVM_HOME",
+          "name": [
+            "-c",
+            "--cache-path"
+          ]
+        },
+        {
+          "description": "Skip setup after a version install",
+          "name": [
+            "-s",
+            "--skip-setup",
+            "--no-skip-setup"
+          ]
+        },
+        {
+          "description": "ADVANCED: Will cache a local version of Flutter repo for faster version install",
+          "name": [
+            "-g",
+            "--git-cache",
+            "--no-git-cache"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Proxies Dart commands",
+      "name": "dart"
+    },
+    {
+      "description": "Shows information about environment, and project configuration",
+      "name": "doctor"
+    },
+    {
+      "args": [
+        {
+          "description": "The flavor to switch to",
+          "name": "flavor-name"
+        }
+      ],
+      "description": "Switches between different project flavors",
+      "name": "flavor"
+    },
+    {
+      "description": "Proxies Flutter commands",
+      "loadSpec": "flutter",
+      "name": "flutter"
+    },
+    {
+      "args": [
+        {
+          "description": "Flutter SDK to set for global flutter command",
+          "name": "version"
+        }
+      ],
+      "description": "Sets Flutter SDK version as global",
+      "name": "global"
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "fvm",
+                "releases"
+              ]
+            }
+          ],
+          "name": "version",
+          "suggestions": [
+            {
+              "description": "Latest stable release of Flutter",
+              "name": "stable",
+              "priority": 100
+            },
+            {
+              "description": "Latest beta release of Flutter",
+              "name": "beta",
+              "priority": 99
+            },
+            {
+              "description": "Latest dev release of Flutter (master)",
+              "name": "dev",
+              "priority": 98
+            }
+          ]
+        }
+      ],
+      "description": "Installs Flutter SDK version",
+      "name": "install",
+      "options": [
+        {
+          "description": "Print this usage information",
+          "name": [
+            "-h",
+            "--help"
+          ]
+        },
+        {
+          "description": "Skips Flutter setup after install",
+          "name": [
+            "-s",
+            "--skip-setup"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Lists installed Flutter SDK versions",
+      "name": "list",
+      "options": [
+        {
+          "description": "Print this usage information",
+          "name": [
+            "-h",
+            "--help"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "View all Flutter SDK releases available for install",
+      "name": "releases",
+      "options": [
+        {
+          "description": "Print this usage information",
+          "name": [
+            "-h",
+            "--help"
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "The installed Flutter version to remove",
+          "name": "version"
+        }
+      ],
+      "description": "Removes Flutter SDK version",
+      "name": "remove",
+      "options": [
+        {
+          "description": "Print this usage information",
+          "name": [
+            "-h",
+            "--help"
+          ]
+        },
+        {
+          "description": "Skips version global check",
+          "name": "--force"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "The Flutter version from which to spawn a command",
+          "name": "version"
+        }
+      ],
+      "description": "Spawn a Flutter SDK version command",
+      "name": "spawn"
+    },
+    {
+      "args": [
+        {
+          "description": "The Flutter SDK version to use",
+          "name": "version"
+        }
+      ],
+      "description": "Sets a Flutter SDK version to be used in a project",
+      "name": "use",
+      "options": [
+        {
+          "description": "Print this usage information",
+          "name": [
+            "-h",
+            "--help"
+          ]
+        },
+        {
+          "description": "Skips command guards that does Flutter project checks",
+          "name": [
+            "-f",
+            "--force"
+          ]
+        },
+        {
+          "description": "If version provided is a channel. Will pin the latest release of the channel",
+          "name": [
+            "-p",
+            "--pin"
+          ]
+        },
+        {
+          "description": "Sets version for a project flavor",
+          "name": "--flavor"
+        }
+      ]
+    }
+  ]
+}

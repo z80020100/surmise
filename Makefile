@@ -47,6 +47,40 @@ shell:
 .PHONY: check
 check: fmt-check clippy test shell
 
+# The spec converter in `tools/spec-convert`. It is a development tool and not
+# part of the build: `specs/` is committed and every build reads it as it
+# stands. Run this when the corpus moves, read the diff, commit it. CORPUS is
+# either the published tarball or an unpacked package directory.
+#
+#   make specs CORPUS=~/Downloads/autocomplete-2.692.3.tgz
+#
+# The converter is outside this package. Its manifest carries an empty
+# `[workspace]` table, so `cargo build` here never sees it and `cargo install`
+# never sees its dependencies. `make check` does not cover it either. Use
+# `make specs-check` for that.
+CONVERTER := tools/spec-convert/target/release/spec-convert
+
+.PHONY: specs
+specs:
+	@[ -n "$(CORPUS)" ] || { \
+	  echo "specs: set CORPUS to the corpus tarball or an unpacked package" >&2; \
+	  exit 1; \
+	}
+	cargo build --locked --release --manifest-path tools/spec-convert/Cargo.toml
+	@case "$(CORPUS)" in \
+	  *.tgz|*.tar.gz) \
+	    d=$$(mktemp -d) && trap 'rm -rf "$$d"' EXIT && \
+	    tar xzf "$(CORPUS)" -C "$$d" && \
+	    $(CONVERTER) --corpus "$$d/package" --out specs ;; \
+	  *) \
+	    $(CONVERTER) --corpus "$(CORPUS)" --out specs ;; \
+	esac
+
+.PHONY: specs-check
+specs-check:
+	cargo fmt --manifest-path tools/spec-convert/Cargo.toml -- --check
+	cargo clippy --locked --manifest-path tools/spec-convert/Cargo.toml --all-targets
+
 .PHONY: install
 install:
 	cargo install --locked --path .

@@ -1,0 +1,1236 @@
+{
+  "description": "Manage Azure Data Migration Service (classic) instances",
+  "name": "dms",
+  "subcommands": [
+    {
+      "description": "Check if a given DMS instance name is available in a given region as well as the name's validity",
+      "name": "check-name",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "isRequired": true,
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The service name to check",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Perform a health check and return the status of the service and virtual machine size",
+      "name": "check-status",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the Service",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Create an instance of the Azure Database Migration Service (classic)",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "isRequired": true,
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the Service",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "sku-name"
+            }
+          ],
+          "description": "The name of the CPU SKU on which the service's virtual machine will run. Check the name and the availability of SKUs in your area with \"az dms list-skus\"",
+          "isRequired": true,
+          "name": "--sku-name"
+        },
+        {
+          "args": [
+            {
+              "name": "subnet"
+            }
+          ],
+          "description": "The Resource ID of the VNet's Subnet you will use to connect the source and target DBs. Use \"az network vnet subnet show -h\" for help to get your subnet's ID",
+          "isRequired": true,
+          "name": "--subnet"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "A space-delimited list of tags in \"tag1[=value1]\" format",
+          "name": "--tags"
+        }
+      ]
+    },
+    {
+      "description": "Delete an instance of the Azure Database Migration Service (classic)",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the Service",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "delete-running-tasks"
+            }
+          ],
+          "description": "Cancel any running tasks before deleting the service",
+          "name": "--delete-running-tasks"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List the DMS instances within your currently configured subscription (to set this use \"az account set\"). If provided, only show the instances within a given resource group",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List the SKUs that are supported by the Azure Database Migration Service (classic)",
+      "name": "list-skus"
+    },
+    {
+      "description": "Show the details for an instance of the Azure Database Migration Service (classic)",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the Service",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Start an instance of the Azure Database Migration Service (classic). It can then be used to run data migrations",
+      "name": "start",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the Service",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        }
+      ]
+    },
+    {
+      "description": "Stop an instance of the Azure Database Migration Service (classic). While stopped, it can't be used to run data migrations and the owner won't be billed",
+      "name": "stop",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the Service",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        }
+      ]
+    },
+    {
+      "description": "Place the CLI in a waiting state until a condition of the DMS instance is met",
+      "name": "wait",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the Service",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+          "name": "--created"
+        },
+        {
+          "args": [
+            {
+              "name": "custom"
+            }
+          ],
+          "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+          "name": "--custom"
+        },
+        {
+          "description": "Wait until deleted",
+          "name": "--deleted"
+        },
+        {
+          "description": "Wait until the resource exists",
+          "name": "--exists"
+        },
+        {
+          "args": [
+            {
+              "name": "interval"
+            }
+          ],
+          "description": "Polling interval in seconds",
+          "name": "--interval"
+        },
+        {
+          "args": [
+            {
+              "name": "timeout"
+            }
+          ],
+          "description": "Maximum wait in seconds",
+          "name": "--timeout"
+        },
+        {
+          "description": "Wait until updated with provisioningState at 'Succeeded'",
+          "name": "--updated"
+        }
+      ]
+    },
+    {
+      "description": "Manage projects for an instance of the Azure Database Migration Service (classic)",
+      "name": "project",
+      "subcommands": [
+        {
+          "description": "Check if a given project name is available within a given instance of DMS as well as the name's validity",
+          "name": "check-name",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The project name to check",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the Service",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        },
+        {
+          "description": "Create a migration project which can contain multiple tasks",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the Project",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the Service",
+              "isRequired": true,
+              "name": "--service-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "source-platform"
+                }
+              ],
+              "description": "The type of server for the source database. The supported types are: SQL, PostgreSQL, MySQL",
+              "isRequired": true,
+              "name": "--source-platform"
+            },
+            {
+              "args": [
+                {
+                  "name": "target-platform"
+                }
+              ],
+              "description": "The type of service for the target database. The supported types are: SQLDB, AzureDbForPostgreSQL, AzureDbForMySQL",
+              "isRequired": true,
+              "name": "--target-platform"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "A space-delimited list of tags in \"tag1[=value1]\" format",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Delete a project",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the Project",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the Service",
+              "isRequired": true,
+              "name": "--service-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "delete-running-tasks"
+                }
+              ],
+              "description": "Cancel any running tasks before deleting the project",
+              "name": "--delete-running-tasks"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List the projects within an instance of DMS",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the Service",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        },
+        {
+          "description": "Show the details of a migration project",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the Project",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "The name of the Service",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        },
+        {
+          "description": "Manage tasks for a Azure Database Migration Service (classic) instance's project",
+          "name": "task",
+          "subcommands": [
+            {
+              "description": "Cancel a task if it's currently queued or running",
+              "name": "cancel",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the Task",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project-name"
+                    }
+                  ],
+                  "description": "The name of the Project",
+                  "isRequired": true,
+                  "name": "--project-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the Service",
+                  "isRequired": true,
+                  "name": "--service-name"
+                }
+              ]
+            },
+            {
+              "description": "Check if a given task name is available within a given instance of DMS as well as the name's validity",
+              "name": "check-name",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The task name to check",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project-name"
+                    }
+                  ],
+                  "description": "The name of the Project",
+                  "isRequired": true,
+                  "name": "--project-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the Service",
+                  "isRequired": true,
+                  "name": "--service-name"
+                }
+              ]
+            },
+            {
+              "description": "Create and start a migration task",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "database-options-json"
+                    }
+                  ],
+                  "description": "Database and table information. This can be either a JSON-formatted string or the location to a file containing the JSON object. See example below for the format",
+                  "isRequired": true,
+                  "name": "--database-options-json"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the Task",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project-name"
+                    }
+                  ],
+                  "description": "The name of the Project",
+                  "isRequired": true,
+                  "name": "--project-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the Service",
+                  "isRequired": true,
+                  "name": "--service-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "source-connection-json"
+                    }
+                  ],
+                  "description": "The connection information to the source server. This can be either a JSON-formatted string or the location to a file containing the JSON object. See examples below for the format",
+                  "isRequired": true,
+                  "name": "--source-connection-json"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "target-connection-json"
+                    }
+                  ],
+                  "description": "The connection information to the target server. This can be either a JSON-formatted string or the location to a file containing the JSON object. See 'source-connection-json' for examples of connection formats",
+                  "isRequired": true,
+                  "name": "--target-connection-json"
+                },
+                {
+                  "description": "For SQL only. Whether to perform a checksum based data integrity validation between source and target for the selected database and tables",
+                  "name": "--enable-data-integrity-validation"
+                },
+                {
+                  "description": "For SQL only. Whether to perform a quick and intelligent query analysis by retrieving queries from the source database and executing them in the target. The result will have execution statistics for executions in source and target databases for the extracted queries",
+                  "name": "--enable-query-analysis-validation"
+                },
+                {
+                  "description": "For SQL only. Whether to compare the schema information between source and target",
+                  "name": "--enable-schema-validation"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "task-type"
+                    }
+                  ],
+                  "description": "The type of data movement the task will support. The supported types are: OnlineMigration, OfflineMigration. If not provided, will default to OfflineMigration for SQL, MySQL and OnlineMigration for PostgreSQL",
+                  "name": "--task-type"
+                }
+              ]
+            },
+            {
+              "description": "For an online migration task, complete the migration by performing a cutover",
+              "name": "cutover",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the Task",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "object-name"
+                    }
+                  ],
+                  "description": "The name of the database on the source you wish to cutover",
+                  "isRequired": true,
+                  "name": "--object-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project-name"
+                    }
+                  ],
+                  "description": "The name of the Project",
+                  "isRequired": true,
+                  "name": "--project-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the Service",
+                  "isRequired": true,
+                  "name": "--service-name"
+                }
+              ]
+            },
+            {
+              "description": "Delete a migration task",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the Task",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project-name"
+                    }
+                  ],
+                  "description": "The name of the Project",
+                  "isRequired": true,
+                  "name": "--project-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the Service",
+                  "isRequired": true,
+                  "name": "--service-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "delete-running-tasks"
+                    }
+                  ],
+                  "description": "If the task is currently running, cancel the task before deleting the project",
+                  "name": "--delete-running-tasks"
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List the tasks within a project. Some tasks may have a status of Unknown, which indicates that an error occurred while querying the status of that task",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "project-name"
+                    }
+                  ],
+                  "description": "The name of the Project",
+                  "isRequired": true,
+                  "name": "--project-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the Service",
+                  "isRequired": true,
+                  "name": "--service-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "task-type"
+                    }
+                  ],
+                  "description": "Filters the list by the type of task. For the list of possible types see \"az dms check-status\"",
+                  "name": "--task-type"
+                }
+              ]
+            },
+            {
+              "description": "Restart either the entire migration or just a specified object. Currently only supported by MongoDB migrations",
+              "name": "restart",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the Task. A DMS Project Task is the activity that performs migration related work. There could be multiple Tasks associated with a Project",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project-name"
+                    }
+                  ],
+                  "description": "The name of the Project. DMS Project is a logical grouping that encompasses source database connection, target database connection and a list of databases to migrate",
+                  "isRequired": true,
+                  "name": "--project-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the Service. DMS Service is an Azure instance that performs database migrations",
+                  "isRequired": true,
+                  "name": "--service-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "object-name"
+                    }
+                  ],
+                  "description": "The qualified name of the database or collection you wish to restart. Leave blank to restart the entire migration",
+                  "name": "--object-name"
+                }
+              ]
+            },
+            {
+              "description": "Show the details of a migration task. Use the \"--expand\" to get more details",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the Task",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project-name"
+                    }
+                  ],
+                  "description": "The name of the Project",
+                  "isRequired": true,
+                  "name": "--project-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the Service",
+                  "isRequired": true,
+                  "name": "--service-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "expand"
+                    }
+                  ],
+                  "description": "Expand the response to provide more details. Use with \"command\" to see more details of the task. Use with \"output\" to see the results of the task's migration",
+                  "name": "--expand"
+                }
+              ]
+            },
+            {
+              "description": "Stops the task, or stops migration on the specified object (MongoDB migrations only)",
+              "name": "stop",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the Task. A DMS Project Task is the activity that performs migration related work. There could be multiple Tasks associated with a Project",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project-name"
+                    }
+                  ],
+                  "description": "The name of the Project. DMS Project is a logical grouping that encompasses source database connection, target database connection and a list of databases to migrate",
+                  "isRequired": true,
+                  "name": "--project-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "The name of the Service. DMS Service is an Azure instance that performs database migrations",
+                  "isRequired": true,
+                  "name": "--service-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "object-name"
+                    }
+                  ],
+                  "description": "Supported by MongoDB migrations only. The qualified name of the database or collection you wish to stop. Leave blank to stop the entire migration",
+                  "name": "--object-name"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

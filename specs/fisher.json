@@ -1,0 +1,144 @@
+{
+  "description": "A plugin manager for Fish",
+  "name": "fisher",
+  "options": [
+    {
+      "description": "Show help for fisher",
+      "name": [
+        "--help",
+        "-h"
+      ]
+    },
+    {
+      "description": "Show fisher version",
+      "name": [
+        "--version",
+        "-v"
+      ]
+    }
+  ],
+  "subcommands": [
+    {
+      "description": "Install plugin",
+      "name": "install",
+      "subcommands": [
+        {
+          "description": "[Prompt] - 🌊 The ultimate Fish prompt",
+          "displayName": "Tide",
+          "icon": "fig://icon?type=box",
+          "name": "IlanCosman/tide@v5",
+          "priority": 99
+        },
+        {
+          "description": "[Prompt] - Pretty, minimal, and fast prompt for Fish from Zsh",
+          "displayName": "Pure",
+          "icon": "fig://icon?type=box",
+          "name": "pure-fish/pure",
+          "priority": 98
+        },
+        {
+          "description": "[Prompt] - Minimal, lag-free prompt with async Git status",
+          "displayName": "Hydro",
+          "icon": "fig://icon?type=box",
+          "name": "jorgebucaran/hydro"
+        },
+        {
+          "description": "[Plugin] - Pure-fish z directory jumping",
+          "displayName": "Z",
+          "icon": "fig://icon?type=package",
+          "name": "jethrokuan/z"
+        },
+        {
+          "description": "[Plugin] - Augment your fish command line with fzf key bindings",
+          "displayName": "FZF.fish",
+          "icon": "fig://icon?type=package",
+          "name": "PatrickF1/fzf.fish"
+        },
+        {
+          "description": "[Plugin] -  Node.js version manager lovingly made for Fish",
+          "displayName": "NVM.fish",
+          "icon": "fig://icon?type=package",
+          "name": "jorgebucaran/nvm.fish"
+        },
+        {
+          "description": "[Plugin] - A fish-shell package to automatically receive notifications when long processes finish",
+          "displayName": "Done",
+          "icon": "fig://icon?type=package",
+          "name": "franciscolourenco/done"
+        },
+        {
+          "description": "[Plugin] - Run Bash commands replaying changes in Fish. 🍤",
+          "displayName": "Replay.fish",
+          "icon": "fig://icon?type=package",
+          "name": "jorgebucaran/replay.fish"
+        },
+        {
+          "description": "[Plugin] - Visualize a range of numbers right in your terminal",
+          "displayName": "Spark.fish",
+          "icon": "fig://icon?type=package",
+          "name": "jorgebucaran/spark.fish"
+        },
+        {
+          "description": "[Plugin] - Speed up your Git workflow. 🐠",
+          "displayName": "GitNow",
+          "icon": "fig://icon?type=package",
+          "name": "joseluisq/gitnow@2.10.0"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "The plugin you want to remove",
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "fish",
+                "-c",
+                "fisher list"
+              ]
+            }
+          ],
+          "isDangerous": true,
+          "isVariadic": true,
+          "name": "installed plugins"
+        }
+      ],
+      "description": "Remove plugins",
+      "name": "remove"
+    },
+    {
+      "args": [
+        {
+          "description": "The plugin you want to update",
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "fish",
+                "-c",
+                "fisher list"
+              ]
+            }
+          ],
+          "isVariadic": true,
+          "name": "installed plugins"
+        }
+      ],
+      "description": "Update plugins",
+      "name": "update"
+    },
+    {
+      "args": [
+        {
+          "description": "Search in list with regular expression",
+          "isOptional": true,
+          "name": "RegEx"
+        }
+      ],
+      "description": "List plugins",
+      "name": "list"
+    }
+  ]
+}
