@@ -13,7 +13,8 @@ use crate::keys;
 use crate::tty;
 use crate::ui;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
-use std::io::{self, Write};
+use std::collections::HashMap;
+use std::io::{self, Read, Write};
 use std::path::Path;
 
 /// Take the line back and leave it on the shell's editor. It is on stdout.
@@ -48,6 +49,62 @@ fn seeded(seed: &str, cwd: &Path) -> Option<App> {
     (!app.items.is_empty()).then_some(app)
 }
 
+/// What the widget put on stdin: `RBUFFER` and the shell's alias table.
+#[derive(Default)]
+struct Input {
+    rbuffer: String,
+    aliases: HashMap<String, String>,
+}
+
+/// Stdin as the v2 record, or the empty record when there was none to read.
+///
+/// `run` reads this once, ahead of `App::over`, and answers `PASS` on it
+/// alone when the cursor sits mid-word. Otherwise its fields land on the
+/// `App` once one exists.
+fn read_input() -> io::Result<Input> {
+    // A terminal on stdin means nobody piped a record in. Reading it would
+    // wait on a key that never comes, and a hand run of `surmise --pick` puts
+    // exactly that on stdin.
+    if tty::stdin_is_terminal() {
+        return Ok(Input::default());
+    }
+    let mut bytes = Vec::new();
+    io::stdin().read_to_end(&mut bytes)?;
+    Ok(parse_input(&bytes))
+}
+
+/// Parse the v2 record: `RBUFFER`, then a NUL-separated name and value for
+/// every shell alias. Empty bytes parse to the empty record, which is what an
+/// absent or closed stdin already reads as.
+fn parse_input(bytes: &[u8]) -> Input {
+    let mut fields = bytes.split(|&b| b == 0);
+    let rbuffer = fields
+        .next()
+        .map(|f| String::from_utf8_lossy(f).into_owned())
+        .unwrap_or_default();
+
+    // The widget writes a NUL after every field including the last. That
+    // leaves one empty field behind rather than a name with no value, and it
+    // is dropped before the fields are paired up.
+    let mut rest: Vec<&[u8]> = fields.collect();
+    if rest.last().is_some_and(|f| f.is_empty()) {
+        rest.pop();
+    }
+
+    let mut aliases = HashMap::new();
+    let mut rest = rest.into_iter();
+    while let Some(name) = rest.next() {
+        // A name with nothing left to pair it with is a malformed record.
+        // Nothing here guesses at the value and the name is dropped.
+        let Some(value) = rest.next() else { break };
+        aliases.insert(
+            String::from_utf8_lossy(name).into_owned(),
+            String::from_utf8_lossy(value).into_owned(),
+        );
+    }
+    Input { rbuffer, aliases }
+}
+
 /// The prompt for a row of surmise's own. It is dim so that the shell's own
 /// prompt above it stays the brighter one.
 fn head() -> Vec<ui::Seg> {
@@ -58,6 +115,10 @@ fn head() -> Vec<ui::Seg> {
 }
 
 pub fn run(seed: &str) -> io::Result<u8> {
+    // The v2 record has to be read before anything opens the terminal.
+    // `tty::claim` below replaces stdin outright and there is no reading it
+    // back afterwards.
+    let input = read_input()?;
     // Without a current directory there is nothing to complete against. The
     // shell's own completion is the honest answer.
     let Ok(cwd) = std::env::current_dir() else {
@@ -67,6 +128,8 @@ pub fn run(seed: &str) -> io::Result<u8> {
     let Some(mut app) = seeded(seed, &cwd) else {
         return Ok(PASS);
     };
+    app.rbuffer = input.rbuffer;
+    app.aliases = input.aliases;
     if !app.completes_git() {
         app = app.with_history(crate::history::History::load(&cwd));
     }
@@ -261,5 +324,54 @@ mod tests {
                 .expect("a picker")
                 .runs_the_line()
         );
+    }
+
+    #[test]
+    fn empty_bytes_parse_to_the_empty_record() {
+        let input = parse_input(b"");
+        assert_eq!(input.rbuffer, "");
+        assert!(input.aliases.is_empty());
+    }
+
+    #[test]
+    fn rbuffer_alone_needs_no_nul_to_follow_it() {
+        let input = parse_input(b"tail");
+        assert_eq!(input.rbuffer, "tail");
+        assert!(input.aliases.is_empty());
+    }
+
+    #[test]
+    fn pairs_after_rbuffer_become_the_alias_map() {
+        let input = parse_input(b"tail\0g\0git\0ll\0ls -la\0");
+        assert_eq!(input.rbuffer, "tail");
+        assert_eq!(input.aliases.get("g").map(String::as_str), Some("git"));
+        assert_eq!(input.aliases.get("ll").map(String::as_str), Some("ls -la"));
+        assert_eq!(input.aliases.len(), 2);
+    }
+
+    #[test]
+    fn a_value_keeps_a_space_and_a_newline() {
+        let input = parse_input(b"\0sample\0ls -la\nreally\0");
+        assert_eq!(
+            input.aliases.get("sample").map(String::as_str),
+            Some("ls -la\nreally")
+        );
+    }
+
+    #[test]
+    fn a_trailing_nul_and_a_missing_one_read_the_same_pairs() {
+        let trailing = parse_input(b"\0g\0git\0");
+        let missing = parse_input(b"\0g\0git");
+        assert_eq!(trailing.aliases, missing.aliases);
+        assert_eq!(trailing.aliases.get("g").map(String::as_str), Some("git"));
+    }
+
+    #[test]
+    fn a_malformed_record_drops_the_name_with_no_value() {
+        // Three fields after `RBUFFER` cannot pair evenly. The first two still
+        // make a pair and the third is dropped rather than guessed at.
+        let input = parse_input(b"\0g\0git\0extra");
+        assert_eq!(input.aliases.get("g").map(String::as_str), Some("git"));
+        assert_eq!(input.aliases.len(), 1);
     }
 }

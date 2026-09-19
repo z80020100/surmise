@@ -980,3 +980,25 @@ fn tab_asks_surmise_about_a_line_already_typed() {
     t.pump(SETTLE);
     assert!(line(&t).starts_with("❯ cd wo"), "{:?}", t.lines());
 }
+
+#[test]
+fn an_alias_reaches_the_picker_without_changing_what_it_answers() {
+    // Nothing reads the alias map yet. The claim here is only that carrying
+    // it on stdin does not break a picker that already works.
+    let f = home("alias ll='ls -la'", "");
+    let t = opened(f.path());
+    assert!(line(&t).starts_with("❯ cd"), "{:?}", t.lines());
+    assert_eq!(t.panel()[0].row, 1, "{:?}", t.lines());
+}
+
+#[test]
+fn a_large_alias_table_does_not_hang_the_prompt() {
+    // A value with spaces in it is what would break a splitting that read the
+    // alias table apart on whitespace instead of on the NUL the record uses.
+    let f = home(
+        "for i in {1..1000}; do alias sample$i=\"value $i with spaces\"; done",
+        "",
+    );
+    let t = opened(f.path());
+    assert!(line(&t).starts_with("❯ cd"), "{:?}", t.lines());
+}
