@@ -4,12 +4,12 @@
 //! Four consumers run, in this order, on every word after the command name
 //! except the last: the subcommand consumer descends into a child of the
 //! current node; the option consumer reads the word against the node's own
-//! `options`; the option-argument consumer fills the args an already-
-//! consumed option declared; the subcommand-argument consumer fills the
-//! current node's own `args`. The final word is never offered to any of
-//! them: it is read once, kept as [`Walk::search_term`] and never used to
-//! advance the walk, because it is the word a person is still typing rather
-//! than one they have finished.
+//! `options` and every ancestor's `persistent_options`; the option-argument
+//! consumer fills the args an already-consumed option declared; the
+//! subcommand-argument consumer fills the current node's own `args`. The
+//! final word is never offered to any of them: it is read once, kept as
+//! [`Walk::search_term`] and never used to advance the walk, because it is
+//! the word a person is still typing rather than one they have finished.
 //!
 //! The option consumer tries, per word: an exact name first, covering
 //! `--opt` and `-o` alike, and — when `flags_are_posix_noncompliant` is set
@@ -37,6 +37,15 @@
 //! argument — reaches that through the ordinary option consumer instead,
 //! since the exact-name match is tried before this fallback ever runs.
 //!
+//! **Persistent options.** `Subcommand::persistent_options` is a second map
+//! beside `options`, and nothing in `spec.rs` copies it into a child — this
+//! module is what carries it forward. Descending accumulates every node's
+//! own persistent options into one running set keyed by name, so a nearer
+//! declaration overwrites a farther one; the current node's own regular
+//! `options` are still checked first, ahead of that set, so a name it
+//! declares locally always wins over a persistent option of the same name
+//! from further up.
+//!
 //! **Option arguments.** An option that declares `args` leaves them pending
 //! after it is consumed, in order. A pending argument that is not
 //! `is_optional` and has not yet taken a word forces the very next word to
@@ -61,17 +70,38 @@
 //! optional argument from being mistaken for a place a subcommand could
 //! still appear once something has started filling it.
 //!
+//! **`loadSpec` re-rooting.** A node can itself be a pointer to another
+//! spec rather than one of its own (`Subcommand::load_spec`); the
+//! subcommand consumer follows it the moment it would otherwise descend,
+//! before anything reads from the node it replaces. So can an argument:
+//! `is_command` and `is_script` treat the word filling it as another
+//! command's own name, `is_module` prepends its own prefix to that word
+//! first, and `Arg::load_spec` is a straight pointer like a node's, read
+//! before either and regardless of what the word says. `bin/console`, or
+//! any path ending in it, is answered as the fixed global spec
+//! `php/bin-console`; nothing else gets special treatment, so a local
+//! script path is simply asked for and gets nothing back — which is what
+//! "local" reduces to in this module. A successful re-root replaces the
+//! current node with the loaded one, moves [`Walk::command_index`] to the
+//! word that named it, and resets every other piece of state, since
+//! nothing about the command so far belonged to this new spec. This is the
+//! mechanism that makes `sudo git switch` walk `git`'s own spec from `git`
+//! onward. `walk`'s `load_spec` parameter takes `impl Fn(&str) ->
+//! Option<&'a Subcommand>` rather than an owned `Subcommand`, so a caller
+//! holding a cache of already-loaded specs can simply hand out references
+//! into it; this module never owns a node it did not receive as `root`.
+//!
 //! **The final word still only annotates.** Whatever argument is pending
 //! when the loop stops — an option's own, or the current node's — becomes
 //! [`Walk::current_arg`] and turns [`Walk::offers_args`] on, without being
-//! consumed or advancing anything. A forced pending argument also turns
-//! `offers_subcommands` and `offers_options` off for that word, since
-//! nothing else could win it either.
-//!
-//! `loadSpec` re-rooting and persistent options are not here yet.
+//! consumed or advancing anything, and without ever triggering a re-root.
+//! A forced pending argument also turns `offers_subcommands` and
+//! `offers_options` off for that word, since nothing else could win it
+//! either.
 
 use crate::shellparse;
 use crate::spec::{Arg, Opt, Repeatable, Separator, Subcommand};
+use std::collections::HashMap;
 
 /// An option's own arguments, mid-consumption: the option, the index of the
 /// next of its `args` to fill, and whether that one has already taken a
@@ -102,22 +132,249 @@ pub struct Walk<'a> {
     pub end_of_options: bool,
 }
 
+/// The walk's own progress: where it is, and what it has already decided.
+/// Kept as one value because a re-root replaces almost all of it at once.
+struct State<'a> {
+    node: &'a Subcommand,
+    command_index: usize,
+    end_of_options: bool,
+    seen_non_option: bool,
+    passed_options: Vec<&'a Opt>,
+    option_arg: Option<OptionArg<'a>>,
+    entered_subcommand_args: bool,
+    subcommand_arg_index: usize,
+    subcommand_arg_filled: bool,
+    /// Every persistent option in scope, from `node` and every ancestor
+    /// it took to reach it, keyed by name with the nearest declaration
+    /// winning. `node`'s own regular `options` are not in here; they are
+    /// checked first, separately, wherever this is read.
+    ancestor_persistent: HashMap<&'a str, &'a Opt>,
+}
+
+impl<'a> State<'a> {
+    fn new(root: &'a Subcommand) -> Self {
+        let mut state = State {
+            node: root,
+            command_index: 0,
+            end_of_options: false,
+            seen_non_option: false,
+            passed_options: Vec::new(),
+            option_arg: None,
+            entered_subcommand_args: false,
+            subcommand_arg_index: 0,
+            subcommand_arg_filled: false,
+            ancestor_persistent: HashMap::new(),
+        };
+        state.absorb_persistent(root);
+        state
+    }
+
+    fn absorb_persistent(&mut self, node: &'a Subcommand) {
+        for (name, opt) in &node.persistent_options {
+            self.ancestor_persistent.insert(name.as_str(), opt.as_ref());
+        }
+    }
+
+    /// Descends into `child`, the subcommand the word at `index` named.
+    fn descend(&mut self, child: &'a Subcommand, index: usize) {
+        self.node = child;
+        self.command_index = index;
+        self.entered_subcommand_args = false;
+        self.subcommand_arg_index = 0;
+        self.subcommand_arg_filled = false;
+        self.option_arg = None;
+        self.absorb_persistent(child);
+    }
+
+    /// Starts over at `new_root`, as a `loadSpec` pointer or an
+    /// `isCommand`-shaped argument's own value asks for.
+    fn reroot(&mut self, new_root: &'a Subcommand, index: usize) {
+        self.node = new_root;
+        self.command_index = index;
+        self.end_of_options = false;
+        self.seen_non_option = false;
+        self.passed_options.clear();
+        self.option_arg = None;
+        self.entered_subcommand_args = false;
+        self.subcommand_arg_index = 0;
+        self.subcommand_arg_filled = false;
+        self.ancestor_persistent.clear();
+        self.absorb_persistent(new_root);
+    }
+
+    /// Checks whether `arg`, about to be filled by `text`, re-roots the
+    /// walk, and does so if it does. `index` is `text`'s own position,
+    /// since a re-root always moves `command_index` there.
+    fn maybe_reroot(
+        &mut self,
+        arg: &Arg,
+        text: &str,
+        index: usize,
+        load_spec: &impl Fn(&str) -> Option<&'a Subcommand>,
+    ) -> bool {
+        let Some(name) = arg_reroot_name(arg, text) else {
+            return false;
+        };
+        let Some(new_root) = load_spec(&name) else {
+            return false;
+        };
+        self.reroot(new_root, index);
+        true
+    }
+
+    /// An option by exact name, `node`'s own first and every ancestor's
+    /// persistent option after.
+    fn lookup_option(&self, name: &str) -> Option<&'a Opt> {
+        if let Some(opt) = self.node.options.get(name) {
+            return Some(opt.as_ref());
+        }
+        self.ancestor_persistent.get(name).copied()
+    }
+
+    fn active_variadic(&self) -> Option<&'a Arg> {
+        if let Some((opt, arg_index, filled)) = self.option_arg {
+            let arg = &opt.args[arg_index];
+            return (filled && arg.is_variadic == Some(true)).then_some(arg);
+        }
+        if self.entered_subcommand_args
+            && self.subcommand_arg_filled
+            && self.subcommand_arg_index < self.node.args.len()
+        {
+            let arg = &self.node.args[self.subcommand_arg_index];
+            if arg.is_variadic == Some(true) {
+                return Some(arg);
+            }
+        }
+        None
+    }
+
+    /// Whether the option consumer may still run at this point in the walk.
+    fn can_consume_options(&self) -> bool {
+        if self.end_of_options {
+            return false;
+        }
+        if let Some(arg) = self.active_variadic()
+            && !arg.options_can_break_variadic_arg.unwrap_or(true)
+        {
+            return false;
+        }
+        let must_precede_arguments = self
+            .node
+            .parser_directives
+            .as_ref()
+            .is_some_and(|directives| directives.options_must_precede_arguments);
+        !(must_precede_arguments && self.seen_non_option)
+    }
+
+    /// Tries every syntax the option consumer supports against one word, in
+    /// the order a person would expect to win. The second element of a
+    /// successful result is the pending-argument state the caller should
+    /// adopt.
+    fn consume_option(&self, text: &str) -> Option<(Vec<&'a Opt>, Option<OptionArg<'a>>)> {
+        if let Some(opt) = self.lookup_option(text)
+            && opt.requires_equals != Some(true)
+            && is_available(opt, &self.passed_options)
+        {
+            return Some((vec![opt], start_pending(opt)));
+        }
+
+        if let Some(opt) = self.attached_option(text)
+            && is_available(opt, &self.passed_options)
+        {
+            return Some((vec![opt], start_pending_from(opt, 1)));
+        }
+
+        let posix_noncompliant = self
+            .node
+            .parser_directives
+            .as_ref()
+            .is_some_and(|directives| directives.flags_are_posix_noncompliant);
+        if !posix_noncompliant && text.starts_with('-') && !text.starts_with("--") {
+            return self.short_chain(text);
+        }
+
+        None
+    }
+
+    /// A long option's value stuck to its name behind a separator, such as
+    /// `--format=json`. Each option is tried against its own resolved
+    /// separators: just the one `requires_separator` names when it names
+    /// one, every separator `option_arg_separators` lists when it does
+    /// not, and `=` alone when neither the option nor the spec names any.
+    /// `node`'s own options are tried before a persistent option sharing a
+    /// name with one of them, matching `lookup_option`.
+    fn attached_option(&self, text: &str) -> Option<&'a Opt> {
+        let mut candidates: Vec<&'a Opt> =
+            self.node.options.values().map(|opt| opt.as_ref()).collect();
+        for (name, opt) in &self.ancestor_persistent {
+            if !self.node.options.contains_key(*name) {
+                candidates.push(*opt);
+            }
+        }
+        for opt in candidates {
+            let Some(name) = opt.name.iter().find(|name| text.starts_with(name.as_str())) else {
+                continue;
+            };
+            let rest = &text[name.len()..];
+            if candidate_separators(self.node, opt)
+                .iter()
+                .any(|separator| rest.starts_with(separator.as_str()))
+            {
+                return Some(opt);
+            }
+        }
+        None
+    }
+
+    /// A run of one-letter short options packed into one word, such as
+    /// `-nvf`. Consumption reads left to right: the first letter whose own
+    /// option takes an argument ends the chain there, with whatever
+    /// follows read as that argument's stuck-on value — which is also how
+    /// a single `-ovalue` word is read, as a chain that happens to be one
+    /// letter long.
+    fn short_chain(&self, text: &str) -> Option<(Vec<&'a Opt>, Option<OptionArg<'a>>)> {
+        if text.len() <= 1 {
+            return None; // a lone `-`: nothing to chain
+        }
+        let mut consumed = Vec::new();
+        for (offset, letter) in text[1..].char_indices() {
+            let opt = self.lookup_option(&format!("-{letter}"))?;
+            if !is_available(opt, &self.passed_options) {
+                return None;
+            }
+            consumed.push(opt);
+            if !opt.args.is_empty() {
+                let consumed_len = 1 + offset + letter.len_utf8();
+                let pending = if text.len() > consumed_len {
+                    start_pending_from(opt, 1) // the rest of the word is its value
+                } else {
+                    start_pending(opt) // nothing stuck on: the value is still to come
+                };
+                return Some((consumed, pending));
+            }
+        }
+        Some((consumed, None))
+    }
+}
+
 /// Walks `command`'s words against `root`, one word at a time.
 ///
 /// `command.words[0]` is the command name that resolved to `root`; the walk
 /// itself starts on `command.words[1]`. The caller loads `root` beforehand,
-/// with [`crate::spec::load`] or otherwise, so this function does no I/O.
-pub fn walk<'a>(command: &shellparse::Command, root: &'a Subcommand) -> Walk<'a> {
+/// with [`crate::spec::load`] or otherwise, and answers `load_spec` from
+/// wherever it keeps loaded specs, so this function does no I/O of its own.
+pub fn walk<'a>(
+    command: &shellparse::Command,
+    root: &'a Subcommand,
+    load_spec: impl Fn(&str) -> Option<&'a Subcommand>,
+) -> Walk<'a> {
     let words = &command.words;
-    let mut node = root;
-    let mut command_index = 0;
-    let mut end_of_options = false;
-    let mut seen_non_option = false;
-    let mut passed_options: Vec<&'a Opt> = Vec::new();
-    let mut option_arg: Option<OptionArg<'a>> = None;
-    let mut entered_subcommand_args = false;
-    let mut subcommand_arg_index = 0;
-    let mut subcommand_arg_filled = false;
+    let mut state = State::new(root);
+    if let Some(target) = root.load_spec.first()
+        && let Some(new_root) = load_spec(&target.name)
+    {
+        state.reroot(new_root, 0);
+    }
     let mut search_term = String::new();
 
     if words.len() > 1 {
@@ -127,41 +384,45 @@ pub fn walk<'a>(command: &shellparse::Command, root: &'a Subcommand) -> Walk<'a>
 
             // The option-argument consumer, forced: a pending argument that
             // still needs its first word and is not optional takes this
-            // word no matter what it looks like.
-            if let Some((opt, arg_index, filled)) = option_arg
+            // word no matter what it looks like — unless it re-roots first.
+            if let Some((opt, arg_index, filled)) = state.option_arg
                 && !filled
                 && !opt.args[arg_index].is_optional.unwrap_or(false)
             {
-                option_arg = advance_option_arg(opt, arg_index);
+                let arg = &opt.args[arg_index];
+                if !state.maybe_reroot(arg, text, index, &load_spec) {
+                    state.option_arg = advance_option_arg(opt, arg_index);
+                }
                 continue;
             }
 
-            if !entered_subcommand_args && let Some(child) = node.subcommands.get(text) {
-                node = child.as_ref();
-                command_index = index;
-                entered_subcommand_args = false;
-                subcommand_arg_index = 0;
-                subcommand_arg_filled = false;
-                option_arg = None;
+            // The subcommand consumer. A child that is itself a `loadSpec`
+            // pointer re-roots instead of being descended into.
+            if !state.entered_subcommand_args
+                && let Some(child) = state.node.subcommands.get(text)
+            {
+                let child = child.as_ref();
+                let target = child
+                    .load_spec
+                    .first()
+                    .and_then(|target| load_spec(&target.name));
+                match target {
+                    Some(new_root) => state.reroot(new_root, index),
+                    None => state.descend(child, index),
+                }
                 continue;
             }
 
-            let variadic = active_variadic(
-                node,
-                option_arg,
-                entered_subcommand_args,
-                subcommand_arg_index,
-                subcommand_arg_filled,
-            );
-            if can_consume_options(node, end_of_options, seen_non_option, variadic) {
-                match consume_option(node, text, &passed_options) {
+            // `--` and the option consumer.
+            if state.can_consume_options() {
+                match state.consume_option(text) {
                     Some((opts, pending)) => {
-                        passed_options.extend(opts);
-                        option_arg = pending;
+                        state.passed_options.extend(opts);
+                        state.option_arg = pending;
                         continue;
                     }
-                    None if text == "--" && !end_of_options => {
-                        end_of_options = true;
+                    None if text == "--" && !state.end_of_options => {
+                        state.end_of_options = true;
                         continue;
                     }
                     None if text.starts_with('-') => break,
@@ -172,108 +433,94 @@ pub fn walk<'a>(command: &shellparse::Command, root: &'a Subcommand) -> Walk<'a>
             // The option-argument consumer, residual: a pending argument
             // that is optional, or already filled and merely continuing a
             // variadic run, takes whatever nothing else wanted.
-            if let Some((opt, arg_index, _)) = option_arg {
-                option_arg = advance_option_arg(opt, arg_index);
+            if let Some((opt, arg_index, _)) = state.option_arg {
+                let arg = &opt.args[arg_index];
+                if !state.maybe_reroot(arg, text, index, &load_spec) {
+                    state.option_arg = advance_option_arg(opt, arg_index);
+                }
                 continue;
             }
 
             // The subcommand-argument consumer: the last resort, filling
             // the current node's own `args` in order.
-            if subcommand_arg_index < node.args.len() {
-                if node.args[subcommand_arg_index].is_variadic == Some(true) {
-                    subcommand_arg_filled = true;
-                } else {
-                    subcommand_arg_index += 1;
-                    subcommand_arg_filled = false;
+            if state.subcommand_arg_index < state.node.args.len() {
+                let node = state.node;
+                let arg_index = state.subcommand_arg_index;
+                let arg = &node.args[arg_index];
+                if !state.maybe_reroot(arg, text, index, &load_spec) {
+                    if arg.is_variadic == Some(true) {
+                        state.subcommand_arg_filled = true;
+                    } else {
+                        state.subcommand_arg_index += 1;
+                        state.subcommand_arg_filled = false;
+                    }
+                    state.entered_subcommand_args = true;
+                    state.seen_non_option = true;
                 }
-                entered_subcommand_args = true;
-                seen_non_option = true;
                 continue;
             }
 
-            seen_non_option = true;
+            state.seen_non_option = true;
         }
         search_term = words[last_index].inner_text.clone();
     }
 
     let forced = matches!(
-        option_arg,
+        state.option_arg,
         Some((opt, arg_index, filled))
             if !filled && !opt.args[arg_index].is_optional.unwrap_or(false)
     );
-    let current_arg = if let Some((opt, arg_index, _)) = option_arg {
+    let current_arg = if let Some((opt, arg_index, _)) = state.option_arg {
         Some(opt.args[arg_index].clone())
-    } else if subcommand_arg_index < node.args.len() {
-        Some(node.args[subcommand_arg_index].clone())
+    } else if state.subcommand_arg_index < state.node.args.len() {
+        Some(state.node.args[state.subcommand_arg_index].clone())
     } else {
         None
     };
-    let variadic = active_variadic(
-        node,
-        option_arg,
-        entered_subcommand_args,
-        subcommand_arg_index,
-        subcommand_arg_filled,
-    );
 
     Walk {
-        node,
+        node: state.node,
         offers_args: current_arg.is_some(),
         current_arg,
-        passed_options,
+        offers_subcommands: !state.entered_subcommand_args && !forced,
+        offers_options: !forced && state.can_consume_options(),
+        command_index: state.command_index,
+        end_of_options: state.end_of_options,
         search_term,
-        offers_subcommands: !entered_subcommand_args && !forced,
-        offers_options: !forced
-            && can_consume_options(node, end_of_options, seen_non_option, variadic),
-        command_index,
-        end_of_options,
+        passed_options: state.passed_options,
     }
 }
 
-/// Whether the option consumer may still run at this point in the walk.
-fn can_consume_options(
-    node: &Subcommand,
-    end_of_options: bool,
-    seen_non_option: bool,
-    active_variadic: Option<&Arg>,
-) -> bool {
-    if end_of_options {
-        return false;
+/// The name to ask the loader for when `text` fills `arg`, if `arg` is one
+/// of the kinds that re-roots the walk: a fixed `loadSpec` pointer — read
+/// regardless of what `text` says, since the corpus's one example is a
+/// straight redirect — an `isCommand` or `isScript` argument naming the
+/// word itself, or an `isModule` argument prepending its own prefix to it.
+fn arg_reroot_name(arg: &Arg, text: &str) -> Option<String> {
+    if let Some(target) = arg.load_spec.first() {
+        return Some(target.name.clone());
     }
-    if let Some(arg) = active_variadic
-        && !arg.options_can_break_variadic_arg.unwrap_or(true)
-    {
-        return false;
+    if arg.is_command == Some(true) || arg.is_script == Some(true) {
+        return Some(command_lookup_name(text).to_string());
     }
-    let must_precede_arguments = node
-        .parser_directives
-        .as_ref()
-        .is_some_and(|directives| directives.options_must_precede_arguments);
-    !(must_precede_arguments && seen_non_option)
-}
-
-/// The variadic argument currently receiving words, if any: an option's own,
-/// once it has taken at least one; otherwise the current node's own, once
-/// entered. Neither counts before its first word, because nothing is
-/// "in progress" for an option consumer to be protected from yet.
-fn active_variadic<'a>(
-    node: &'a Subcommand,
-    option_arg: Option<OptionArg<'a>>,
-    entered_subcommand_args: bool,
-    subcommand_arg_index: usize,
-    subcommand_arg_filled: bool,
-) -> Option<&'a Arg> {
-    if let Some((opt, arg_index, filled)) = option_arg {
-        let arg = &opt.args[arg_index];
-        return (filled && arg.is_variadic == Some(true)).then_some(arg);
-    }
-    if entered_subcommand_args && subcommand_arg_filled && subcommand_arg_index < node.args.len() {
-        let arg = &node.args[subcommand_arg_index];
-        if arg.is_variadic == Some(true) {
-            return Some(arg);
-        }
+    if let Some(prefix) = &arg.is_module {
+        return Some(format!("{prefix}{text}"));
     }
     None
+}
+
+/// The global spec name a token that names a command or a script resolves
+/// to. `bin/console`, or any path ending in it, is a Symfony-style entry
+/// point the corpus answers under one fixed name; everything else is asked
+/// for exactly as typed. A path with no compiled-in answer — a `/`, `./` or
+/// `~/` local script, almost always — simply gets `None` back from the
+/// loader, which is what "local" reduces to in this module.
+fn command_lookup_name(text: &str) -> &str {
+    if text == "bin/console" || text.ends_with("/bin/console") {
+        "php/bin-console"
+    } else {
+        text
+    }
 }
 
 /// Moves a just-filled option argument on: a variadic one stays put, marked
@@ -315,58 +562,6 @@ fn is_available(opt: &Opt, passed: &[&Opt]) -> bool {
     }
 }
 
-/// Tries every syntax the option consumer supports against one word, in the
-/// order a person would expect to win. The second element of a successful
-/// result is the pending-argument state the caller should adopt.
-fn consume_option<'a>(
-    node: &'a Subcommand,
-    text: &str,
-    passed: &[&'a Opt],
-) -> Option<(Vec<&'a Opt>, Option<OptionArg<'a>>)> {
-    if let Some(opt) = node.options.get(text)
-        && opt.requires_equals != Some(true)
-        && is_available(opt, passed)
-    {
-        let opt = opt.as_ref();
-        return Some((vec![opt], start_pending(opt)));
-    }
-
-    if let Some(opt) = attached_option(node, text)
-        && is_available(opt, passed)
-    {
-        return Some((vec![opt], start_pending_from(opt, 1)));
-    }
-
-    let posix_noncompliant = node
-        .parser_directives
-        .as_ref()
-        .is_some_and(|directives| directives.flags_are_posix_noncompliant);
-    if !posix_noncompliant && text.starts_with('-') && !text.starts_with("--") {
-        return short_chain(node, text, passed);
-    }
-
-    None
-}
-
-/// A long option's value stuck to its name behind a separator, such as
-/// `--format=json`. Each option is tried against its own resolved
-/// separators: just the one `requires_separator` names when it names one,
-/// every separator `option_arg_separators` lists when it does not, and `=`
-/// alone when neither the option nor the spec names any.
-fn attached_option<'a>(node: &'a Subcommand, text: &str) -> Option<&'a Opt> {
-    node.options.values().find_map(|opt| {
-        let name = opt
-            .name
-            .iter()
-            .find(|name| text.starts_with(name.as_str()))?;
-        let rest = &text[name.len()..];
-        candidate_separators(node, opt)
-            .iter()
-            .any(|separator| rest.starts_with(separator.as_str()))
-            .then(|| opt.as_ref())
-    })
-}
-
 /// The separator or separators an attached value may use for `opt`, per the
 /// resolution `Opt::requires_separator`'s own doc comment gives: an explicit
 /// string is used alone; `Default` resolves to the spec's first configured
@@ -394,44 +589,10 @@ fn candidate_separators(node: &Subcommand, opt: &Opt) -> Vec<String> {
     }
 }
 
-/// A run of one-letter short options packed into one word, such as `-nvf`.
-/// Consumption reads left to right: the first letter whose own option takes
-/// an argument ends the chain there, with whatever follows read as that
-/// argument's stuck-on value — which is also how a single `-ovalue` word is
-/// read, as a chain that happens to be one letter long.
-fn short_chain<'a>(
-    node: &'a Subcommand,
-    text: &str,
-    passed: &[&'a Opt],
-) -> Option<(Vec<&'a Opt>, Option<OptionArg<'a>>)> {
-    if text.len() <= 1 {
-        return None; // a lone `-`: nothing to chain
-    }
-    let mut consumed = Vec::new();
-    for (offset, letter) in text[1..].char_indices() {
-        let opt = node.options.get(&format!("-{letter}"))?.as_ref();
-        if !is_available(opt, passed) {
-            return None;
-        }
-        consumed.push(opt);
-        if !opt.args.is_empty() {
-            let consumed_len = 1 + offset + letter.len_utf8();
-            let pending = if text.len() > consumed_len {
-                start_pending_from(opt, 1) // the rest of the word is its value
-            } else {
-                start_pending(opt) // nothing stuck on: the value is still to come
-            };
-            return Some((consumed, pending));
-        }
-    }
-    Some((consumed, None))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::spec::{self, ParserDirectives, Repeatable};
-    use std::collections::HashMap;
+    use crate::spec::{self, LoadSpec, ParserDirectives, Repeatable};
     use std::rc::Rc;
 
     fn command(line: &str) -> shellparse::Command {
@@ -441,7 +602,7 @@ mod tests {
     #[test]
     fn a_trailing_space_offers_the_root_subcommands() {
         let git = spec::load("git", &[]).unwrap();
-        let walk = walk(&command("git "), &git);
+        let walk = walk(&command("git "), &git, |_| None);
         assert!(std::ptr::eq(walk.node, &git));
         assert_eq!(walk.search_term, "");
         assert!(walk.offers_subcommands);
@@ -450,7 +611,7 @@ mod tests {
     #[test]
     fn a_partial_word_is_the_search_term_and_does_not_descend() {
         let git = spec::load("git", &[]).unwrap();
-        let walk = walk(&command("git swi"), &git);
+        let walk = walk(&command("git swi"), &git, |_| None);
         assert!(std::ptr::eq(walk.node, &git));
         assert_eq!(walk.search_term, "swi");
         assert!(walk.offers_subcommands);
@@ -460,7 +621,7 @@ mod tests {
     fn a_full_subcommand_and_trailing_space_descends() {
         let git = spec::load("git", &[]).unwrap();
         let switch = git.subcommands.get("switch").unwrap();
-        let walk = walk(&command("git switch "), &git);
+        let walk = walk(&command("git switch "), &git, |_| None);
         assert!(std::ptr::eq(walk.node, switch.as_ref()));
         assert_eq!(walk.search_term, "");
         assert_eq!(walk.command_index, 1);
@@ -474,7 +635,7 @@ mod tests {
     fn a_partial_word_after_a_subcommand_does_not_descend_again() {
         let git = spec::load("git", &[]).unwrap();
         let switch = git.subcommands.get("switch").unwrap();
-        let walk = walk(&command("git switch ma"), &git);
+        let walk = walk(&command("git switch ma"), &git, |_| None);
         assert!(std::ptr::eq(walk.node, switch.as_ref()));
         assert_eq!(walk.search_term, "ma");
         assert_eq!(walk.command_index, 1);
@@ -486,7 +647,7 @@ mod tests {
         let docker = spec::load("docker", &[]).unwrap();
         let container = docker.subcommands.get("container").unwrap();
         let ls = container.subcommands.get("ls").unwrap();
-        let walk = walk(&command("docker container ls "), &docker);
+        let walk = walk(&command("docker container ls "), &docker, |_| None);
         assert!(std::ptr::eq(walk.node, ls.as_ref()));
         assert_eq!(walk.search_term, "");
         assert_eq!(walk.command_index, 2);
@@ -495,7 +656,7 @@ mod tests {
     #[test]
     fn a_word_that_names_no_subcommand_stops_the_walk_where_it_stopped() {
         let git = spec::load("git", &[]).unwrap();
-        let walk = walk(&command("git nosuchcommand extra "), &git);
+        let walk = walk(&command("git nosuchcommand extra "), &git, |_| None);
         assert!(std::ptr::eq(walk.node, &git));
         assert_eq!(walk.command_index, 0);
         assert_eq!(walk.search_term, "");
@@ -506,7 +667,7 @@ mod tests {
         let git = spec::load("git", &[]).unwrap();
         let switch = git.subcommands.get("switch").unwrap();
         let create = switch.options.get("--create").unwrap();
-        let walk = walk(&command("git switch --create newbranch "), &git);
+        let walk = walk(&command("git switch --create newbranch "), &git, |_| None);
         assert!(std::ptr::eq(walk.node, switch.as_ref()));
         assert_eq!(walk.passed_options.len(), 1);
         assert!(std::ptr::eq(walk.passed_options[0], create.as_ref()));
@@ -523,7 +684,7 @@ mod tests {
         let dry_run = add.options.get("-n").unwrap();
         let verbose = add.options.get("-v").unwrap();
         let force = add.options.get("-f").unwrap();
-        let walk = walk(&command("git add -nvf "), &git);
+        let walk = walk(&command("git add -nvf "), &git, |_| None);
         assert_eq!(walk.passed_options.len(), 3);
         assert!(std::ptr::eq(walk.passed_options[0], dry_run.as_ref()));
         assert!(std::ptr::eq(walk.passed_options[1], verbose.as_ref()));
@@ -535,7 +696,7 @@ mod tests {
         let git = spec::load("git", &[]).unwrap();
         let switch = git.subcommands.get("switch").unwrap();
         let create = switch.options.get("-c").unwrap();
-        let walk = walk(&command("git switch -cnewbranch "), &git);
+        let walk = walk(&command("git switch -cnewbranch "), &git, |_| None);
         assert_eq!(walk.passed_options.len(), 1);
         assert!(std::ptr::eq(walk.passed_options[0], create.as_ref()));
     }
@@ -544,7 +705,7 @@ mod tests {
     fn a_double_dash_mid_line_ends_options_without_blocking_a_descend() {
         let git = spec::load("git", &[]).unwrap();
         let switch = git.subcommands.get("switch").unwrap();
-        let walk = walk(&command("git -- switch "), &git);
+        let walk = walk(&command("git -- switch "), &git, |_| None);
         assert!(std::ptr::eq(walk.node, switch.as_ref()));
         assert!(walk.end_of_options);
         assert_eq!(walk.search_term, "");
@@ -559,7 +720,7 @@ mod tests {
     fn a_word_that_fills_the_roots_own_argument_closes_off_subcommands() {
         let git = spec::load("git", &[]).unwrap();
         assert!(!git.args.is_empty());
-        let walk = walk(&command("git -- -- switch "), &git);
+        let walk = walk(&command("git -- -- switch "), &git, |_| None);
         assert!(walk.end_of_options);
         assert!(std::ptr::eq(walk.node, &git));
         assert!(!walk.offers_subcommands);
@@ -568,7 +729,7 @@ mod tests {
     #[test]
     fn a_double_dash_as_the_final_word_is_only_the_search_term() {
         let git = spec::load("git", &[]).unwrap();
-        let walk = walk(&command("git --"), &git);
+        let walk = walk(&command("git --"), &git, |_| None);
         assert!(std::ptr::eq(walk.node, &git));
         assert_eq!(walk.search_term, "--");
         assert!(!walk.end_of_options);
@@ -578,7 +739,7 @@ mod tests {
     #[test]
     fn options_must_precede_arguments_refuses_an_option_once_a_plain_word_has_gone_by() {
         let fold = spec::load("fold", &[]).unwrap();
-        let walk = walk(&command("fold somefile -b "), &fold);
+        let walk = walk(&command("fold somefile -b "), &fold, |_| None);
         assert!(walk.passed_options.is_empty());
     }
 
@@ -587,7 +748,7 @@ mod tests {
         let fold = spec::load("fold", &[]).unwrap();
         let b = fold.options.get("-b").unwrap();
         let s = fold.options.get("-s").unwrap();
-        let walk = walk(&command("fold -b -s "), &fold);
+        let walk = walk(&command("fold -b -s "), &fold, |_| None);
         assert_eq!(walk.passed_options.len(), 2);
         assert!(std::ptr::eq(walk.passed_options[0], b.as_ref()));
         assert!(std::ptr::eq(walk.passed_options[1], s.as_ref()));
@@ -598,7 +759,11 @@ mod tests {
         let esbuild = spec::load("esbuild", &[]).unwrap();
         let loader = esbuild.options.get("--loader").unwrap();
         let format = esbuild.options.get("--format").unwrap();
-        let walk = walk(&command("esbuild --loader:js --format=esm "), &esbuild);
+        let walk = walk(
+            &command("esbuild --loader:js --format=esm "),
+            &esbuild,
+            |_| None,
+        );
         assert_eq!(walk.passed_options.len(), 2);
         assert!(std::ptr::eq(walk.passed_options[0], loader.as_ref()));
         assert!(std::ptr::eq(walk.passed_options[1], format.as_ref()));
@@ -607,7 +772,7 @@ mod tests {
     #[test]
     fn requires_equals_refuses_the_bare_form() {
         let mosh = spec::load("mosh", &[]).unwrap();
-        let walk = walk(&command("mosh --predict --family=inet "), &mosh);
+        let walk = walk(&command("mosh --predict --family=inet "), &mosh, |_| None);
         assert!(walk.passed_options.is_empty());
         assert!(std::ptr::eq(walk.node, &mosh));
         assert_eq!(walk.command_index, 0);
@@ -617,7 +782,11 @@ mod tests {
     fn requires_equals_accepts_the_attached_form() {
         let mosh = spec::load("mosh", &[]).unwrap();
         let predict = mosh.options.get("--predict").unwrap();
-        let walk = walk(&command("mosh --predict=always --family=inet "), &mosh);
+        let walk = walk(
+            &command("mosh --predict=always --family=inet "),
+            &mosh,
+            |_| None,
+        );
         assert_eq!(walk.passed_options.len(), 2);
         assert!(std::ptr::eq(walk.passed_options[0], predict.as_ref()));
     }
@@ -627,7 +796,7 @@ mod tests {
         let ua = spec::load("ua", &[]).unwrap();
         let status = ua.subcommands.get("status").unwrap();
         let format = status.options.get("--format").unwrap();
-        let walk = walk(&command("ua status --format=json "), &ua);
+        let walk = walk(&command("ua status --format=json "), &ua, |_| None);
         assert_eq!(walk.passed_options.len(), 1);
         assert!(std::ptr::eq(walk.passed_options[0], format.as_ref()));
     }
@@ -636,7 +805,11 @@ mod tests {
     fn requires_separator_explicit_names_its_own_separator() {
         let eza = spec::load("eza", &[]).unwrap();
         let color_scale = eza.options.get("--color-scale").unwrap();
-        let walk = walk(&command("eza --color-scale=all --color=auto "), &eza);
+        let walk = walk(
+            &command("eza --color-scale=all --color=auto "),
+            &eza,
+            |_| None,
+        );
         assert_eq!(walk.passed_options.len(), 2);
         assert!(std::ptr::eq(walk.passed_options[0], color_scale.as_ref()));
     }
@@ -656,6 +829,7 @@ mod tests {
         let walk = walk(
             &command("nextflow run -profile=docker -w.testdir "),
             &nextflow,
+            |_| None,
         );
         assert_eq!(walk.passed_options.len(), 2);
         assert!(std::ptr::eq(walk.passed_options[0], profile.as_ref()));
@@ -684,17 +858,17 @@ mod tests {
             },
         );
 
-        let via_colon = walk(&command("probe --level:5 "), &node);
+        let via_colon = walk(&command("probe --level:5 "), &node, |_| None);
         assert_eq!(via_colon.passed_options.len(), 1);
 
-        let via_equals = walk(&command("probe --level=5 "), &node);
+        let via_equals = walk(&command("probe --level=5 "), &node, |_| None);
         assert!(via_equals.passed_options.is_empty());
     }
 
     #[test]
     fn flags_are_posix_noncompliant_refuses_to_decompose_a_chain() {
         let kubectx = spec::load("kubectx", &[]).unwrap();
-        let walk = walk(&command("kubectx -hc "), &kubectx);
+        let walk = walk(&command("kubectx -hc "), &kubectx, |_| None);
         assert!(walk.passed_options.is_empty());
         assert!(std::ptr::eq(walk.node, &kubectx));
     }
@@ -703,7 +877,7 @@ mod tests {
     fn a_final_word_that_looks_like_an_option_only_annotates() {
         let git = spec::load("git", &[]).unwrap();
         let switch = git.subcommands.get("switch").unwrap();
-        let walk = walk(&command("git switch --c"), &git);
+        let walk = walk(&command("git switch --c"), &git, |_| None);
         assert!(std::ptr::eq(walk.node, switch.as_ref()));
         assert_eq!(walk.search_term, "--c");
         assert!(walk.offers_options);
@@ -714,7 +888,7 @@ mod tests {
     fn a_final_word_that_looks_like_an_option_does_not_offer_options_once_they_are_off() {
         let git = spec::load("git", &[]).unwrap();
         let switch = git.subcommands.get("switch").unwrap();
-        let walk = walk(&command("git switch -- --c"), &git);
+        let walk = walk(&command("git switch -- --c"), &git, |_| None);
         assert!(std::ptr::eq(walk.node, switch.as_ref()));
         assert_eq!(walk.search_term, "--c");
         assert!(walk.end_of_options);
@@ -726,7 +900,7 @@ mod tests {
         let git = spec::load("git", &[]).unwrap();
         let switch = git.subcommands.get("switch").unwrap();
         let create = switch.options.get("--create").unwrap();
-        let walk = walk(&command("git switch --create -weirdname "), &git);
+        let walk = walk(&command("git switch --create -weirdname "), &git, |_| None);
         assert_eq!(walk.passed_options.len(), 1);
         assert!(std::ptr::eq(walk.passed_options[0], create.as_ref()));
         // `-weirdname` was forced into `new branch`, not attempted as an
@@ -742,7 +916,7 @@ mod tests {
         let git = spec::load("git", &[]).unwrap();
         assert!(!git.args.is_empty());
         let switch = git.subcommands.get("switch").unwrap();
-        let walk = walk(&command("git switch "), &git);
+        let walk = walk(&command("git switch "), &git, |_| None);
         assert!(std::ptr::eq(walk.node, switch.as_ref()));
     }
 
@@ -750,7 +924,7 @@ mod tests {
     fn a_variadic_subcommand_argument_takes_several_words() {
         let git = spec::load("git", &[]).unwrap();
         let add = git.subcommands.get("add").unwrap();
-        let walk = walk(&command("git add file1 file2 file3 "), &git);
+        let walk = walk(&command("git add file1 file2 file3 "), &git, |_| None);
         assert!(std::ptr::eq(walk.node, add.as_ref()));
         assert_eq!(walk.current_arg.unwrap().name, add.args[0].name);
         assert!(walk.offers_args);
@@ -761,7 +935,7 @@ mod tests {
         let git = spec::load("git", &[]).unwrap();
         let switch = git.subcommands.get("switch").unwrap();
         let detach = switch.options.get("-d").unwrap();
-        let walk = walk(&command("git switch -d -d "), &git);
+        let walk = walk(&command("git switch -d -d "), &git, |_| None);
         assert_eq!(walk.passed_options.len(), 1);
         assert!(std::ptr::eq(walk.passed_options[0], detach.as_ref()));
     }
@@ -771,7 +945,7 @@ mod tests {
         let git = spec::load("git", &[]).unwrap();
         let branch = git.subcommands.get("branch").unwrap();
         let verbose = branch.options.get("-v").unwrap();
-        let walk = walk(&command("git branch -v -v -v "), &git);
+        let walk = walk(&command("git branch -v -v -v "), &git, |_| None);
         assert_eq!(walk.passed_options.len(), 2);
         assert!(std::ptr::eq(walk.passed_options[0], verbose.as_ref()));
         assert!(std::ptr::eq(walk.passed_options[1], verbose.as_ref()));
@@ -785,6 +959,7 @@ mod tests {
         let walk = walk(
             &command("git rebase -s resolve -s recursive -s ours "),
             &git,
+            |_| None,
         );
         assert_eq!(walk.passed_options.len(), 3);
         for passed in &walk.passed_options {
@@ -797,7 +972,7 @@ mod tests {
         let git = spec::load("git", &[]).unwrap();
         let add = git.subcommands.get("add").unwrap();
         let dry_run = add.options.get("-n").unwrap();
-        let walk = walk(&command("git add file1 -n file2 "), &git);
+        let walk = walk(&command("git add file1 -n file2 "), &git, |_| None);
         assert_eq!(walk.passed_options.len(), 1);
         assert!(std::ptr::eq(walk.passed_options[0], dry_run.as_ref()));
         assert!(std::ptr::eq(walk.node, add.as_ref()));
@@ -813,13 +988,162 @@ mod tests {
         let git = spec::load("git", &[]).unwrap();
         let diff = git.subcommands.get("diff").unwrap();
         let dashdash = diff.options.get("--").unwrap();
-        let walk = walk(&command("git diff -- file1 --staged file2 "), &git);
+        let walk = walk(&command("git diff -- file1 --staged file2 "), &git, |_| {
+            None
+        });
         // Only `--` itself was consumed as an option; `--staged` was read as
         // another path instead of interrupting the variadic one.
         assert_eq!(walk.passed_options.len(), 1);
         assert!(std::ptr::eq(walk.passed_options[0], dashdash.as_ref()));
         assert!(std::ptr::eq(walk.node, diff.as_ref()));
         assert!(walk.offers_args);
+    }
+
+    /// `chezmoi`'s root declares 26 persistent options including
+    /// `--dry-run`/`-n`; `state dump`, two levels down, has to reach it.
+    /// `dump` also declares `--format`/`-f` as persistent of its own, so
+    /// this is the chain with two contributors rather than one: the root's
+    /// and the current node's own.
+    #[test]
+    fn persistent_options_accumulate_from_every_ancestor_two_levels_down() {
+        let chezmoi = spec::load("chezmoi", &[]).unwrap();
+        let dry_run = chezmoi.persistent_options.get("--dry-run").unwrap();
+        let state = chezmoi.subcommands.get("state").unwrap();
+        let dump = state.subcommands.get("dump").unwrap();
+        let own_format = dump.persistent_options.get("--format").unwrap();
+        let walk = walk(
+            &command("chezmoi state dump --dry-run --format=yaml "),
+            &chezmoi,
+            |_| None,
+        );
+        assert!(std::ptr::eq(walk.node, dump.as_ref()));
+        assert_eq!(walk.passed_options.len(), 2);
+        assert!(std::ptr::eq(walk.passed_options[0], dry_run.as_ref()));
+        assert!(std::ptr::eq(walk.passed_options[1], own_format.as_ref()));
+    }
+
+    /// `bws`'s root declares `--output`, `--profile` and `--config-file`
+    /// (among others) as persistent; its `config` subcommand redeclares
+    /// `--profile` and `--config-file` as its own, ordinary options.
+    /// `--output` is not redeclared, so it still comes from the root;
+    /// `--profile` resolves to `config`'s own, nearer declaration.
+    #[test]
+    fn a_childs_own_option_wins_over_an_ancestors_persistent_option_of_the_same_name() {
+        let bws = spec::load("bws", &[]).unwrap();
+        let output = bws.persistent_options.get("--output").unwrap();
+        let config = bws.subcommands.get("config").unwrap();
+        let own_profile = config.options.get("--profile").unwrap();
+        let walk = walk(
+            &command("bws config --output json --profile default "),
+            &bws,
+            |_| None,
+        );
+        assert!(std::ptr::eq(walk.node, config.as_ref()));
+        assert_eq!(walk.passed_options.len(), 2);
+        assert!(std::ptr::eq(walk.passed_options[0], output.as_ref()));
+        assert!(std::ptr::eq(walk.passed_options[1], own_profile.as_ref()));
+    }
+
+    /// `aws`'s own `account` subcommand is a `loadSpec` pointer to
+    /// `aws/account` rather than a node of its own.
+    #[test]
+    fn a_subcommand_load_spec_reroots_from_the_token_that_named_it() {
+        let aws = spec::load("aws", &[]).unwrap();
+        let account = spec::load("aws/account", &[]).unwrap();
+        let walk = walk(&command("aws account "), &aws, |name| {
+            (name == "aws/account").then_some(&account)
+        });
+        assert!(std::ptr::eq(walk.node, &account));
+        assert_eq!(walk.command_index, 1);
+        assert!(walk.offers_subcommands); // `account`'s own subcommands, not `aws`'s
+    }
+
+    /// `sudo`'s own root argument is `isCommand`, with no `loadSpec` and no
+    /// subcommand in sight — the word itself names the command to re-root
+    /// to, exactly as `sudo git switch` needs.
+    #[test]
+    fn is_command_reroots_from_the_token_that_named_it() {
+        let sudo = spec::load("sudo", &[]).unwrap();
+        let git = spec::load("git", &[]).unwrap();
+        let load = |name: &str| (name == "git").then_some(&git);
+
+        let stops_at_the_reroot = walk(&command("sudo git "), &sudo, load);
+        assert!(std::ptr::eq(stops_at_the_reroot.node, &git));
+        assert_eq!(stops_at_the_reroot.command_index, 1);
+
+        let switch = git.subcommands.get("switch").unwrap();
+        let continues_walking_the_new_spec = walk(&command("sudo git switch "), &sudo, load);
+        assert!(std::ptr::eq(
+            continues_walking_the_new_spec.node,
+            switch.as_ref()
+        ));
+        assert_eq!(continues_walking_the_new_spec.command_index, 2);
+    }
+
+    #[test]
+    fn is_command_leaves_the_walk_alone_when_the_loader_declines() {
+        let sudo = spec::load("sudo", &[]).unwrap();
+        let walk = walk(&command("sudo made-up-command "), &sudo, |_| None);
+        assert!(std::ptr::eq(walk.node, &sudo));
+    }
+
+    /// `bin/console` names no command of its own; it is the corpus's fixed
+    /// alias for the Symfony-style entry point `php/bin-console`, and that
+    /// spec is itself committed.
+    #[test]
+    fn is_command_maps_bin_console_to_its_fixed_global_spec() {
+        let sudo = spec::load("sudo", &[]).unwrap();
+        let bin_console = spec::load("php/bin-console", &[]).unwrap();
+        let walk = walk(&command("sudo bin/console "), &sudo, |name| {
+            (name == "php/bin-console").then_some(&bin_console)
+        });
+        assert!(std::ptr::eq(walk.node, &bin_console));
+    }
+
+    /// `osascript`'s own root argument is `isScript`: its value is a file
+    /// path, never a name any compiled-in spec answers to, so the loader
+    /// is asked and — realistically, always — declines.
+    #[test]
+    fn is_script_asks_the_loader_and_typically_gets_nothing_back() {
+        let osascript = spec::load("osascript", &[]).unwrap();
+        let walk = walk(&command("osascript myscript.scpt "), &osascript, |_| None);
+        assert!(std::ptr::eq(walk.node, &osascript));
+    }
+
+    /// `python`'s `-m` option takes one argument whose `isModule` is
+    /// `"python/"`; `python/http.server` is itself a committed spec, so
+    /// `python -m http.server` re-roots to it for real.
+    #[test]
+    fn is_module_prepends_its_prefix_to_the_token() {
+        let python = spec::load("python", &[]).unwrap();
+        let http_server = spec::load("python/http.server", &[]).unwrap();
+        let walk = walk(&command("python -m http.server "), &python, |name| {
+            (name == "python/http.server").then_some(&http_server)
+        });
+        assert!(std::ptr::eq(walk.node, &http_server));
+        assert_eq!(walk.command_index, 2);
+    }
+
+    /// No committed argument carries its own `loadSpec` in a shape reachable
+    /// without a long, unrelated chain of subcommands to get there, so this
+    /// one argument is built by hand; the node it lives on, the word that
+    /// fills it and the spec it re-roots to are otherwise unremarkable.
+    #[test]
+    fn an_arg_level_load_spec_reroots_regardless_of_the_word_it_names() {
+        let docker = spec::load("docker", &[]).unwrap();
+        let mut node = bare_node(HashMap::new(), ParserDirectives::default());
+        node.args = vec![Arg {
+            load_spec: vec![LoadSpec {
+                name: "docker".to_string(),
+                kind: "global".to_string(),
+            }],
+            ..bare_arg()
+        }];
+        let walk = walk(&command("probe anything "), &node, |name| {
+            (name == "docker").then_some(&docker)
+        });
+        assert!(std::ptr::eq(walk.node, &docker));
+        assert_eq!(walk.command_index, 1);
     }
 
     fn bare_opt(name: &str, requires_separator: Option<Separator>) -> Opt {
@@ -840,6 +1164,29 @@ mod tests {
             exclusive_on: Vec::new(),
             depends_on: Vec::new(),
             is_dangerous: None,
+            extra: serde_json::Map::new(),
+        }
+    }
+
+    fn bare_arg() -> Arg {
+        Arg {
+            name: Vec::new(),
+            suggestions: Vec::new(),
+            generators: Vec::new(),
+            dynamic: false,
+            load_spec: Vec::new(),
+            default: None,
+            description: None,
+            is_optional: None,
+            is_variadic: None,
+            options_can_break_variadic_arg: None,
+            is_command: None,
+            is_script: None,
+            is_module: None,
+            filter_strategy: None,
+            suggest_current_token: None,
+            is_dangerous: None,
+            debounce: None,
             extra: serde_json::Map::new(),
         }
     }
