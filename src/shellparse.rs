@@ -21,6 +21,19 @@
 //! expansion family. None of them are built here: they are parity work with
 //! another shell reader rather than completion work, and a menu loses nothing
 //! today from reading `$(a; b)` as two commands instead of one.
+//!
+//! [`parse_with_aliases`] expands a command's own name when the alias table
+//! names it. An alias value that itself holds an operator, such as
+//! `alias upd='true && ls'`, is read as one command's words up to that
+//! operator: turning one word into more than one command is the same
+//! structural change the expansion family above is missing, and is left out
+//! for the same reason. zsh also expands the *next* word when an alias value
+//! ends in blank space, so that `alias sudo='sudo '` still expands whatever
+//! follows it. This module does not do that either: it is a second read of
+//! the following word rather than a property of the one being expanded, and
+//! is left for whoever next needs it rather than left unrecorded.
+
+use std::collections::{HashMap, HashSet};
 
 /// One quoted or bare word: where it sits in the original buffer and what it
 /// reads as once its quoting is gone.
@@ -379,6 +392,80 @@ pub fn command_at(buffer: &str, cursor: usize) -> Option<Command> {
         .find(|cmd| cmd.start <= cursor && cursor <= cmd.end)
 }
 
+/// A value ending in blank space reads as a word still being typed to
+/// `parse`, which is right for a line someone is typing and wrong for an
+/// alias value: that value is finished text, nobody is mid-word at its end.
+/// The phantom token `parse` added for that case is therefore dropped here,
+/// rather than spliced in as an argument nobody typed. It is the only zero-
+/// width token `parse` ever produces, so that is what marks it.
+fn without_trailing_empty(mut words: Vec<Token>) -> Vec<Token> {
+    if words.last().is_some_and(|t| t.start == t.end) {
+        words.pop();
+    }
+    words
+}
+
+/// Follow the alias chain starting at `word`, stopping once its name is not
+/// in `aliases` or the cycle guard fires. `aliases` maps a name to its raw
+/// value exactly as `${(kv)aliases}` would report it, quotes and all, so a
+/// stripped copy is what actually replaces the word.
+///
+/// None of the expansion's own text exists in `buffer`: every token it
+/// produces therefore carries `word`'s own byte range rather than one of its
+/// own, and that is the only range a later insertion has to replace what the
+/// person actually typed. The assignments and the words come back separately
+/// because they land in different places: only `words` says what to keep
+/// following the chain from, and only `words` takes `word`'s own place in the
+/// command. An alias value that is nothing but assignments empties `words`
+/// and the chain ends there with no command name at all, which is also what
+/// the shell does with one.
+fn expand_word(word: &Token, aliases: &HashMap<String, String>) -> (Vec<Token>, Vec<Token>) {
+    let mut seen = HashSet::new();
+    let mut assignments: Vec<Token> = Vec::new();
+    let mut words: Vec<Token> = vec![word.clone()];
+    while let Some(name) = words.first().map(|t| t.inner_text.clone()) {
+        let Some(raw) = aliases.get(&name) else {
+            break;
+        };
+        if !seen.insert(name) {
+            break; // a name already opened in this chain: the cycle guard
+        }
+        let Some(command) = parse(&crate::shellword::unquote(raw))
+            .commands
+            .into_iter()
+            .next()
+        else {
+            break;
+        };
+        if command.assignments.is_empty() && command.words.is_empty() {
+            break;
+        }
+        assignments.extend(command.assignments);
+        words = without_trailing_empty(command.words);
+    }
+    for token in assignments.iter_mut().chain(words.iter_mut()) {
+        token.start = word.start;
+        token.end = word.end;
+    }
+    (assignments, words)
+}
+
+/// `parse`, with `aliases` applied to each command's own name. An empty
+/// table leaves every command exactly as `parse` returns it. Only a
+/// command's name is a candidate: a leading assignment and every later
+/// argument reach the shell as the person wrote them.
+pub fn parse_with_aliases(buffer: &str, aliases: &HashMap<String, String>) -> Parse {
+    let mut result = parse(buffer);
+    for command in &mut result.commands {
+        if let Some(name) = command.words.first() {
+            let (assignments, words) = expand_word(name, aliases);
+            command.assignments.splice(0..0, assignments);
+            command.words.splice(0..1, words);
+        }
+    }
+    result
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -639,5 +726,114 @@ mod tests {
             words(&command_at(line, semicolon_byte + 2).unwrap()),
             vec!["ls"]
         );
+    }
+
+    fn alias_table(pairs: &[(&str, &str)]) -> HashMap<String, String> {
+        pairs
+            .iter()
+            .map(|(name, value)| ((*name).to_string(), (*value).to_string()))
+            .collect()
+    }
+
+    #[test]
+    fn an_alias_with_no_entry_leaves_the_command_alone() {
+        let p = parse_with_aliases("cd work", &HashMap::new());
+        assert_eq!(words(&p.commands[0]), vec!["cd", "work"]);
+    }
+
+    #[test]
+    fn a_longer_alias_value_splices_in_and_a_real_argument_keeps_its_own_offset() {
+        let aliases = alias_table(&[("ll", "ls -la")]);
+        let p = parse_with_aliases("ll -h", &aliases);
+        let cmd = &p.commands[0];
+        assert_eq!(words(cmd), vec!["ls", "-la", "-h"]);
+        // "ll" is bytes 0..2. Neither word the expansion invented exists in
+        // the buffer, so both point back at the whole of what stood for them.
+        assert_eq!((cmd.words[0].start, cmd.words[0].end), (0, 2));
+        assert_eq!((cmd.words[1].start, cmd.words[1].end), (0, 2));
+        // "-h" is untouched, real text: its own offset survives expansion.
+        assert_eq!((cmd.words[2].start, cmd.words[2].end), (3, 5));
+    }
+
+    #[test]
+    fn a_shorter_alias_value_still_maps_back_onto_the_original_word() {
+        let aliases = alias_table(&[("quickcd", "cd")]);
+        let p = parse_with_aliases("quickcd work", &aliases);
+        let cmd = &p.commands[0];
+        assert_eq!(words(cmd), vec!["cd", "work"]);
+        // "quickcd" is bytes 0..7, longer than the "cd" that replaces it.
+        assert_eq!((cmd.words[0].start, cmd.words[0].end), (0, 7));
+        assert_eq!((cmd.words[1].start, cmd.words[1].end), (8, 12));
+    }
+
+    #[test]
+    fn quotes_around_an_alias_value_are_stripped() {
+        let aliases = alias_table(&[("gs", "'git status'")]);
+        let p = parse_with_aliases("gs", &aliases);
+        let cmd = &p.commands[0];
+        assert_eq!(words(cmd), vec!["git", "status"]);
+        assert_eq!((cmd.words[0].start, cmd.words[0].end), (0, 2));
+        assert_eq!((cmd.words[1].start, cmd.words[1].end), (0, 2));
+    }
+
+    #[test]
+    fn a_cycle_stops_instead_of_looping_forever() {
+        let aliases = alias_table(&[("a", "b"), ("b", "a")]);
+        let p = parse_with_aliases("a", &aliases);
+        let cmd = &p.commands[0];
+        // a -> b -> a, and the third hop repeats a name already opened in
+        // this chain, so it stops there rather than going around again.
+        assert_eq!(words(cmd), vec!["a"]);
+        assert_eq!((cmd.words[0].start, cmd.words[0].end), (0, 1));
+    }
+
+    #[test]
+    fn only_the_command_name_is_a_candidate_for_expansion() {
+        let aliases = alias_table(&[("ls", "ls -la"), ("FOO", "should not run")]);
+        let p = parse_with_aliases("FOO=ls ls", &aliases);
+        let cmd = &p.commands[0];
+        // "FOO" only looks like the alias name because it leads the line;
+        // it is an assignment's name, not a word, and is never a candidate.
+        assert_eq!(assignments(cmd), vec!["FOO=ls"]);
+        assert_eq!(words(cmd), vec!["ls", "-la"]);
+    }
+
+    #[test]
+    fn an_assignment_inside_an_alias_value_lands_in_assignments_not_words() {
+        let aliases = alias_table(&[("e", "FOO=1 ls")]);
+        let p = parse_with_aliases("e", &aliases);
+        let cmd = &p.commands[0];
+        assert_eq!(assignments(cmd), vec!["FOO=1"]);
+        assert_eq!(words(cmd), vec!["ls"]);
+        // Neither exists in the buffer on its own: both point back at "e".
+        assert_eq!((cmd.assignments[0].start, cmd.assignments[0].end), (0, 1));
+        assert_eq!((cmd.words[0].start, cmd.words[0].end), (0, 1));
+    }
+
+    #[test]
+    fn a_trailing_space_in_an_alias_value_adds_no_phantom_argument() {
+        let aliases = alias_table(&[("ll", "ls -la ")]);
+        let p = parse_with_aliases("ll", &aliases);
+        assert_eq!(words(&p.commands[0]), vec!["ls", "-la"]);
+    }
+
+    #[test]
+    fn an_alias_that_is_assignments_alone_leaves_the_command_with_no_name() {
+        // Also the case that has to stop the chain rather than loop: an
+        // empty `words` fails the loop's own condition on the next pass.
+        let aliases = alias_table(&[("e", "FOO=1")]);
+        let p = parse_with_aliases("e", &aliases);
+        let cmd = &p.commands[0];
+        assert_eq!(assignments(cmd), vec!["FOO=1"]);
+        assert!(words(cmd).is_empty());
+    }
+
+    #[test]
+    fn an_assignment_and_a_trailing_space_in_the_same_alias_value_both_land_right() {
+        let aliases = alias_table(&[("e", "FOO=1 ls ")]);
+        let p = parse_with_aliases("e", &aliases);
+        let cmd = &p.commands[0];
+        assert_eq!(assignments(cmd), vec!["FOO=1"]);
+        assert_eq!(words(cmd), vec!["ls"]);
     }
 }
