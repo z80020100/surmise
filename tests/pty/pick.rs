@@ -640,8 +640,11 @@ fn enter_runs_the_line_once_the_cursor_leaves_the_argument() {
 
 #[test]
 fn a_line_that_is_not_a_cd_never_reaches_the_terminal() {
+    // `ls` completes its own argument now that `spec_menu` answers a
+    // `filepaths` template; `zzz` is what still matches nothing in this
+    // fixture or among `ls`'s own options.
     let f = fixture();
-    let mut t = surmise(f.path(), "ls wo", 100, 30);
+    let mut t = surmise(f.path(), "ls zzz", 100, 30);
     assert_eq!(t.status(WAIT), Some(pick::PASS));
     assert!(t.lines().is_empty(), "{:?}", t.lines());
 }

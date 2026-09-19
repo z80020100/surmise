@@ -162,7 +162,10 @@ impl App {
         self.items = match (self.arg(), git) {
             (Some(_), Some(git)) => self.git.complete(&git, &self.cwd),
             (Some(q), None) => match spec {
-                Some(target) => self.spec_menu.complete(&target),
+                Some(target) => {
+                    self.spec_menu
+                        .complete(&target, &self.cwd, &self.history, &mut self.scan)
+                }
                 None => candidates::generate_in(
                     &shellword::unquote(&q.arg),
                     &self.cwd,
@@ -852,8 +855,11 @@ mod tests {
 
     #[test]
     fn refresh_empties_the_list_when_the_line_is_not_a_cd() {
+        // `ls` completes its own argument now that `spec_menu` answers a
+        // `filepaths` template; `zzz` is what still matches nothing there,
+        // in the fixture or among `ls`'s own options.
         let f = Fixture::new(&["work"]);
-        let a = App::over(f.path(), "ls wor");
+        let a = App::over(f.path(), "ls zzz");
         assert!(a.items.is_empty());
         assert!(!a.menu_open());
     }

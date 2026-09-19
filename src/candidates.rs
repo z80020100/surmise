@@ -109,7 +109,11 @@ pub fn parse(left: &str) -> Option<Query> {
 /// The path `arg` reaches from `cwd`. A relative argument hangs off the
 /// directory the caller named rather than off the process's own. Whether
 /// anything is there is the caller's question.
-fn resolved_in(arg: &str, cwd: &Path) -> PathBuf {
+///
+/// `pub(crate)` rather than private: `spec_menu`'s own path templates resolve
+/// an argument's own prefix against `cwd` the same way and reuse this rather
+/// than carry a second copy of it.
+pub(crate) fn resolved_in(arg: &str, cwd: &Path) -> PathBuf {
     let p = expand(arg);
     if p.is_absolute() { p } else { cwd.join(p) }
 }
@@ -161,6 +165,11 @@ pub(crate) struct Scan {
     /// one. A key that left the flag out would answer a `cd .` from a walk
     /// that never looked for them.
     walked: HashMap<(PathBuf, bool, bool), Vec<String>>,
+    /// A second cache rather than a wider value in `walked`: `names` and
+    /// `git_names` answer to callers that only ever want directories and
+    /// changing what they hand back would reach into `cd` and `git.rs` for
+    /// no gain here.
+    listed: HashMap<(PathBuf, bool), Vec<(String, bool)>>,
 }
 
 impl Scan {
@@ -177,6 +186,38 @@ impl Scan {
             .entry((dir.to_path_buf(), want_hidden, git))
             .or_insert_with(|| subdirs(dir, want_hidden, git))
     }
+
+    /// Every name in `dir`, files included, paired with whether each one is
+    /// itself a directory. `spec_menu`'s `filepaths` and `folders` templates
+    /// read this; `cd` has no use for a file and never calls it.
+    pub(crate) fn entries(&mut self, dir: &Path, want_hidden: bool) -> &[(String, bool)] {
+        self.listed
+            .entry((dir.to_path_buf(), want_hidden))
+            .or_insert_with(|| list_entries(dir, want_hidden))
+    }
+}
+
+/// `subdirs`, without the filter that keeps a file from ever being one of
+/// its results. The scan limit still applies, now to every entry rather
+/// than to the directories alone: a file is a candidate here in a way it
+/// never was for `cd`, so it is one more thing the limit is spent on.
+fn list_entries(dir: &Path, want_hidden: bool) -> Vec<(String, bool)> {
+    let Ok(rd) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    rd.flatten()
+        .filter_map(|entry| {
+            let raw = entry.file_name();
+            let name = raw.to_string_lossy();
+            if name.starts_with('.') && !want_hidden {
+                return None;
+            }
+            let kind = entry.file_type().ok()?;
+            let is_dir = kind.is_dir() || (kind.is_symlink() && entry.path().is_dir());
+            Some((name.into_owned(), is_dir))
+        })
+        .take(SCAN_LIMIT)
+        .collect()
 }
 
 pub(crate) fn folder(display: String, insert: String, score: i32) -> Candidate {
@@ -502,6 +543,29 @@ mod tests {
     }
 
     #[test]
+    fn list_entries_names_a_file_as_one_and_a_directory_as_the_other() {
+        let f = Fixture::new(&["alpha", "beta*"]);
+        let mut got = list_entries(f.path(), false);
+        got.sort();
+        assert_eq!(
+            got,
+            [("alpha".to_string(), true), ("beta".to_string(), false)]
+        );
+    }
+
+    #[test]
+    fn list_entries_counts_every_entry_towards_the_limit() {
+        // Unlike `subdirs`, a file is a candidate here rather than something
+        // the walk throws away, so the limit is spent on the whole listing.
+        let mut entries: Vec<String> = (0..SCAN_LIMIT / 2).map(|i| format!("file-{i}*")).collect();
+        entries.extend((0..SCAN_LIMIT / 2).map(|i| format!("dir-{i}")));
+        entries.push("one-more*".to_string());
+        let names: Vec<&str> = entries.iter().map(String::as_str).collect();
+        let f = Fixture::new(&names);
+        assert_eq!(list_entries(f.path(), false).len(), SCAN_LIMIT);
+    }
+
+    #[test]
     fn a_scan_walks_a_directory_once_and_keeps_what_it_found() {
         let f = Fixture::new(&["alpha"]);
         let mut scan = Scan::default();
@@ -518,6 +582,22 @@ mod tests {
         let mut all = scan.names(f.path(), true).to_vec();
         all.sort();
         assert_eq!(all, [".hidden", "alpha"]);
+    }
+
+    #[test]
+    fn a_scans_entries_are_also_walked_once_and_kept() {
+        let f = Fixture::new(&["alpha", "beta*"]);
+        let mut scan = Scan::default();
+        let mut first = scan.entries(f.path(), false).to_vec();
+        first.sort();
+        assert_eq!(
+            first,
+            [("alpha".to_string(), true), ("beta".to_string(), false)]
+        );
+        std::fs::write(f.path().join("gamma"), b"").unwrap();
+        let mut second = scan.entries(f.path(), false).to_vec();
+        second.sort();
+        assert_eq!(second, first);
     }
 
     #[test]
