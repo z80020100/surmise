@@ -8,6 +8,7 @@
 use crate::fuzzy;
 use crate::history::History;
 use crate::path::expand;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
@@ -61,7 +62,10 @@ pub struct Candidate {
     pub display: String,
     pub insert: String,
     /// What the row is or what an option does, shown under the list.
-    pub label: &'static str,
+    ///
+    /// A `Cow` rather than `&'static str`, because surmise's own rows carry a
+    /// constant and a spec's row will carry a description read at run time.
+    pub label: Cow<'static, str>,
     pub kind: Kind,
     pub score: i32,
 }
@@ -179,7 +183,7 @@ pub(crate) fn folder(display: String, insert: String, score: i32) -> Candidate {
     Candidate {
         display,
         insert,
-        label: FOLDER,
+        label: Cow::Borrowed(FOLDER),
         kind: Kind::Dir,
         score,
     }
@@ -195,7 +199,7 @@ pub(crate) fn run_row(insert: String) -> Candidate {
     Candidate {
         display: String::new(),
         insert,
-        label: "run",
+        label: Cow::Borrowed("run"),
         kind: Kind::Run,
         score: 0,
     }
@@ -279,7 +283,7 @@ fn predict(arg: &str, cwd: &Path, scan: &mut Scan) -> Vec<Candidate> {
         out.push(Candidate {
             display: "~".into(),
             insert: "~".into(),
-            label: "home",
+            label: Cow::Borrowed("home"),
             kind: Kind::Special,
             score: 15,
         });
@@ -323,7 +327,7 @@ pub(crate) fn generate_in(
         out.push(Candidate {
             display: "../".into(),
             insert: format!("{prefix}../"),
-            label: "parent",
+            label: Cow::Borrowed("parent"),
             kind: Kind::Parent,
             // Nothing typed puts this row behind the children and ahead of
             // home. `predict` scores a child 40 and home 15. `path_mode`
