@@ -7,7 +7,7 @@
 //! the cursor breaks the moment a paint scrolls the screen. A cursor-position
 //! query hangs on a terminal that does not answer.
 
-use crate::candidates::{Candidate, FOLDER, Kind};
+use crate::candidates::{CURRENT_BRANCH, Candidate, FOLDER, Kind};
 use crate::fuzzy;
 use crate::line::Line;
 use std::io::{self, Write};
@@ -70,6 +70,10 @@ const RUN_ICON: &str = "\u{21b5}";
 const CMD_ICON: &str = "🔧";
 /// A Git branch row.
 const BRANCH_ICON: &str = "🌿";
+/// The branch the repository is on. A shape of its own on a row that is a
+/// branch row like any other, because the name beside it says nothing about
+/// where the repository already stands.
+const CURRENT_BRANCH_ICON: &str = "⭐";
 /// A file row, and a path row where the path is not a directory.
 const FILE_ICON: &str = "📄";
 /// A Git option row.
@@ -77,12 +81,13 @@ const OPTION_ICON: &str = "❓";
 /// Every glyph a row can carry. `menu_rows` measures the widest of them for
 /// the column the names start in and each row pads its own glyph out to it.
 /// A glyph missing from here draws its row a cell short of the rest.
-const ICONS: [&str; 7] = [
+const ICONS: [&str; 8] = [
     ICON,
     HOME_ICON,
     RUN_ICON,
     CMD_ICON,
     BRANCH_ICON,
+    CURRENT_BRANCH_ICON,
     FILE_ICON,
     OPTION_ICON,
 ];
@@ -447,6 +452,11 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
                 c.kind
             };
             let (icon, icon_fg) = glyph(icon_kind, chosen);
+            let icon = if c.kind == Kind::Branch && c.label == CURRENT_BRANCH {
+                CURRENT_BRANCH_ICON
+            } else {
+                icon
+            };
             let icon_pad = " ".repeat(icon_w - cells(icon));
             format!("{pad}{ground} {icon_fg}{icon}{icon_pad}{name_fg}{name} {RESET}")
         })

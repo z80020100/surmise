@@ -27,6 +27,10 @@ pub const MAX_RESULTS: usize = 60;
 /// What a row that adds a folder says it is. `ui` reads it to give such a row
 /// the folder glyph where the kind alone says only that Git named the row.
 pub(crate) const FOLDER: &str = "folder";
+/// What a branch row that names the branch the repository is on says it is.
+/// `ui` reads it for the glyph, because the kind alone says only that the row
+/// is a branch.
+pub(crate) const CURRENT_BRANCH: &str = "Current branch";
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Kind {
