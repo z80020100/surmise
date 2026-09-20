@@ -117,6 +117,7 @@ fn candidates(reader: &Reader, sources: &Sources, term: &str) -> Vec<Candidate> 
                 // trailing slash and plain shell quoting.
                 kind: Kind::Path,
                 label: Cow::Borrowed(reader.label),
+                hint: Vec::new(),
                 score,
             })
         })

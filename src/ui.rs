@@ -224,11 +224,13 @@ fn menu_in<'a>(
     })
 }
 
-/// Pad `s` out to `w` cells. Cut it down and mark the cut when it is wider.
-fn fit(s: &str, w: usize) -> String {
+/// Cut `s` down to `w` cells and mark the cut. A short `s` comes back
+/// unpadded, which is what lets `menu_rows` measure the room a hint would
+/// still have beside it.
+fn cut(s: &str, w: usize) -> String {
     let have = cells(s);
     if have <= w {
-        return format!("{s}{}", " ".repeat(w - have));
+        return s.to_string();
     }
     if w == 0 {
         return String::new();
@@ -246,7 +248,14 @@ fn fit(s: &str, w: usize) -> String {
         }
     }
     out.push('…');
-    format!("{out}{}", " ".repeat(w.saturating_sub(cells(&out))))
+    out
+}
+
+/// Pad `s` out to `w` cells. Cut it down and mark the cut when it is wider.
+fn fit(s: &str, w: usize) -> String {
+    let cut = cut(s, w);
+    let have = cells(&cut);
+    format!("{cut}{}", " ".repeat(w.saturating_sub(have)))
 }
 
 /// Break styled segments into physical rows of at most `w` cells. The active
@@ -439,13 +448,13 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
         } else {
             (MARK, NAME_MARKED)
         };
-        // The name is fitted first. A cut one ends in an ellipsis rather
-        // than in its own last character and padding is what follows a
-        // short one. `kept` is how far the row still shows the name
-        // itself and a mark or an underline past that would land on
+        // The name is cut first, unpadded, so a hint beside it can still see
+        // what room the cut left. A cut name ends in an ellipsis rather than
+        // in its own last character. `kept` is how far the row still shows
+        // the name itself and a mark or an underline past that would land on
         // something the name does not own.
-        let fitted = fit(&text, text_w);
-        let shown: Vec<char> = fitted.chars().collect();
+        let clipped = cut(&text, text_w);
+        let shown: Vec<char> = clipped.chars().collect();
         let source: Vec<char> = text.chars().collect();
         let kept = (0..source.len())
             .take_while(|&i| shown.get(i) == source.get(i))
@@ -465,7 +474,32 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
         let at: Vec<usize> = all.into_iter().filter(|&i| i < kept).collect();
         let off = format!("{ground}{name_fg}");
         let on = format!("{mark_fg}{mark}");
-        let name = marked(&fitted, &at, &under, &off, &on);
+        let marked_name = marked(&clipped, &at, &under, &off, &on);
+        // The hint is not part of what the name owns: no mark and no
+        // underline ever reaches it. Its own arguments show in order, one
+        // space ahead of each, for as long as the cells the name left over
+        // still hold the next one whole. The first that does not fit ends
+        // the hint there rather than skipping it for a shorter one further
+        // along or cutting it down to an ellipsis of itself.
+        let mut room = text_w.saturating_sub(cells(&clipped));
+        let mut hint = String::new();
+        for arg in &c.hint {
+            let arg = printable(arg);
+            let needed = cells(&arg) + 1;
+            if needed > room {
+                break;
+            }
+            room -= needed;
+            // One dim run holds every argument. The space in front of the
+            // first is the name's own ground, the way the row drew it.
+            let first = hint.is_empty();
+            hint.push(' ');
+            if first {
+                hint.push_str(DIM);
+            }
+            hint.push_str(&arg);
+        }
+        let name = format!("{marked_name}{hint}{}", " ".repeat(room));
         let icon_kind = if matches!(c.kind, Kind::File | Kind::Path) && c.label == FOLDER {
             Kind::Dir
         } else {
@@ -925,6 +959,7 @@ mod tests {
             display: "~".into(),
             insert: "~".into(),
             label: "home".into(),
+            hint: Vec::new(),
             kind: Kind::Special,
             score: 0,
         }
@@ -936,6 +971,7 @@ mod tests {
             display: name.into(),
             insert: name.into(),
             label: "command".into(),
+            hint: Vec::new(),
             kind: Kind::Command,
             score: 0,
         }
@@ -948,6 +984,7 @@ mod tests {
             display: "../".into(),
             insert: insert.to_string(),
             label: "parent".into(),
+            hint: Vec::new(),
             kind: Kind::Parent,
             score: 0,
         }
@@ -1251,6 +1288,80 @@ mod tests {
     }
 
     #[test]
+    fn a_hint_is_drawn_dim_after_the_name() {
+        let items = vec![Candidate {
+            hint: vec!["hint".to_string()],
+            ..command("switch")
+        }];
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
+        let row = &menu_rows(&m, 80, 1, 0)[1];
+        assert!(row.contains(&format!("switch {DIM}hint")), "{row:?}");
+    }
+
+    #[test]
+    fn a_hint_carries_no_mark_or_underline_of_its_own() {
+        // Marking and underlining answer for what a row shows of its own
+        // name. The hint follows the name rather than joining it and stays
+        // out of both.
+        let items = vec![Candidate {
+            hint: vec!["hint".to_string()],
+            ..command("switch")
+        }];
+        let m = menu_in(&items, 0, 24, "s", 2).expect("a menu");
+        let row = &menu_rows(&m, 80, 1, 0)[1];
+        assert_eq!(marks(row, MARK_CHOSEN), "s");
+        assert_eq!(underlined(row), "w");
+    }
+
+    #[test]
+    fn a_hint_with_no_room_left_by_the_name_is_dropped_rather_than_cut() {
+        // A name this long fills the whole row on its own, whatever the
+        // icon column takes from `PANEL_INNER`, and leaves the hint no
+        // cells to sit in.
+        let items = vec![Candidate {
+            hint: vec!["hint".to_string()],
+            ..command(&"x".repeat(PANEL_INNER))
+        }];
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
+        let row = &menu_rows(&m, 80, 1, 0)[1];
+        assert!(!row.contains("hint"), "{row:?}");
+    }
+
+    #[test]
+    fn a_hint_shows_only_the_arguments_that_still_fit() {
+        // `git checkout`'s own two arguments, against the real `checkout`
+        // name and the panel's own budget. `[branch, file, tag or commit]`
+        // is 29 cells beside an 8-cell name and one space, which is exactly
+        // the panel's 38-cell text column. `[pathspec...]` has no room left
+        // after that and does not show.
+        let items = vec![Candidate {
+            hint: vec![
+                "[branch, file, tag or commit]".to_string(),
+                "[pathspec...]".to_string(),
+            ],
+            ..command("checkout")
+        }];
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
+        let row = &menu_rows(&m, 80, 1, 0)[1];
+        assert!(row.contains("[branch, file, tag or commit]"), "{row:?}");
+        assert!(!row.contains("[pathspec...]"), "{row:?}");
+    }
+
+    #[test]
+    fn a_hint_whose_first_argument_has_no_room_shows_none_of_them() {
+        // The first argument alone already outgrows what `checkout` leaves.
+        // The second is never even weighed against what is left: an
+        // argument list shows from the front or shows nothing.
+        let items = vec![Candidate {
+            hint: vec!["x".repeat(PANEL_INNER), "y".to_string()],
+            ..command("checkout")
+        }];
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
+        let row = &menu_rows(&m, 80, 1, 0)[1];
+        assert!(!row.contains('x') && !row.contains('y'), "{row:?}");
+    }
+
+    #[test]
     fn a_branch_underline_counts_the_whole_name() {
         let mut items = vec![command("sample/topic"), command("sample/topaz")];
         for item in &mut items {
@@ -1360,6 +1471,25 @@ mod tests {
         assert_eq!(printable("\x1b[31mred"), "[31mred");
         assert_eq!(printable("a\x07b\x7fc"), "abc");
         assert_eq!(wrap(&[seg("a\x1bb")], 20, 0), vec!["ab"]);
+    }
+
+    #[test]
+    fn an_escape_in_an_argument_name_is_dropped_from_the_panel() {
+        // A hint is a specification's own text and `spec_dirs` lets a person
+        // point that at a file of their own. It reaches a terminal in raw
+        // mode, so it goes through the same guard the name does.
+        let mut row = command("switch");
+        row.hint = vec!["<\x1b[31mbranch>".to_string()];
+        let items = vec![row];
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
+        let rows = menu_rows(&m, 80, 1, 0);
+        let row = &rows[1];
+        assert!(row.contains("[31mbranch"), "{row:?}");
+        let ours: usize = [PANEL_CHOSEN, NAME_CHOSEN, CMD_ICON_FG_CHOSEN, DIM, RESET]
+            .iter()
+            .map(|s| s.matches('\x1b').count())
+            .sum();
+        assert_eq!(row.matches('\x1b').count(), ours, "{row:?}");
     }
 
     #[test]

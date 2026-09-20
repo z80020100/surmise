@@ -151,7 +151,7 @@ pub struct Opt {
 }
 
 /// A positional argument, to a subcommand or to an option.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Arg {
     pub name: Vec<String>,
     pub suggestions: Vec<Suggestion>,
@@ -183,6 +183,30 @@ pub struct Arg {
     /// only carries it through; it does not act on it.
     pub debounce: Option<bool>,
     pub extra: Extra,
+}
+
+/// One entry per argument, each formatted the way `ui` draws it dim after a
+/// row's name: `<name>` for a mandatory argument, `[name]` for an optional
+/// one, and `...` inside either for a variadic one. An argument with no name
+/// at all contributes nothing. `ui` is what joins as many whole entries as
+/// still fit, the way Q's own `pull` shows `[remote] [branch]` beside it.
+pub fn arg_hints(args: &[Arg]) -> Vec<String> {
+    args.iter()
+        .filter_map(|arg| {
+            let name = arg.name.first().filter(|name| !name.is_empty())?;
+            let (open, close) = if arg.is_optional.unwrap_or(false) {
+                ('[', ']')
+            } else {
+                ('<', '>')
+            };
+            let dots = if arg.is_variadic.unwrap_or(false) {
+                "..."
+            } else {
+                ""
+            };
+            Some(format!("{open}{name}{dots}{close}"))
+        })
+        .collect()
 }
 
 /// `Fig.Option.isRepeatable`: `false` or absent means once, `true` means
@@ -1485,5 +1509,64 @@ mod tests {
     #[test]
     fn spec_keys_finds_the_whole_corpus() {
         assert_eq!(spec_keys().len(), 1481);
+    }
+
+    fn arg(name: &str, is_optional: Option<bool>, is_variadic: Option<bool>) -> Arg {
+        Arg {
+            name: vec![name.to_string()],
+            is_optional,
+            is_variadic,
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn a_mandatory_argument_hint_is_angle_bracketed() {
+        assert_eq!(arg_hints(&[arg("branch", None, None)]), vec!["<branch>"]);
+    }
+
+    #[test]
+    fn an_optional_argument_hint_is_square_bracketed() {
+        assert_eq!(
+            arg_hints(&[arg("pathspec", Some(true), None)]),
+            vec!["[pathspec]"]
+        );
+    }
+
+    #[test]
+    fn a_variadic_argument_hint_carries_the_ellipsis() {
+        assert_eq!(
+            arg_hints(&[arg("pathspec", None, Some(true))]),
+            vec!["<pathspec...>"]
+        );
+    }
+
+    #[test]
+    fn an_optional_variadic_argument_hint_combines_both() {
+        assert_eq!(
+            arg_hints(&[arg("pathspec", Some(true), Some(true))]),
+            vec!["[pathspec...]"]
+        );
+    }
+
+    #[test]
+    fn several_arguments_give_one_entry_apiece() {
+        assert_eq!(
+            arg_hints(&[
+                arg("remote", Some(true), None),
+                arg("branch", Some(true), None)
+            ]),
+            vec!["[remote]", "[branch]"]
+        );
+    }
+
+    #[test]
+    fn an_argument_with_no_name_contributes_nothing() {
+        assert!(arg_hints(&[Arg::default()]).is_empty());
+    }
+
+    #[test]
+    fn no_arguments_gives_no_hints() {
+        assert!(arg_hints(&[]).is_empty());
     }
 }

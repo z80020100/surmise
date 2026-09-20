@@ -66,6 +66,11 @@ pub struct Candidate {
     /// A `Cow` rather than `&'static str`, because surmise's own rows carry a
     /// constant and a spec's row will carry a description read at run time.
     pub label: Cow<'static, str>,
+    /// The row's own arguments, each already formatted the way `ui` draws
+    /// it dim after the name: one entry per argument, in order, empty for a
+    /// row whose command takes none. `ui` shows as many whole entries as
+    /// still fit and stops at the first that does not.
+    pub hint: Vec<String>,
     pub kind: Kind,
     pub score: i32,
 }
@@ -225,6 +230,7 @@ pub(crate) fn folder(display: String, insert: String, score: i32) -> Candidate {
         display,
         insert,
         label: Cow::Borrowed(FOLDER),
+        hint: Vec::new(),
         kind: Kind::Dir,
         score,
     }
@@ -241,6 +247,7 @@ pub(crate) fn run_row(insert: String) -> Candidate {
         display: String::new(),
         insert,
         label: Cow::Borrowed("run"),
+        hint: Vec::new(),
         kind: Kind::Run,
         score: 0,
     }
@@ -325,6 +332,7 @@ fn predict(arg: &str, cwd: &Path, scan: &mut Scan) -> Vec<Candidate> {
             display: "~".into(),
             insert: "~".into(),
             label: Cow::Borrowed("home"),
+            hint: Vec::new(),
             kind: Kind::Special,
             score: 15,
         });
@@ -369,6 +377,7 @@ pub(crate) fn generate_in(
             display: "../".into(),
             insert: format!("{prefix}../"),
             label: Cow::Borrowed("parent"),
+            hint: Vec::new(),
             kind: Kind::Parent,
             // Nothing typed puts this row behind the children and ahead of
             // home. `predict` scores a child 40 and home 15. `path_mode`

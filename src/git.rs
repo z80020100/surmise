@@ -784,6 +784,7 @@ fn row(arg: &str, name: &str, label: &'static str, kind: Kind) -> Option<Candida
         display: name.to_string(),
         insert: name.to_string(),
         label: Cow::Borrowed(label),
+        hint: Vec::new(),
         kind,
         score: fuzzy::score(arg, name)?,
     })
@@ -900,6 +901,13 @@ impl Completions {
                     if let Some(mut candidate) =
                         row(&arg, &insert, option.description, Kind::Option)
                     {
+                        // The name a spec gives the value, for the one
+                        // option that takes it as a word of its own.
+                        // `--chmod` ends in the `=` its value goes after,
+                        // which already says where that value lands.
+                        if option.value == Some(Value::File) {
+                            candidate.hint = vec!["<File>".to_string()];
+                        }
                         if arg.is_empty() {
                             candidate.score -= 1000;
                         }
@@ -1017,6 +1025,7 @@ impl Completions {
                     display: name.to_string(),
                     insert: name.into_owned(),
                     label: Cow::Borrowed(label),
+                    hint: Vec::new(),
                     kind,
                     score,
                 })
@@ -1029,10 +1038,10 @@ impl Completions {
             row.label = Cow::Borrowed(CURRENT_BRANCH);
         }
         rank(&mut out, arg);
-        // Git prints a name and nothing else, so what a row says it is comes
-        // from the specification instead. `rank` runs first: it drops
-        // everything past `MAX_RESULTS` and a row nobody keeps has no label
-        // worth filling. A word no name reached keeps the spec unread.
+        // Git prints a name and nothing else, so the label and the hint
+        // both come from the specification instead. `rank` runs first: it
+        // drops everything past `MAX_RESULTS` and a row nobody keeps is
+        // worth neither. A word no name reached keeps the spec unread.
         if kind == Kind::Command
             && !out.is_empty()
             && let Some(git) = self
@@ -1040,12 +1049,11 @@ impl Completions {
                 .get_or_insert_with(|| spec::load_configured("git").ok())
         {
             for row in &mut out {
-                if let Some(description) = git
-                    .subcommands
-                    .get(&row.insert)
-                    .and_then(|sub| sub.description.clone())
-                {
-                    row.label = Cow::Owned(description);
+                if let Some(sub) = git.subcommands.get(&row.insert) {
+                    if let Some(description) = sub.description.clone() {
+                        row.label = Cow::Owned(description);
+                    }
+                    row.hint = spec::arg_hints(&sub.args);
                 }
             }
         }
@@ -1191,6 +1199,20 @@ mod tests {
         let row = |name: &str| rows.iter().find(|r| r.insert == name).expect("a row");
         assert_eq!(row("add").label, add.as_str());
         assert_eq!(row("not-a-real-subcommand").label, "command");
+    }
+
+    /// `status`'s own `pathspec` argument is `isOptional` and `isVariadic`
+    /// together.
+    #[test]
+    fn a_subcommand_row_carries_its_argument_hint() {
+        let git = spec::load("git", &[]).expect("git is a committed spec");
+        let mut commands = Completions {
+            names: Some(vec!["status".into()]),
+            spec: Some(Some(git)),
+            ..Default::default()
+        };
+        let rows = commands.candidates("", Path::new("."), Kind::Command, &[]);
+        assert_eq!(rows[0].hint, vec!["[pathspec...]"]);
     }
 
     /// The corpus is committed, so a miss here is a `disabled_commands`

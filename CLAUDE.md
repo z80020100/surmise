@@ -207,6 +207,17 @@ the way every other menu reads one. A name that specification does not carry
 keeps the word `command`. A configured alias is such a name and so is a
 subcommand the corpus never had.
 
+Every row also carries the arguments that still fit beside its own name,
+drawn dim from that same specification: `<name>` for a mandatory one,
+`[name]` for an optional one, and `...` inside either for a variadic one.
+They show in order and stop at the first that does not fit rather than
+skipping it for a shorter one further along. `checkout` carries two:
+`[branch, file, tag or commit]` is 29 cells beside an 8-cell name and one
+space, exactly the panel's 38-cell budget for the two together, so
+`[pathspec...]` after it has no room and neither it nor anything past it
+shows. A name the specification does not carry, or one whose own arguments
+carry no name, shows none.
+
 Those descriptions are the upstream's own sentences rather than labels
 written for this panel. Half of them are longer than the panel is wide: of
 the 38 the committed `git` specification carries, 18 are cut short at the
@@ -350,9 +361,22 @@ word may be: a child subcommand, an option not already on the line, or one of
 an argument's own listed suggestions. A subcommand or an option that answers
 to several names shows once, under the first of them. Each row's label is the
 spec's own description, or `"command"`, `"option"` or `"value"` for a row
-whose spec carries none. Git's own menu never reaches this one and reads that
-same field anyway, for the rows it names itself. "Git" above is where that is
-written down.
+whose spec carries none. A subcommand or an option row also carries the
+arguments that still fit beside its name, drawn dim: `<name>` for a
+mandatory one, `[name]` for an optional one, and `...` inside either for a
+variadic one. `crate::spec::arg_hints` turns the row's own `args` into that
+list and `ui` shows as many whole entries as fit in order, stopping at the
+first that does not rather than reaching past it for a shorter one. Three
+rows carry none. A suggestion row has no arguments of its own. A `help` row
+names a sibling subcommand and fills `help`'s own one-word argument with it,
+so the sibling's own arguments are never reached and naming them would
+promise a word the menu will not offer. An option that requires a separator
+takes `--name=value`, which the space in front of a hint would deny, and it
+carries none until that separator is part of what the row inserts.
+
+Git's own menu never reaches this one and reads those same two fields
+anyway, for the rows it names itself. "Git" above is where that is written
+down.
 
 A command can point the walk past its own specification at another's.
 `sudo git switch ` walks `git`'s own specification from the `git` token
@@ -455,7 +479,8 @@ byte-level lookup the binary carries: `get(name)` decompresses one spec and
 `commands()` returns the compiled-in list of 727 names. `spec` parses what
 comes back into the shape `argwalk` walks, and "Other commands" above says
 what a menu does with one. Git's own menu is the second reader of this data
-and it takes one thing from it: the description its subcommand rows show.
+and it takes two things from it: the description a subcommand row shows and
+the arguments beside its name.
 This section stays about the directory itself: what it holds and what
 carrying it costs.
 
@@ -552,9 +577,10 @@ and `disabled_commands` and `spec_dirs` through the spec that menu completes
 from.
 
 Git's own menu is the second caller and it asks for one name only, once per
-menu, for the description its subcommand rows show. `git` in
-`disabled_commands` therefore leaves those rows on the word `command`, and a
-`git.json` under `spec_dirs` is what they read instead of the committed one.
+menu, for the description a subcommand row shows and the arguments beside
+its name. `git` in `disabled_commands` therefore leaves those rows on the
+word `command` with no arguments beside them, and a `git.json` under
+`spec_dirs` is what they read instead of the committed one.
 Neither key reaches anything else that menu does: the subcommand names, the
 branches and the files all come from the installed Git either way.
 
