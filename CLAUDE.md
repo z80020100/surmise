@@ -287,8 +287,19 @@ the 38 the committed `git` specification carries, 18 are cut short at the
 footer's edge. The position counter used to take its own cells off the end
 of that word and 22 of the 38 left it none. It sits on the panel's top edge
 now and the word under the list has the panel's whole width whatever it
-holds. `plans/phase-4-ui-keys.md` is where the footer becomes a strip that
-wraps instead.
+holds.
+
+A sentence the panel still cannot hold loses its first parenthetical and
+everything past its first full stop. What is left is shown whole rather
+than cut short. `Use TCP/IP device (error if multiple TCP/IP devices are
+available)` is 63 cells and `Use TCP/IP device` is 17. A full stop closes a
+sentence only where two letters or digits run into it. `e.g. ` and an
+initial therefore cut nothing. 66.8% of the corpus's 371 633 descriptions are wider
+than the panel and 53.7% still are after that. The ellipsis is what those
+get. None of git's own 38 carries a parenthetical or a second sentence and
+all 18 of them are cut exactly as before.
+`plans/phase-4-ui-keys.md` is where the footer becomes a strip that wraps
+instead.
 
 Enter accepts the highlighted subcommand and adds a space. Right does the same
 when the name starts with what you typed. Tab accepts the shared prefix or a
