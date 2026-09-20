@@ -4,6 +4,7 @@ use crate::candidates::{
     CURRENT_BRANCH, Candidate, FOLDER, Kind, MAX_RESULTS, Query, SCAN_LIMIT, Scan, match_rank,
 };
 use crate::fuzzy;
+use crate::spec::{self, Subcommand};
 use std::borrow::Cow;
 use std::collections::{BTreeSet, HashMap};
 use std::io::Read;
@@ -726,6 +727,11 @@ pub(crate) struct Completions {
     names: Option<Vec<String>>,
     branches: Option<Branches>,
     files: Option<Vec<String>>,
+    /// The specification the subcommand rows take their descriptions from.
+    /// `None` inside the `Some` is a cached miss: a corpus without `git` or a
+    /// spec that will not parse stays a miss for the rest of the menu rather
+    /// than being asked for again.
+    spec: Option<Option<Subcommand>>,
     file_modes: HashMap<FileMode, Vec<String>>,
     dirs: Scan,
     path_files: HashMap<PathBuf, Vec<String>>,
@@ -1023,6 +1029,26 @@ impl Completions {
             row.label = Cow::Borrowed(CURRENT_BRANCH);
         }
         rank(&mut out, arg);
+        // Git prints a name and nothing else, so what a row says it is comes
+        // from the specification instead. `rank` runs first: it drops
+        // everything past `MAX_RESULTS` and a row nobody keeps has no label
+        // worth filling. A word no name reached keeps the spec unread.
+        if kind == Kind::Command
+            && !out.is_empty()
+            && let Some(git) = self
+                .spec
+                .get_or_insert_with(|| spec::load_configured("git").ok())
+        {
+            for row in &mut out {
+                if let Some(description) = git
+                    .subcommands
+                    .get(&row.insert)
+                    .and_then(|sub| sub.description.clone())
+                {
+                    row.label = Cow::Owned(description);
+                }
+            }
+        }
         out
     }
 }
@@ -1129,6 +1155,7 @@ mod tests {
                 "switch".into(),
                 "show".into(),
             ]),
+            spec: Some(None),
             ..Default::default()
         };
         let rows = commands.candidates(
@@ -1146,6 +1173,52 @@ mod tests {
                 .candidates("zzz", Path::new("."), Kind::Command, &[])
                 .is_empty()
         );
+    }
+
+    #[test]
+    fn a_subcommand_row_says_what_its_specification_says_it_is() {
+        let git = spec::load("git", &[]).expect("git is a committed spec");
+        let add = git.subcommands["add"]
+            .description
+            .clone()
+            .expect("git add carries a description");
+        let mut commands = Completions {
+            names: Some(vec!["add".into(), "not-a-real-subcommand".into()]),
+            spec: Some(Some(git)),
+            ..Default::default()
+        };
+        let rows = commands.candidates("", Path::new("."), Kind::Command, &[]);
+        let row = |name: &str| rows.iter().find(|r| r.insert == name).expect("a row");
+        assert_eq!(row("add").label, add.as_str());
+        assert_eq!(row("not-a-real-subcommand").label, "command");
+    }
+
+    /// The corpus is committed, so a miss here is a `disabled_commands`
+    /// naming `git` or a build whose data will not parse. Every row falls
+    /// back to the word the menu had before a specification answered for it.
+    #[test]
+    fn a_specification_nobody_could_read_leaves_every_row_on_the_fallback() {
+        let mut commands = Completions {
+            names: Some(vec!["add".into()]),
+            spec: Some(None),
+            ..Default::default()
+        };
+        let rows = commands.candidates("", Path::new("."), Kind::Command, &[]);
+        assert_eq!(rows[0].label, "command");
+    }
+
+    /// A file can be named after a subcommand. The kind is what keeps one
+    /// menu's descriptions out of the other's rows.
+    #[test]
+    fn a_row_that_is_not_a_subcommand_keeps_its_own_label() {
+        let git = spec::load("git", &[]).expect("git is a committed spec");
+        let mut commands = Completions {
+            files: Some(vec!["add".into()]),
+            spec: Some(Some(git)),
+            ..Default::default()
+        };
+        let rows = commands.candidates("", Path::new("."), Kind::File, &[]);
+        assert_eq!(rows[0].label, "file");
     }
 
     #[test]
