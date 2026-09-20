@@ -42,9 +42,9 @@ fn name_of(fd: i32) -> Option<String> {
 
 /// Whether stdin is a terminal rather than a pipe.
 ///
-/// `pick::run` reads the v2 record off stdin before it ever gets here. A
-/// terminal on stdin means nobody piped that record in and nobody is about to
-/// type it either, which is exactly the shape of a hand run of
+/// `pick::run` reads the widget's own record off stdin before it ever gets
+/// here. A terminal on stdin means nobody piped that record in and nobody
+/// is about to type it either, which is exactly the shape of a hand run of
 /// `surmise --pick`. Reading anyway would block on a key that never comes.
 pub fn stdin_is_terminal() -> bool {
     // SAFETY: `isatty` reads the descriptor and touches no memory of ours.

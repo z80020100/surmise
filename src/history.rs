@@ -344,8 +344,11 @@ mod tests {
         let db = f.path().join("history.sqlite3");
         record_at(&db, f.path(), &f.path().join("beta"), AT).unwrap();
         record_at(&db, f.path(), &f.path().join("nested/beta"), AT).unwrap();
-        let mut app =
-            App::over(f.path(), "cd ").with_history(History::read(&db, f.path(), AT).unwrap());
+        let mut app = App::over(f.path(), "cd ");
+        app.seed_history(
+            History::read(&db, f.path(), AT).unwrap(),
+            crate::histfile::Counts::default(),
+        );
         for _ in 0..4 {
             record_at(&db, f.path(), &f.path().join("alpha"), AT).unwrap();
         }

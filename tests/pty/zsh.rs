@@ -2,8 +2,9 @@
 //!
 //! `pick` runs the command the widget runs. These run the widget itself. zsh
 //! holds the line, the key bindings and the plugins. surmise is only what one
-//! key reaches. These tests cover the widget and the directory hook that
-//! changes the next menu's order. `pick` covers the rest of what the menu draws.
+//! key reaches. These tests cover the widget, the directory hook that changes
+//! the next menu's order, and `$HISTFILE` reaching the picker in the widget's
+//! own record. `pick` covers the rest of what the menu draws.
 
 use crate::term::Term;
 use portable_pty::CommandBuilder;
@@ -162,6 +163,31 @@ fn git_subcommands_return_to_editing_without_running() {
         t.send("\r");
         assert!(t.wait_line("GIT-RAN", WAIT), "{:?}", t.lines());
     }
+}
+
+#[test]
+fn a_frequently_typed_subcommand_leads_the_git_menu() {
+    // `status` sorts after `add` alphabetically. `$HISTFILE` below says
+    // `status` was typed three times and `add` once, and the menu is
+    // expected to lead with the one the history favours.
+    let hist = Fixture::new(&["histfile*"]);
+    let histfile = hist.path().join("histfile");
+    std::fs::write(
+        &histfile,
+        ": 1700000000:0;git status\n\
+         : 1700000001:0;git status\n\
+         : 1700000002:0;git status\n\
+         : 1700000003:0;git add sample\n",
+    )
+    .expect("a histfile");
+    let f = home(&format!("export HISTFILE={}", histfile.display()), "");
+    let mut t = ready(f.path());
+    t.send("git ");
+    assert!(t.wait_panel(WAIT), "no Git menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    // `panel()[0]` is the line that closes the panel above the list;
+    // `panel()[1]` is the first row in it.
+    assert!(t.panel()[1].text.contains("status"), "{:?}", t.lines());
 }
 
 #[test]

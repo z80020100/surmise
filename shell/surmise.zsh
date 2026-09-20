@@ -71,14 +71,22 @@ surmise-complete() {
   # first pays the one fork `_surmise_fill_specs` costs and the other only
   # ever reads the array it left behind.
   _surmise_fill_specs
-  # RBUFFER and the alias table go on stdin as one record: RBUFFER first,
-  # then a name and a value for every alias, each ended with a NUL. A value
-  # can hold a space, a newline or a quote and a NUL is the one byte none of
-  # them carry, so it is the only separator that cannot read part of one
-  # field as another. `[@]` keeps a value with a space in it one field rather
-  # than letting the shell split it apart before `print` ever sees it.
+  # A tag, RBUFFER, $HISTFILE and the alias table go on stdin as one record,
+  # in that order, each field ended with a NUL. A value can hold a space, a
+  # newline or a quote and a NUL is the one byte none of them carry, so it is
+  # the only separator that cannot read part of one field as another. `[@]`
+  # keeps a value with a space in it one field rather than letting the shell
+  # split it apart before `print` ever sees it.
+  #
+  # The tag leads because a widget and a binary can fall out of step after
+  # all. `init zsh` prints this text out of the binary that runs it, so a
+  # fresh `eval` always pairs the two, and a shell that ran that eval before
+  # the binary was upgraded keeps sending the older shape for as long as it
+  # lives. Without the tag the newer binary would read this record's second
+  # field as $HISTFILE, which in the older shape is the first alias's own
+  # name, and every pair behind it would land one field out.
   local -a record
-  record=("$RBUFFER" "${(kv)aliases[@]}")
+  record=("surmise-record-3" "$RBUFFER" "$HISTFILE" "${(kv)aliases[@]}")
   # Paint the pending change first. surmise asks the terminal where the cursor
   # is. zsh does not redraw until the widget returns and the answer would
   # otherwise be one keystroke behind.

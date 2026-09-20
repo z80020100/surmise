@@ -34,6 +34,15 @@ eval "$(surmise init zsh)"
 it. The two cannot fall out of step, because they are one artifact. The
 `make shell` gate reads the same bytes the command emits.
 
+One shell can still hold an older copy. The `eval` above runs once and the
+function it defines lives as long as that shell does, so a session open
+when the binary is replaced keeps sending the widget it already has. The
+record the widget writes therefore leads with a tag naming its own shape,
+and a binary reading a record without that tag reads the shape that came
+before it rather than the fields behind it. A shell in that state completes
+on everything but what the newer field carries. Starting a shell, or
+running the `eval` again in the one you have, is what pairs the two.
+
 zsh-autosuggestions asks for a new suggestion after a widget it wrapped
 changes the line. It wraps the widgets `zle -la` lists when it binds. Under
 `ZSH_AUTOSUGGEST_MANUAL_REBIND` that binding happens once and the first prompt
@@ -146,7 +155,8 @@ The zsh directory hook records successful changes from manual commands and
 from surmise. Selecting a name does not record a visit. Executing the change
 does. Returning to the same physical directory records nothing. Quiet changes
 such as `cd -q` suppress the hook. An earlier hook that fails can prevent it
-from running too. Shell command history is not read.
+from running too. This history reads no shell command text. A separate
+reader does, for Git's own menu and the one "Other commands" describes below.
 
 The records stay in `$XDG_DATA_HOME/surmise/history.sqlite3`. Without an
 absolute `XDG_DATA_HOME` the path is `~/.local/share/surmise/history.sqlite3`.
@@ -168,6 +178,55 @@ A failed write loses that visit. Missing, locked or unreadable history leaves
 the text order in place. Storage errors do not print at the prompt.
 SQLite is compiled into the binary through `rusqlite`.
 No SQLite command or service needs to be installed.
+
+A second reader reads `$HISTFILE`, the shell's own command history, for
+Git's own menu and "Other commands" below. The widget passes its path in the
+same stdin record that already carries `RBUFFER` and the alias table. It
+reads the last 5000 entries and at most 64 KiB of the file, the cap a Git
+query's own output already carries, from the file's tail rather than its
+start, so a long history costs what a short one does. It reads both zsh
+history formats, the plain one and the extended `: <epoch>:<elapsed>;<command>`
+one, and joins a line a trailing backslash continues before it reads that
+line's words.
+
+An entry reads the way a shell reads it rather than as a naive split on
+whitespace: `cd sample && git status` teaches a pair for `cd` and a pair for
+`git`, a leading `FOO=bar` is never mistaken for a command's name, and
+`alias g='git -C sample'` expands `g`'s whole value before the words are
+counted, so a person who types `g` still teaches `git`'s own menu. Only the
+first two words of each command matter: how often its own second word
+followed its first. A command of one word teaches nothing. A missing,
+unreadable or empty file teaches nothing and prints nothing. So does a path
+that is not a regular file: a named pipe would hold the shell's own line
+editor open until somebody wrote to it and a device would answer a length
+of nothing and then read for as long as it was asked. What it reads lives
+only for the one menu that asked for it. Nothing here is written to a file
+and no command text is stored, the same promise the directory history above
+already keeps.
+
+The file is read once when the menu opens and only for a line one of those
+two menus answers. That reading then stands for as long as the menu does,
+the same way the directory preferences above are read once and kept. A menu
+opened on a line neither of them answers therefore has no reading at all,
+and editing that line into one they do answer does not go back for one. The
+line has to empty and close the menu before the next one reads the file.
+
+What that reading may order is therefore a second word and nothing else. A
+Git subcommand is one and so is the word a specification's menu offers
+straight after the command name. A branch name, a file name, an option's
+value and every row further along a specification's own walk sit at the
+third word or later, where this reading has counted nothing about them, and
+they keep the order they would have had without it. That is not only a
+lookup saved. A branch named for a subcommand somebody types often would
+otherwise climb a list it has no business leading.
+
+A row that answers to several names is the one thing this misses. "Other
+commands" below shows such a row once, under the first of its names, and
+this reading counted whatever was actually typed. `npm install` also
+answers to `i` and to `add`, so a person who types `npm i` teaches the pair
+`("npm", "i")` and the row on screen says `install`, which that pair never
+reaches. Sixteen of `npm`'s own subcommands answer to more than one name.
+The row is ordered as though it had never been typed.
 
 A match need not lead with what you typed and Tab ignores the rows that do
 not. `cd wk` reaching `work/` is a match Enter takes. Right leaves it: that
@@ -198,8 +257,11 @@ That is the one that printed the widget when `init` was run from there.
 
 Typing a bare `git ` opens a subcommand menu. Tab also opens it on a partial
 subcommand such as `git stat`. Exact names lead. Prefixes follow and fuzzy
-matches come last. The menu includes high-level Git commands and configured
-alias names. It reads command names from the installed Git once per menu.
+matches come last. A tie inside one of those three goes to the name
+`$HISTFILE` says was typed after `git` more often. A further tie keeps the
+closer text match and then the alphabetical order. The menu includes
+high-level Git commands and configured alias names. It reads command names
+from the installed Git once per menu.
 It does not run aliases. Git prints a name and nothing else, so the word
 under the list comes from the command's own completion specification
 instead: it is the highlighted subcommand's description, read once per menu
@@ -315,11 +377,12 @@ options. Other arguments and Git global options use the shell's existing
 completion. These include other commands' options and new branch names after
 `switch -c` or `checkout -b`. File arguments with absolute paths or `..`
 components also use shell completion. Quoted branch arguments and compound
-shell commands stay with the shell. Git candidates use text ranking alone.
-Directory history does not affect them. Branch queries outside a repository
-leave completion to the shell. The `add` options and filesystem candidates
-remain available outside a repository. An argument with no candidates uses
-shell completion.
+shell commands stay with the shell. Git candidates rank by that text, and a
+subcommand row by `$HISTFILE` as well. A branch row and a file row rank by
+the text alone. Directory history does not affect any of them. Branch
+queries outside a repository leave completion to the shell. The `add`
+options and filesystem candidates remain available outside a repository. An
+argument with no candidates uses shell completion.
 
 Git must be on PATH. The command query allows 250 ms and at most 64 KiB of
 output. The branch and configuration queries share a separate budget with
@@ -373,6 +436,14 @@ so the sibling's own arguments are never reached and naming them would
 promise a word the menu will not offer. An option that requires a separator
 takes `--name=value`, which the space in front of a hint would deny, and it
 carries none until that separator is part of what the row inserts.
+
+Rows rank the way Git's own do: exact names lead, prefixes follow and fuzzy
+matches come last. Where the row would become the command's own second word,
+a tie inside one of those three goes to the name `$HISTFILE` says followed
+that command more often, the same reader Git's own menu reads. A row any
+deeper into the line is past what that reader counted and takes nothing from
+it. A further tie keeps the fuzzy score's own order and then the
+alphabetical one.
 
 Git's own menu never reaches this one and reads those same two fields
 anyway, for the rows it names itself. "Git" above is where that is written

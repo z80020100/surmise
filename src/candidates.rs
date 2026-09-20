@@ -6,9 +6,11 @@
 //! names a directory then gets one row in front of whichever mode ran.
 
 use crate::fuzzy;
+use crate::histfile;
 use crate::history::History;
 use crate::path::expand;
 use std::borrow::Cow;
+use std::cmp::Reverse;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
@@ -313,6 +315,76 @@ pub(crate) fn match_rank(base: &str, display: &str) -> u8 {
     } else {
         1
     }
+}
+
+/// The text a row would have been typed as, which is what the reading of
+/// `$HISTFILE` counted. A row's own `insert` rather than its `display`:
+/// the two are the same word for a subcommand and an option, and a path
+/// row shows a leaf where it inserts the whole of what was typed, so
+/// `cat sample/notes.txt` in a history reaches the row `notes.txt` under
+/// `sample/`. The trailing slash a folder row wears comes off, because it
+/// is the menu saying the row is a folder rather than anything a person
+/// typed. `match_rank` takes it off for the same reason.
+fn typed_as(c: &Candidate) -> &str {
+    c.insert.strip_suffix('/').unwrap_or(&c.insert)
+}
+
+/// What a row's own name is looked up under: the command the row would
+/// become the second word of, and the reading of `$HISTFILE` that says how
+/// often it already has been. One value rather than two parameters, because
+/// neither half means anything on its own and [`rank`] already takes a
+/// `&str` of its own for what was typed.
+#[derive(Clone, Copy)]
+pub(crate) struct UsedAfter<'a> {
+    pub(crate) command: &'a str,
+    pub(crate) counts: &'a histfile::Counts,
+}
+
+/// The ranking `crate::git`'s own subcommand, branch and file rows share
+/// with `crate::spec_menu`'s: a name that folds to exactly what was typed
+/// leads, a name that merely starts with it follows, a tie inside either
+/// goes to the row the shell history favours, a further tie keeps the fuzzy
+/// score's own order and a name breaks whatever is left. One `rank` rather
+/// than one copy each is what keeps the two menus from drifting apart.
+///
+/// `used_after` is the history term, and `None` is what turns it off.
+/// [`crate::histfile::Counts`] holds how often a command's *second* word
+/// followed its first and nothing deeper, so only a row that would become
+/// that second word may be ranked by it: a Git subcommand, or the one word
+/// a spec menu offers straight after the command name. A branch name, a
+/// file name, an option's value and every row further along a spec's own
+/// walk sit at the third word or later, where the counts describe nothing.
+/// Reading them there would not merely waste a lookup. A branch named for a
+/// subcommand somebody types often would climb a list it has no business
+/// leading. The caller passes the command name to look the row up under,
+/// which is `"git"` for Git's own menu and the line's own first word for
+/// the other.
+///
+/// `sort_by_cached_key` calls its key function once per row rather than
+/// once per comparison a plain `sort_by` would, so the history is read once
+/// for each row instead of on every one of a sort's `O(n log n)`
+/// comparisons; `specs/aws/ec2.json`'s 448 subcommands are this corpus's
+/// worst case for it.
+pub(crate) fn rank(rows: &mut Vec<Candidate>, term: &str, used_after: Option<UsedAfter>) {
+    let tier = |name: &str| {
+        if !term.is_empty()
+            && fuzzy::starts_with_folded(name, term)
+            && fuzzy::starts_with_folded(term, name)
+        {
+            2
+        } else {
+            match_rank(term, name)
+        }
+    };
+    rows.sort_by_cached_key(|c| {
+        (
+            Reverse(tier(&c.display)),
+            Reverse(used_after.map_or(0, |h| h.counts.count(h.command, typed_as(c)))),
+            Reverse(c.score),
+            c.display.clone(),
+        )
+    });
+    rows.truncate(MAX_RESULTS);
 }
 
 fn predict(arg: &str, cwd: &Path, scan: &mut Scan) -> Vec<Candidate> {

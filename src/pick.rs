@@ -9,6 +9,8 @@
 //! the four outcomes below happened and whether stdout holds a line.
 
 use crate::app::App;
+use crate::histfile;
+use crate::history::History;
 use crate::keys;
 use crate::tty;
 use crate::ui;
@@ -42,27 +44,40 @@ fn anchor_col(cursor_col: usize, seed: &str, width: usize) -> Option<usize> {
     (start + MIN_ROOM < width).then_some(start)
 }
 
-/// The state for `seed`, with `aliases` in place before the first candidate
-/// list is built. `App::over` cannot be used here: it calls `refresh` on
-/// construction and an alias set afterward would answer a menu already
-/// drawn without it. `None` when surmise has nothing to offer and the key
-/// therefore belongs to the shell.
-fn seeded(seed: &str, cwd: &Path, aliases: HashMap<String, String>) -> Option<App> {
+/// The state for `seed`, with `aliases`, `history` and `cmd_history` in
+/// place before the one refresh that builds the first candidate list.
+/// `App::over` cannot be used here: it calls `refresh` on construction and
+/// any of the three set afterward would answer a menu already drawn without
+/// it, which is what would force a second refresh to fix. `None` when
+/// surmise has nothing to offer and the key therefore belongs to the shell.
+fn seeded(
+    seed: &str,
+    cwd: &Path,
+    aliases: HashMap<String, String>,
+    history: History,
+    cmd_history: histfile::Counts,
+) -> Option<App> {
     let mut app = App::new(cwd.to_path_buf());
     app.aliases = aliases;
     app.line.insert(seed);
+    app.seed_history(history, cmd_history);
     app.refresh();
     (!app.items.is_empty()).then_some(app)
 }
 
-/// What the widget put on stdin: `RBUFFER` and the shell's alias table.
+/// What the widget put on stdin: `RBUFFER`, `$HISTFILE` and the shell's
+/// alias table.
 #[derive(Default)]
 struct Input {
     rbuffer: String,
+    /// `$HISTFILE`, from the same record. Empty when the shell has none set,
+    /// which `crate::histfile::read` reads as no history to count.
+    histfile: String,
     aliases: HashMap<String, String>,
 }
 
-/// Stdin as the v2 record, or the empty record when there was none to read.
+/// Stdin as the widget's own record, or the empty record when there was
+/// none to read.
 ///
 /// `run` reads this once, ahead of `seeded`, and answers `PASS` on it alone
 /// when the cursor sits mid-word. Otherwise its fields land on the `App`
@@ -80,15 +95,46 @@ fn read_input() -> io::Result<Input> {
     Ok(parse_input(&bytes))
 }
 
-/// Parse the v2 record: `RBUFFER`, then a NUL-separated name and value for
-/// every shell alias. Empty bytes parse to the empty record, which is what an
-/// absent or closed stdin already reads as.
+/// The tag the widget leads its record with. A record without it came from
+/// a widget older than the `$HISTFILE` field, sourced into a shell that was
+/// already running when the binary was replaced. That shell keeps its own
+/// copy of the widget for as long as it lives, so this binary has to read
+/// both shapes.
+///
+/// The tag can be read where none was meant, and only one way round: an
+/// older widget whose `RBUFFER` is this exact text writes it into the field
+/// the tag now sits in, and the record is then read as the newer shape it
+/// is not. That menu takes the first alias's own name for `RBUFFER` and its
+/// value for the path, loses that one pair and keeps every pair behind it.
+/// A newer widget cannot collide at all, because it writes the tag itself
+/// and whatever `RBUFFER` holds goes in the field behind it. One menu, on
+/// a line whose text to the right of the cursor is exactly this tag, is
+/// the whole of what the tag costs, against every menu of an upgraded
+/// binary reading an older shell's aliases one field out.
+const RECORD_TAG: &str = "surmise-record-3";
+
+/// Parse the record: [`RECORD_TAG`], then `RBUFFER`, then `$HISTFILE`, then
+/// a NUL-separated name and value for every shell alias. A record with no
+/// tag is read as the shape before the `$HISTFILE` field: `RBUFFER` first
+/// and the aliases straight after it. Empty bytes parse to the empty
+/// record, which is what an absent or closed stdin already reads as.
 fn parse_input(bytes: &[u8]) -> Input {
     let mut fields = bytes.split(|&b| b == 0);
-    let rbuffer = fields
-        .next()
-        .map(|f| String::from_utf8_lossy(f).into_owned())
-        .unwrap_or_default();
+    let text = |f: &[u8]| String::from_utf8_lossy(f).into_owned();
+    let first = fields.next().map(&text).unwrap_or_default();
+    // Without the tag the field just read is `RBUFFER` and there is no
+    // `$HISTFILE` behind it to read.
+    let tagged = first == RECORD_TAG;
+    let rbuffer = if tagged {
+        fields.next().map(&text).unwrap_or_default()
+    } else {
+        first
+    };
+    let histfile = if tagged {
+        fields.next().map(&text).unwrap_or_default()
+    } else {
+        String::new()
+    };
 
     // The widget writes a NUL after every field including the last. That
     // leaves one empty field behind rather than a name with no value, and it
@@ -104,12 +150,13 @@ fn parse_input(bytes: &[u8]) -> Input {
         // A name with nothing left to pair it with is a malformed record.
         // Nothing here guesses at the value and the name is dropped.
         let Some(value) = rest.next() else { break };
-        aliases.insert(
-            String::from_utf8_lossy(name).into_owned(),
-            String::from_utf8_lossy(value).into_owned(),
-        );
+        aliases.insert(text(name), text(value));
     }
-    Input { rbuffer, aliases }
+    Input {
+        rbuffer,
+        histfile,
+        aliases,
+    }
 }
 
 /// The prompt for a row of surmise's own. It is dim so that the shell's own
@@ -122,7 +169,7 @@ fn head() -> Vec<ui::Seg> {
 }
 
 pub fn run(seed: &str) -> io::Result<u8> {
-    // The v2 record has to be read before anything opens the terminal.
+    // The widget's own record has to be read before anything opens the terminal.
     // `tty::claim` below replaces stdin outright and there is no reading it
     // back afterwards.
     let input = read_input()?;
@@ -147,14 +194,32 @@ pub fn run(seed: &str) -> io::Result<u8> {
     let Ok(cwd) = std::env::current_dir() else {
         return Ok(PASS);
     };
+
+    // Decide what this line needs before `seeded` builds the menu, rather
+    // than refreshing again for each thing learned once it already has.
+    // `left_of_cursor` and `right_of_cursor` are `seed` and the empty string
+    // here: the cursor sits at the end of what the widget handed over and
+    // `RBUFFER`, read above, is what would sit to its right.
+    let completes_git = crate::git::parse(seed).is_some();
+    let completes_spec = crate::spec_menu::parse(seed, "", &input.aliases).is_some();
+    // Git's own candidates never read the directory history and nothing
+    // but these two menus reads the command one, so each line pays for the
+    // one it will actually be ordered by and not for the other.
+    let history = if completes_git {
+        History::default()
+    } else {
+        History::load(&cwd)
+    };
+    let cmd_history = if completes_git || completes_spec {
+        histfile::read(&input.histfile, &input.aliases)
+    } else {
+        histfile::Counts::default()
+    };
     // Nothing to offer. Give the key back without touching the terminal.
-    let Some(mut app) = seeded(seed, &cwd, input.aliases) else {
+    let Some(mut app) = seeded(seed, &cwd, input.aliases, history, cmd_history) else {
         return Ok(PASS);
     };
     app.rbuffer = input.rbuffer;
-    if !app.completes_git() {
-        app = app.with_history(crate::history::History::load(&cwd));
-    }
 
     let mut term = tty::claim()?;
     let _raw = tty::Raw::on(term.try_clone()?)?;
@@ -272,6 +337,19 @@ mod tests {
     use super::*;
     use crate::fixture::Fixture;
 
+    /// `seeded` for a test with no history of either kind to give it. Every
+    /// case below is about which line opens a menu rather than about what
+    /// orders the rows in one.
+    fn seeded_bare(seed: &str, cwd: &Path, aliases: HashMap<String, String>) -> Option<App> {
+        seeded(
+            seed,
+            cwd,
+            aliases,
+            History::default(),
+            histfile::Counts::default(),
+        )
+    }
+
     #[test]
     fn the_anchor_is_the_column_the_line_started_on() {
         assert_eq!(anchor_col(10, "cd wo", 80), Some(5));
@@ -305,7 +383,7 @@ mod tests {
         // `filepaths` template; `zzz` is what still matches nothing there,
         // in the fixture or among `ls`'s own options.
         let f = Fixture::new(&["work"]);
-        assert!(seeded("ls zzz", f.path(), HashMap::new()).is_none());
+        assert!(seeded_bare("ls zzz", f.path(), HashMap::new()).is_none());
     }
 
     #[test]
@@ -317,14 +395,15 @@ mod tests {
         let f = Fixture::new(&[]);
         let mut aliases = HashMap::new();
         aliases.insert("d".to_string(), "docker".to_string());
-        let app = seeded("d ", f.path(), aliases).expect("the alias reaches the first refresh");
+        let app =
+            seeded_bare("d ", f.path(), aliases).expect("the alias reaches the first refresh");
         assert!(!app.items.is_empty());
     }
 
     #[test]
     fn a_cd_with_nothing_to_offer_is_left_to_the_shell() {
         let f = Fixture::new(&["work"]);
-        assert!(seeded("cd zzz", f.path(), HashMap::new()).is_none());
+        assert!(seeded_bare("cd zzz", f.path(), HashMap::new()).is_none());
     }
 
     #[test]
@@ -332,14 +411,14 @@ mod tests {
         // The space says the word is done. Nothing here would grow it and the
         // key therefore belongs to whatever the shell completes next.
         let f = Fixture::new(&["work"]);
-        assert!(seeded("cd work ", f.path(), HashMap::new()).is_none());
-        assert!(seeded("cd wo ", f.path(), HashMap::new()).is_none());
+        assert!(seeded_bare("cd work ", f.path(), HashMap::new()).is_none());
+        assert!(seeded_bare("cd wo ", f.path(), HashMap::new()).is_none());
     }
 
     #[test]
     fn a_cd_opens_on_the_line_the_shell_handed_over() {
         let f = Fixture::new(&["work", "other"]);
-        let app = seeded("cd wo", f.path(), HashMap::new()).expect("a picker");
+        let app = seeded_bare("cd wo", f.path(), HashMap::new()).expect("a picker");
         assert_eq!(app.line.text(), "cd wo");
         assert!(app.line.at_end());
         assert!(app.menu_open());
@@ -349,7 +428,7 @@ mod tests {
     #[test]
     fn a_bare_cd_has_something_to_offer() {
         let f = Fixture::new(&["work"]);
-        assert!(seeded("cd ", f.path(), HashMap::new()).is_some());
+        assert!(seeded_bare("cd ", f.path(), HashMap::new()).is_some());
     }
 
     #[test]
@@ -358,7 +437,7 @@ mod tests {
         // and the shell would otherwise never see this line at all.
         let f = Fixture::new(&["work"]);
         assert!(
-            seeded("cd work/", f.path(), HashMap::new())
+            seeded_bare("cd work/", f.path(), HashMap::new())
                 .expect("a picker")
                 .runs_the_line()
         );
@@ -368,6 +447,7 @@ mod tests {
     fn empty_bytes_parse_to_the_empty_record() {
         let input = parse_input(b"");
         assert_eq!(input.rbuffer, "");
+        assert_eq!(input.histfile, "");
         assert!(input.aliases.is_empty());
     }
 
@@ -375,13 +455,48 @@ mod tests {
     fn rbuffer_alone_needs_no_nul_to_follow_it() {
         let input = parse_input(b"tail");
         assert_eq!(input.rbuffer, "tail");
+        assert_eq!(input.histfile, "");
         assert!(input.aliases.is_empty());
     }
 
     #[test]
-    fn pairs_after_rbuffer_become_the_alias_map() {
+    fn a_record_with_no_tag_is_read_as_the_shape_before_the_histfile_field() {
+        // What a shell still holding the older widget sends. Its second
+        // field is the first alias's own name rather than a path, and
+        // reading it as one would shift every pair behind it.
         let input = parse_input(b"tail\0g\0git\0ll\0ls -la\0");
         assert_eq!(input.rbuffer, "tail");
+        assert_eq!(input.histfile, "");
+        assert_eq!(input.aliases.get("g").map(String::as_str), Some("git"));
+        assert_eq!(input.aliases.get("ll").map(String::as_str), Some("ls -la"));
+        assert_eq!(input.aliases.len(), 2);
+    }
+
+    #[test]
+    fn an_older_record_whose_rbuffer_is_the_tag_loses_its_first_pair() {
+        // The one way round the tag can be read where none was meant. Every
+        // pair behind the first still lands, which is what holds this to
+        // the one menu.
+        let input = parse_input(b"surmise-record-3\0g\0git\0ll\0ls -la\0");
+        assert_eq!(input.rbuffer, "g");
+        assert_eq!(input.histfile, "git");
+        assert_eq!(input.aliases.get("ll").map(String::as_str), Some("ls -la"));
+        assert_eq!(input.aliases.len(), 1);
+    }
+
+    #[test]
+    fn the_second_field_becomes_the_histfile_path() {
+        let input = parse_input(b"surmise-record-3\0tail\0/sample/histfile\0");
+        assert_eq!(input.rbuffer, "tail");
+        assert_eq!(input.histfile, "/sample/histfile");
+        assert!(input.aliases.is_empty());
+    }
+
+    #[test]
+    fn pairs_after_the_histfile_field_become_the_alias_map() {
+        let input = parse_input(b"surmise-record-3\0tail\0/sample/histfile\0g\0git\0ll\0ls -la\0");
+        assert_eq!(input.rbuffer, "tail");
+        assert_eq!(input.histfile, "/sample/histfile");
         assert_eq!(input.aliases.get("g").map(String::as_str), Some("git"));
         assert_eq!(input.aliases.get("ll").map(String::as_str), Some("ls -la"));
         assert_eq!(input.aliases.len(), 2);
@@ -389,7 +504,7 @@ mod tests {
 
     #[test]
     fn a_value_keeps_a_space_and_a_newline() {
-        let input = parse_input(b"\0sample\0ls -la\nreally\0");
+        let input = parse_input(b"surmise-record-3\0\0\0sample\0ls -la\nreally\0");
         assert_eq!(
             input.aliases.get("sample").map(String::as_str),
             Some("ls -la\nreally")
@@ -398,17 +513,17 @@ mod tests {
 
     #[test]
     fn a_trailing_nul_and_a_missing_one_read_the_same_pairs() {
-        let trailing = parse_input(b"\0g\0git\0");
-        let missing = parse_input(b"\0g\0git");
+        let trailing = parse_input(b"surmise-record-3\0\0\0g\0git\0");
+        let missing = parse_input(b"surmise-record-3\0\0\0g\0git");
         assert_eq!(trailing.aliases, missing.aliases);
         assert_eq!(trailing.aliases.get("g").map(String::as_str), Some("git"));
     }
 
     #[test]
     fn a_malformed_record_drops_the_name_with_no_value() {
-        // Three fields after `RBUFFER` cannot pair evenly. The first two still
-        // make a pair and the third is dropped rather than guessed at.
-        let input = parse_input(b"\0g\0git\0extra");
+        // Three fields after `HISTFILE` cannot pair evenly. The first two
+        // still make a pair and the third is dropped rather than guessed at.
+        let input = parse_input(b"surmise-record-3\0\0\0g\0git\0extra");
         assert_eq!(input.aliases.get("g").map(String::as_str), Some("git"));
         assert_eq!(input.aliases.len(), 1);
     }
