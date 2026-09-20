@@ -6,7 +6,8 @@
 
 use crate::argwalk::{self, Walk};
 use crate::candidates::{
-    Candidate, FOLDER, Kind, Query, Scan, UsedAfter, rank, resolved_in, split,
+    Candidate, DEFAULT_PRIORITY, FOLDER, Kind, Query, Scan, UsedAfter, priority_of, rank,
+    resolved_in, split,
 };
 use crate::fuzzy;
 use crate::histfile;
@@ -248,6 +249,7 @@ fn row(
     label: Cow<'static, str>,
     hint: Vec<String>,
     kind: Kind,
+    priority: u8,
 ) -> Option<Candidate> {
     Some(Candidate {
         display: name.to_string(),
@@ -256,6 +258,7 @@ fn row(
         hint,
         kind,
         score: fuzzy::score(term, name)?,
+        priority,
     })
 }
 
@@ -283,6 +286,7 @@ fn build_rows(
                 label(&sub.description, SUBCOMMAND_LABEL),
                 spec::arg_hints(&sub.args),
                 Kind::Command,
+                priority_of(sub.priority),
             ));
         }
     }
@@ -311,6 +315,7 @@ fn build_rows(
                 label(&opt.description, OPTION_LABEL),
                 hint,
                 Kind::Option,
+                priority_of(opt.priority),
             ));
         }
     }
@@ -333,6 +338,7 @@ fn build_rows(
                 label(&suggestion.description, SUGGESTION_LABEL),
                 Vec::new(),
                 Kind::Path,
+                priority_of(suggestion.priority),
             ));
         }
         for generator in &arg.generators {
@@ -451,6 +457,7 @@ fn path_rows(
             hint: Vec::new(),
             kind: Kind::Path,
             score,
+            priority: DEFAULT_PRIORITY,
         });
     }
     out
@@ -489,6 +496,7 @@ fn help_rows(term: &str, enclosing: Option<&Subcommand>) -> Vec<Candidate> {
                 // will not offer.
                 Vec::new(),
                 Kind::Command,
+                priority_of(sub.priority),
             )
         })
         .collect()
@@ -607,6 +615,7 @@ mod tests {
                     Cow::Borrowed(SUBCOMMAND_LABEL),
                     Vec::new(),
                     Kind::Command,
+                    DEFAULT_PRIORITY,
                 )
             })
             .collect();
@@ -625,15 +634,22 @@ mod tests {
     /// One ranking pass over rows a caller hands in with the option
     /// first. The order that comes back is therefore the sort's own rather
     /// than the one it was given.
-    fn ranked(term: &str, rows: &[(&str, Kind)]) -> Vec<String> {
+    fn ranked(term: &str, rows: &[(&str, Kind, u8)]) -> Vec<String> {
         let mut rows: Vec<Candidate> = rows
             .iter()
-            .filter_map(|(name, kind)| {
+            .filter_map(|(name, kind, priority)| {
                 let label = match kind {
                     Kind::Option => OPTION_LABEL,
                     _ => SUBCOMMAND_LABEL,
                 };
-                row(term, name, Cow::Borrowed(label), Vec::new(), *kind)
+                row(
+                    term,
+                    name,
+                    Cow::Borrowed(label),
+                    Vec::new(),
+                    *kind,
+                    *priority,
+                )
             })
             .collect();
         rank(&mut rows, term, None);
@@ -644,7 +660,10 @@ mod tests {
     fn a_subcommand_leads_an_option_when_nothing_was_typed() {
         // An empty term scores the two the same and the name was then the
         // only key left. `-` sorts under every letter.
-        let rows = [("--color", Kind::Option), ("add", Kind::Command)];
+        let rows = [
+            ("--color", Kind::Option, DEFAULT_PRIORITY),
+            ("add", Kind::Command, DEFAULT_PRIORITY),
+        ];
         assert_eq!(ranked("", &rows), ["add", "--color"]);
     }
 
@@ -653,7 +672,10 @@ mod tests {
         // A `-` is how a person asks for the options and the group order
         // is not what answers. A name with no `-` anywhere in it is no
         // subsequence match and never becomes a row at all.
-        let rows = [("--color", Kind::Option), ("add", Kind::Command)];
+        let rows = [
+            ("--color", Kind::Option, DEFAULT_PRIORITY),
+            ("add", Kind::Command, DEFAULT_PRIORITY),
+        ];
         assert_eq!(ranked("-", &rows), ["--color"]);
     }
 
@@ -663,8 +685,52 @@ mod tests {
         // dashes and reaches `dialog` three characters in. Neither name
         // leads with it. The score is what separates them and the group
         // breaks nothing here.
-        let rows = [("--log", Kind::Option), ("dialog", Kind::Command)];
+        let rows = [
+            ("--log", Kind::Option, DEFAULT_PRIORITY),
+            ("dialog", Kind::Command, DEFAULT_PRIORITY),
+        ];
         assert_eq!(ranked("log", &rows), ["--log", "dialog"]);
+    }
+
+    #[test]
+    fn a_priority_lifts_a_row_over_the_group_it_came_from() {
+        // The group order is only what holds where nothing else speaks.
+        // A number the specification wrote down is the specification
+        // speaking.
+        let rows = [
+            ("--message", Kind::Option, 100),
+            ("add", Kind::Command, DEFAULT_PRIORITY),
+        ];
+        assert_eq!(ranked("", &rows), ["--message", "add"]);
+    }
+
+    #[test]
+    fn a_closer_match_still_leads_a_higher_priority() {
+        // `dialog` is at the top of the range and `--log` is at the
+        // middle of it. What was typed runs whole through `--log` from
+        // the character after its dashes and reaches `dialog` three
+        // characters in. The sort reads that first.
+        let rows = [
+            ("--log", Kind::Option, DEFAULT_PRIORITY),
+            ("dialog", Kind::Command, 100),
+        ];
+        assert_eq!(ranked("log", &rows), ["--log", "dialog"]);
+    }
+
+    #[test]
+    fn a_specifications_own_priority_orders_the_options() {
+        // `svn commit ` is the case this reads for. The corpus puts `-m`
+        // at 100, `--username` at 95 and `--password` at 94. It leaves
+        // the eight that configure the connection at the default. The
+        // alphabetical order buried the one flag the command cannot run
+        // without under six of them.
+        let rows = complete(&mut Completions::default(), &target("svn commit "));
+        assert_eq!(
+            names(&rows)[0..3],
+            ["-m", "--username", "--password"],
+            "{:?}",
+            names(&rows)
+        );
     }
 
     #[test]

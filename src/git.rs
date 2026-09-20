@@ -1,7 +1,8 @@
 //! Git subcommand, branch and file completion from the installed Git.
 
 use crate::candidates::{
-    CURRENT_BRANCH, Candidate, FOLDER, Kind, Query, SCAN_LIMIT, Scan, UsedAfter, rank,
+    CURRENT_BRANCH, Candidate, DEFAULT_PRIORITY, FOLDER, Kind, Query, SCAN_LIMIT, Scan, UsedAfter,
+    rank,
 };
 use crate::fuzzy;
 use crate::histfile;
@@ -793,6 +794,7 @@ fn row(arg: &str, name: &str, label: &'static str, kind: Kind) -> Option<Candida
         hint: Vec::new(),
         kind,
         score: fuzzy::score(arg, name)?,
+        priority: DEFAULT_PRIORITY,
     })
 }
 
@@ -1011,6 +1013,7 @@ impl Completions {
                     hint: Vec::new(),
                     kind,
                     score,
+                    priority: DEFAULT_PRIORITY,
                 })
             })
             .collect();

@@ -445,12 +445,12 @@ matches come last. Where the row would become the command's own second word,
 a tie inside one of those three goes to the name `$HISTFILE` says followed
 that command more often, the same reader Git's own menu reads. A row any
 deeper into the line is past what that reader counted and takes nothing from
-it. A further tie keeps the fuzzy score's own order. The group the row came
-from breaks what is still level: the subcommands lead, the values the
-argument in hand takes follow and the options come last. A subcommand is
-the next word the command is made of and a value is the word its argument
-wants. An option is neither. The alphabetical order breaks whatever
-remains.
+it. A further tie keeps the fuzzy score's own order. The specification's
+own `priority` breaks that. The group the row came from breaks what is
+still level: the subcommands lead, the values the argument in hand takes
+follow and the options come last. A subcommand is the next word the command
+is made of and a value is the word its argument wants. An option is
+neither. The alphabetical order breaks whatever remains.
 
 An empty argument is where that group order decides. Every row matches it
 equally well. The name alone decided before it and `-` sorts under every
@@ -460,6 +460,17 @@ its subcommands under the fold. 323 of the 715 specifications at the top of
 is how a person asks for the options instead. A row the argument leads with
 outranks the group it came from and so does a row the argument reaches
 better.
+
+`priority` is a number from 0 to 100 that a specification writes against a
+subcommand, an option or a listed value. A row whose specification says
+nothing is worth 50 and a number outside the range is closed to it. 151 of
+the 1481 specification files carry one and 4504 rows in all have it.
+`svn commit ` is what it is for. The corpus puts `-m` at 100, `--username`
+at 95 and `--password` at 94. The alphabetical order buried the one flag
+that command cannot run without under six that configure the connection.
+Nothing writes a number for a file, a folder, a make target or an ssh
+host. `specs/git.json` and `specs/cd.json` carry none between them,
+so no row of Git's own menu or `cd`'s is worth anything but 50.
 
 Git's own menu never reaches this one and reads those same two fields
 anyway, for the rows it names itself. "Git" above is where that is written
