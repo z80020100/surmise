@@ -55,29 +55,35 @@ const RULE: char = '\u{2500}';
 const UNDER: &str = "\x1b[4m";
 const UNDER_OFF: &str = "\x1b[24m";
 /// The glyph on a directory row and on the row that goes up. The six below
-/// are the others. Each one a terminal draws from the font it already has,
-/// where the Nerd Font codepoints these replace drew a blank box on a
-/// terminal with no patched font. The price is that they no longer all
-/// measure the same and `ICONS` is what pays it.
-const ICON: &str = "📁";
+/// are the others. Each one is plain text and a terminal draws it in whatever
+/// colour ANSI sets. The colour emoji these replace drew from the font's own
+/// colour table instead and ignored the foreground the code set under them.
+///
+/// Every one is one cell wide. None of them is a character whose East Asian
+/// width is ambiguous, because a terminal set for CJK draws such a character
+/// two cells wide where `cells` reads the table and calls it one. That rules
+/// out the box-drawing and mathematical shapes an editor reaches for first.
+/// `ICONS` still measures the widest of them, for a later glyph that is not
+/// one cell.
+const ICON: &str = "▸";
 /// The home shortcut is a directory like any other and wears the same colour.
 /// The shape is what says which one it is.
-const HOME_ICON: &str = "🏠";
+const HOME_ICON: &str = "~";
 /// The row that runs the line rather than growing it. An ordinary character,
 /// because the row names an action rather than a thing.
 const RUN_ICON: &str = "\u{21b5}";
 /// A Git subcommand row.
-const CMD_ICON: &str = "🔧";
+const CMD_ICON: &str = "$";
 /// A Git branch row.
-const BRANCH_ICON: &str = "🌿";
+const BRANCH_ICON: &str = "|";
 /// The branch the repository is on. A shape of its own on a row that is a
 /// branch row like any other, because the name beside it says nothing about
 /// where the repository already stands.
-const CURRENT_BRANCH_ICON: &str = "⭐";
+const CURRENT_BRANCH_ICON: &str = "*";
 /// A file row, and a path row where the path is not a directory.
-const FILE_ICON: &str = "📄";
+const FILE_ICON: &str = "=";
 /// A Git option row.
-const OPTION_ICON: &str = "❓";
+const OPTION_ICON: &str = "-";
 /// Every glyph a row can carry. `menu_rows` measures the widest of them for
 /// the column the names start in and each row pads its own glyph out to it.
 /// A glyph missing from here draws its row a cell short of the rest.
@@ -99,21 +105,39 @@ const RUN_ICON_FG: &str = "\x1b[38;5;167m";
 /// says a directory and the red above says an action. A subcommand is
 /// neither and it carries a name where the action row does not.
 const CMD_ICON_FG: &str = "\x1b[38;5;169m";
-/// The same three glyphs on the highlighted row. That row has a ground of its
+/// The glyph on a Git branch row, worn by the branch itself and by the
+/// current branch's own shape alike: the name beside either says nothing
+/// about where the repository stands and the colour is not what would.
+const BRANCH_ICON_FG: &str = "\x1b[38;5;114m";
+/// The glyph on a file row, and on a path row where the path is not a
+/// directory.
+const FILE_ICON_FG: &str = "\x1b[38;5;180m";
+/// The glyph on a Git option row.
+const OPTION_ICON_FG: &str = "\x1b[38;5;221m";
+/// The six glyphs above on the highlighted row. That row has a ground of its
 /// own and every colour above is too close to it to read. A lighter tint of
 /// the same hue clears it and still says which sort of row this is.
 const ICON_FG_CHOSEN: &str = "\x1b[38;5;153m";
 const RUN_ICON_FG_CHOSEN: &str = "\x1b[38;5;217m";
 const CMD_ICON_FG_CHOSEN: &str = "\x1b[38;5;218m";
+const BRANCH_ICON_FG_CHOSEN: &str = "\x1b[38;5;157m";
+const FILE_ICON_FG_CHOSEN: &str = "\x1b[38;5;223m";
+const OPTION_ICON_FG_CHOSEN: &str = "\x1b[38;5;229m";
 /// Cells inside the panel's own two edge spaces. It is fixed rather than
 /// measured from what the panel holds. Every panel is therefore the same
 /// width and a name keeps the column the eye last found it in. A terminal
 /// with no room for all of it takes some back.
 const PANEL_INNER: usize = 40;
 const MENU_ROWS: usize = 6;
-/// Rows the menu never takes. They are left to the input line, to the line
-/// and the word under the list and to whatever the shell put above it.
-const RESERVED_ROWS: usize = 5;
+/// Rows the menu never takes. They are left to the input line, to the rule
+/// above the list, to the line and the word under it and to whatever the
+/// shell put above it. Two budgets read it and both ask the same question of
+/// it: how many rows the frame spends before it holds anything. `menu_in`
+/// spends what is left on the list and `menu_rows` spends what is left after
+/// that on the detail.
+///
+/// The constructor is the free function `menu_in` rather than a method.
+const RESERVED_ROWS: usize = 6;
 
 /// The terminal's width. It is never fewer than 24 cells and the panel's
 /// layout arithmetic rests on that floor.
@@ -303,29 +327,20 @@ fn window_start(top: usize, selected: usize, rows: usize, total: usize) -> usize
 /// or off it.
 fn glyph(k: Kind, chosen: bool) -> (&'static str, &'static str) {
     // Every variant is named rather than swept into a catch-all. A new one
-    // then fails the build here the way it does in `tab_grows` below.
-    let icon = match k {
-        Kind::Command => CMD_ICON,
-        Kind::Branch => BRANCH_ICON,
-        Kind::File | Kind::Path => FILE_ICON,
-        Kind::Option => OPTION_ICON,
-        Kind::Run => RUN_ICON,
-        Kind::Special => HOME_ICON,
-        Kind::Dir | Kind::Parent => ICON,
+    // then fails the build here the way it does in `tab_grows` below. What a
+    // kind looks like is one row of this table rather than two matches on the
+    // same key. Two matches could disagree about a kind and the build would
+    // not say so.
+    let (icon, fg, fg_chosen) = match k {
+        Kind::Command => (CMD_ICON, CMD_ICON_FG, CMD_ICON_FG_CHOSEN),
+        Kind::Branch => (BRANCH_ICON, BRANCH_ICON_FG, BRANCH_ICON_FG_CHOSEN),
+        Kind::File | Kind::Path => (FILE_ICON, FILE_ICON_FG, FILE_ICON_FG_CHOSEN),
+        Kind::Option => (OPTION_ICON, OPTION_ICON_FG, OPTION_ICON_FG_CHOSEN),
+        Kind::Run => (RUN_ICON, RUN_ICON_FG, RUN_ICON_FG_CHOSEN),
+        Kind::Special => (HOME_ICON, ICON_FG, ICON_FG_CHOSEN),
+        Kind::Dir | Kind::Parent => (ICON, ICON_FG, ICON_FG_CHOSEN),
     };
-    let fg = match (k, chosen) {
-        (Kind::Command | Kind::Branch | Kind::File | Kind::Option | Kind::Path, false) => {
-            CMD_ICON_FG
-        }
-        (Kind::Command | Kind::Branch | Kind::File | Kind::Option | Kind::Path, true) => {
-            CMD_ICON_FG_CHOSEN
-        }
-        (Kind::Run, false) => RUN_ICON_FG,
-        (Kind::Run, true) => RUN_ICON_FG_CHOSEN,
-        (Kind::Special | Kind::Dir | Kind::Parent, false) => ICON_FG,
-        (Kind::Special | Kind::Dir | Kind::Parent, true) => ICON_FG_CHOSEN,
-    };
-    (icon, fg)
+    (icon, if chosen { fg_chosen } else { fg })
 }
 
 /// Whether Tab would grow this row's name. `common` reads the menu the same
@@ -402,65 +417,69 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
         return Vec::new();
     };
     let pad = " ".repeat(indent);
+    // The same rule closes the panel top and bottom. Built once, it opens the
+    // panel above the first row and, pushed again below, still separates the
+    // list from the word under it.
+    let rule = format!(
+        "{pad}{PANEL}{BORDER}{}{RESET}",
+        String::from(RULE).repeat(inner + 2)
+    );
 
-    let mut rows: Vec<String> = shown
-        .iter()
-        .enumerate()
-        .map(|(r, c)| {
-            let text = printable(&c.display);
-            let chosen = first + r == m.selected;
-            let ground = if chosen { PANEL_CHOSEN } else { PANEL };
-            // The glyph's own colour replaces whatever the name wanted. The
-            // name therefore names its colour again behind it.
-            let name_fg = if chosen { NAME_CHOSEN } else { NAME };
-            // A mark carries a ground and a name colour together.
-            let (mark, mark_fg) = if chosen {
-                (MARK_CHOSEN, NAME_CHOSEN)
-            } else {
-                (MARK, NAME_MARKED)
-            };
-            // The name is fitted first. A cut one ends in an ellipsis rather
-            // than in its own last character and padding is what follows a
-            // short one. `kept` is how far the row still shows the name
-            // itself and a mark or an underline past that would land on
-            // something the name does not own.
-            let fitted = fit(&text, text_w);
-            let shown: Vec<char> = fitted.chars().collect();
-            let source: Vec<char> = text.chars().collect();
-            let kept = (0..source.len())
-                .take_while(|&i| shown.get(i) == source.get(i))
-                .count();
-            let all = fuzzy::matched(m.typed, &text);
-            // What Tab would add. An empty range is what a row Tab passes
-            // over gets and so is a reach no further than what was typed.
-            // Whether Tab reads this row at all is asked of the whole match
-            // rather than of the part the row shows. Dropping a match past
-            // the cut first would leave a leading run behind and underline a
-            // row the key passes over.
-            let under = if tab_grows(c.kind, current.kind, &all) {
-                all.len()..m.reach.min(kept)
-            } else {
-                0..0
-            };
-            let at: Vec<usize> = all.into_iter().filter(|&i| i < kept).collect();
-            let off = format!("{ground}{name_fg}");
-            let on = format!("{mark_fg}{mark}");
-            let name = marked(&fitted, &at, &under, &off, &on);
-            let icon_kind = if matches!(c.kind, Kind::File | Kind::Path) && c.label == FOLDER {
-                Kind::Dir
-            } else {
-                c.kind
-            };
-            let (icon, icon_fg) = glyph(icon_kind, chosen);
-            let icon = if c.kind == Kind::Branch && c.label == CURRENT_BRANCH {
-                CURRENT_BRANCH_ICON
-            } else {
-                icon
-            };
-            let icon_pad = " ".repeat(icon_w - cells(icon));
-            format!("{pad}{ground} {icon_fg}{icon}{icon_pad}{name_fg}{name} {RESET}")
-        })
-        .collect();
+    let mut rows: Vec<String> = vec![rule.clone()];
+    rows.extend(shown.iter().enumerate().map(|(r, c)| {
+        let text = printable(&c.display);
+        let chosen = first + r == m.selected;
+        let ground = if chosen { PANEL_CHOSEN } else { PANEL };
+        // The glyph's own colour replaces whatever the name wanted. The
+        // name therefore names its colour again behind it.
+        let name_fg = if chosen { NAME_CHOSEN } else { NAME };
+        // A mark carries a ground and a name colour together.
+        let (mark, mark_fg) = if chosen {
+            (MARK_CHOSEN, NAME_CHOSEN)
+        } else {
+            (MARK, NAME_MARKED)
+        };
+        // The name is fitted first. A cut one ends in an ellipsis rather
+        // than in its own last character and padding is what follows a
+        // short one. `kept` is how far the row still shows the name
+        // itself and a mark or an underline past that would land on
+        // something the name does not own.
+        let fitted = fit(&text, text_w);
+        let shown: Vec<char> = fitted.chars().collect();
+        let source: Vec<char> = text.chars().collect();
+        let kept = (0..source.len())
+            .take_while(|&i| shown.get(i) == source.get(i))
+            .count();
+        let all = fuzzy::matched(m.typed, &text);
+        // What Tab would add. An empty range is what a row Tab passes
+        // over gets and so is a reach no further than what was typed.
+        // Whether Tab reads this row at all is asked of the whole match
+        // rather than of the part the row shows. Dropping a match past
+        // the cut first would leave a leading run behind and underline a
+        // row the key passes over.
+        let under = if tab_grows(c.kind, current.kind, &all) {
+            all.len()..m.reach.min(kept)
+        } else {
+            0..0
+        };
+        let at: Vec<usize> = all.into_iter().filter(|&i| i < kept).collect();
+        let off = format!("{ground}{name_fg}");
+        let on = format!("{mark_fg}{mark}");
+        let name = marked(&fitted, &at, &under, &off, &on);
+        let icon_kind = if matches!(c.kind, Kind::File | Kind::Path) && c.label == FOLDER {
+            Kind::Dir
+        } else {
+            c.kind
+        };
+        let (icon, icon_fg) = glyph(icon_kind, chosen);
+        let icon = if c.kind == Kind::Branch && c.label == CURRENT_BRANCH {
+            CURRENT_BRANCH_ICON
+        } else {
+            icon
+        };
+        let icon_pad = " ".repeat(icon_w - cells(icon));
+        format!("{pad}{ground} {icon_fg}{icon}{icon_pad}{name_fg}{name} {RESET}")
+    }));
 
     // The count goes in only if it fits beside the label.
     let mut foot = current.label.to_string();
@@ -469,10 +488,7 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
         foot.push_str(&" ".repeat(room));
         foot.push_str(&foot_r);
     }
-    rows.push(format!(
-        "{pad}{PANEL}{BORDER}{}{RESET}",
-        String::from(RULE).repeat(inner + 2)
-    ));
+    rows.push(rule);
     let text = printable(&current.display);
     let spare = m.height.saturating_sub(RESERVED_ROWS + m.rows);
     if cells(&text) > text_w && spare > 0 {
@@ -680,6 +696,7 @@ mod tests {
     use super::*;
     use crate::candidates::{folder, run_row};
     use std::borrow::Cow;
+    use std::collections::HashSet;
 
     fn dir(display: &str) -> Candidate {
         folder(display.to_string(), display.to_string(), 0)
@@ -869,7 +886,7 @@ mod tests {
     #[test]
     fn a_short_terminal_shortens_the_menu() {
         let items = dirs(40);
-        assert_eq!(menu_in(&items, 0, 7, "", 0).expect("a menu").rows, 2);
+        assert_eq!(menu_in(&items, 0, 7, "", 0).expect("a menu").rows, 1);
         assert_eq!(menu_in(&items, 0, 1, "", 0).expect("a menu").rows, 1);
     }
 
@@ -960,10 +977,10 @@ mod tests {
     }
 
     #[test]
-    fn the_menu_draws_a_row_for_each_entry_and_two_under_them() {
+    fn the_menu_draws_a_row_for_each_entry_a_line_above_and_two_below_them() {
         let items = dirs(3);
         let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
-        assert_eq!(menu_rows(&m, 80, 1, 0).len(), 5);
+        assert_eq!(menu_rows(&m, 80, 1, 0).len(), 6);
     }
 
     #[test]
@@ -975,7 +992,7 @@ mod tests {
         for width in [24, 40, 80] {
             let m = menu_in(&items, 0, 30, "", 0).expect("a menu");
             let rows = menu_rows(&m, width, 1, 0);
-            let detail: String = rows[2..rows.len() - 1]
+            let detail: String = rows[3..rows.len() - 1]
                 .iter()
                 .map(|row| {
                     row.strip_prefix(&format!("{PANEL}{NAME} "))
@@ -999,7 +1016,7 @@ mod tests {
         assert!(rows[3].contains('…'));
         assert!(rows.last().unwrap().contains("folder"));
         let m = menu_in(&items, 0, 6, "", 0).expect("a menu");
-        assert_eq!(menu_rows(&m, 24, 1, 0).len(), 3);
+        assert_eq!(menu_rows(&m, 24, 1, 0).len(), 4);
     }
 
     #[test]
@@ -1018,6 +1035,20 @@ mod tests {
     }
 
     #[test]
+    fn a_line_closes_the_panel_above_the_first_row() {
+        // Nothing used to draw above the list and the panel read as cut off
+        // against the shell's own line. The rule below closes the bottom and
+        // this is the same rule, the same width, above the top.
+        let items = dirs(1);
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
+        let rows = menu_rows(&m, 80, 1, 0);
+        let top = &rows[0];
+        let bottom = &rows[rows.len() - 2];
+        assert_eq!(top.matches(RULE).count(), PANEL_INNER + 2, "{top:?}");
+        assert_eq!(cells_of_row(top), cells_of_row(bottom));
+    }
+
+    #[test]
     fn the_panel_opens_on_the_window_rather_than_the_list() {
         let items = dirs(40);
         let m = menu_in(&items, 17, 24, "", 0).expect("a menu");
@@ -1026,9 +1057,9 @@ mod tests {
         // eighteenth under the mark. The names are read as well as the mark.
         // A panel taking the mark from the window and the names from the list
         // would agree on the mark alone.
-        assert_eq!(rows.len(), 8);
-        assert!(rows[0].contains("d12"), "{rows:?}");
-        assert_eq!(chosen_rows(&rows), vec![5]);
+        assert_eq!(rows.len(), 9);
+        assert!(rows[1].contains("d12"), "{rows:?}");
+        assert_eq!(chosen_rows(&rows), vec![6]);
     }
 
     #[test]
@@ -1067,14 +1098,14 @@ mod tests {
     fn one_row_is_drawn_as_chosen_and_it_is_the_selected_one() {
         let items = dirs(3);
         let m = menu_in(&items, 1, 24, "", 0).expect("a menu");
-        assert_eq!(chosen_rows(&menu_rows(&m, 80, 1, 0)), vec![1]);
+        assert_eq!(chosen_rows(&menu_rows(&m, 80, 1, 0)), vec![2]);
     }
 
     #[test]
     fn the_characters_what_was_typed_reached_are_marked() {
         let items = vec![dir("work/")];
         let m = menu_in(&items, 0, 24, "wk", 0).expect("a menu");
-        assert_eq!(marks(&menu_rows(&m, 80, 1, 0)[0], MARK_CHOSEN), "wk");
+        assert_eq!(marks(&menu_rows(&m, 80, 1, 0)[1], MARK_CHOSEN), "wk");
     }
 
     #[test]
@@ -1085,8 +1116,8 @@ mod tests {
         let items = vec![dir("alpha/"), dir("beta/")];
         let m = menu_in(&items, 0, 24, "a", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
-        assert_eq!(marks(&rows[0], MARK_CHOSEN), "a");
-        assert_eq!(marks(&rows[1], MARK), "a");
+        assert_eq!(marks(&rows[1], MARK_CHOSEN), "a");
+        assert_eq!(marks(&rows[2], MARK), "a");
     }
 
     #[test]
@@ -1099,13 +1130,13 @@ mod tests {
         let m = menu_in(&items, 0, 24, "a", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         assert!(
-            rows[0].contains(&format!(
+            rows[1].contains(&format!(
                 "{NAME_CHOSEN}{MARK_CHOSEN}a{PANEL_CHOSEN}{NAME_CHOSEN}"
             )),
             "{rows:?}"
         );
         assert!(
-            rows[1].contains(&format!("{NAME_MARKED}{MARK}a{PANEL}{NAME}")),
+            rows[2].contains(&format!("{NAME_MARKED}{MARK}a{PANEL}{NAME}")),
             "{rows:?}"
         );
     }
@@ -1120,7 +1151,7 @@ mod tests {
         let m = menu_in(&items, 0, 24, "~", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         assert!(
-            rows[1].contains(&format!("{NAME_MARKED}{MARK}~{PANEL}{NAME}")),
+            rows[2].contains(&format!("{NAME_MARKED}{MARK}~{PANEL}{NAME}")),
             "{rows:?}"
         );
     }
@@ -1134,7 +1165,7 @@ mod tests {
         let cut = PANEL_INNER - 3;
         let items = vec![dir(&format!("{}z{}/", "a".repeat(cut), "a".repeat(5)))];
         let m = menu_in(&items, 0, 24, "z", 0).expect("a menu");
-        let row = &menu_rows(&m, 80, 1, 0)[0];
+        let row = &menu_rows(&m, 80, 1, 0)[1];
         assert!(row.contains('\u{2026}'), "the name was not cut: {row:?}");
         assert!(!row.contains(MARK_CHOSEN), "{row:?}");
     }
@@ -1148,10 +1179,10 @@ mod tests {
         let m = menu_in(&items, 1, 24, "az", 2).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         assert!(
-            rows[0].contains('\u{2026}'),
+            rows[1].contains('\u{2026}'),
             "the name was not cut: {rows:?}"
         );
-        assert_eq!(underlined(&rows[0]), "");
+        assert_eq!(underlined(&rows[1]), "");
     }
 
     #[test]
@@ -1160,7 +1191,7 @@ mod tests {
         // where the name the row holds does.
         let items = vec![dir(&format!("{}/", "a".repeat(60)))];
         let m = menu_in(&items, 0, 24, "a", 60).expect("a menu");
-        let row = &menu_rows(&m, 80, 1, 0)[0];
+        let row = &menu_rows(&m, 80, 1, 0)[1];
         assert_eq!(cells_of_row(row) - pad_of(row), PANEL_INNER + 2);
         assert!(!underlined(row).contains('\u{2026}'), "{row:?}");
     }
@@ -1182,8 +1213,8 @@ mod tests {
         let items = vec![run_row("work".into()), dir("work/")];
         let m = menu_in(&items, 1, 24, "wo", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
-        assert!(!rows[0].contains(MARK), "{rows:?}");
-        assert_eq!(marks(&rows[1], MARK_CHOSEN), "wo");
+        assert!(!rows[1].contains(MARK), "{rows:?}");
+        assert_eq!(marks(&rows[2], MARK_CHOSEN), "wo");
     }
 
     #[test]
@@ -1192,7 +1223,7 @@ mod tests {
         // holds would land on whatever took its place.
         let items = vec![dir(&format!("{}z/", "a".repeat(60)))];
         let m = menu_in(&items, 0, 24, "z", 0).expect("a menu");
-        let row = &menu_rows(&m, 80, 1, 0)[0];
+        let row = &menu_rows(&m, 80, 1, 0)[1];
         assert!(!row.contains(MARK_CHOSEN), "{row:?}");
     }
 
@@ -1203,8 +1234,8 @@ mod tests {
         let items = vec![dir("work/"), dir("worse/")];
         let m = menu_in(&items, 0, 24, "wo", 3).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
-        assert_eq!(underlined(&rows[0]), "r");
         assert_eq!(underlined(&rows[1]), "r");
+        assert_eq!(underlined(&rows[2]), "r");
     }
 
     #[test]
@@ -1215,8 +1246,8 @@ mod tests {
         let items = vec![command("switch"), command("swap")];
         let m = menu_in(&items, 0, 24, "s", 2).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
-        assert_eq!(underlined(&rows[0]), "w");
         assert_eq!(underlined(&rows[1]), "w");
+        assert_eq!(underlined(&rows[2]), "w");
     }
 
     #[test]
@@ -1228,8 +1259,8 @@ mod tests {
         }
         let m = menu_in(&items, 0, 24, "sample/t", "sample/top".len()).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
-        assert_eq!(underlined(&rows[0]), "op");
         assert_eq!(underlined(&rows[1]), "op");
+        assert_eq!(underlined(&rows[2]), "op");
     }
 
     #[test]
@@ -1239,8 +1270,8 @@ mod tests {
         let items = vec![dir("alpha/"), dir("beta/")];
         let m = menu_in(&items, 0, 24, "a", 2).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
-        assert_eq!(underlined(&rows[0]), "l");
-        assert_eq!(underlined(&rows[1]), "");
+        assert_eq!(underlined(&rows[1]), "l");
+        assert_eq!(underlined(&rows[2]), "");
     }
 
     #[test]
@@ -1250,9 +1281,9 @@ mod tests {
         let items = vec![run_row("x".into()), dir("work/"), home()];
         let m = menu_in(&items, 1, 24, "", 1).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
-        assert_eq!(underlined(&rows[0]), "");
-        assert_eq!(underlined(&rows[1]), "w");
-        assert_eq!(underlined(&rows[2]), "");
+        assert_eq!(underlined(&rows[1]), "");
+        assert_eq!(underlined(&rows[2]), "w");
+        assert_eq!(underlined(&rows[3]), "");
     }
 
     #[test]
@@ -1264,7 +1295,7 @@ mod tests {
         let under = |selected| {
             let m = menu_in(&items, selected, 24, "", 3).expect("a menu");
             let rows = menu_rows(&m, 80, 1, 0);
-            [underlined(&rows[0]), underlined(&rows[1])]
+            [underlined(&rows[1]), underlined(&rows[2])]
         };
         assert_eq!(under(0), ["wor", ""]);
         assert_eq!(under(1), ["", "../"]);
@@ -1276,7 +1307,7 @@ mod tests {
         // and an empty one is what that has to draw.
         let items = vec![dir("work/")];
         let m = menu_in(&items, 0, 24, "work/", 5).expect("a menu");
-        assert_eq!(underlined(&menu_rows(&m, 80, 1, 0)[0]), "");
+        assert_eq!(underlined(&menu_rows(&m, 80, 1, 0)[1]), "");
     }
 
     #[test]
@@ -1285,8 +1316,8 @@ mod tests {
         let plain = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let picked = menu_in(&items, 0, 24, "wo", 5).expect("a menu");
         assert_eq!(
-            cells_of_row(&menu_rows(&plain, 80, 1, 0)[0]),
-            cells_of_row(&menu_rows(&picked, 80, 1, 0)[0])
+            cells_of_row(&menu_rows(&plain, 80, 1, 0)[1]),
+            cells_of_row(&menu_rows(&picked, 80, 1, 0)[1])
         );
     }
 
@@ -1296,7 +1327,7 @@ mod tests {
         // it. The test below is where the terminal takes the width back.
         for items in [vec![dir("a")], vec![dir(&"n".repeat(60))]] {
             let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
-            let row = &menu_rows(&m, 80, 5, 0)[0];
+            let row = &menu_rows(&m, 80, 5, 0)[1];
             assert_eq!(cells_of_row(row) - pad_of(row), PANEL_INNER + 2);
         }
     }
@@ -1308,7 +1339,7 @@ mod tests {
         let w = 24;
         let items = dirs(1);
         let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
-        let row = &menu_rows(&m, w, 1, 0)[0];
+        let row = &menu_rows(&m, w, 1, 0)[1];
         assert_eq!(cells_of_row(row), w);
         assert!(row.contains("d0"), "{row:?}");
     }
@@ -1336,7 +1367,7 @@ mod tests {
         let items = vec![dir("\x1b[31mred")];
         let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
-        let row = rows.first().expect("a row");
+        let row = &rows[1];
         assert!(row.contains("[31mred"), "{row:?}");
         // The only escapes left are the ones this module wrote itself: the
         // ground, the glyph's colour, the name's and the reset.
@@ -1389,10 +1420,44 @@ mod tests {
     }
 
     #[test]
+    fn every_glyph_is_one_cell_wide() {
+        // `icon_w` measures rather than assumes, so a wider glyph would
+        // still draw straight. What it would take is a cell off every name,
+        // and `tests/pty/pick.rs` reads a drawn row by stripping one
+        // character. This is the decision both of those rest on.
+        for icon in ICONS {
+            assert_eq!(cells(icon), 1, "{icon:?}");
+        }
+    }
+
+    #[test]
+    fn no_two_kinds_share_both_a_glyph_and_a_colour() {
+        // `Path` draws as a `File` does and `Parent` draws as a `Dir` does.
+        // Every other kind has to differ from every other in the glyph or the
+        // colour or both, or `glyph` stops being a map from a kind to a look
+        // of its own. `Special` wears a `Dir`'s colour and is in here for the
+        // shape, which is all it has to tell the two apart by.
+        for chosen in [false, true] {
+            let mut seen = HashSet::new();
+            for k in [
+                Kind::Run,
+                Kind::Command,
+                Kind::Branch,
+                Kind::File,
+                Kind::Option,
+                Kind::Dir,
+                Kind::Special,
+            ] {
+                assert!(seen.insert(glyph(k, chosen)), "{k:?} chosen={chosen}");
+            }
+        }
+    }
+
+    #[test]
     fn the_glyph_on_the_highlighted_row_is_not_the_name_colour() {
         let items = vec![dir("alpha/")];
         let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
-        let row = menu_rows(&m, 80, 1, 0).first().expect("a row").clone();
+        let row = menu_rows(&m, 80, 1, 0)[1].clone();
         // The glyph carries its own colour and the name names the ground's
         // bright one again behind it.
         assert_ne!(ICON_FG_CHOSEN, NAME_CHOSEN);
@@ -1405,7 +1470,7 @@ mod tests {
         let items = vec![run_row("work/".to_string()), dir("alpha/")];
         let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
-        let row = rows.first().expect("a row");
+        let row = &rows[1];
         assert!(row.contains(RUN_ICON), "{row:?}");
         // `insert` is the only text this row could have drawn.
         assert!(!row.contains("work"), "{row:?}");
@@ -1431,10 +1496,10 @@ mod tests {
                 let items = vec![item];
                 let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
                 let rows = menu_rows(&m, width, 1, 0);
-                let row = &rows[0];
+                let row = &rows[1];
                 let name_at = row.find("alpha/").expect("the name");
-                assert_eq!(cells_of_row(&row[..name_at]), 4);
-                assert_eq!(cells_of_row(&rows[0]), cells_of_row(&rows[1]));
+                assert_eq!(cells_of_row(&row[..name_at]), 3);
+                assert_eq!(cells_of_row(&rows[1]), cells_of_row(&rows[2]));
             }
         }
     }
@@ -1512,8 +1577,9 @@ mod tests {
             .render_at(&[], &line, "", menu_in(&items, 0, 24, "", 0), 40)
             .expect("a Vec always takes a write");
         let out = String::from_utf8(buf).expect("the frame is text");
-        // One input row, two entries, the line under them and the footer.
-        assert!(out.contains("\x1b[4A"), "{out:?}");
+        // One input row, the line above the entries, two entries, the line
+        // under them and the footer.
+        assert!(out.contains("\x1b[5A"), "{out:?}");
         assert!(out.contains("d0") && out.contains("d1"), "{out:?}");
     }
 
@@ -1532,8 +1598,8 @@ mod tests {
                 .expect("a Vec always takes a write");
             String::from_utf8(buf).expect("the frame is text")
         };
-        // One input row, one entry, the line under it, four detail rows and
-        // the footer.
+        // One input row, the line above the entry, one entry, the line under
+        // it, three detail rows and the footer.
         let out = walk_up("cd abc");
         assert!(out.contains("\x1b[7A"), "{out:?}");
         // This line wraps onto a second row and the cursor sits on it. One

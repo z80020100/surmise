@@ -12,17 +12,17 @@ use surmise::fixture::Fixture;
 use surmise::pick;
 
 /// The glyph surmise puts on a directory row.
-const ICON: char = '📁';
+const ICON: char = '▸';
 
 /// The glyph on the home shortcut. A directory row's colour with a shape of
 /// its own.
-const HOME_ICON: char = '🏠';
+const HOME_ICON: char = '~';
 
 /// The glyph on the row that runs the line.
 const RUN_ICON: char = '\u{21b5}';
 
 /// The glyph on a Git subcommand row.
-const CMD_ICON: char = '🔧';
+const CMD_ICON: char = '$';
 
 /// How long a run gets to draw and how long it gets to exit. Both are far past
 /// what the work takes and neither is a measurement.
@@ -78,17 +78,33 @@ fn is_name(row: &Panel) -> bool {
     row.text.trim().chars().any(|c| c != '─')
 }
 
-/// The candidate names, without a row glyph or its padding. The list ends at
-/// the line under it.
-fn names(t: &Term) -> Vec<String> {
+/// The rows the list holds, drawn as they were drawn. The rule that closes
+/// the panel's top edge comes first and the rule under the list is where the
+/// names stop, so this is the one place that knows where the list begins and
+/// where it ends.
+fn name_rows(t: &Term) -> Vec<String> {
     t.panel()
         .iter()
+        .skip(1)
         .take_while(|row| is_name(row))
-        .map(|row| {
-            row.text
-                .replace([ICON, HOME_ICON, RUN_ICON], "")
-                .trim()
-                .to_string()
+        .map(|row| row.text.clone())
+        .collect()
+}
+
+/// The candidate names, without a row glyph or its padding.
+///
+/// The glyph is read off by position rather than by character: the home
+/// shortcut's own name is `~`, the same character its glyph now is, and a
+/// blind replace would strip the name along with the glyph that precedes it.
+/// One character is what a glyph measures and `every_glyph_is_one_cell_wide`
+/// in `src/ui.rs` is what keeps that true.
+fn names(t: &Term) -> Vec<String> {
+    name_rows(t)
+        .iter()
+        .map(|text| {
+            let mut chars = text.trim_start().chars();
+            chars.next();
+            chars.as_str().trim().to_string()
         })
         .collect()
 }
@@ -243,12 +259,7 @@ fn a_bare_cd_puts_a_folder_glyph_on_every_row() {
     assert!(!names(&t).is_empty());
     // The line under the list is where the names stop. What is below it
     // carries no glyph and no name.
-    let panel = t.panel();
-    let rows: Vec<&str> = panel
-        .iter()
-        .take_while(|row| is_name(row))
-        .map(|row| row.text.as_str())
-        .collect();
+    let rows = name_rows(&t);
     for text in &rows {
         assert!(text.contains(ICON) || text.contains(HOME_ICON), "{text:?}");
     }
@@ -264,14 +275,9 @@ fn a_bare_cd_puts_a_folder_glyph_on_every_row() {
 fn a_bare_git_puts_a_subcommand_glyph_on_every_row() {
     let f = fixture();
     let t = opened(f.path(), "git ");
-    // The line under the list is where the names stop. `names` strips the
-    // directory glyphs alone and a Git row is read here as it was drawn.
-    let panel = t.panel();
-    let rows: Vec<&str> = panel
-        .iter()
-        .take_while(|row| is_name(row))
-        .map(|row| row.text.as_str())
-        .collect();
+    // A Git row is read here as it was drawn rather than through `names`,
+    // which takes the glyph off.
+    let rows = name_rows(&t);
     // A `take_while` over an empty list would claim the rest with no row read.
     assert!(!rows.is_empty());
     // Every row above that line names a subcommand and none of them names a
@@ -301,12 +307,7 @@ fn a_git_subcommand_row_shows_the_description_its_specification_carries() {
 fn a_bare_docker_draws_a_menu_of_subcommands_with_their_descriptions() {
     let f = fixture();
     let t = opened(f.path(), "docker ");
-    let panel = t.panel();
-    let rows: Vec<&str> = panel
-        .iter()
-        .take_while(|row| is_name(row))
-        .map(|row| row.text.as_str())
-        .collect();
+    let rows = name_rows(&t);
     assert!(!rows.is_empty());
     for text in &rows {
         assert!(text.contains(CMD_ICON), "{text:?}");
@@ -337,9 +338,10 @@ fn the_menu_marks_what_the_argument_reached() {
     // `work/` is a match that does not lead with what was typed. The marks
     // are what say how it got into the menu.
     assert_eq!(names(&t), ["work/"]);
-    assert_eq!(t.marks(0), "wk");
-    // The footer is a row of its own and carries nothing to mark.
-    assert_eq!(t.marks(1), "");
+    assert_eq!(t.marks(1), "wk");
+    // The footer is a row of its own and carries nothing to mark. It is the
+    // last painted row, under the rule that ends the list.
+    assert_eq!(t.marks(t.panel().len() - 1), "");
 }
 
 #[test]
@@ -349,8 +351,8 @@ fn the_menu_underlines_what_tab_would_add() {
     // One row leads with what was typed and Tab would take the whole of it.
     // The marks say what was typed and the underline says what the key adds.
     assert_eq!(names(&t), ["work/"]);
-    assert_eq!(t.marks(0), "wo");
-    assert_eq!(t.underlined(0), "rk/");
+    assert_eq!(t.marks(1), "wo");
+    assert_eq!(t.underlined(1), "rk/");
 }
 
 #[test]
@@ -397,8 +399,9 @@ fn a_long_selected_name_is_readable_below_the_list() {
         let panel = t.panel();
         panel[..panel.len() - 1]
             .iter()
+            .skip(1) // the rule that closes the panel's top edge
             .skip_while(|row| is_name(row))
-            .skip(1)
+            .skip(1) // the rule under the list
             .map(|row| row.text.trim())
             .collect()
     };
@@ -581,11 +584,11 @@ fn a_path_lists_only_what_that_directory_holds() {
 fn the_row_that_runs_the_line_carries_a_glyph_of_its_own() {
     let f = fixture();
     let t = opened(f.path(), "cd work/");
-    let first = t.panel().first().expect("a row").text.clone();
-    assert!(first.contains(RUN_ICON), "{first:?}");
+    let run_row = t.panel().get(1).expect("a row").text.clone();
+    assert!(run_row.contains(RUN_ICON), "{run_row:?}");
     // The glyph is the whole row. The line is on the screen above it and the
     // folder glyph is not on it either.
-    assert_eq!(first.replace(RUN_ICON, "").trim(), "", "{first:?}");
+    assert_eq!(run_row.replace(RUN_ICON, "").trim(), "", "{run_row:?}");
 }
 
 #[test]
@@ -672,19 +675,19 @@ fn a_parent_can_be_browsed_repeatedly_with_tab_and_enter() {
     t.send("\t");
     t.pump(SETTLE);
     assert_eq!(t.bells(), 1);
-    assert_eq!(t.underlined(1), "");
+    assert_eq!(t.underlined(2), "");
     t.send("\x1b[B");
     t.pump(SETTLE);
-    assert_eq!(t.underlined(1), "/");
+    assert_eq!(t.underlined(2), "/");
     t.send("\t");
     t.pump(SETTLE);
     assert!(shown(&t).contains("cd base/level/../"));
     assert_eq!(names(&t), ["", "level/", "sibling/", "../"]);
     t.send(&"\x1b[B".repeat(3));
     t.pump(SETTLE);
-    assert_eq!(t.underlined(1), "");
     assert_eq!(t.underlined(2), "");
-    assert_eq!(t.underlined(3), "../");
+    assert_eq!(t.underlined(3), "");
+    assert_eq!(t.underlined(4), "../");
     t.send("\r");
     t.pump(SETTLE);
     assert!(shown(&t).contains("cd base/level/../../"));
