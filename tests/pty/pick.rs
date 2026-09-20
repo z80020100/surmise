@@ -111,9 +111,24 @@ fn names(t: &Term) -> Vec<String> {
         .collect()
 }
 
-/// The panel's last row. It carries the word under the list.
+/// The word under the list, joined back into the sentence it is. The rule
+/// under the list is where the names stop and a sentence too wide for one
+/// row takes a second. This reads every row past that rule rather than the
+/// panel's last one. A row broken at a space joins back to exactly what
+/// went in. A highlighted name too wide for its own row draws above
+/// the word and no test that reads this has one.
 fn footer(t: &Term) -> String {
-    t.panel().last().expect("a footer").text.clone()
+    let panel = t.panel();
+    let rule = panel
+        .iter()
+        .skip(1)
+        .position(|row| !is_name(row))
+        .expect("the rule under the list");
+    panel[rule + 2..]
+        .iter()
+        .map(|row| row.text.trim())
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 /// The panel's top edge. It carries the position in the list.

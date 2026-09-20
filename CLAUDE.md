@@ -77,7 +77,8 @@ that. Up on the first name and Down on the last wrap to the other end of the
 list and the menu follows in one step.
 
 A selected name that does not fit its row also appears below the separator.
-The name wraps within the panel's width and the label remains below it. The
+The name wraps within the panel's width and the word under it remains
+below that. The
 wrapped name carries no marks and no underline. The row in the list is what
 says how the name got in and what Tab would take. A short terminal
 limits the extra rows and an ellipsis marks any text that still does not fit.
@@ -289,17 +290,21 @@ of that word and 22 of the 38 left it none. It sits on the panel's top edge
 now and the word under the list has the panel's whole width whatever it
 holds.
 
-A sentence the panel still cannot hold loses its first parenthetical and
+That word takes a second row where the sentence needs one and the terminal
+has one to spare. It breaks at a space rather than wherever the cells run
+out. A word split over two rows has to be read twice. The
+highlighted name has first claim on the spare rows: it says which row the
+keys would act on and the sentence only says what that row does. 37 of
+git's own 38 fit in the two rows.
+
+A sentence those rows still cannot hold loses its first parenthetical and
 everything past its first full stop. What is left is shown whole rather
 than cut short. `Use TCP/IP device (error if multiple TCP/IP devices are
-available)` is 63 cells and `Use TCP/IP device` is 17. A full stop closes a
+available)` is 66 cells and `Use TCP/IP device` is 17. A full stop closes a
 sentence only where two letters or digits run into it. `e.g. ` and an
-initial therefore cut nothing. 66.8% of the corpus's 371 633 descriptions are wider
-than the panel and 53.7% still are after that. The ellipsis is what those
-get. None of git's own 38 carries a parenthetical or a second sentence and
-all 18 of them are cut exactly as before.
-`plans/phase-4-ui-keys.md` is where the footer becomes a strip that wraps
-instead.
+initial therefore cut nothing. 66.8% of the corpus's 371 633 descriptions
+are wider than one row and 11.5% are wider than two once the trim has run.
+The ellipsis is what those get.
 
 Enter accepts the highlighted subcommand and adds a space. Right does the same
 when the name starts with what you typed. Tab accepts the shared prefix or a

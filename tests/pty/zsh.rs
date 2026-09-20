@@ -1033,8 +1033,12 @@ fn an_alias_opens_the_specification_driven_git_menu() {
     typed(&mut t, "--bar");
     let shown = t.lines().join("\n");
     assert!(shown.contains("--bare"), "{:?}", t.lines());
+    // 41 cells against the panel's 40. The sentence takes the second row
+    // the word under the list may now take and the screen is read with
+    // its rows run together to see it whole.
+    let joined = shown.split_whitespace().collect::<Vec<_>>().join(" ");
     assert!(
-        shown.contains("Treat the repository as a bare reposito"),
+        joined.contains("Treat the repository as a bare repository"),
         "{:?}",
         t.lines()
     );
