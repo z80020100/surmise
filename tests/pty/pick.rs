@@ -73,11 +73,14 @@ fn opened(home: &Path, line: &str) -> Term {
 }
 
 /// Whether `row` carries a candidate name. The line under the list is what
-/// ends it and a blank row is no name either. The top edge answers true as
-/// well now that the position in the list is let into it. Both readers below
-/// skip that row before they ask.
+/// ends it and a blank row is no name either. A rule is what a row opens
+/// with rather than what the whole of it holds: the top edge carries the
+/// position in the list and the one under the list carries the key that
+/// opens the word below. Both readers below skip the top edge rather than
+/// tell it apart.
 fn is_name(row: &Panel) -> bool {
-    row.text.trim().chars().any(|c| c != '─')
+    let text = row.text.trim();
+    !text.is_empty() && !text.starts_with('─')
 }
 
 /// The rows the list holds, drawn as they were drawn. The rule that closes
@@ -112,10 +115,10 @@ fn names(t: &Term) -> Vec<String> {
 }
 
 /// The word under the list, joined back into the sentence it is. The rule
-/// under the list is where the names stop and a sentence too wide for one
-/// row takes a second. This reads every row past that rule rather than the
-/// panel's last one. A row broken at a space joins back to exactly what
-/// went in. A highlighted name too wide for its own row draws above
+/// under the list is where the names stop and the key on that rule can give
+/// the word every row below it. This reads every row past the rule rather
+/// than the panel's last one. A row broken at a space joins back to exactly
+/// what went in. A highlighted name too wide for its own row draws above
 /// the word and no test that reads this has one.
 fn footer(t: &Term) -> String {
     let panel = t.panel();
@@ -323,6 +326,64 @@ fn a_git_subcommand_row_shows_the_description_its_specification_carries() {
         "{:?}",
         footer(&t)
     );
+}
+
+/// The longest description git's own 38 subcommands carry. Three of the
+/// panel's rows hold it and the one row under the list does not.
+const LONG_DESCRIPTION: &str = "Create new commit that undoes all of the changes made in <commit>, then apply it to the current branch";
+
+/// Ctrl-O, the key the rule under the list names.
+const WHOLE_WORD: &str = "\x0f";
+
+#[test]
+fn a_key_opens_the_whole_of_a_description_the_one_row_cut() {
+    let f = fixture();
+    let mut t = opened(f.path(), "git revert");
+    assert!(footer(&t).contains('…'), "{:?}", footer(&t));
+    t.send(WHOLE_WORD);
+    t.pump(SETTLE);
+    assert_eq!(footer(&t), LONG_DESCRIPTION, "{:?}", footer(&t));
+    t.send(WHOLE_WORD);
+    t.pump(SETTLE);
+    assert!(footer(&t).contains('…'), "{:?}", footer(&t));
+}
+
+#[test]
+fn the_rule_under_the_list_names_the_key_that_opens_the_word() {
+    let f = fixture();
+    let t = opened(f.path(), "git revert");
+    let panel = t.panel();
+    let rule = panel
+        .iter()
+        .skip(1)
+        .position(|row| !is_name(row))
+        .expect("the rule under the list");
+    let rule = panel[rule + 1].text.trim();
+    // A rule with the badge let into its right end, rather than the badge
+    // anywhere on any row. The row the key names is the one above the word.
+    assert!(rule.starts_with('─'), "{rule:?}");
+    assert!(rule.ends_with("^O ─"), "{rule:?}");
+}
+
+#[test]
+fn the_next_menu_opens_the_way_the_key_last_left_it() {
+    let f = fixture();
+    let mut t = opened(f.path(), "git revert");
+    t.send(WHOLE_WORD);
+    t.pump(SETTLE);
+    assert_eq!(footer(&t), LONG_DESCRIPTION, "{:?}", footer(&t));
+    // The menu it was pressed in is over and the line is back with the
+    // shell. The answer is not.
+    t.send("\x1b");
+    assert_eq!(t.status(WAIT), Some(pick::ACCEPTED));
+    let mut t = opened(f.path(), "git revert");
+    assert_eq!(footer(&t), LONG_DESCRIPTION, "{:?}", footer(&t));
+    t.send(WHOLE_WORD);
+    t.pump(SETTLE);
+    t.send("\x1b");
+    assert_eq!(t.status(WAIT), Some(pick::ACCEPTED));
+    let t = opened(f.path(), "git revert");
+    assert!(footer(&t).contains('…'), "{:?}", footer(&t));
 }
 
 #[test]

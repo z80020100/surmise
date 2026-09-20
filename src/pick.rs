@@ -12,6 +12,7 @@ use crate::app::App;
 use crate::histfile;
 use crate::history::History;
 use crate::keys;
+use crate::state::State;
 use crate::tty;
 use crate::ui;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
@@ -220,6 +221,10 @@ pub fn run(seed: &str) -> io::Result<u8> {
         return Ok(PASS);
     };
     app.rbuffer = input.rbuffer;
+    // Whatever the last menu was left set to. The key below is the only
+    // thing that writes it and a person who asked for the whole word once
+    // is asking for it again.
+    app.whole_word = State::load().whole_word;
 
     let mut term = tty::claim()?;
     let _raw = tty::Raw::on(term.try_clone()?)?;
@@ -249,7 +254,15 @@ pub fn run(seed: &str) -> io::Result<u8> {
         let typed = app.typed();
         let menu = app
             .menu_open()
-            .then(|| ui::menu(&app.items, app.selected, &typed, app.reach()))
+            .then(|| {
+                ui::menu(
+                    &app.items,
+                    app.selected,
+                    &typed,
+                    app.reach(),
+                    app.whole_word,
+                )
+            })
             .flatten();
         ui.render(&head, &app.line, &app.ghost(), menu)?;
 
@@ -266,6 +279,30 @@ pub fn run(seed: &str) -> io::Result<u8> {
                     // in here is the person's work and must survive.
                     KeyCode::Esc => break ACCEPTED,
                     KeyCode::Char('c' | 'g') if ctrl => break CANCELLED,
+                    // The word under the list takes one row on its own
+                    // and a sentence longer than that loses its tail.
+                    // This opens it to every row the terminal spared and
+                    // closes it again. Q binds the same thing to Ctrl-K
+                    // and surmise keeps Ctrl-K as the shell's own
+                    // kill-line.
+                    //
+                    // The answer outlives this menu. Every later one opens
+                    // the way this key last left it. How the menu it was
+                    // pressed in ended makes no difference.
+                    //
+                    // The key answers for a menu and there has to be one to
+                    // answer for. A line with no rows draws no panel, no
+                    // word under it and no badge naming this key, and a
+                    // press there would set every later menu from a screen
+                    // that showed none of it. `keys::edit` leaves a ctrl
+                    // character alone, so nothing else takes the key.
+                    KeyCode::Char('o') if ctrl && app.menu_open() => {
+                        app.whole_word = !app.whole_word;
+                        State {
+                            whole_word: app.whole_word,
+                        }
+                        .save();
+                    }
                     // Nothing to take is an answer of its own and the line
                     // cannot show it. The bell is what says it instead.
                     KeyCode::Tab => {

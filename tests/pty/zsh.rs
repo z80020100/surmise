@@ -1033,15 +1033,16 @@ fn an_alias_opens_the_specification_driven_git_menu() {
     typed(&mut t, "--bar");
     let shown = t.lines().join("\n");
     assert!(shown.contains("--bare"), "{:?}", t.lines());
-    // 41 cells against the panel's 40. The sentence takes the second row
-    // the word under the list may now take and the screen is read with
-    // its rows run together to see it whole.
-    let joined = shown.split_whitespace().collect::<Vec<_>>().join(" ");
-    assert!(
-        joined.contains("Treat the repository as a bare repository"),
-        "{:?}",
-        t.lines()
-    );
+    // 41 cells against the 40 the one row under the list holds. The row is
+    // cut and the ellipsis is what says so. A second row would carry the
+    // rest of the sentence instead and that is the difference this reads.
+    // `src/ui.rs` is where the whole of it is asked for.
+    let foot = t
+        .lines()
+        .into_iter()
+        .find(|row| row.contains("Treat the repository as a bare"))
+        .expect("the word under the list");
+    assert!(foot.trim_end().ends_with('…'), "{foot:?}");
 }
 
 #[test]
