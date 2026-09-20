@@ -52,6 +52,10 @@ const NAME_MARKED: &str = "\x1b[38;5;188m";
 const BORDER: &str = "\x1b[38;5;238m";
 /// What that line is drawn with.
 const RULE: char = '\u{2500}';
+/// The position in the list, let into the panel's top edge. A grey above the
+/// edge's own and below a name's. The edge must not swallow it and it is not
+/// a name.
+const COUNT_FG: &str = "\x1b[38;5;244m";
 const UNDER: &str = "\x1b[4m";
 const UNDER_OFF: &str = "\x1b[24m";
 /// The glyph on a directory row and on the row that goes up. The six below
@@ -410,7 +414,7 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
     };
     let last = (first + m.rows).min(m.items.len());
     let shown = &m.items[first..last];
-    let foot_r = format!("{}/{}", m.selected + 1, m.items.len());
+    let count = format!("{}/{}", m.selected + 1, m.items.len());
 
     // The width comes first. Nothing below holds a floor under it and `width`
     // is what keeps one.
@@ -426,15 +430,30 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
         return Vec::new();
     };
     let pad = " ".repeat(indent);
-    // The same rule closes the panel top and bottom. Built once, it opens the
-    // panel above the first row and, pushed again below, still separates the
-    // list from the word under it.
+    // The rule under the list separates it from the word below.
     let rule = format!(
         "{pad}{PANEL}{BORDER}{}{RESET}",
         String::from(RULE).repeat(inner + 2)
     );
+    // The same rule closes the panel above the first row and the position in
+    // the list is let into it there. The count says where the highlight sits
+    // in the list rather than anything about the word under it. The edge is
+    // also the one place it costs that word nothing. Beside the label it took
+    // cells from a sentence that is usually too long for the panel already.
+    // Two spaces hold the count off the rule and one rule character closes
+    // the right end. A panel with no room for all of that keeps the plain
+    // edge.
+    let lead = (inner + 2).saturating_sub(cells(&count) + 3);
+    let top = if lead > 0 {
+        format!(
+            "{pad}{PANEL}{BORDER}{} {COUNT_FG}{count}{BORDER} {RULE}{RESET}",
+            String::from(RULE).repeat(lead)
+        )
+    } else {
+        rule.clone()
+    };
 
-    let mut rows: Vec<String> = vec![rule.clone()];
+    let mut rows: Vec<String> = vec![top];
     rows.extend(shown.iter().enumerate().map(|(r, c)| {
         let text = printable(&c.display);
         let chosen = first + r == m.selected;
@@ -515,13 +534,6 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
         format!("{pad}{ground} {icon_fg}{icon}{icon_pad}{name_fg}{name} {RESET}")
     }));
 
-    // The count goes in only if it fits beside the label.
-    let mut foot = current.label.to_string();
-    let room = inner.saturating_sub(cells(&foot) + cells(&foot_r));
-    if room > 0 {
-        foot.push_str(&" ".repeat(room));
-        foot.push_str(&foot_r);
-    }
     rows.push(rule);
     let text = printable(&current.display);
     let spare = m.height.saturating_sub(RESERVED_ROWS + m.rows);
@@ -542,7 +554,7 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
     }
     rows.push(format!(
         "{pad}{PANEL}{FOOT}{ITALIC} {} {RESET}",
-        fit(&foot, inner)
+        fit(&current.label, inner)
     ));
     rows
 }
@@ -1075,14 +1087,31 @@ mod tests {
     fn a_line_closes_the_panel_above_the_first_row() {
         // Nothing used to draw above the list and the panel read as cut off
         // against the shell's own line. The rule below closes the bottom and
-        // this is the same rule, the same width, above the top.
+        // this is the same rule, the same width, above the top. The edge the
+        // count is let into spends every cell the plain rule spent.
         let items = dirs(1);
         let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         let top = &rows[0];
         let bottom = &rows[rows.len() - 2];
-        assert_eq!(top.matches(RULE).count(), PANEL_INNER + 2, "{top:?}");
+        assert_eq!(bottom.matches(RULE).count(), PANEL_INNER + 2, "{bottom:?}");
+        assert_eq!(
+            top.matches(RULE).count() + cells("1/1") + 2,
+            PANEL_INNER + 2,
+            "{top:?}"
+        );
         assert_eq!(cells_of_row(top), cells_of_row(bottom));
+    }
+
+    #[test]
+    fn a_panel_with_no_room_for_the_count_keeps_a_plain_edge() {
+        // The count asks for two spaces and a rule character of its own
+        // beside it. A panel that narrow draws the edge it always drew
+        // rather than half a count.
+        let items = dirs(1);
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
+        let rows = menu_rows(&m, 6, 0, 0);
+        assert_eq!(rows[0], rows[rows.len() - 2], "{rows:?}");
     }
 
     #[test]
@@ -1100,11 +1129,29 @@ mod tests {
     }
 
     #[test]
-    fn the_footer_carries_the_position_in_the_list() {
+    fn the_top_edge_carries_the_position_in_the_list() {
         let items = dirs(3);
         let m = menu_in(&items, 1, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
-        assert!(rows.last().expect("a footer").contains("2/3"));
+        assert!(rows[0].contains("2/3"), "{:?}", rows[0]);
+        // The word under the list keeps every cell it has. The count used to
+        // take its own off the end of that word and a description long
+        // enough left it none. Neither one was sure of its place.
+        let foot = rows.last().expect("a footer");
+        assert!(!foot.contains("2/3"), "{foot:?}");
+        assert!(foot.contains("folder"), "{foot:?}");
+    }
+
+    #[test]
+    fn a_label_as_wide_as_the_panel_is_not_cut_for_the_count() {
+        let mut item = dir("work");
+        item.label = Cow::Owned("x".repeat(PANEL_INNER));
+        let items = [item];
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
+        let rows = menu_rows(&m, 80, 1, 0);
+        let foot = rows.last().expect("a footer");
+        assert_eq!(foot.matches('x').count(), PANEL_INNER, "{foot:?}");
+        assert!(!foot.contains('…'), "{foot:?}");
     }
 
     #[test]
