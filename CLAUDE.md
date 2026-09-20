@@ -445,8 +445,21 @@ matches come last. Where the row would become the command's own second word,
 a tie inside one of those three goes to the name `$HISTFILE` says followed
 that command more often, the same reader Git's own menu reads. A row any
 deeper into the line is past what that reader counted and takes nothing from
-it. A further tie keeps the fuzzy score's own order and then the
-alphabetical one.
+it. A further tie keeps the fuzzy score's own order. The group the row came
+from breaks what is still level: the subcommands lead, the values the
+argument in hand takes follow and the options come last. A subcommand is
+the next word the command is made of and a value is the word its argument
+wants. An option is neither. The alphabetical order breaks whatever
+remains.
+
+An empty argument is where that group order decides. Every row matches it
+equally well. The name alone decided before it and `-` sorts under every
+letter. A bare `cargo ` therefore opened on `--color` and left all 38 of
+its subcommands under the fold. 323 of the 715 specifications at the top of
+`specs/` carry both a subcommand and an option at their root. Typing a `-`
+is how a person asks for the options instead. A row the argument leads with
+outranks the group it came from and so does a row the argument reaches
+better.
 
 Git's own menu never reaches this one and reads those same two fields
 anyway, for the rows it names itself. "Git" above is where that is written

@@ -1022,12 +1022,15 @@ fn docker_container_also_opens_the_menu_on_its_own_space() {
 fn an_alias_opens_the_specification_driven_git_menu() {
     // `g ` reaches the specification's own rows for `git`, not
     // `crate::git::parse`'s: that reader matches a literal `git` and never
-    // an alias for it. The rows are real, sourced from git's own spec, and
-    // the footer names one of them.
+    // an alias for it. An option is the witness. Git's own menu offers
+    // none for a bare `git ` and only the specification has them. The
+    // space opens on the subcommands, so this types the dashes that ask
+    // for the options. The rows are real and the footer names one of them.
     let f = home("alias g=git", "");
     let mut t = ready(f.path());
     t.send("g ");
     assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    typed(&mut t, "--bar");
     let shown = t.lines().join("\n");
     assert!(shown.contains("--bare"), "{:?}", t.lines());
     assert!(
