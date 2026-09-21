@@ -1,6 +1,7 @@
 # surmise
 
-Completion for `cd` directories and Git subcommands.
+Completion for `cd` directories, Git subcommands, and any command with a
+committed specification.
 
 > This file also provides guidance to [Claude Code](https://claude.ai/code) when
 > working with code in this repository. `README.md`, `AGENTS.md` and `GEMINI.md`
@@ -305,6 +306,61 @@ Folder completion uses the existing directory cache with its 400-name limit.
 Path-file arguments cache at most 400 filesystem entries per directory.
 A Git version that does not support a query supplies no candidates for it.
 
+## Other commands
+
+Tab opens a third menu, behind Git's own and `cd`'s, for any other command
+that has a committed specification. `docker `, `npm ` and `cargo ` reach it.
+`git` and `cd` never do, because their own menus above this one already
+answer for those names even where their own parsers decline a line, such as a
+finished `git` subcommand with a trailing space. The command name resolves
+through the shell's alias table first, so an alias for `docker` opens the
+menu under the name it expands to.
+
+`spec_menu` loads the named command's specification and asks `argwalk` to
+walk the line against it. A row comes from whatever the walk says the next
+word may be: a child subcommand, an option not already on the line, or one of
+an argument's own listed suggestions. A subcommand or an option that answers
+to several names shows once, under the first of them. Each row's label is the
+spec's own description, or `"command"`, `"option"` or `"value"` for a row
+whose spec carries none.
+
+A command can point the walk past its own specification at another's.
+`sudo git switch ` walks `git`'s own specification from the `git` token
+onward rather than `sudo`'s, the same way `aws account ` walks
+`aws/account`'s and `python -m http.server` walks `python/http.server`'s.
+Each specification a line re-roots through loads once and stays cached for
+the rest of the menu, the same as the command name itself does, and a
+re-root can itself point at a third: `sudo aws account ` loads all three. A
+name the corpus has no answer for simply does not re-root, leaving whatever
+asked for it to answer from its own specification instead — `exec` asking
+for a command that does not exist offers nothing back, since `exec` itself
+declares no option or subcommand of its own to fall back to.
+
+Enter and Tab accept a row the way they already do in Git's own menu: Enter
+takes the highlighted row and Tab takes the prefix every matching row agrees
+on, or a row's whole name where only one agrees. Accepting a row never runs
+it. Moving the cursor off the word a row would replace makes that row go
+stale, the same way a Git row does.
+
+An argument that needs a generator, a script or a native reader — a package's
+own scripts, a branch name, anything `specs/dynamic.txt` names — offers no
+rows rather than guessing at one or running one unasked. That is the whole of
+what this menu answers for an argument today; teaching `argwalk` to fill one
+in from a generator, the way the Git branch and file readers already do their
+own, is a later phase.
+
+Tab is the only way in. A bare `docker ` does not open the menu the way a bare
+`cd ` does; widening that trigger is a change of its own, in
+`shell/surmise.zsh` rather than here. Reading and normalizing a specification
+costs about 2.4 ms for `git`'s and about 19 ms for the worst one in the
+corpus, so a menu loads a command's spec once — the same way its Git
+completions and its directory scan are already kept for one menu — and
+answers every later key from what that load found.
+
+The corpus is frozen at the May 2025 release `specs/` was read from. A
+command that has grown a subcommand since gets no row for it until the corpus
+is regenerated.
+
 ## Build, test and lint
 
 ```sh
@@ -336,10 +392,10 @@ those. It is 1481 JSON files plus an index and it is committed. Nothing
 downloads it, nothing generates it during a build and it needs no network.
 `build.rs` reads that whole tree at build time and `spec_store` is the
 byte-level lookup the binary carries: `get(name)` decompresses one spec and
-`commands()` returns the compiled-in list of 727 names. Parsing a spec and
-answering an argument from it belong to a later phase. This section still says
-what the directory is and what carrying it costs, rather than what a menu does
-with a spec once it has one.
+`commands()` returns the compiled-in list of 727 names. `spec` parses what
+comes back into the shape `argwalk` walks, and "Other commands" above says
+what a menu does with one. This section stays about the directory itself:
+what it holds and what carrying it costs.
 
 The point of committing it is that surmise then outlives whatever published it.
 The corpus these files came from has had no release since May 2025 and a tool
@@ -392,11 +448,10 @@ and leaves the rest of the corpus alone. `flate2` with the `rust_backend`
 feature does both ends and neither of them reaches for a C library. The blob is
 9 105 907 bytes.
 
-The binary does not carry that weight yet. A linker drops what nothing calls
-and nothing outside `spec_store`'s own tests calls it, so a release build still
-measures 2 745 040 bytes. A build with one call to `spec_store::get` in it
-measures 12 028 176 bytes and that is what the corpus costs from the moment a
-menu reads one.
+The binary carries that weight now. `spec_menu` reaches
+`spec_store::get_configured` for any command besides `cd` and `git`, so a
+linker keeps the corpus rather than dropping it and a release build measures
+12 684 080 bytes.
 
 ## Configuration
 
@@ -428,11 +483,11 @@ Three keys have a reader today.
   the shell line is refused before it reaches the filesystem if it holds a
   `..` component or is itself an absolute path.
 
-No menu calls `spec_store::get_configured` yet, because nothing completes
-from a spec until `plans/phase-2-spec-runtime.md` lands. `disabled_commands`
-and `spec_dirs` are read, enforced and tested at that one function and go no
-further today. `enabled` is the only one of the three a person can already
-feel, because `pick::run` is the one entry point every keystroke goes through.
+`spec_menu` is the menu that calls `spec_store::get_configured`, once per
+command name it asks for, so all three keys now reach what a person sees:
+`enabled` through `pick::run`, the entry point every keystroke goes through,
+and `disabled_commands` and `spec_dirs` through the spec that menu completes
+from.
 
 `plans/phase-6-settings-cli.md` names the rest of the schema. A key with no
 reader stays out of this build, because a config key that does nothing is a

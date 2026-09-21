@@ -24,12 +24,15 @@ pub struct App {
     /// exists when this starts mid-word; nothing here reads it yet.
     pub rbuffer: String,
     /// The shell's alias table, name to value, from the same record.
-    /// `shellparse` is the reader this is waiting for.
+    /// `spec_menu` is what resolves it, on a command name ahead of a spec
+    /// lookup.
     pub aliases: HashMap<String, String>,
     history: History,
     scan: Scan,
     git: crate::git::Completions,
     git_start: Option<usize>,
+    spec_menu: crate::spec_menu::Completions,
+    spec_start: Option<usize>,
 }
 
 /// Quote a candidate's insertion for the shell. A leading `~` is a deliberate
@@ -114,6 +117,8 @@ impl App {
             scan: Scan::default(),
             git: crate::git::Completions::default(),
             git_start: None,
+            spec_menu: crate::spec_menu::Completions::default(),
+            spec_start: None,
         }
     }
 
@@ -134,24 +139,37 @@ impl App {
 
     pub fn refresh(&mut self) {
         self.selected = 0;
-        // Which provider read the line. `arg` tries both and hands back the
-        // word alone. A Git query selects commands, branches or files.
+        // Which provider read the line. `arg` tries all three and hands back
+        // the word alone. A Git query selects commands, branches or files.
         let mut git = crate::git::parse(self.line.left_of_cursor());
         if let Some(target) = &mut git {
             target.exclude_tail(self.line.right_of_cursor());
         }
         self.git_start = git.as_ref().map(|q| q.word.start);
+        // Tried regardless of what `git` found: `crate::spec_menu::parse`
+        // already refuses a `git` or `cd` line by name, so a real Git line
+        // never reaches here and this never races the arm below over the
+        // same line.
+        let spec = crate::spec_menu::parse(
+            self.line.left_of_cursor(),
+            self.line.right_of_cursor(),
+            &self.aliases,
+        );
+        self.spec_start = spec.as_ref().map(|t| t.word.start);
         // `arg` rather than the parse. A word nothing here may grow is one to
         // offer no menu for. The key then falls through to the shell's own
         // completion instead of opening rows nothing can take.
         self.items = match (self.arg(), git) {
             (Some(_), Some(git)) => self.git.complete(&git, &self.cwd),
-            (Some(q), None) => candidates::generate_in(
-                &shellword::unquote(&q.arg),
-                &self.cwd,
-                &self.history,
-                &mut self.scan,
-            ),
+            (Some(q), None) => match spec {
+                Some(target) => self.spec_menu.complete(&target),
+                None => candidates::generate_in(
+                    &shellword::unquote(&q.arg),
+                    &self.cwd,
+                    &self.history,
+                    &mut self.scan,
+                ),
+            },
             (None, _) => Vec::new(),
         };
     }
@@ -170,12 +188,31 @@ impl App {
             return None;
         }
         let pick = self.items.get(self.selected)?;
-        if pick.kind.is_git()
-            && crate::git::parse(self.line.left_of_cursor()).is_none_or(|q| {
-                !q.accepts(pick.kind) || self.git_start.is_some_and(|start| start != q.word.start)
-            })
-        {
-            return None;
+        // A row from the flat, non-directory providers goes stale once the
+        // cursor no longer sits on the word it would replace. A fresh Git
+        // parse of the current line, or `git_start` left over from one that
+        // no longer parses, says this row came from Git; failing both, it
+        // came from the spec provider instead, since `crate::spec_menu::parse`
+        // refuses a `git` or `cd` line by name and the two can never both
+        // claim the same line.
+        if pick.kind.is_git() {
+            let git = crate::git::parse(self.line.left_of_cursor());
+            let stale = if git.is_some() || self.git_start.is_some() {
+                git.is_none_or(|q| {
+                    !q.accepts(pick.kind)
+                        || self.git_start.is_some_and(|start| start != q.word.start)
+                })
+            } else {
+                crate::spec_menu::parse(
+                    self.line.left_of_cursor(),
+                    self.line.right_of_cursor(),
+                    &self.aliases,
+                )
+                .is_none_or(|t| self.spec_start.is_some_and(|start| start != t.word.start))
+            };
+            if stale {
+                return None;
+            }
         }
         Some(pick)
     }
@@ -191,7 +228,15 @@ impl App {
     /// old word stranded behind it.
     fn arg(&self) -> Option<candidates::Query> {
         let q = candidates::parse(self.line.left_of_cursor())
-            .or_else(|| crate::git::parse(self.line.left_of_cursor()).map(|git| git.word))?;
+            .or_else(|| crate::git::parse(self.line.left_of_cursor()).map(|git| git.word))
+            .or_else(|| {
+                crate::spec_menu::parse(
+                    self.line.left_of_cursor(),
+                    self.line.right_of_cursor(),
+                    &self.aliases,
+                )
+                .map(|target| target.word)
+            })?;
         // A space inside a quote is a character of the name. Outside one it is
         // the person saying the word is finished.
         let quoted = q.arg.starts_with(['\'', '"']);
@@ -224,10 +269,14 @@ impl App {
             return String::new();
         };
         let arg = shellword::unquote(&q.arg);
-        if crate::git::parse(self.line.left_of_cursor()).is_some() {
-            arg
-        } else {
+        // Splitting into a directory prefix and a name typed into it is a
+        // `cd` idea. Git and the spec provider both hand back a flat name and
+        // want the whole argument read back rather than split at a `/` that
+        // may not even be there.
+        if candidates::parse(self.line.left_of_cursor()).is_some() {
             candidates::split(&arg).1.to_string()
+        } else {
+            arg
         }
     }
 
@@ -1355,5 +1404,211 @@ mod tests {
         assert_eq!(quote_insert("../"), "../");
         assert_eq!(quote_insert("-x/"), "'-x/'");
         assert_eq!(quote_insert("~work/"), "'~work/'");
+    }
+
+    /// An App with no directory behind it. The spec provider never touches
+    /// the filesystem, so the same "no such directory" stand-in `staged`
+    /// uses for its own menu is enough here too.
+    fn spec_over(line: &str) -> App {
+        App::over(&PathBuf::from("/no-such-directory-here"), line)
+    }
+
+    #[test]
+    fn a_command_with_no_spec_gives_no_rows() {
+        let a = spec_over("zzz-not-a-real-command-xyz sub");
+        assert!(a.items.is_empty());
+    }
+
+    #[test]
+    fn every_provider_still_resolves() {
+        // Git and `cd` keep answering through their own code; the spec
+        // provider only ever sees a line neither of them claimed. A real
+        // directory is what the first two need to answer at all.
+        let f = Fixture::new(&["child/"]);
+        for line in [
+            "git ",
+            "cd ",
+            "docker ",
+            "npm ",
+            "cargo ",
+            "docker container ",
+        ] {
+            assert!(
+                !App::over(f.path(), line).items.is_empty(),
+                "{line:?} found nothing"
+            );
+        }
+    }
+
+    #[test]
+    fn a_spec_orders_its_rows_alphabetically_once_nothing_narrows_them() {
+        let a = spec_over("docker ");
+        assert_eq!(a.items.len(), 58);
+        assert!(a.items.iter().all(|c| c.kind == candidates::Kind::Command));
+        assert_eq!(a.items[0].insert, "attach");
+        assert_eq!(
+            a.items[0].label,
+            "Attach local standard input, output, and error streams to a running container,"
+        );
+        assert_eq!(a.items[1].insert, "build");
+        assert_eq!(a.items[1].label, "Build an image from a Dockerfile");
+        assert_eq!(a.items[2].insert, "builder");
+        assert_eq!(a.items[2].label, "Manage builds");
+    }
+
+    #[test]
+    fn a_nested_subcommand_offers_its_own_children_and_nothing_above_them() {
+        let a = spec_over("docker container ");
+        assert_eq!(a.items.len(), 24);
+        assert!(a.items.iter().all(|c| c.kind == candidates::Kind::Command));
+        // `attach` sits at the root too; the row here is `container`'s own
+        // child rather than the one the walk left behind.
+        assert_eq!(a.items[0].insert, "attach");
+        assert!(a.items.iter().all(|c| c.insert != "container"));
+    }
+
+    #[test]
+    fn a_subcommand_with_aliases_appears_once() {
+        let a = spec_over("npm ");
+        let installs: Vec<_> = a
+            .items
+            .iter()
+            .filter(|c| ["install", "i", "add"].contains(&c.insert.as_str()))
+            .collect();
+        assert_eq!(installs.len(), 1);
+        assert_eq!(installs[0].insert, "install");
+    }
+
+    #[test]
+    fn an_option_already_on_the_line_does_not_come_back() {
+        // `--verbose` takes no argument of its own, so the walk still offers
+        // every other option for the empty word behind it. `--color` would
+        // not: it has one, and a mandatory pending argument is what the walk
+        // now forces the next word to fill instead.
+        let a = spec_over("cargo --verbose ");
+        assert!(a.items.iter().all(|c| c.insert != "--verbose"));
+        assert!(
+            a.items
+                .iter()
+                .any(|c| c.kind == candidates::Kind::Option && c.insert == "-h")
+        );
+    }
+
+    #[test]
+    fn a_mandatory_option_argument_offers_its_own_suggestions_instead() {
+        let a = spec_over("cargo --color ");
+        assert!(a.items.iter().all(|c| c.kind != candidates::Kind::Option));
+        let names: Vec<&str> = a.items.iter().map(|c| c.insert.as_str()).collect();
+        assert_eq!(names, ["always", "auto", "never"]);
+        assert!(a.items.iter().all(|c| c.kind == candidates::Kind::Path));
+    }
+
+    #[test]
+    fn tab_takes_the_shared_prefix_a_spec_menu_agrees_on() {
+        // `load`, `login`, `logout` and `logs` are every docker subcommand
+        // that starts with `l`, and `lo` is as far as all four agree.
+        let mut a = spec_over("docker l");
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "docker lo");
+    }
+
+    #[test]
+    fn tab_takes_a_spec_subcommand_whole_once_it_is_the_only_match() {
+        let mut a = spec_over("docker contai");
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "docker container ");
+    }
+
+    #[test]
+    fn enter_takes_the_highlighted_spec_row() {
+        let mut a = spec_over("docker ");
+        assert_eq!(a.items[0].insert, "attach");
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "docker attach ");
+    }
+
+    #[test]
+    fn a_spec_row_cannot_replace_the_word_after_cursor_movement() {
+        let mut a = spec_over("docker container ls");
+        cursor_after(&mut a, "docker container".len());
+        assert!(!a.accept());
+        assert!(!a.accept_common());
+        assert_eq!(a.line.text(), "docker container ls");
+    }
+
+    #[test]
+    fn a_finished_git_subcommand_still_falls_through_to_nothing() {
+        // `git sample ` is a finished subcommand with a trailing space, which
+        // `crate::git::parse` no longer reads as a Git line at all. The spec
+        // provider must not answer for it either, or accepting a Git
+        // subcommand would reopen on a menu of `git`'s own subcommands.
+        let a = App::over(&PathBuf::from("/no-such-directory-here"), "git sample ");
+        assert!(a.items.is_empty());
+    }
+
+    #[test]
+    fn a_wrapped_git_re_roots_at_gits_own_specification() {
+        let a = spec_over("sudo git ");
+        assert!(a.items.iter().any(|c| c.insert == "switch"));
+        assert!(a.items.iter().any(|c| c.insert == "--version"));
+    }
+
+    #[test]
+    fn a_re_root_can_itself_point_at_a_third_specification() {
+        // `aws`'s own `account` subcommand is itself a `loadSpec` pointer to
+        // `aws/account`, so this line asks for three specifications before it
+        // can answer at all: `sudo`'s own, then `aws`'s, then `aws/account`'s.
+        // One retry past the first re-root would not be enough to see it.
+        let a = spec_over("sudo aws account ");
+        assert!(
+            a.items
+                .iter()
+                .any(|c| c.insert == "get-primary-email" && c.kind == candidates::Kind::Command)
+        );
+    }
+
+    #[test]
+    fn a_wrapped_subcommand_behaves_as_it_would_unwrapped() {
+        // `switch`'s own argument has no static suggestion beyond `-`, the
+        // quick way back to the last branch; a real branch name needs the
+        // generator this menu does not run. Its options still show, the same
+        // as they would from a bare `git switch `.
+        let a = spec_over("sudo git switch ");
+        assert!(
+            a.items
+                .iter()
+                .any(|c| c.insert == "-" && c.kind == candidates::Kind::Path)
+        );
+        assert!(
+            a.items
+                .iter()
+                .any(|c| c.insert == "--discard-changes" && c.kind == candidates::Kind::Option)
+        );
+        assert!(a.items.iter().all(|c| c.insert != "switch"));
+    }
+
+    #[test]
+    fn a_second_keystroke_keeps_answering_from_the_spec_the_first_re_rooted_to() {
+        // Nothing here proves the second keystroke skipped a disk read on
+        // its own; `spec_menu`'s own tests do that directly. This is the
+        // behaviour that read buys: the re-root survives a keystroke that
+        // does not touch the command name at all, the same way a `cd`
+        // menu keeps answering from the directory its own first read found.
+        let f = Fixture::new(&["child/"]);
+        let mut a = App::over(f.path(), "sudo git ");
+        let before = a.items.len();
+        assert!(a.items.iter().any(|c| c.insert == "switch"));
+        a.line.insert("s");
+        a.edited();
+        assert!(a.items.len() < before);
+        assert!(a.items.iter().any(|c| c.insert == "switch"));
+        assert!(a.items.iter().any(|c| c.insert == "status"));
+        assert!(a.items.iter().all(|c| c.insert != "add"));
+    }
+
+    #[test]
+    fn a_wrapped_command_with_no_specification_degrades_to_no_rows() {
+        let a = spec_over("exec zzz-not-a-real-command-xyz ");
+        assert!(a.items.is_empty());
     }
 }
