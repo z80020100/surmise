@@ -53,8 +53,12 @@ name sits under the cursor and the menu follows the cursor along the line. The
 menu is one width whatever it holds. Near the right edge it keeps that width
 and gives the alignment up. A terminal too narrow for that width is the one
 thing that shrinks it. Six rows show at a time and a shorter list or a
-shorter terminal shows fewer. A line under the last of them separates the
-list from the word below it. At the bottom of the screen the terminal
+shorter terminal shows fewer. A line above the first of them closes the
+panel and a line under the last of them separates the list from the word
+below it. Each name has one character in front of it that says what sort of
+row it is, in a shape and a colour of that sort's own. Every one of those
+characters is one a terminal draws as plain text in the colour it is given.
+At the bottom of the screen the terminal
 scrolls to make the room rather than the menu moving above the line. What is
 above the line is the shell's own output and surmise cannot read it back to
 put it there again. The menu holds still while the highlight has

@@ -904,7 +904,7 @@ fn a_manual_visit_changes_the_order_in_the_next_picker() {
     t.send("cd \t");
     assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
     t.pump(SETTLE);
-    assert!(t.panel()[0].text.contains("deep"), "{:?}", t.lines());
+    assert!(t.panel()[1].text.contains("deep"), "{:?}", t.lines());
     t.send("\x15");
     closed(&mut t);
     typed(&mut t, "cd work\r");
@@ -914,7 +914,7 @@ fn a_manual_visit_changes_the_order_in_the_next_picker() {
     t.send("cd \t");
     assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
     t.pump(SETTLE);
-    assert!(t.panel()[0].text.contains("work"), "{:?}", t.lines());
+    assert!(t.panel()[1].text.contains("work"), "{:?}", t.lines());
 }
 
 #[test]
