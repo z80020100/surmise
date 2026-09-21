@@ -6,5 +6,6 @@
 
 mod history;
 mod pick;
+mod settings;
 mod term;
 mod zsh;

@@ -9,7 +9,7 @@ use std::ffi::OsString;
 use std::io::{self, Write};
 use std::path::Path;
 use std::process::ExitCode;
-use surmise::{pick, ui};
+use surmise::{config, pick, ui};
 
 const USAGE: &str = "\
 surmise — complete cd directories and Git subcommands.
@@ -17,6 +17,7 @@ surmise — complete cd directories and Git subcommands.
   surmise init zsh                the shell widget, for `eval \"$(surmise init zsh)\"`
   surmise --pick LINE             the picker that widget calls, result on stdout
   surmise --record SOURCE TARGET  record a successful directory change
+  surmise settings path           the config path, whether it exists yet or not
 ";
 
 /// The zsh widget, compiled in. `cargo install` places a binary and has no
@@ -30,6 +31,8 @@ enum Mode<'a> {
     Pick(&'a str),
     /// The widget for the named shell. An empty name is no name.
     Init(&'a str),
+    /// A `settings` subcommand. An empty name is no name.
+    Settings(&'a str),
     /// The usage.
     Help,
     /// An argument this build does not know.
@@ -51,6 +54,13 @@ fn mode(args: &[String]) -> Mode<'_> {
         Some("init") => match args.get(2) {
             Some(extra) => Mode::Unknown(extra),
             None => Mode::Init(args.get(1).map_or("", String::as_str)),
+        },
+        // `settings` names one word and nothing else, the same shape `init`
+        // takes and for the same reason: a third argument is a typo rather
+        // than a second thing to do.
+        Some("settings") => match args.get(2) {
+            Some(extra) => Mode::Unknown(extra),
+            None => Mode::Settings(args.get(1).map_or("", String::as_str)),
         },
         // Without an argument there is no line to complete. The usage is the
         // whole of what this build can say on its own.
@@ -134,6 +144,22 @@ fn main() -> ExitCode {
             "no widget for {}. zsh is the only shell this build has.",
             ui::printable(shell)
         )),
+        // The path is printed whether or not a file is there yet. `None`
+        // means no absolute directory to place one under, which the config
+        // module already treats as "defaults stand" rather than an error;
+        // there is simply nothing to print here.
+        Mode::Settings("path") => match config::path() {
+            Some(path) => {
+                println!("{}", path.display());
+                ExitCode::SUCCESS
+            }
+            None => refuse("no home directory to place a config under"),
+        },
+        Mode::Settings("") => refuse("settings takes a word. path is the only one this build has."),
+        Mode::Settings(word) => refuse(&format!(
+            "no settings command named {}. path is the only one this build has.",
+            ui::printable(word)
+        )),
         Mode::Help => {
             usage(io::stdout());
             ExitCode::SUCCESS
@@ -204,6 +230,25 @@ mod tests {
     #[test]
     fn init_with_no_shell_is_still_init() {
         assert!(matches!(mode(&args(&["init"])), Mode::Init("")));
+    }
+
+    #[test]
+    fn settings_takes_the_word_that_follows_it() {
+        assert!(matches!(
+            mode(&args(&["settings", "path"])),
+            Mode::Settings("path")
+        ));
+    }
+
+    #[test]
+    fn a_third_argument_to_settings_is_never_a_word() {
+        let a = args(&["settings", "path", "--nope"]);
+        assert!(matches!(mode(&a), Mode::Unknown("--nope")));
+    }
+
+    #[test]
+    fn settings_with_no_word_is_still_settings() {
+        assert!(matches!(mode(&args(&["settings"])), Mode::Settings("")));
     }
 
     /// `include_str!` cannot say what it took. This is the claim that the

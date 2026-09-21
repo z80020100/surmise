@@ -72,6 +72,11 @@ fn ready(home: &Path) -> Term {
     cmd.env_clear();
     cmd.env("HOME", home);
     cmd.env("ZDOTDIR", home);
+    // `config.rs` would fall back to `$HOME/.config` on its own, and `home`
+    // is already a fixture nothing else uses. Naming it explicitly is what
+    // `history.rs`'s own tests do for `XDG_DATA_HOME`, so a test cannot read
+    // a real config even if that fallback ever changed.
+    cmd.env("XDG_CONFIG_HOME", home.join(".config"));
     cmd.env("TERM", "xterm-256color");
     cmd.env("PATH", crate::term::path());
     // The widget defaults to the `surmise` on the PATH. The one under test is
@@ -780,6 +785,27 @@ fn a_word_no_subcommand_matches_keeps_the_shells_completion() {
     // PASS. Tab is the shell's own again and the menu never opens.
     typed(&mut t, "git zzzz\t");
     assert_eq!(line(&t).trim(), "❯ git zzzzSAMPLE");
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+}
+
+#[test]
+fn enabled_false_leaves_tab_to_the_shells_own_completion() {
+    let f = home(
+        "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
+        "bindkey ' ' $_surmise_space",
+    );
+    std::fs::create_dir_all(f.path().join(".config/surmise")).unwrap();
+    std::fs::write(
+        f.path().join(".config/surmise/config.toml"),
+        "enabled = false\n",
+    )
+    .unwrap();
+    let mut t = ready(f.path());
+    // A bare `cd ` would otherwise open the menu on its own. With the picker
+    // off, surmise answers PASS before it ever looks at the line, and Tab
+    // afterward reaches the same fallback the line had before `init zsh` ran.
+    typed(&mut t, "cd \t");
+    assert_eq!(line(&t).trim(), "❯ cd SAMPLE");
     assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
 }
 

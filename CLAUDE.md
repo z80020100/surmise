@@ -398,6 +398,52 @@ measures 2 745 040 bytes. A build with one call to `spec_store::get` in it
 measures 12 028 176 bytes and that is what the corpus costs from the moment a
 menu reads one.
 
+## Configuration
+
+`$XDG_CONFIG_HOME/surmise/config.toml` holds the settings a person changes.
+Without an absolute `XDG_CONFIG_HOME` the path is
+`~/.config/surmise/config.toml`. Without either an absolute config directory
+or an absolute home directory there is no config and the defaults stand. A
+missing file also means defaults. `surmise settings path` prints the resolved
+path whether or not the file exists.
+
+A parse error never reaches the prompt, because nothing surmise does may
+write to a person's terminal outside the menu. It becomes a warning instead,
+kept for a later `doctor` command to report, and the picker runs with
+defaults meanwhile. An unknown key is a warning of the same kind rather than
+an error, because a file carrying a key from a later surmise should still
+work with this one.
+
+Three keys have a reader today.
+
+- `enabled` turns the picker off. `pick::run` checks it before it opens the
+  terminal, so `false` answers every key with `PASS` and the shell's own
+  completion runs instead.
+- `disabled_commands` lists first words `spec_store::get_configured` refuses
+  by name, before it asks `spec_dirs` or the compiled-in data at all.
+- `spec_dirs` names directories laid out like `specs/` and holding the same
+  JSON. `spec_store::get_configured` searches them in order before the
+  compiled-in data, so a person's own spec for a private tool is found first
+  and a stale public one can be overridden the same way. A name coming off
+  the shell line is refused before it reaches the filesystem if it holds a
+  `..` component or is itself an absolute path.
+
+No menu calls `spec_store::get_configured` yet, because nothing completes
+from a spec until `plans/phase-2-spec-runtime.md` lands. `disabled_commands`
+and `spec_dirs` are read, enforced and tested at that one function and go no
+further today. `enabled` is the only one of the three a person can already
+feel, because `pick::run` is the one entry point every keystroke goes through.
+
+`plans/phase-6-settings-cli.md` names the rest of the schema. A key with no
+reader stays out of this build, because a config key that does nothing is a
+promise the binary does not keep. Each one lands with the phase that reads it.
+
+Hand-writing one file for `spec_dirs` is easy: the shape is the same JSON
+`specs/` already holds. Converting somebody else's published spec is not,
+because that spec is TypeScript and `tools/spec-convert` is the only reader
+of it. `cargo install` places a binary and nothing beside it, so that
+conversion needs a clone of this repository rather than an installed surmise.
+
 ## Repository conventions
 
 `.cargo/config.toml`, `.vscode/`, the cargo-husky hook and the three symbolic
