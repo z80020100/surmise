@@ -15,6 +15,7 @@ pub mod config;
 pub mod fixture;
 pub mod fuzzy;
 pub mod git;
+pub mod histfile;
 pub mod history;
 pub mod keys;
 pub mod line;

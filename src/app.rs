@@ -6,6 +6,7 @@
 
 use crate::candidates::{self, Candidate, Kind, Scan};
 use crate::fuzzy::{shared_bytes, starts_with_folded};
+use crate::histfile;
 use crate::history::History;
 use crate::line::Line;
 use crate::shellword;
@@ -131,10 +132,19 @@ impl App {
         a
     }
 
-    pub fn with_history(mut self, history: History) -> Self {
+    /// The directory history and the command history, set together and
+    /// without a refresh of their own. A caller that has both sets both and
+    /// then refreshes once, rather than paying a rebuild of the whole
+    /// candidate list for each one learned.
+    ///
+    /// `cmd_history` goes to both providers that rank by it, a clone for one
+    /// of them. Never more than one answers a given line, so which of the
+    /// two gets the real reading is nothing to track here, and `cd`'s own
+    /// candidates read neither field at all.
+    pub(crate) fn seed_history(&mut self, history: History, cmd_history: histfile::Counts) {
         self.history = history;
-        self.refresh();
-        self
+        self.git.cmd_history = cmd_history.clone();
+        self.spec_menu.cmd_history = cmd_history;
     }
 
     pub fn refresh(&mut self) {

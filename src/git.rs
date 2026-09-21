@@ -1,9 +1,10 @@
 //! Git subcommand, branch and file completion from the installed Git.
 
 use crate::candidates::{
-    CURRENT_BRANCH, Candidate, FOLDER, Kind, MAX_RESULTS, Query, SCAN_LIMIT, Scan, match_rank,
+    CURRENT_BRANCH, Candidate, FOLDER, Kind, Query, SCAN_LIMIT, Scan, UsedAfter, rank,
 };
 use crate::fuzzy;
+use crate::histfile;
 use crate::spec::{self, Subcommand};
 use std::borrow::Cow;
 use std::collections::{BTreeSet, HashMap};
@@ -735,6 +736,11 @@ pub(crate) struct Completions {
     file_modes: HashMap<FileMode, Vec<String>>,
     dirs: Scan,
     path_files: HashMap<PathBuf, Vec<String>>,
+    /// How often `$HISTFILE` says `"git"` was followed by a given name.
+    /// `App` sets this once, the same way it sets nothing else here: every
+    /// other field is this menu's own cache and this one is data handed in
+    /// from outside it.
+    pub(crate) cmd_history: histfile::Counts,
 }
 
 /// Whether the line already names `name` or a folder holding it. An empty
@@ -790,26 +796,6 @@ fn row(arg: &str, name: &str, label: &'static str, kind: Kind) -> Option<Candida
     })
 }
 
-fn rank(rows: &mut Vec<Candidate>, arg: &str) {
-    let tier = |name: &str| {
-        if !arg.is_empty()
-            && fuzzy::starts_with_folded(name, arg)
-            && fuzzy::starts_with_folded(arg, name)
-        {
-            2
-        } else {
-            match_rank(arg, name)
-        }
-    };
-    rows.sort_by(|a, b| {
-        tier(&b.display)
-            .cmp(&tier(&a.display))
-            .then(b.score.cmp(&a.score))
-            .then(a.display.cmp(&b.display))
-    });
-    rows.truncate(MAX_RESULTS);
-}
-
 impl Completions {
     pub(crate) fn complete(&mut self, target: &Target, cwd: &Path) -> Vec<Candidate> {
         let arg = crate::shellword::unquote(&target.word.arg);
@@ -839,7 +825,7 @@ impl Completions {
                     .collect(),
                 Value::File => self.path_arguments(&arg, lead, cwd),
             };
-            rank(&mut out, &arg);
+            rank(&mut out, &arg, None);
             return out;
         }
         let mut out = Vec::new();
@@ -916,7 +902,7 @@ impl Completions {
                 }
             }
         }
-        rank(&mut out, &arg);
+        rank(&mut out, &arg, None);
         out
     }
 
@@ -1037,7 +1023,14 @@ impl Completions {
         {
             row.label = Cow::Borrowed(CURRENT_BRANCH);
         }
-        rank(&mut out, arg);
+        // Only a subcommand row is the second word of a `git` line. A branch
+        // or a file is the third or later and the counts say nothing about
+        // one; see `rank`.
+        let used_after = (kind == Kind::Command).then_some(UsedAfter {
+            command: "git",
+            counts: &self.cmd_history,
+        });
+        rank(&mut out, arg, used_after);
         // Git prints a name and nothing else, so the label and the hint
         // both come from the specification instead. `rank` runs first: it
         // drops everything past `MAX_RESULTS` and a row nobody keeps is
@@ -1180,6 +1173,77 @@ mod tests {
             commands
                 .candidates("zzz", Path::new("."), Kind::Command, &[])
                 .is_empty()
+        );
+    }
+
+    /// A reading of `$HISTFILE` that saw `git <second>` `n` times and
+    /// nothing else at all.
+    fn counts(second: &str, n: u32) -> histfile::Counts {
+        histfile::Counts(HashMap::from([(
+            "git".to_string(),
+            HashMap::from([(second.to_string(), n)]),
+        )]))
+    }
+
+    #[test]
+    fn history_ranks_a_used_subcommand_above_an_unused_one() {
+        // `add` sorts first alphabetically. `status` sorts first once
+        // `cmd_history` says `git status` was typed and `git add` never was.
+        let mut commands = Completions {
+            names: Some(vec!["add".into(), "status".into()]),
+            spec: Some(None),
+            cmd_history: counts("status", 5),
+            ..Default::default()
+        };
+        let rows =
+            commands.candidates("", Path::new("/no-such-directory-here"), Kind::Command, &[]);
+        assert_eq!(
+            rows.iter().map(|c| c.display.as_str()).collect::<Vec<_>>(),
+            ["status", "add"]
+        );
+    }
+
+    #[test]
+    fn a_branch_named_for_a_used_subcommand_is_not_ranked_by_it() {
+        // `git status` is typed often and this repository has a branch
+        // called `status`. A branch is never a `git` line's second word, so
+        // the count belongs to the subcommand of that name and not to this
+        // row, which keeps its alphabetical place.
+        let mut completions = Completions {
+            branches: Some(Branches {
+                names: vec!["status".into(), "main".into()],
+                current: None,
+            }),
+            cmd_history: counts("status", 100),
+            ..Default::default()
+        };
+        let rows =
+            completions.candidates("", Path::new("/no-such-directory-here"), Kind::Branch, &[]);
+        assert_eq!(
+            rows.iter().map(|c| c.display.as_str()).collect::<Vec<_>>(),
+            ["main", "status"]
+        );
+    }
+
+    #[test]
+    fn a_typed_prefix_still_beats_a_used_name_that_does_not_match_it() {
+        // `read` fuzzy-matches `ad` without leading with it. History never
+        // moves it ahead of a name the typed prefix does lead with.
+        let mut commands = Completions {
+            names: Some(vec!["add".into(), "read".into()]),
+            spec: Some(None),
+            cmd_history: counts("read", 100),
+            ..Default::default()
+        };
+        let rows = commands.candidates(
+            "ad",
+            Path::new("/no-such-directory-here"),
+            Kind::Command,
+            &[],
+        );
+        assert_eq!(
+            rows.iter().map(|c| c.display.as_str()).collect::<Vec<_>>(),
+            ["add", "read"]
         );
     }
 

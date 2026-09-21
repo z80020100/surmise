@@ -6,9 +6,10 @@
 
 use crate::argwalk::{self, Walk};
 use crate::candidates::{
-    Candidate, FOLDER, Kind, MAX_RESULTS, Query, Scan, match_rank, resolved_in, split,
+    Candidate, FOLDER, Kind, Query, Scan, UsedAfter, rank, resolved_in, split,
 };
 use crate::fuzzy;
+use crate::histfile;
 use crate::history::History;
 use crate::native;
 use crate::shellparse::{self, Command};
@@ -105,6 +106,10 @@ pub(crate) struct Completions {
     /// for the rest of the menu without asking `spec::load_configured`
     /// again.
     specs: HashMap<String, Option<Rc<Subcommand>>>,
+    /// How often `$HISTFILE` says the line's own first word was followed by
+    /// a given name. `App` sets this once; every other field here is this
+    /// menu's own cache and this one is data handed in from outside it.
+    pub(crate) cmd_history: histfile::Counts,
 }
 
 impl Completions {
@@ -174,7 +179,17 @@ impl Completions {
                 let enclosing = wants_help
                     .then(|| enclosing_node(&self.specs, &target.command, root, walk.command_index))
                     .flatten();
-                return build_rows(&walk, enclosing, cwd, history, scan);
+                let mut rows = build_rows(&walk, enclosing, cwd, history, scan);
+                // Two words means the one being replaced is the command's
+                // own second, which is the only word `cmd_history` counted.
+                // A deeper subcommand, an option's value and anything past
+                // an option already typed all sit further along; see `rank`.
+                let used_after = (target.command.words.len() == 2).then(|| UsedAfter {
+                    command: target.command.words[0].inner_text.as_str(),
+                    counts: &self.cmd_history,
+                });
+                rank(&mut rows, walk.search_term.as_str(), used_after);
+                return rows;
             }
             for name in new_names {
                 self.load(&name);
@@ -244,9 +259,9 @@ fn row(
     })
 }
 
-/// The rows one walk offers, ranked against [`Walk::search_term`].
-/// `enclosing` is the node a `help` template's rows come from; every other
-/// caller passes `None`.
+/// The rows one walk offers, unranked. `enclosing` is the node a `help`
+/// template's rows come from; every other caller passes `None`.
+/// `walk_resolving` ranks what this returns against [`Walk::search_term`].
 fn build_rows(
     walk: &Walk,
     enclosing: Option<&Subcommand>,
@@ -336,7 +351,6 @@ fn build_rows(
         }
     }
 
-    rank(&mut rows, term);
     rows
 }
 
@@ -515,30 +529,6 @@ fn already_passed(passed: &[&Opt], candidate: &Rc<Opt>) -> bool {
         .any(|opt| std::ptr::eq(*opt, Rc::as_ptr(candidate)))
 }
 
-/// The same ranking `git.rs` gives its own rows: a name that folds to
-/// exactly what was typed leads, a name that merely starts with it follows,
-/// ties keep the fuzzy score's own order and a name breaks any tie that is
-/// still left.
-fn rank(rows: &mut Vec<Candidate>, term: &str) {
-    let tier = |name: &str| {
-        if !term.is_empty()
-            && fuzzy::starts_with_folded(name, term)
-            && fuzzy::starts_with_folded(term, name)
-        {
-            2
-        } else {
-            match_rank(term, name)
-        }
-    };
-    rows.sort_by(|a, b| {
-        tier(&b.display)
-            .cmp(&tier(&a.display))
-            .then(b.score.cmp(&a.score))
-            .then(a.display.cmp(&b.display))
-    });
-    rows.truncate(MAX_RESULTS);
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -546,6 +536,90 @@ mod tests {
 
     fn target(line: &str) -> Target {
         parse(line, "", &HashMap::new()).expect("a command this provider should answer for")
+    }
+
+    /// A reading of `$HISTFILE` that saw `first second` `n` times and
+    /// nothing else at all.
+    fn counts(first: &str, second: &str, n: u32) -> histfile::Counts {
+        histfile::Counts(HashMap::from([(
+            first.to_string(),
+            HashMap::from([(second.to_string(), n)]),
+        )]))
+    }
+
+    #[test]
+    fn history_ranks_a_used_second_word_above_an_unused_one() {
+        // `docker ps` is what this reading saw. `ps` sorts nowhere near
+        // first among `docker`'s 58 subcommands and leads the menu anyway.
+        let mut c = Completions {
+            cmd_history: counts("docker", "ps", 100),
+            ..Default::default()
+        };
+        let rows = complete(&mut c, &target("docker "));
+        assert_eq!(names(&rows)[0], "ps", "{:?}", names(&rows));
+    }
+
+    #[test]
+    fn history_leaves_a_word_deeper_than_it_counted_alone() {
+        // `ls` here is `docker container`'s own third word and the reading
+        // only ever counted a second. A count for `("docker", "ls")` is a
+        // `docker ls` nobody typed, so this menu comes out in the order it
+        // would have with no history at all.
+        let mut counted = Completions {
+            cmd_history: counts("docker", "ls", 100),
+            ..Default::default()
+        };
+        let ranked = complete(&mut counted, &target("docker container "));
+        let plain = complete(&mut Completions::default(), &target("docker container "));
+        assert!(names(&plain).contains(&"ls"), "{:?}", names(&plain));
+        assert_eq!(names(&ranked), names(&plain));
+    }
+
+    #[test]
+    fn history_ranks_a_folder_the_command_was_given_before() {
+        // `readme` leads this menu on its name alone. The folder row wears
+        // a slash the person never typed, and the reading of `cat src`
+        // still has to reach it.
+        let f = Fixture::new(&["src", "readme*"]);
+        let mut c = Completions {
+            cmd_history: counts("cat", "src", 100),
+            ..Default::default()
+        };
+        let rows = c.complete(
+            &target("cat "),
+            f.path(),
+            &History::default(),
+            &mut Scan::default(),
+        );
+        assert_eq!(names(&rows)[0], "src/", "{:?}", names(&rows));
+    }
+
+    #[test]
+    fn a_typed_prefix_still_beats_a_used_row_that_does_not_match_it() {
+        // `read` fuzzy-matches `ad` without leading with it. History never
+        // moves it ahead of a name the typed prefix does lead with.
+        let mut rows: Vec<Candidate> = ["add", "read"]
+            .into_iter()
+            .filter_map(|name| {
+                row(
+                    "ad",
+                    name,
+                    Cow::Borrowed(SUBCOMMAND_LABEL),
+                    Vec::new(),
+                    Kind::Command,
+                )
+            })
+            .collect();
+        let cmd_history = counts("docker", "read", 100);
+        rank(
+            &mut rows,
+            "ad",
+            Some(UsedAfter {
+                command: "docker",
+                counts: &cmd_history,
+            }),
+        );
+        assert_eq!(names(&rows), ["add", "read"]);
     }
 
     /// A `filepaths`/`folders` generator with no options of its own, the
