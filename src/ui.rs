@@ -679,6 +679,7 @@ impl<W: Write> Ui<W> {
 mod tests {
     use super::*;
     use crate::candidates::{folder, run_row};
+    use std::borrow::Cow;
 
     fn dir(display: &str) -> Candidate {
         folder(display.to_string(), display.to_string(), 0)
@@ -906,7 +907,7 @@ mod tests {
         Candidate {
             display: "~".into(),
             insert: "~".into(),
-            label: "home",
+            label: "home".into(),
             kind: Kind::Special,
             score: 0,
         }
@@ -917,7 +918,7 @@ mod tests {
         Candidate {
             display: name.into(),
             insert: name.into(),
-            label: "command",
+            label: "command".into(),
             kind: Kind::Command,
             score: 0,
         }
@@ -929,7 +930,7 @@ mod tests {
         Candidate {
             display: "../".into(),
             insert: insert.to_string(),
-            label: "parent",
+            label: "parent".into(),
             kind: Kind::Parent,
             score: 0,
         }
@@ -1036,6 +1037,18 @@ mod tests {
         let m = menu_in(&items, 1, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         assert!(rows.last().expect("a footer").contains("2/3"));
+    }
+
+    #[test]
+    fn an_owned_label_draws_the_same_footer_as_a_static_one() {
+        // The next candidate source reads its label from a spec at run time
+        // rather than from a constant. Nothing about the row it draws may
+        // depend on which one it was.
+        let mut owned = dir("work");
+        owned.label = Cow::Owned(owned.label.to_string());
+        let render =
+            |item: Candidate| menu_rows(&menu_in(&[item], 0, 24, "", 0).unwrap(), 80, 1, 0);
+        assert_eq!(render(dir("work")), render(owned));
     }
 
     #[test]
@@ -1211,7 +1224,7 @@ mod tests {
         let mut items = vec![command("sample/topic"), command("sample/topaz")];
         for item in &mut items {
             item.kind = Kind::Branch;
-            item.label = "branch";
+            item.label = "branch".into();
         }
         let m = menu_in(&items, 0, 24, "sample/t", "sample/top".len()).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);

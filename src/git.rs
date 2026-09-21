@@ -777,7 +777,7 @@ fn row(arg: &str, name: &str, label: &'static str, kind: Kind) -> Option<Candida
     Some(Candidate {
         display: name.to_string(),
         insert: name.to_string(),
-        label,
+        label: Cow::Borrowed(label),
         kind,
         score: fuzzy::score(arg, name)?,
     })
@@ -1010,7 +1010,7 @@ impl Completions {
                 Some(Candidate {
                     display: name.to_string(),
                     insert: name.into_owned(),
-                    label,
+                    label: Cow::Borrowed(label),
                     kind,
                     score,
                 })
@@ -1020,7 +1020,7 @@ impl Completions {
             && let Some(current) = self.branches.as_ref().and_then(|b| b.current.as_ref())
             && let Some(row) = out.iter_mut().find(|row| &row.insert == current)
         {
-            row.label = CURRENT_BRANCH;
+            row.label = Cow::Borrowed(CURRENT_BRANCH);
         }
         rank(&mut out, arg);
         out

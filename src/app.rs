@@ -514,7 +514,7 @@ mod tests {
         let mut a = staged(line, names);
         for item in &mut a.items {
             item.kind = candidates::Kind::Branch;
-            item.label = "branch";
+            item.label = "branch".into();
         }
         a
     }
@@ -523,7 +523,7 @@ mod tests {
         let mut a = staged(line, names);
         for item in &mut a.items {
             item.kind = candidates::Kind::File;
-            item.label = "file";
+            item.label = "file".into();
         }
         a
     }
