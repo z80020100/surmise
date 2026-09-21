@@ -282,6 +282,21 @@ fn a_bare_git_puts_a_subcommand_glyph_on_every_row() {
     }
 }
 
+/// The glyph test above reads rows the installed Git named, so it can claim
+/// nothing about any one of them. `add` is a name every Git has and an exact
+/// match leads the list, so the highlight opens on the row whose description
+/// the committed specification carries.
+#[test]
+fn a_git_subcommand_row_shows_the_description_its_specification_carries() {
+    let f = fixture();
+    let t = opened(f.path(), "git add");
+    assert!(
+        footer(&t).contains("Add file contents to the index"),
+        "{:?}",
+        footer(&t)
+    );
+}
+
 #[test]
 fn a_bare_docker_draws_a_menu_of_subcommands_with_their_descriptions() {
     let f = fixture();

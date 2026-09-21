@@ -196,7 +196,19 @@ Typing a bare `git ` opens a subcommand menu. Tab also opens it on a partial
 subcommand such as `git stat`. Exact names lead. Prefixes follow and fuzzy
 matches come last. The menu includes high-level Git commands and configured
 alias names. It reads command names from the installed Git once per menu.
-It does not run aliases.
+It does not run aliases. Git prints a name and nothing else, so the word
+under the list comes from the command's own completion specification
+instead: it is the highlighted subcommand's description, read once per menu
+the way every other menu reads one. A name that specification does not carry
+keeps the word `command`. A configured alias is such a name and so is a
+subcommand the corpus never had.
+
+Those descriptions are the upstream's own sentences rather than labels
+written for this panel. Half of them are longer than the panel is wide: of
+the 38 the committed `git` specification carries, 18 are cut short at the
+footer's edge and only 16 are short enough to leave room for the position
+counter beside them. `plans/phase-4-ui-keys.md` is where the footer becomes
+a strip that wraps instead.
 
 Enter accepts the highlighted subcommand and adds a space. Right does the same
 when the name starts with what you typed. Tab accepts the shared prefix or a
@@ -334,7 +346,9 @@ word may be: a child subcommand, an option not already on the line, or one of
 an argument's own listed suggestions. A subcommand or an option that answers
 to several names shows once, under the first of them. Each row's label is the
 spec's own description, or `"command"`, `"option"` or `"value"` for a row
-whose spec carries none.
+whose spec carries none. Git's own menu never reaches this one and reads that
+same field anyway, for the rows it names itself. "Git" above is where that is
+written down.
 
 A command can point the walk past its own specification at another's.
 `sudo git switch ` walks `git`'s own specification from the `git` token
@@ -436,8 +450,10 @@ downloads it, nothing generates it during a build and it needs no network.
 byte-level lookup the binary carries: `get(name)` decompresses one spec and
 `commands()` returns the compiled-in list of 727 names. `spec` parses what
 comes back into the shape `argwalk` walks, and "Other commands" above says
-what a menu does with one. This section stays about the directory itself:
-what it holds and what carrying it costs.
+what a menu does with one. Git's own menu is the second reader of this data
+and it takes one thing from it: the description its subcommand rows show.
+This section stays about the directory itself: what it holds and what
+carrying it costs.
 
 The point of committing it is that surmise then outlives whatever published it.
 The corpus these files came from has had no release since May 2025 and a tool
@@ -530,6 +546,13 @@ command name it asks for, so all three keys now reach what a person sees:
 `enabled` through `pick::run`, the entry point every keystroke goes through,
 and `disabled_commands` and `spec_dirs` through the spec that menu completes
 from.
+
+Git's own menu is the second caller and it asks for one name only, once per
+menu, for the description its subcommand rows show. `git` in
+`disabled_commands` therefore leaves those rows on the word `command`, and a
+`git.json` under `spec_dirs` is what they read instead of the committed one.
+Neither key reaches anything else that menu does: the subcommand names, the
+branches and the files all come from the installed Git either way.
 
 `plans/phase-6-settings-cli.md` names the rest of the schema. A key with no
 reader stays out of this build, because a config key that does nothing is a
