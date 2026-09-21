@@ -740,7 +740,7 @@ impl<W: Write> Ui<W> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::candidates::{folder, run_row};
+    use crate::candidates::{DEFAULT_PRIORITY, folder, run_row};
     use std::borrow::Cow;
     use std::collections::HashSet;
 
@@ -974,6 +974,7 @@ mod tests {
             hint: Vec::new(),
             kind: Kind::Special,
             score: 0,
+            priority: DEFAULT_PRIORITY,
         }
     }
 
@@ -986,6 +987,7 @@ mod tests {
             hint: Vec::new(),
             kind: Kind::Command,
             score: 0,
+            priority: DEFAULT_PRIORITY,
         }
     }
 
@@ -999,6 +1001,7 @@ mod tests {
             hint: Vec::new(),
             kind: Kind::Parent,
             score: 0,
+            priority: DEFAULT_PRIORITY,
         }
     }
 

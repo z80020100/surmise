@@ -75,6 +75,14 @@ pub struct Candidate {
     pub hint: Vec<String>,
     pub kind: Kind,
     pub score: i32,
+    /// What the row's own specification says it is worth, 0 through 100.
+    /// [`DEFAULT_PRIORITY`] where the specification says nothing and on
+    /// every row surmise names itself.
+    ///
+    /// `svn commit ` is what it is for. The corpus puts `-m` at 100 and
+    /// alphabetical order buries the one flag that command cannot be run
+    /// without under six that configure the connection.
+    pub priority: u8,
 }
 
 pub struct Query {
@@ -227,6 +235,20 @@ fn list_entries(dir: &Path, want_hidden: bool) -> Vec<(String, bool)> {
         .collect()
 }
 
+/// What a row is worth where nothing says otherwise. The middle of the
+/// range, which is what lets a specification push a row either way from
+/// it, and the same default Q reads.
+pub(crate) const DEFAULT_PRIORITY: u8 = 50;
+
+/// A specification's own `priority` as [`rank`] reads it. The corpus is
+/// JSON and carries whatever number was written into it. The range is
+/// closed here rather than trusted. Q closes it the same way and exempts
+/// only its auto-execute rows. No specification carries that kind of row
+/// and this menu does not make one.
+pub(crate) fn priority_of(raw: Option<i64>) -> u8 {
+    raw.map_or(DEFAULT_PRIORITY, |p| p.clamp(0, 100) as u8)
+}
+
 pub(crate) fn folder(display: String, insert: String, score: i32) -> Candidate {
     Candidate {
         display,
@@ -235,6 +257,7 @@ pub(crate) fn folder(display: String, insert: String, score: i32) -> Candidate {
         hint: Vec::new(),
         kind: Kind::Dir,
         score,
+        priority: DEFAULT_PRIORITY,
     }
 }
 
@@ -252,6 +275,7 @@ pub(crate) fn run_row(insert: String) -> Candidate {
         hint: Vec::new(),
         kind: Kind::Run,
         score: 0,
+        priority: DEFAULT_PRIORITY,
     }
 }
 
@@ -376,9 +400,15 @@ fn group_rank(kind: Kind) -> u8 {
 /// with `crate::spec_menu`'s: a name that folds to exactly what was typed
 /// leads, a name that merely starts with it follows, a tie inside either
 /// goes to the row the shell history favours, a further tie keeps the fuzzy
-/// score's own order, the group the row came from breaks what is still
-/// level and a name breaks whatever is left. One `rank` rather than one
-/// copy each is what keeps the two menus from drifting apart.
+/// score's own order, the specification's own `priority` breaks that, the
+/// group the row came from breaks what is still level and a name breaks
+/// whatever is left. One `rank` rather than one copy each is what keeps
+/// the two menus from drifting apart.
+///
+/// `priority` sits above the group and under the score for the reason Q
+/// puts it there. A number a specification wrote down says more than the
+/// group a row happens to belong to and less than how well what was typed
+/// reaches its name.
 ///
 /// `used_after` is the history term, and `None` is what turns it off.
 /// [`crate::histfile::Counts`] holds how often a command's *second* word
@@ -414,6 +444,7 @@ pub(crate) fn rank(rows: &mut Vec<Candidate>, term: &str, used_after: Option<Use
             Reverse(tier(&c.display)),
             Reverse(used_after.map_or(0, |h| h.counts.count(h.command, typed_as(c)))),
             Reverse(c.score),
+            Reverse(c.priority),
             Reverse(group_rank(c.kind)),
             c.display.clone(),
         )
@@ -441,6 +472,7 @@ fn predict(arg: &str, cwd: &Path, scan: &mut Scan) -> Vec<Candidate> {
             hint: Vec::new(),
             kind: Kind::Special,
             score: 15,
+            priority: DEFAULT_PRIORITY,
         });
     }
     out
@@ -493,6 +525,7 @@ pub(crate) fn generate_in(
             } else {
                 score
             },
+            priority: DEFAULT_PRIORITY,
         });
     }
     let mut weighted: Vec<_> = out
@@ -764,6 +797,19 @@ mod tests {
                 assert_eq!(names, ["wo/", &long_display, "a_wo/", "z_w_x_o/"]);
             }
         }
+    }
+
+    #[test]
+    fn a_priority_outside_the_range_is_closed_to_it() {
+        // Every one of the 4504 values the corpus carries already sits
+        // between 0 and 100. A `spec_dirs` file is hand written and a
+        // regenerated corpus is whatever the upstream wrote. The range is
+        // closed here rather than trusted.
+        assert_eq!(priority_of(None), DEFAULT_PRIORITY);
+        assert_eq!(priority_of(Some(0)), 0);
+        assert_eq!(priority_of(Some(100)), 100);
+        assert_eq!(priority_of(Some(-1)), 0);
+        assert_eq!(priority_of(Some(1_000)), 100);
     }
 
     #[test]

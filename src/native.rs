@@ -16,7 +16,7 @@
 //! line. Neither argument below kept a command line, so that table would
 //! have no work to do for them and is not built here.
 
-use crate::candidates::{Candidate, Kind};
+use crate::candidates::{Candidate, DEFAULT_PRIORITY, Kind};
 use crate::fuzzy;
 use std::borrow::Cow;
 use std::collections::HashSet;
@@ -119,6 +119,7 @@ fn candidates(reader: &Reader, sources: &Sources, term: &str) -> Vec<Candidate> 
                 label: Cow::Borrowed(reader.label),
                 hint: Vec::new(),
                 score,
+                priority: DEFAULT_PRIORITY,
             })
         })
         .collect()
