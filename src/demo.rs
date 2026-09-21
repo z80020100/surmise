@@ -3,25 +3,30 @@
 //! `surmise demo` is how a person tries the menu before editing a `.zshrc`
 //! of their own, and how a reviewer reads a branch back at a real terminal.
 //! It points `$HOME`, `$ZDOTDIR`, the two XDG directories and `$HISTFILE` at
-//! a throwaway directory, writes a small repository under it and starts zsh
-//! there. The directory goes when that shell exits.
+//! a throwaway directory and starts zsh on it. The directory goes when that
+//! shell exits.
+//!
+//! **The working directory is the one the command was run in.** A menu here
+//! therefore completes on the person's own files, their own branches and the
+//! makefile beside them rather than on a repository this module made up. A
+//! line run in that shell runs where they started it.
+//!
+//! The throwaway home is what a demo cannot borrow from them. The directory
+//! history, the state file and the config go into it rather than into the
+//! ones they keep. The SSH configuration and the history file are fixtures
+//! because `$HOME` and `$HISTFILE` both move and the readers that answer
+//! from those two would have nothing to show otherwise.
 //!
 //! It is not a sandbox and nothing here claims to be one. The filesystem
-//! around that home is the real one and a command typed in the demo shell
-//! runs the way it always would. What moves is where surmise, zsh and Git
-//! look for the files a person keeps.
-//!
-//! [`crate::fixture::Fixture`] makes a throwaway tree as well and this does
-//! not use it. That one panics where a test wants a panic, widens the Git
-//! query budget because no prompt is waiting on a test, and commits an empty
-//! tree. A demo wants none of the three.
+//! around that home is the real one. What moves is where surmise, zsh and
+//! Git look for the files a person keeps.
 
 use std::fs::DirBuilder;
 use std::io::ErrorKind;
 use std::os::unix::fs::DirBuilderExt;
 use std::os::unix::process::CommandExt;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+use std::process::Command;
 
 /// The startup file the demo shell reads, compiled in for the reason the
 /// widget is: `cargo install` places a binary and nothing beside it.
@@ -31,47 +36,12 @@ use std::process::{Command, Stdio};
 /// shell` checks the bytes that run rather than a template of them.
 const RC: &str = include_str!("../shell/demo.zsh");
 
-/// The targets the demo makefile carries. `make ` in the demo shell is the
-/// native reader answering out of this list.
-const MAKE_TARGETS: [&str; 5] = ["build", "test", "lint", "package", "clean"];
-
-/// The hosts the demo SSH configuration carries. Every one of them resolves
-/// nowhere. `.invalid` is the domain reserved for exactly that and a demo
-/// therefore cannot name a machine somebody owns.
+/// The hosts the demo SSH configuration carries. `$HOME` moves, so the
+/// person's own configuration cannot be read from the demo and this is what
+/// `ssh ` answers from instead. Every name resolves nowhere. `.invalid` is
+/// the domain reserved for exactly that and a demo therefore cannot name a
+/// machine somebody owns.
 const SSH_HOSTS: [&str; 4] = ["build-north", "build-south", "cache-relay", "docs-mirror"];
-
-/// The branches beside the one the commit lands on.
-const BRANCHES: [&str; 4] = [
-    "feature/blue-label",
-    "feature/green-label",
-    "fix/tab-order",
-    "release/2.0",
-];
-
-/// What the demo repository commits. `git add ` offers what [`dirty`] puts
-/// on top of these afterwards.
-const COMMITTED: [(&str, &str); 5] = [
-    (
-        "README.md",
-        "# sample\n\nA repository `surmise demo` made. Nothing in it is real.\n",
-    ),
-    ("docs/guide.md", "# Guide\n\nOne page.\n"),
-    ("src/main.rs", "fn main() {\n    println!(\"sample\");\n}\n"),
-    ("src/helper.rs", "pub fn helper() -> u8 {\n    1\n}\n"),
-    ("assets/icons/marker.svg", "<svg></svg>\n"),
-];
-
-/// What the working tree carries on top of that commit. `git add ` has a
-/// modification and two untracked files to offer because of it. The first
-/// path is one [`COMMITTED`] already wrote.
-const DIRT: [(&str, &str); 3] = [
-    (
-        "src/main.rs",
-        "fn main() {\n    println!(\"sample\");\n    println!(\"edited\");\n}\n",
-    ),
-    ("docs/notes.md", "Untracked.\n"),
-    ("assets/icons/arrow.svg", "<svg></svg>\n"),
-];
 
 /// The history the `$HISTFILE` tie-break reads. A demo opens on the order a
 /// person's own typing would have earned rather than on the alphabet. Both
@@ -128,11 +98,10 @@ impl Drop for Root {
     }
 }
 
-/// Where each part of a demo went.
+/// Where each part of a demo home went.
 struct Layout {
     home: PathBuf,
     zdotdir: PathBuf,
-    repo: PathBuf,
     histfile: PathBuf,
 }
 
@@ -145,21 +114,14 @@ pub fn run() -> Result<(), String> {
         std::env::current_exe().map_err(|e| format!("cannot find the running binary: {e}"))?;
     let root = Root::new()?;
     let layout = build(&root.0)?;
-    if !init_repo(&layout.repo, &layout.home) {
-        // Every menu that is not Git's own still works. Saying so beats a
-        // demo that silently drops a third of what its banner offers.
-        eprintln!("surmise: no Git here. The demo opens on a directory rather than a repository.");
-    }
-    dirty(&layout.repo)?;
     shell(&layout, &binary)
 }
 
-/// Write everything that has to be there before the commit is made.
+/// Write the three files the demo home is.
 fn build(root: &Path) -> Result<Layout, String> {
     let zdotdir = root.join("zdotdir");
     let layout = Layout {
         home: root.join("home"),
-        repo: root.join("repo"),
         histfile: zdotdir.join(".histfile"),
         zdotdir,
     };
@@ -169,28 +131,7 @@ fn build(root: &Path) -> Result<Layout, String> {
     // Nothing makes the XDG directories here. `history.rs` and `state.rs`
     // each make their own with a mode of their own when they first write,
     // and a directory made here would be the one they found instead.
-    write(&layout.repo.join("Makefile"), &makefile())?;
-    for (name, text) in COMMITTED {
-        write(&layout.repo.join(name), text)?;
-    }
     Ok(layout)
-}
-
-/// Put the working tree out of step with the commit.
-fn dirty(repo: &Path) -> Result<(), String> {
-    for (name, text) in DIRT {
-        write(&repo.join(name), text)?;
-    }
-    Ok(())
-}
-
-/// One recipe per target and `@echo` as the whole of it. A demo completes a
-/// command line rather than runs one.
-fn makefile() -> String {
-    MAKE_TARGETS
-        .iter()
-        .map(|target| format!("{target}:\n\t@echo {target}\n\n"))
-        .collect()
 }
 
 fn ssh_config() -> String {
@@ -209,53 +150,6 @@ fn write(path: &Path, text: &str) -> Result<(), String> {
     std::fs::write(path, text).map_err(|e| format!("cannot write {}: {e}", path.display()))
 }
 
-/// Make the repository the demo opens in. `false` where Git is missing or
-/// refused a step. That is not fatal: the rest of the demo stands without a
-/// repository and [`run`] says what was lost.
-fn init_repo(repo: &Path, home: &Path) -> bool {
-    let steps: [&[&str]; 4] = [
-        &["init", "--quiet", "--template=", "--initial-branch=main"],
-        // The machine's own excludes file reaches this repository through
-        // the Git a menu runs for itself. A name the person ignores at home
-        // would otherwise go missing from what `git add ` offers here.
-        &["config", "core.excludesFile", "/dev/null"],
-        &["add", "--all", "."],
-        &["commit", "--quiet", "-m", "Sample"],
-    ];
-    steps.iter().all(|args| git(repo, home, args).is_some())
-        && BRANCHES
-            .iter()
-            .all(|branch| git(repo, home, &["branch", branch]).is_some())
-}
-
-/// Run Git in `repo` with a synthetic identity and none of the machine's own
-/// configuration. What it printed, or `None` where Git is missing or the
-/// command failed.
-///
-/// The output is captured rather than inherited. This runs before the demo
-/// shell draws its first prompt and a line from Git there would be the first
-/// thing a person saw.
-fn git(repo: &Path, home: &Path, args: &[&str]) -> Option<String> {
-    let out = Command::new("git")
-        .args(args)
-        .current_dir(repo)
-        .env_clear()
-        .env("PATH", std::env::var_os("PATH").unwrap_or_default())
-        .env("HOME", home)
-        .env("GIT_CONFIG_NOSYSTEM", "1")
-        .env("GIT_CONFIG_GLOBAL", "/dev/null")
-        .env("GIT_AUTHOR_NAME", "Sample")
-        .env("GIT_AUTHOR_EMAIL", "sample@example.invalid")
-        .env("GIT_COMMITTER_NAME", "Sample")
-        .env("GIT_COMMITTER_EMAIL", "sample@example.invalid")
-        .stdin(Stdio::null())
-        .output()
-        .ok()?;
-    out.status
-        .success()
-        .then(|| String::from_utf8_lossy(&out.stdout).trim_end().to_string())
-}
-
 /// Hand the terminal to zsh and wait for it to leave.
 fn shell(layout: &Layout, binary: &Path) -> Result<(), String> {
     let mut cmd = Command::new("zsh");
@@ -267,16 +161,14 @@ fn shell(layout: &Layout, binary: &Path) -> Result<(), String> {
     // terminal a question ahead of the first prompt. `tests/pty/zsh.rs`
     // passes the same flag for the same reason.
     cmd.arg("-d");
-    cmd.current_dir(&layout.repo);
+    // The working directory is inherited rather than set. It is the whole of
+    // what a demo shows a person about their own files.
     cmd.env("HOME", &layout.home);
     cmd.env("ZDOTDIR", &layout.zdotdir);
     cmd.env("XDG_DATA_HOME", layout.home.join(".local").join("share"));
     cmd.env("XDG_CONFIG_HOME", layout.home.join(".config"));
     cmd.env("HISTFILE", &layout.histfile);
     cmd.env("SURMISE_BIN", binary);
-    // Git reads `/etc/gitconfig` whatever `$HOME` says. One machine's
-    // system-wide aliases in the demo menu would not be surmise.
-    cmd.env("GIT_CONFIG_NOSYSTEM", "1");
     // SAFETY: `signal` with `SIG_DFL` is async-signal-safe and touches no
     // memory of ours, which is what a closure between fork and exec is
     // allowed to do. It is here because the parent ignores those two keys
@@ -316,11 +208,26 @@ mod tests {
     use super::*;
     use crate::fixture::Fixture;
 
-    /// A demo laid out under a directory of the test's own.
+    /// A demo home laid out under a directory of the test's own.
     fn laid_out() -> (Fixture, Layout) {
         let f = Fixture::new(&[]);
         let layout = build(f.path()).expect("a demo home");
         (f, layout)
+    }
+
+    /// Every file under `dir`, at any depth.
+    fn walk(dir: &Path) -> Vec<PathBuf> {
+        let mut out = Vec::new();
+        for entry in std::fs::read_dir(dir).expect("a directory").flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                out.extend(walk(&path));
+            } else {
+                out.push(path);
+            }
+        }
+        out.sort();
+        out
     }
 
     #[test]
@@ -339,16 +246,6 @@ mod tests {
         assert!(RC.contains("eval \"$($SURMISE_BIN init zsh)\""));
     }
 
-    #[test]
-    fn the_makefile_is_one_the_make_reader_answers_from() {
-        let (_f, layout) = laid_out();
-        let rows = crate::native::rows("make", "target", "", &layout.repo);
-        let names: Vec<&str> = rows.iter().map(|row| row.display.as_str()).collect();
-        for target in MAKE_TARGETS {
-            assert!(names.contains(&target), "{names:?}");
-        }
-    }
-
     /// The demo ships in the repository and a name in it reaches anybody who
     /// runs one. Every host here has to be a name that resolves nowhere.
     #[test]
@@ -364,19 +261,17 @@ mod tests {
         }
     }
 
+    /// The home is three files. A fourth would be the demo deciding
+    /// something for a person rather than lending them a shell.
     #[test]
-    fn the_repository_arrives_with_branches_and_something_to_stage() {
-        let (_f, layout) = laid_out();
-        assert!(init_repo(&layout.repo, &layout.home), "no repository");
-        dirty(&layout.repo).expect("a working tree");
-        let read = |args: &[&str]| git(&layout.repo, &layout.home, args).expect("a Git answer");
-        let status = read(&["status", "--porcelain"]);
-        assert!(status.contains(" M src/main.rs"), "{status}");
-        assert!(status.contains("?? docs/notes.md"), "{status}");
-        assert!(status.contains("?? assets/icons/arrow.svg"), "{status}");
-        let branches = read(&["branch", "--format=%(refname:short)"]);
-        for branch in BRANCHES {
-            assert!(branches.contains(branch), "{branches}");
-        }
+    fn the_home_holds_three_files_and_nothing_else() {
+        let (f, layout) = laid_out();
+        let mut want = vec![
+            layout.home.join(".ssh").join("config"),
+            layout.histfile.clone(),
+            layout.zdotdir.join(".zshrc"),
+        ];
+        want.sort();
+        assert_eq!(walk(f.path()), want);
     }
 }

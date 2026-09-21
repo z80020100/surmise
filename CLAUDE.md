@@ -56,23 +56,22 @@ line and the ghost text follows the line either way.
 surmise demo
 ```
 
-That starts an interactive zsh in a home the command makes for it. `$HOME`,
-`$ZDOTDIR`, the two XDG directories and `$HISTFILE` all point into that home.
-The menu therefore opens on a history, an SSH configuration and a repository
-the command wrote rather than on the ones you keep. Leaving that shell takes
-the whole directory away with it. Nothing is installed and your own `.zshrc`
-is neither read nor changed.
+That starts an interactive zsh in a home the command makes for it and in the
+directory you ran it from. `$HOME`, `$ZDOTDIR`, the two XDG directories and
+`$HISTFILE` all point into that home. The directories you have visited, your
+settings and the menu's own state file therefore stay where they are and the
+demo keeps a set of its own. Leaving that shell takes the home away with it.
+Nothing is installed and your own `.zshrc` is neither read nor changed.
 
-It is not a sandbox and it claims to be none. The filesystem around that home
-is the real one and a command typed in the demo shell runs the way it always
-would. What moves is where surmise, zsh and Git look for the files a person
-keeps.
+**The files are your own.** The menu completes on the directory you started
+in. `cd `, `git add `, `git switch ` and `make ` therefore all answer out of
+the project in front of you. A line you run in that shell runs. This is a shell
+in your own working directory with a home of its own rather than a sandbox.
 
-The banner lists what there is to try. `make ` and `ssh ` read the makefile
-and the SSH configuration the demo wrote. `git switch ` reads its four
-branches and `git add ` reads its one modification and its two untracked
-files. `g ` is an alias that opens `git`'s own specification. Every host name
-in that SSH configuration ends in `.example.invalid` and resolves nowhere.
+Two answers are the demo's own because the home is what moved. `ssh ` reads
+four hosts it wrote. Every one of them ends in `.example.invalid` and
+resolves nowhere. The `$HISTFILE` tie-break reads a history file it wrote. The
+ranking therefore has an order to show rather than an empty file.
 
 `shell/demo.zsh` is the `.zshrc` it writes and the binary carries that file
 the way it carries the widget. The file holds no path of its own and reads
@@ -80,10 +79,9 @@ the way it carries the widget. The file holds no path of its own and reads
 therefore the bytes that run. The demo installs the widget through the same
 `eval "$(surmise init zsh)"` line this file gives a person.
 
-A machine with no Git gets the whole demo except the repository and one line
-on stderr that says so. A demo that is killed rather than left leaves its
-directory behind under the temporary directory. Nothing reads that directory
-again and the next demo makes one of its own.
+A demo that is killed rather than left leaves its home behind under the
+temporary directory. Nothing reads that directory again and the next demo
+makes one of its own.
 
 ## Use
 
@@ -802,7 +800,7 @@ way would therefore put the terminal the suite was started from into raw mode.
 `tests/pty/main.rs` is the only test binary and its siblings are its modules.
 `term` is the harness, `pick` runs `surmise --pick LINE`, `zsh` runs the
 widget in a real `zsh -i`, `history` runs the directory hook and `demo` runs
-`surmise demo` and opens a menu on the files it wrote. cargo makes a
+`surmise demo` and opens a menu on the directory it was given. cargo makes a
 target of `tests/<name>/main.rs` as well as of a file directly under `tests/`.
 The second form would compile `term` again for each one. `dead_code` counts
 the methods a binary never calls and turns the gate red. One binary sees every
