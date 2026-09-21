@@ -716,6 +716,21 @@ fn enter_takes_the_directory_and_a_second_enter_asks_for_the_line_to_be_run() {
 }
 
 #[test]
+fn enter_on_a_file_a_specification_offers_hands_the_line_back() {
+    // `ls` takes as many names as it is given and reads them out of the one
+    // directory. The menu this acceptance would reopen is therefore the menu
+    // that was already on the screen. A second press there would put `one` on
+    // the line again. The run ends instead and the shell gets the finished
+    // word.
+    let f = Fixture::new(&["one*", "two*"]);
+    let mut t = opened(f.path(), "ls ");
+    assert_eq!(names(&t)[0], "one");
+    t.send("\r");
+    assert_eq!(t.status(WAIT), Some(pick::ACCEPTED));
+    assert!(shown(&t).contains("ls one"), "{:?}", t.lines());
+}
+
+#[test]
 fn the_menu_is_a_closed_box_with_the_row_that_runs_in_it() {
     // The other two `intact` cases open on a bare `cd ` and that line never
     // gets the row. This one does and the glyph and the row's empty name
