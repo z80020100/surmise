@@ -295,8 +295,11 @@ mod tests {
 
     #[test]
     fn a_line_that_is_not_a_cd_is_left_to_the_shell() {
+        // `ls` completes its own argument now that `spec_menu` answers a
+        // `filepaths` template; `zzz` is what still matches nothing there,
+        // in the fixture or among `ls`'s own options.
         let f = Fixture::new(&["work"]);
-        assert!(seeded("ls wo", f.path()).is_none());
+        assert!(seeded("ls zzz", f.path()).is_none());
     }
 
     #[test]

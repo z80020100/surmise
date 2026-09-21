@@ -342,12 +342,21 @@ on, or a row's whole name where only one agrees. Accepting a row never runs
 it. Moving the cursor off the word a row would replace makes that row go
 stale, the same way a Git row does.
 
-An argument that needs a generator, a script or a native reader — a package's
-own scripts, a branch name, anything `specs/dynamic.txt` names — offers no
-rows rather than guessing at one or running one unasked. That is the whole of
-what this menu answers for an argument today; teaching `argwalk` to fill one
-in from a generator, the way the Git branch and file readers already do their
-own, is a later phase.
+A generator's own template answers for three of the four names the corpus
+carries. `filepaths` and `folders` read the filesystem the way `cd`'s own menu
+does, through the one directory walk a menu already keeps for its own life;
+`folders` is `filepaths` with only its directories kept. A folder row carries
+the same history weight `cd` weighs its own rows by, and a file row carries
+none, the way `cd` never offers one to weigh in the first place. `help` offers
+the sibling subcommands of the argument's own enclosing node, so `fnm help `
+offers `fnm`'s own subcommands rather than `help`'s, which has none of its
+own. `history` answers nothing yet; a later phase gives it a reader.
+
+An argument that needs anything else — a script, a native reader, a package's
+own scripts, a branch name, anything `specs/dynamic.txt` names — still offers
+no rows rather than guessing at one or running one unasked. Teaching `argwalk`
+to fill one of those in from a generator, the way the Git branch and file
+readers already do their own, remains a later phase.
 
 Tab is the only way in. A bare `docker ` does not open the menu the way a bare
 `cd ` does; widening that trigger is a change of its own, in
