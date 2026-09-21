@@ -17,6 +17,7 @@ pub mod keys;
 pub mod line;
 pub mod path;
 pub mod pick;
+pub mod shellparse;
 pub mod shellword;
 pub mod spec;
 pub mod spec_store;
