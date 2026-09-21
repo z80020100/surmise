@@ -7,7 +7,7 @@
 //! the cursor breaks the moment a paint scrolls the screen. A cursor-position
 //! query hangs on a terminal that does not answer.
 
-use crate::candidates::{Candidate, FOLDER, Kind};
+use crate::candidates::{CURRENT_BRANCH, Candidate, FOLDER, Kind};
 use crate::fuzzy;
 use crate::line::Line;
 use std::io::{self, Write};
@@ -54,20 +54,43 @@ const BORDER: &str = "\x1b[38;5;238m";
 const RULE: char = '\u{2500}';
 const UNDER: &str = "\x1b[4m";
 const UNDER_OFF: &str = "\x1b[24m";
-/// Nerd Font `nf-fa-folder`. This is the glyph on a directory row and on the
-/// row that goes up. The three below are the others. A terminal without a
-/// patched font draws a blank box here.
-const ICON: &str = "\u{f07b}";
-/// Nerd Font `nf-fa-home`. The home shortcut is a directory like any other
-/// and wears the same colour. The shape is what says which one it is.
-const HOME_ICON: &str = "\u{f015}";
-/// The row that runs the line rather than growing it. This one is an ordinary
-/// character, because the row names an action rather than a directory and a
-/// terminal with no patched font still draws it.
+/// The glyph on a directory row and on the row that goes up. The six below
+/// are the others. Each one a terminal draws from the font it already has,
+/// where the Nerd Font codepoints these replace drew a blank box on a
+/// terminal with no patched font. The price is that they no longer all
+/// measure the same and `ICONS` is what pays it.
+const ICON: &str = "📁";
+/// The home shortcut is a directory like any other and wears the same colour.
+/// The shape is what says which one it is.
+const HOME_ICON: &str = "🏠";
+/// The row that runs the line rather than growing it. An ordinary character,
+/// because the row names an action rather than a thing.
 const RUN_ICON: &str = "\u{21b5}";
-/// A Git subcommand row. An ordinary character for the same reason as
-/// `RUN_ICON`: the row names a command rather than a directory.
-const CMD_ICON: &str = "#";
+/// A Git subcommand row.
+const CMD_ICON: &str = "🔧";
+/// A Git branch row.
+const BRANCH_ICON: &str = "🌿";
+/// The branch the repository is on. A shape of its own on a row that is a
+/// branch row like any other, because the name beside it says nothing about
+/// where the repository already stands.
+const CURRENT_BRANCH_ICON: &str = "⭐";
+/// A file row, and a path row where the path is not a directory.
+const FILE_ICON: &str = "📄";
+/// A Git option row.
+const OPTION_ICON: &str = "❓";
+/// Every glyph a row can carry. `menu_rows` measures the widest of them for
+/// the column the names start in and each row pads its own glyph out to it.
+/// A glyph missing from here draws its row a cell short of the rest.
+const ICONS: [&str; 8] = [
+    ICON,
+    HOME_ICON,
+    RUN_ICON,
+    CMD_ICON,
+    BRANCH_ICON,
+    CURRENT_BRANCH_ICON,
+    FILE_ICON,
+    OPTION_ICON,
+];
 const ICON_FG: &str = "\x1b[38;5;75m";
 /// The glyph on the row that runs the line. A colour apart from the folder
 /// blue is what marks that row out now that it carries no name.
@@ -281,20 +304,28 @@ fn window_start(top: usize, selected: usize, rows: usize, total: usize) -> usize
 fn glyph(k: Kind, chosen: bool) -> (&'static str, &'static str) {
     // Every variant is named rather than swept into a catch-all. A new one
     // then fails the build here the way it does in `tab_grows` below.
-    match (k, chosen) {
+    let icon = match k {
+        Kind::Command => CMD_ICON,
+        Kind::Branch => BRANCH_ICON,
+        Kind::File | Kind::Path => FILE_ICON,
+        Kind::Option => OPTION_ICON,
+        Kind::Run => RUN_ICON,
+        Kind::Special => HOME_ICON,
+        Kind::Dir | Kind::Parent => ICON,
+    };
+    let fg = match (k, chosen) {
         (Kind::Command | Kind::Branch | Kind::File | Kind::Option | Kind::Path, false) => {
-            (CMD_ICON, CMD_ICON_FG)
+            CMD_ICON_FG
         }
         (Kind::Command | Kind::Branch | Kind::File | Kind::Option | Kind::Path, true) => {
-            (CMD_ICON, CMD_ICON_FG_CHOSEN)
+            CMD_ICON_FG_CHOSEN
         }
-        (Kind::Run, false) => (RUN_ICON, RUN_ICON_FG),
-        (Kind::Run, true) => (RUN_ICON, RUN_ICON_FG_CHOSEN),
-        (Kind::Special, false) => (HOME_ICON, ICON_FG),
-        (Kind::Special, true) => (HOME_ICON, ICON_FG_CHOSEN),
-        (Kind::Dir | Kind::Parent, false) => (ICON, ICON_FG),
-        (Kind::Dir | Kind::Parent, true) => (ICON, ICON_FG_CHOSEN),
-    }
+        (Kind::Run, false) => RUN_ICON_FG,
+        (Kind::Run, true) => RUN_ICON_FG_CHOSEN,
+        (Kind::Special | Kind::Dir | Kind::Parent, false) => ICON_FG,
+        (Kind::Special | Kind::Dir | Kind::Parent, true) => ICON_FG_CHOSEN,
+    };
+    (icon, fg)
 }
 
 /// Whether Tab would grow this row's name. `common` reads the menu the same
@@ -365,11 +396,7 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
     // width above and slides left of the cursor when the right edge is nearer
     // than that.
     let indent = col.saturating_sub(1).min(w.saturating_sub(inner + 2));
-    let icon_w = cells(ICON)
-        .max(cells(HOME_ICON))
-        .max(cells(RUN_ICON))
-        .max(cells(CMD_ICON))
-        + 1;
+    let icon_w = ICONS.into_iter().map(cells).max().unwrap_or(0) + 1;
     // A terminal too narrow for the icon and a name gets no panel at all.
     let Some(text_w) = inner.checked_sub(icon_w) else {
         return Vec::new();
@@ -425,7 +452,13 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
                 c.kind
             };
             let (icon, icon_fg) = glyph(icon_kind, chosen);
-            format!("{pad}{ground} {icon_fg}{icon} {name_fg}{name} {RESET}")
+            let icon = if c.kind == Kind::Branch && c.label == CURRENT_BRANCH {
+                CURRENT_BRANCH_ICON
+            } else {
+                icon
+            };
+            let icon_pad = " ".repeat(icon_w - cells(icon));
+            format!("{pad}{ground} {icon_fg}{icon}{icon_pad}{name_fg}{name} {RESET}")
         })
         .collect();
 
@@ -1366,14 +1399,31 @@ mod tests {
     }
 
     #[test]
-    fn the_row_glyphs_are_all_the_same_width() {
-        // `menu_rows` takes the glyph column out of the panel's inner width
-        // once and measures it from the widest glyph. Names line up only while
-        // every glyph agrees, because each row spends `cells(glyph) + 1` on
-        // its own before the name starts.
-        assert_eq!(cells(ICON), cells(HOME_ICON));
-        assert_eq!(cells(ICON), cells(RUN_ICON));
-        assert_eq!(cells(ICON), cells(CMD_ICON));
+    fn mixed_glyph_widths_keep_the_panel_aligned() {
+        let kinds = [
+            Kind::Run,
+            Kind::Dir,
+            Kind::Parent,
+            Kind::Special,
+            Kind::Command,
+            Kind::Branch,
+            Kind::File,
+            Kind::Option,
+            Kind::Path,
+        ];
+        for width in [24, 80] {
+            for kind in kinds {
+                let mut item = dir("alpha/");
+                item.kind = kind;
+                let items = vec![item];
+                let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
+                let rows = menu_rows(&m, width, 1, 0);
+                let row = &rows[0];
+                let name_at = row.find("alpha/").expect("the name");
+                assert_eq!(cells_of_row(&row[..name_at]), 4);
+                assert_eq!(cells_of_row(&rows[0]), cells_of_row(&rows[1]));
+            }
+        }
     }
 
     #[test]

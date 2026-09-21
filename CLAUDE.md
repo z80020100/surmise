@@ -211,7 +211,9 @@ remote branch names that Git can infer from locally stored remote refs.
 Remote names have no remote prefix. A name shared by several remotes needs
 `checkout.defaultRemote` to select one of them. `checkout.guess=false` disables
 remote candidates. The menu excludes symbolic remote refs such as the remote's
-`HEAD`. It does not fetch branches or contact a remote.
+`HEAD`. It does not fetch branches or contact a remote. The branch the
+repository is on wears a mark of its own. The row is a branch row like any
+other and the name on it says nothing about where the repository stands.
 
 Branch matching uses the whole name including every `/`. Enter accepts the
 highlighted branch. Right accepts a prefix match. Tab accepts a shared prefix

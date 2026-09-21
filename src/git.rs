@@ -1,7 +1,7 @@
 //! Git subcommand, branch and file completion from the installed Git.
 
 use crate::candidates::{
-    Candidate, FOLDER, Kind, MAX_RESULTS, Query, SCAN_LIMIT, Scan, match_rank,
+    CURRENT_BRANCH, Candidate, FOLDER, Kind, MAX_RESULTS, Query, SCAN_LIMIT, Scan, match_rank,
 };
 use crate::fuzzy;
 use std::borrow::Cow;
@@ -566,7 +566,8 @@ fn branch_names(refs: &str, config: &str, guess: bool) -> Vec<String> {
     let mut local = BTreeSet::new();
     let mut remote: HashMap<String, BTreeSet<&str>> = HashMap::new();
     for line in refs.lines() {
-        let Some((reference, "")) = line.split_once('\t') else {
+        let mut fields = line.split('\t');
+        let (Some(reference), Some("")) = (fields.next(), fields.next()) else {
             continue;
         };
         if let Some(name) = reference.strip_prefix("refs/heads/") {
@@ -597,7 +598,7 @@ fn branch_names(refs: &str, config: &str, guess: bool) -> Vec<String> {
 }
 
 /// All reads share the menu's time and output budgets. No query contacts a remote.
-fn read_branches(cwd: &Path) -> Option<Vec<String>> {
+fn read_branches(cwd: &Path) -> Option<Branches> {
     let start = Instant::now();
     let mut remaining_bytes = OUTPUT_LIMIT;
     let mut query = |args: &[&str], absent_ok: bool| {
@@ -611,7 +612,7 @@ fn read_branches(cwd: &Path) -> Option<Vec<String>> {
     let refs = query(
         &[
             "for-each-ref",
-            "--format=%(refname)%09%(symref)",
+            "--format=%(refname)%09%(symref)%09%(HEAD)",
             "refs/heads",
             "refs/remotes",
         ],
@@ -641,7 +642,14 @@ fn read_branches(cwd: &Path) -> Option<Vec<String>> {
     } else {
         String::new()
     };
-    Some(branch_names(&refs, &config, guess))
+    let current = refs.lines().find_map(|line| {
+        let reference = line.strip_suffix("\t\t*")?;
+        reference.strip_prefix("refs/heads/").map(str::to_string)
+    });
+    Some(Branches {
+        names: branch_names(&refs, &config, guess),
+        current,
+    })
 }
 
 /// The names in one `ls-files -z` answer, sorted and unique. A name the query
@@ -705,12 +713,18 @@ pub(crate) fn quote_file(name: &str) -> String {
     crate::shellword::quote(&pathspec)
 }
 
+#[derive(Default)]
+struct Branches {
+    names: Vec<String>,
+    current: Option<String>,
+}
+
 /// Cache command names, branch names and file names separately for one menu.
 /// An empty result stays empty until the next menu.
 #[derive(Default)]
 pub(crate) struct Completions {
     names: Option<Vec<String>>,
-    branches: Option<Vec<String>>,
+    branches: Option<Branches>,
     files: Option<Vec<String>>,
     file_modes: HashMap<FileMode, Vec<String>>,
     dirs: Scan,
@@ -961,8 +975,10 @@ impl Completions {
                 "file",
             ),
             Kind::Branch => (
-                self.branches
-                    .get_or_insert_with(|| read_branches(cwd).unwrap_or_default()),
+                &mut self
+                    .branches
+                    .get_or_insert_with(|| read_branches(cwd).unwrap_or_default())
+                    .names,
                 "branch",
             ),
             _ => (
@@ -1000,6 +1016,12 @@ impl Completions {
                 })
             })
             .collect();
+        if kind == Kind::Branch
+            && let Some(current) = self.branches.as_ref().and_then(|b| b.current.as_ref())
+            && let Some(row) = out.iter_mut().find(|row| &row.insert == current)
+        {
+            row.label = CURRENT_BRANCH;
+        }
         rank(&mut out, arg);
         out
     }
@@ -1581,11 +1603,14 @@ mod tests {
     #[test]
     fn branch_ranking_uses_the_whole_name_and_a_cached_snapshot() {
         let mut completions = Completions {
-            branches: Some(vec![
-                "sample/topic".into(),
-                "sample/top".into(),
-                "sample/tip".into(),
-            ]),
+            branches: Some(Branches {
+                names: vec![
+                    "sample/topic".into(),
+                    "sample/top".into(),
+                    "sample/tip".into(),
+                ],
+                current: None,
+            }),
             ..Default::default()
         };
         let rows = completions.candidates(

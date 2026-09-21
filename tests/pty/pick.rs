@@ -12,17 +12,17 @@ use surmise::fixture::Fixture;
 use surmise::pick;
 
 /// The glyph surmise puts on a directory row.
-const ICON: char = '\u{f07b}';
+const ICON: char = '📁';
 
 /// The glyph on the home shortcut. A directory row's colour with a shape of
 /// its own.
-const HOME_ICON: char = '\u{f015}';
+const HOME_ICON: char = '🏠';
 
 /// The glyph on the row that runs the line.
 const RUN_ICON: char = '\u{21b5}';
 
 /// The glyph on a Git subcommand row.
-const CMD_ICON: char = '#';
+const CMD_ICON: char = '🔧';
 
 /// How long a run gets to draw and how long it gets to exit. Both are far past
 /// what the work takes and neither is a measurement.
