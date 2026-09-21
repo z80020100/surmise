@@ -77,7 +77,8 @@ that. Up on the first name and Down on the last wrap to the other end of the
 list and the menu follows in one step.
 
 A selected name that does not fit its row also appears below the separator.
-The name wraps within the panel's width and the label remains below it. The
+The name wraps within the panel's width and the word under it remains
+below that. The
 wrapped name carries no marks and no underline. The row in the list is what
 says how the name got in and what Tab would take. A short terminal
 limits the extra rows and an ellipsis marks any text that still does not fit.
@@ -91,6 +92,7 @@ Without spare rows the menu shows only the list and its label.
 | Right | Take what the highlighted directory adds. At the end of the line |
 | Enter | Go into the highlighted directory or run the line |
 | Esc | Leave the menu and keep what you typed |
+| Ctrl-O | Open the whole of the word under the list |
 | Ctrl-C and Ctrl-G | Leave and restore the line you started with |
 
 A cursor that sits inside a word narrows Tab before surmise reads anything
@@ -287,8 +289,40 @@ the 38 the committed `git` specification carries, 18 are cut short at the
 footer's edge. The position counter used to take its own cells off the end
 of that word and 22 of the 38 left it none. It sits on the panel's top edge
 now and the word under the list has the panel's whole width whatever it
-holds. `plans/phase-4-ui-keys.md` is where the footer becomes a strip that
-wraps instead.
+holds.
+
+That word takes one row unasked. Every row below the list comes out of what
+the list and a wrapped name have left and the highlighted name has first
+claim on them: it says which row the keys would act on and the sentence only
+says what that row does.
+
+A sentence that row cannot hold loses its first parenthetical and everything
+past its first full stop. What is left is shown whole rather than cut short.
+`Use TCP/IP device (error if multiple TCP/IP devices are available)` is 66
+cells and `Use TCP/IP device` is 17. A full stop closes a sentence only where
+two letters or digits run into it. `e.g. ` and an initial therefore cut
+nothing. 66.8% of the corpus's 371 943 descriptions are wider than one row
+and 53.7% still are once the trim has run. The ellipsis is what those get.
+
+Ctrl-O opens that word to every row the terminal spared and closes it again.
+The rule above the word carries the key the way the top edge carries the
+position in the list. Both sit on an edge because that is the one place
+either costs the word nothing. An open word breaks at a space rather than
+wherever the cells run out. A word split over two rows has to be read twice
+and 37 of git's own 38 fit in two rows. Nothing is trimmed while
+it is open. The key asked for the whole of it and a clause is not that. The
+rows it opens are the ones the list and a wrapped name left. A terminal with
+none to spare leaves the word where it was. Q binds this to Ctrl-K and
+surmise keeps Ctrl-K as the shell's own kill-line.
+
+The answer outlives the menu it was given in. It is kept in
+`$XDG_DATA_HOME/surmise/state.toml`, beside the directory history and
+resolved the same way. Every later menu opens the way the key last left it.
+That file is surmise's own note to itself rather than a setting. That is why
+it is not `config.toml`: a file a person writes is not one surmise may
+rewrite. Nothing there reaches the prompt either. A file that will not
+read leaves the word on its one row and a write that will not land loses one
+menu's answer.
 
 Enter accepts the highlighted subcommand and adds a space. Right does the same
 when the name starts with what you typed. Tab accepts the shared prefix or a

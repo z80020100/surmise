@@ -52,10 +52,20 @@ const NAME_MARKED: &str = "\x1b[38;5;188m";
 const BORDER: &str = "\x1b[38;5;238m";
 /// What that line is drawn with.
 const RULE: char = '\u{2500}';
-/// The position in the list, let into the panel's top edge. A grey above the
-/// edge's own and below a name's. The edge must not swallow it and it is not
-/// a name.
-const COUNT_FG: &str = "\x1b[38;5;244m";
+/// What an edge carries: the position in the list on the top one and the key
+/// that opens the word under the list on the rule above that word. A grey
+/// above the edge's own and below a name's. The edge must not swallow either
+/// one and neither of them is a name.
+const EDGE_FG: &str = "\x1b[38;5;244m";
+/// What the rule above the word under the list says the key for it is. Q
+/// puts the badge for its own key in the corner of the popout it draws the
+/// description in. A rule is where a panel with no box of its own has the
+/// room for one. This is the drawn text alone and `pick` is where the key
+/// itself is read.
+///
+/// `^O` rather than `⌃O`. U+2303 is one more shape to ask of a terminal font
+/// and the panel already asks for as few as it can.
+const WHOLE_WORD_BADGE: &str = "^O";
 const UNDER: &str = "\x1b[4m";
 const UNDER_OFF: &str = "\x1b[24m";
 /// The glyph on a directory row and on the row that goes up. The six below
@@ -142,6 +152,16 @@ const MENU_ROWS: usize = 6;
 ///
 /// The constructor is the free function `menu_in` rather than a method.
 const RESERVED_ROWS: usize = 6;
+/// The rows the word under the list takes unasked. One. Every row under the
+/// list comes out of what the list and a wrapped name have left and a
+/// sentence about a row is worth less than the rows it is about. This one
+/// is not among them. [`RESERVED_ROWS`] counts it before `menu_in` sizes
+/// the list. It was never a row the list could have taken and `spare` is
+/// only ever what is left over beyond it.
+///
+/// 33.2% of the corpus's descriptions fit that row whole and [`clause`]
+/// takes that to 46.3%. [`WHOLE_WORD_BADGE`] opens the rest.
+const FOOT_ROWS: usize = 1;
 
 /// The terminal's width. It is never fewer than 24 cells and the panel's
 /// layout arithmetic rests on that floor.
@@ -190,6 +210,10 @@ pub struct Menu<'a> {
     /// How many characters of a name Tab would leave on the line. The run of
     /// that past what was typed is underlined.
     reach: usize,
+    /// Whether the word under the list may take every row the terminal
+    /// spared rather than the one [`FOOT_ROWS`] allows it. `menu_in`
+    /// opens a menu with it off and the picker's own key is what sets it.
+    whole_word: bool,
 }
 
 /// Build the menu for a candidate list and size it to the terminal. `None`
@@ -202,8 +226,11 @@ pub fn menu<'a>(
     selected: usize,
     typed: &'a str,
     reach: usize,
+    whole_word: bool,
 ) -> Option<Menu<'a>> {
-    menu_in(items, selected, height(), typed, reach)
+    let mut m = menu_in(items, selected, height(), typed, reach)?;
+    m.whole_word = whole_word;
+    Some(m)
 }
 
 fn menu_in<'a>(
@@ -225,6 +252,7 @@ fn menu_in<'a>(
         rows: MENU_ROWS
             .min(items.len())
             .min(height.saturating_sub(RESERVED_ROWS).max(1)),
+        whole_word: false,
     })
 }
 
@@ -253,6 +281,36 @@ fn cut(s: &str, w: usize) -> String {
     }
     out.push('…');
     out
+}
+
+/// The first clause of a description, for a footer with no room for the
+/// whole of it. What a parenthetical or a second sentence adds usually
+/// qualifies the first clause rather than says anything the first clause
+/// does not. `Use TCP/IP device (error if multiple TCP/IP devices are
+/// available)` is 66 cells and `Use TCP/IP device` is 17.
+///
+/// 66.8% of the 371 943 descriptions the corpus carries are wider than the
+/// panel's 40 cells and 53.7% still are once this has run. The 13.1% in
+/// between come out whole rather than cut short.
+///
+/// A clause that is the whole of `s` comes back as `s`. So does one this
+/// would leave empty: a description that opens with its own parenthetical
+/// has nothing in front of it to show.
+fn clause(s: &str) -> &str {
+    let bytes = s.as_bytes();
+    // A full stop closes a sentence only where two letters or digits run
+    // into it. `e.g. ` and an initial each end in one of them behind
+    // another stop or a space.
+    let stop = s.match_indices(". ").find(|(i, _)| {
+        *i >= 2 && bytes[i - 1].is_ascii_alphanumeric() && bytes[i - 2].is_ascii_alphanumeric()
+    });
+    let end = [s.find('('), stop.map(|(i, _)| i)]
+        .into_iter()
+        .flatten()
+        .min()
+        .unwrap_or(s.len());
+    let out = s[..end].trim_end_matches([' ', '.']);
+    if out.is_empty() { s } else { out }
 }
 
 /// Pad `s` out to `w` cells. Cut it down and mark the cut when it is wider.
@@ -301,9 +359,56 @@ fn wrap(segs: &[Seg], w: usize, indent: usize) -> Vec<String> {
     rows
 }
 
-/// Display width of a rendered row. The escape sequences do not count.
-fn cells_of_row(row: &str) -> usize {
-    let mut visible = String::new();
+/// Break `s` into at most `rows` rows of `w` cells, at a space wherever
+/// the row holds one. [`wrap`] breaks wherever the cells run out. That is
+/// right for a path and wrong for a sentence: a word split over two rows
+/// has to be read twice.
+///
+/// The last row keeps everything still left rather than its own `w` cells.
+/// The caller's own `fit` is what cuts that row and marks the cut. The
+/// result always holds at least one row.
+fn wrap_words(s: &str, w: usize, rows: usize) -> Vec<String> {
+    // A row of no cells takes no character and the walk below would never
+    // reach the end of `s`.
+    let w = w.max(1);
+    let mut out = Vec::new();
+    let mut rest = s;
+    while !rest.is_empty() {
+        if cells(rest) <= w || out.len() + 1 >= rows {
+            out.push(rest.to_string());
+            break;
+        }
+        // Every character that still fits, and then back to the last
+        // space in the run where the row ended inside a word.
+        let mut head = String::new();
+        for c in rest.chars() {
+            head.push(c);
+            if cells(&head) > w {
+                head.pop();
+                break;
+            }
+        }
+        let cut = match rest[head.len()..].chars().next() {
+            // The row ends where a word does and nothing has to move
+            // down with it.
+            Some(' ') | None => head.len(),
+            // It ends inside one. A word wider than the whole row has no
+            // space of its own to go back to and breaks where the cells
+            // ran out.
+            _ => head.rfind(' ').filter(|i| *i > 0).unwrap_or(head.len()),
+        };
+        out.push(rest[..cut].trim_end().to_string());
+        rest = rest[cut..].trim_start();
+    }
+    if out.is_empty() {
+        out.push(String::new());
+    }
+    out
+}
+
+/// A rendered row's own text, with the escape sequences taken out.
+fn visible(row: &str) -> String {
+    let mut out = String::new();
     let mut chars = row.chars();
     while let Some(c) = chars.next() {
         if c == '\x1b' {
@@ -314,10 +419,15 @@ fn cells_of_row(row: &str) -> usize {
                 }
             }
         } else {
-            visible.push(c);
+            out.push(c);
         }
     }
-    cells(&visible)
+    out
+}
+
+/// Display width of a rendered row. The escape sequences do not count.
+fn cells_of_row(row: &str) -> usize {
+    cells(&visible(row))
 }
 
 /// The first item the panel shows. `top` is what the last frame showed and
@@ -430,30 +540,32 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
         return Vec::new();
     };
     let pad = " ".repeat(indent);
-    // The rule under the list separates it from the word below.
-    let rule = format!(
-        "{pad}{PANEL}{BORDER}{}{RESET}",
-        String::from(RULE).repeat(inner + 2)
-    );
-    // The same rule closes the panel above the first row and the position in
-    // the list is let into it there. The count says where the highlight sits
-    // in the list rather than anything about the word under it. The edge is
-    // also the one place it costs that word nothing. Beside the label it took
-    // cells from a sentence that is usually too long for the panel already.
-    // Two spaces hold the count off the rule and one rule character closes
+    // One of the panel's two rules, with `label` let into its right end. The
+    // top one closes the panel above the first row and the other separates
+    // the list from the word below it. What each one carries belongs on an
+    // edge rather than beside that word. The count says where the highlight
+    // sits and the key says how to open the word. Neither is the sentence
+    // itself and beside it they would take cells from a sentence that is
+    // usually too long for the panel already.
+    //
+    // Two spaces hold the label off the rule and one rule character closes
     // the right end. A panel with no room for all of that keeps the plain
     // edge.
-    let lead = (inner + 2).saturating_sub(cells(&count) + 3);
-    let top = if lead > 0 {
+    let edge = |label: &str| {
+        let lead = (inner + 2).saturating_sub(cells(label) + 3);
+        if lead == 0 {
+            return format!(
+                "{pad}{PANEL}{BORDER}{}{RESET}",
+                String::from(RULE).repeat(inner + 2)
+            );
+        }
         format!(
-            "{pad}{PANEL}{BORDER}{} {COUNT_FG}{count}{BORDER} {RULE}{RESET}",
+            "{pad}{PANEL}{BORDER}{} {EDGE_FG}{label}{BORDER} {RULE}{RESET}",
             String::from(RULE).repeat(lead)
         )
-    } else {
-        rule.clone()
     };
 
-    let mut rows: Vec<String> = vec![top];
+    let mut rows: Vec<String> = vec![edge(&count)];
     rows.extend(shown.iter().enumerate().map(|(r, c)| {
         let text = printable(&c.display);
         let chosen = first + r == m.selected;
@@ -534,9 +646,9 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
         format!("{pad}{ground} {icon_fg}{icon}{icon_pad}{name_fg}{name} {RESET}")
     }));
 
-    rows.push(rule);
+    rows.push(edge(WHOLE_WORD_BADGE));
     let text = printable(&current.display);
-    let spare = m.height.saturating_sub(RESERVED_ROWS + m.rows);
+    let mut spare = m.height.saturating_sub(RESERVED_ROWS + m.rows);
     if cells(&text) > text_w && spare > 0 {
         let mut detail = wrap(&[Seg { style: "", text }], inner, 0);
         if detail.len() > spare {
@@ -546,16 +658,48 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
                 last.push('…');
             }
         }
+        spare -= detail.len();
         rows.extend(
             detail
                 .iter()
                 .map(|row| format!("{pad}{PANEL}{NAME} {} {RESET}", fit(row, inner))),
         );
     }
-    rows.push(format!(
-        "{pad}{PANEL}{FOOT}{ITALIC} {} {RESET}",
-        fit(&current.label, inner)
-    ));
+    // The name above has first claim on what the terminal spared. It says
+    // which row the keys would act on and the sentence under it only says
+    // what that row does.
+    //
+    // The key on the rule gives that sentence every row the name left. One
+    // row is what it takes unasked and 53.7% of the corpus still has more to
+    // say than one row holds once the clause trim below has run.
+    //
+    // A terminal with no row left has none to give and the key then leaves
+    // the word exactly as it was. Trading its trimmed clause for the same
+    // one row of the raw sentence is not what the key was pressed for.
+    let opened = m.whole_word && spare > 0;
+    let foot_rows = if opened { 1 + spare } else { FOOT_ROWS };
+    // The whole of the word under the list where those rows hold it and
+    // its first clause where they do not. Wrapping it one row further is
+    // what asks the question: a sentence that comes back longer than the
+    // rows on offer is one the panel cannot hold. An ellipsis says a
+    // sentence was cut short and nothing says what was cut. A clause that
+    // ends where the writer ended it reads as a sentence.
+    let whole = wrap_words(&current.label, inner, foot_rows + 1);
+    let foot = if whole.len() <= foot_rows {
+        whole
+    } else if opened {
+        // The key was pressed for the whole of it. An ellipsis on the
+        // last row says the terminal is what is short. Trimming a clause
+        // here would answer the question the key had just asked the
+        // other way.
+        wrap_words(&current.label, inner, foot_rows)
+    } else {
+        wrap_words(clause(&current.label), inner, foot_rows)
+    };
+    rows.extend(
+        foot.iter()
+            .map(|row| format!("{pad}{PANEL}{FOOT}{ITALIC} {} {RESET}", fit(row, inner))),
+    );
     rows
 }
 
@@ -1072,14 +1216,31 @@ mod tests {
     }
 
     #[test]
+    fn wrap_words_breaks_at_a_space_and_keeps_the_rest_on_the_last_row() {
+        assert_eq!(wrap_words("one two three", 7, 3), ["one two", "three"]);
+        // The last row on offer keeps everything still left. `fit` is what
+        // cuts it and marks the cut.
+        assert_eq!(wrap_words("one two three", 7, 2), ["one two", "three"]);
+        assert_eq!(wrap_words("one two three", 7, 1), ["one two three"]);
+    }
+
+    #[test]
+    fn wrap_words_breaks_a_word_with_no_space_in_it() {
+        // A word wider than the row has nowhere to break and the cells
+        // running out is the only answer left.
+        assert_eq!(wrap_words("abcdefgh", 4, 3), ["abcd", "efgh"]);
+        assert_eq!(wrap_words("", 4, 2), [""]);
+    }
+
+    #[test]
     fn a_line_separates_the_list_from_the_word_under_it() {
         // It spends the panel's whole width and it is the row above the word
         // rather than the last one.
         let items = dirs(1);
         let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
-        let rule = &rows[rows.len() - 2];
-        assert_eq!(rule.matches(RULE).count(), PANEL_INNER + 2, "{rule:?}");
+        let rule = &rows[rule_row(&rows)];
+        assert_eq!(cells_of_row(rule), PANEL_INNER + 2, "{rule:?}");
         assert!(
             rows.last().expect("a footer").contains("folder"),
             "{rows:?}"
@@ -1090,31 +1251,63 @@ mod tests {
     fn a_line_closes_the_panel_above_the_first_row() {
         // Nothing used to draw above the list and the panel read as cut off
         // against the shell's own line. The rule below closes the bottom and
-        // this is the same rule, the same width, above the top. The edge the
-        // count is let into spends every cell the plain rule spent.
+        // this is the same rule, the same width, above the top. An edge with
+        // a label let into it spends every cell the plain rule spent.
         let items = dirs(1);
         let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         let top = &rows[0];
-        let bottom = &rows[rows.len() - 2];
-        assert_eq!(bottom.matches(RULE).count(), PANEL_INNER + 2, "{bottom:?}");
+        let bottom = &rows[rule_row(&rows)];
         assert_eq!(
             top.matches(RULE).count() + cells("1/1") + 2,
             PANEL_INNER + 2,
             "{top:?}"
         );
+        assert_eq!(
+            bottom.matches(RULE).count() + cells(WHOLE_WORD_BADGE) + 2,
+            PANEL_INNER + 2,
+            "{bottom:?}"
+        );
         assert_eq!(cells_of_row(top), cells_of_row(bottom));
     }
 
     #[test]
-    fn a_panel_with_no_room_for_the_count_keeps_a_plain_edge() {
-        // The count asks for two spaces and a rule character of its own
-        // beside it. A panel that narrow draws the edge it always drew
-        // rather than half a count.
+    fn an_edge_with_no_room_for_its_label_keeps_a_plain_rule() {
+        // A label asks for two spaces and a rule character of its own
+        // beside it. An edge that narrow draws the rule it always drew
+        // rather than half a label.
+        let items = dirs(1);
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
+        let rows = menu_rows(&m, 5, 0, 0);
+        let plain = String::from(RULE).repeat(5);
+        assert_eq!(visible(&rows[0]), plain, "{rows:?}");
+        assert_eq!(visible(&rows[rule_row(&rows)]), plain, "{rows:?}");
+    }
+
+    #[test]
+    fn the_narrowest_terminal_there_is_still_carries_both_labels() {
+        // `width` floors at 24 and the two tests below drive the panel
+        // under that floor to reach the fallback at all. This is the
+        // narrowest panel a person can actually be looking at.
+        let items = dirs(1);
+        let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
+        let rows = menu_rows(&m, 24, 0, 0);
+        assert!(rows[0].contains("1/1"), "{rows:?}");
+        assert!(rows[rule_row(&rows)].contains(WHOLE_WORD_BADGE), "{rows:?}");
+        assert_eq!(cells_of_row(&rows[0]), 24, "{rows:?}");
+        assert_eq!(cells_of_row(&rows[rule_row(&rows)]), 24, "{rows:?}");
+    }
+
+    #[test]
+    fn the_count_gives_its_room_up_before_the_badge_does() {
+        // Each edge answers for its own label. The count is the longer of
+        // the two and an edge one cell wider than the badge needs is one
+        // the count has already given up on.
         let items = dirs(1);
         let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 6, 0, 0);
-        assert_eq!(rows[0], rows[rows.len() - 2], "{rows:?}");
+        assert_eq!(visible(&rows[0]), String::from(RULE).repeat(6), "{rows:?}");
+        assert!(rows[rule_row(&rows)].contains(WHOLE_WORD_BADGE), "{rows:?}");
     }
 
     #[test]
@@ -1155,6 +1348,182 @@ mod tests {
         let foot = rows.last().expect("a footer");
         assert_eq!(foot.matches('x').count(), PANEL_INNER, "{foot:?}");
         assert!(!foot.contains('…'), "{foot:?}");
+    }
+
+    /// Where the rule under the list sits. What comes after it is the
+    /// wrapped name and the word under the list, and how many rows those
+    /// take depends on what they hold. No test counts back from the end
+    /// of the panel for that reason.
+    ///
+    /// A rule is what a row opens with rather than what the whole of it
+    /// holds: both of the panel's own carry a label let into the right
+    /// end. The top one is skipped rather than told apart.
+    fn rule_row(rows: &[String]) -> usize {
+        rows.iter()
+            .skip(1)
+            .position(|row| visible(row).trim_start().starts_with(RULE))
+            .expect("a rule under the list")
+            + 1
+    }
+
+    /// The rows the word under the list took, drawn as they were drawn,
+    /// for one row that says nothing else.
+    fn footer_rows_for(label: &str, height: usize, whole_word: bool) -> Vec<String> {
+        let mut item = dir("work");
+        item.label = Cow::Owned(label.to_string());
+        let items = [item];
+        let mut m = menu_in(&items, 0, height, "", 0).expect("a menu");
+        m.whole_word = whole_word;
+        let rows = menu_rows(&m, 80, 1, 0);
+        rows[rule_row(&rows) + 1..].to_vec()
+    }
+
+    /// The longest description git's own 38 subcommands carry. Three of
+    /// the panel's rows hold it and the one row under the list does not.
+    const LONG_DESCRIPTION: &str = "Create new commit that undoes all of the changes made in <commit>, then apply it to the current branch";
+
+    /// Rows joined back into the sentence they are. A row broken at a
+    /// space joins back to exactly what went in.
+    fn joined(rows: &[String]) -> String {
+        rows.iter()
+            .map(|row| visible(row).trim().to_string())
+            .collect::<Vec<_>>()
+            .join(" ")
+    }
+
+    /// The word under the list on a terminal of the given height.
+    fn footer_in(label: &str, height: usize) -> String {
+        joined(&footer_rows_for(label, height, false))
+    }
+
+    /// The same on a terminal with room for every row the panel wants.
+    fn footer_for(label: &str) -> String {
+        footer_in(label, 24)
+    }
+
+    /// The same again, with the key that opens the word pressed.
+    fn footer_open(label: &str) -> String {
+        joined(&footer_rows_for(label, 24, true))
+    }
+
+    #[test]
+    fn a_description_the_panel_has_room_for_keeps_every_word() {
+        // The trim runs on a sentence the rows on offer cannot hold and
+        // on no other. A parenthetical that fits is a parenthetical the
+        // reader gets.
+        let whole = "Stage a file (or a folder)";
+        assert_eq!(footer_for(whole), whole);
+        assert_eq!(footer_in(whole, 7), whole);
+    }
+
+    #[test]
+    fn a_description_too_wide_falls_back_to_its_first_clause() {
+        // 66 cells against the one row the word takes unasked. The clause
+        // in front of the parenthetical is 17 and arrives whole rather
+        // than cut at 39. The key is what asks for the rest.
+        let whole = "Use TCP/IP device (error if multiple TCP/IP devices are available)";
+        assert_eq!(footer_for(whole), "Use TCP/IP device");
+        assert_eq!(footer_open(whole), whole);
+    }
+
+    #[test]
+    fn a_second_sentence_goes_the_same_way_as_a_parenthetical() {
+        let whole = "Add file contents to the index. Paths may repeat";
+        assert_eq!(footer_in(whole, 7), "Add file contents to the index");
+    }
+
+    #[test]
+    fn a_full_stop_that_closes_no_sentence_is_not_a_cut() {
+        // `e.g.` and an initial each carry one. A sentence ends where two
+        // letters or digits run into the stop and neither of these does.
+        assert_eq!(
+            clause("Set a flag, e.g. -v, on the run"),
+            "Set a flag, e.g. -v, on the run"
+        );
+        assert_eq!(
+            clause("Read A. B. Author's own file"),
+            "Read A. B. Author's own file"
+        );
+    }
+
+    #[test]
+    fn a_description_that_is_all_parenthetical_keeps_itself() {
+        // Nothing sits in front of the bracket and an empty footer says
+        // less than a cut one.
+        let whole = "(the rest of this is longer than the panel is wide by far)";
+        assert_eq!(clause(whole), whole);
+        assert!(footer_in(whole, 7).contains('…'));
+    }
+
+    #[test]
+    fn a_first_clause_the_rows_still_cannot_hold_is_cut() {
+        let foot = footer_in(
+            "Report the state of every single one of the working tree's own files (verbosely)",
+            7,
+        );
+        assert!(foot.contains('…'), "{foot:?}");
+        assert!(!foot.contains("verbosely"), "{foot:?}");
+    }
+
+    #[test]
+    fn a_second_row_is_the_key_s_to_give_and_not_the_terminal_s() {
+        // 53 cells against the panel's 40. A terminal with 17 rows to
+        // spare still shows one. The rows under the list are the list's
+        // until the key asks for them.
+        let whole = "Attach local standard input, output and error streams";
+        assert_eq!(footer_rows_for(whole, 24, false).len(), 1);
+        assert!(footer_for(whole).contains('…'));
+        // `wrap` would break `output` over the two rows and this breaks
+        // at the space in front of it. That is what lets the two join
+        // back into the sentence.
+        assert_eq!(footer_rows_for(whole, 24, true).len(), 2);
+        assert_eq!(footer_open(whole), whole);
+    }
+
+    #[test]
+    fn the_key_opens_the_word_to_every_row_the_terminal_spared() {
+        // 102 cells against the 40 one row holds. The terminal has the
+        // rows and the key is what spends them.
+        let whole = LONG_DESCRIPTION;
+        assert_eq!(footer_rows_for(whole, 24, false).len(), 1);
+        assert!(footer_for(whole).contains('…'));
+        assert_eq!(footer_rows_for(whole, 24, true).len(), 3);
+        assert_eq!(footer_open(whole), whole);
+    }
+
+    #[test]
+    fn the_key_takes_no_row_a_short_terminal_never_had() {
+        // The rows it opens are the ones the list and a wrapped name
+        // left. A terminal with none leaves the word where it was, down
+        // to the clause the one row shows. The second description below
+        // has a clause and a whole that are different text. A key that
+        // only looked like it had done nothing would show there.
+        for whole in [
+            LONG_DESCRIPTION,
+            "Use TCP/IP device (error if multiple TCP/IP devices are available)",
+        ] {
+            let mut item = dir("work");
+            item.label = Cow::Owned(whole.to_string());
+            let items = [item];
+            let mut m = menu_in(&items, 0, 7, "", 0).expect("a menu");
+            let shut = menu_rows(&m, 80, 1, 0);
+            m.whole_word = true;
+            assert_eq!(menu_rows(&m, 80, 1, 0), shut, "{whole:?}");
+        }
+    }
+
+    #[test]
+    fn a_clause_the_key_opened_is_not_trimmed_a_second_time() {
+        // Shut the sentence does not fit its one row and the clause it
+        // falls back to does not either. The row is cut. Opened this
+        // terminal holds the whole of it. The key never answers with a
+        // clause: trimming one is what it was pressed to undo.
+        let whole = "Attach local standard input, output and error streams to a running container (and detach again)";
+        assert_eq!(
+            footer_for(whole),
+            "Attach local standard input, output and…"
+        );
+        assert_eq!(footer_open(whole), whole);
     }
 
     #[test]

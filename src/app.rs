@@ -28,6 +28,11 @@ pub struct App {
     /// `spec_menu` is what resolves it, on a command name ahead of a spec
     /// lookup.
     pub aliases: HashMap<String, String>,
+    /// Whether the word under the list is open to every row the terminal
+    /// spares rather than to the one it takes on its own. Ctrl-O turns it
+    /// on and off. `crate::state` is what carries the answer past the menu
+    /// it was pressed in and `pick` is what reads it back.
+    pub whole_word: bool,
     history: History,
     scan: Scan,
     git: crate::git::Completions,
@@ -114,6 +119,7 @@ impl App {
             cwd,
             rbuffer: String::new(),
             aliases: HashMap::new(),
+            whole_word: false,
             history: History::default(),
             scan: Scan::default(),
             git: crate::git::Completions::default(),

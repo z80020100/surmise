@@ -27,5 +27,6 @@ pub mod shellword;
 pub mod spec;
 pub mod spec_menu;
 pub mod spec_store;
+pub mod state;
 pub mod tty;
 pub mod ui;
