@@ -10,6 +10,7 @@ use crate::candidates::{
 };
 use crate::fuzzy;
 use crate::history::History;
+use crate::native;
 use crate::shellparse::{self, Command};
 use crate::spec::{self, Generator, Opt, Subcommand};
 use serde_json::Value;
@@ -303,6 +304,15 @@ fn build_rows(
             rows.extend(generator_rows(
                 generator, term, cwd, history, scan, enclosing,
             ));
+        }
+        // An argument the conversion could not keep the code for. `native`
+        // has a reader for two of them and nothing at all for the rest,
+        // which keep offering no rows.
+        if arg.dynamic
+            && let Some(owner) = walk.node.name.first()
+            && let Some(name) = arg.name.first()
+        {
+            rows.extend(native::rows(owner, name, term, cwd));
         }
     }
 
@@ -727,6 +737,84 @@ mod tests {
             None,
         );
         assert!(rows.is_empty());
+    }
+
+    /// A fixture directory holding a makefile. Its targets are what the
+    /// three tests below read; `make`'s own argument reaches the native
+    /// reader through the same `cwd` a path argument already uses.
+    fn make_fixture() -> Fixture {
+        let f = Fixture::new(&[]);
+        std::fs::write(
+            f.path().join("Makefile"),
+            ".PHONY: sample-check\nsample-build:\n\t:\nsample-check: sample-build\n\t:\n",
+        )
+        .unwrap();
+        f
+    }
+
+    fn names(rows: &[Candidate]) -> Vec<&str> {
+        rows.iter().map(|r| r.display.as_str()).collect()
+    }
+
+    #[test]
+    fn make_offers_the_targets_of_the_makefile_beside_it() {
+        let f = make_fixture();
+        let mut c = Completions::default();
+        let rows = c.complete(
+            &target("make "),
+            f.path(),
+            &History::default(),
+            &mut Scan::default(),
+        );
+        let names = names(&rows);
+        assert!(names.contains(&"sample-build"), "{names:?}");
+        assert!(names.contains(&"sample-check"), "{names:?}");
+    }
+
+    #[test]
+    fn make_offers_the_targets_behind_an_option_of_its_own() {
+        // `-j` takes a job count first and the same `target` argument
+        // second, which is index 1 rather than index 0.
+        let f = make_fixture();
+        let mut c = Completions::default();
+        let rows = c.complete(
+            &target("make -j 4 "),
+            f.path(),
+            &History::default(),
+            &mut Scan::default(),
+        );
+        let names = names(&rows);
+        assert!(names.contains(&"sample-build"), "{names:?}");
+        assert!(names.contains(&"sample-check"), "{names:?}");
+    }
+
+    #[test]
+    fn make_offers_no_target_where_there_is_no_makefile() {
+        let f = Fixture::new(&[]);
+        let mut c = Completions::default();
+        let rows = c.complete(
+            &target("make "),
+            f.path(),
+            &History::default(),
+            &mut Scan::default(),
+        );
+        assert!(
+            rows.iter().all(|r| r.label != "target"),
+            "{:?}",
+            names(&rows)
+        );
+    }
+
+    #[test]
+    fn a_dynamic_argument_with_no_reader_still_offers_nothing() {
+        // `chown`'s own first argument is `dyn` and no reader answers it.
+        let mut c = Completions::default();
+        let rows = complete(&mut c, &target("chown "));
+        assert!(
+            rows.iter().all(|r| r.kind == Kind::Option),
+            "{:?}",
+            names(&rows)
+        );
     }
 
     #[test]

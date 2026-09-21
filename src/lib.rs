@@ -18,6 +18,7 @@ pub mod git;
 pub mod history;
 pub mod keys;
 pub mod line;
+pub mod native;
 pub mod path;
 pub mod pick;
 pub mod shellparse;
