@@ -2,19 +2,17 @@
 //!
 //! `$XDG_DATA_HOME/surmise/state.toml`, beside the directory history and
 //! resolved the same way `history.rs` resolves that. This is not
-//! `config.toml`: a file a person writes is not one surmise may rewrite.
-//! What is here is surmise's own note to itself rather than a setting
-//! anybody asked for. `config.rs` keeps a resolver of this shape too and
-//! says the same thing about agreeing with the other one.
+//! `config.toml`. What is here is written because a key was pressed and
+//! nobody asked for it to be kept, where `config.toml` is written only by a
+//! person naming the change themselves through `config::edit`. `config.rs`
+//! keeps a resolver of this shape too and says the same thing about agreeing
+//! with the other one.
 //!
 //! Nothing here reaches the prompt. A file that will not read leaves the
 //! defaults standing and a write that will not land is one menu's answer
 //! lost. The menu draws either way.
 
 use serde::{Deserialize, Serialize};
-use std::fs::{DirBuilder, OpenOptions};
-use std::io::Write;
-use std::os::unix::fs::{DirBuilderExt, OpenOptionsExt};
 use std::path::{Path, PathBuf};
 
 /// What the last menu was left set to and the whole of what the file
@@ -51,43 +49,13 @@ impl State {
     }
 
     fn save_to(&self, path: &Path) -> std::io::Result<()> {
-        let parent = path
-            .parent()
-            .ok_or_else(|| std::io::Error::other("state has no parent directory"))?;
-        // The same mode and the same owner-only file the history database's
-        // own directory is made with. It is usually that directory.
-        DirBuilder::new()
-            .recursive(true)
-            .mode(0o700)
-            .create(parent)?;
-        // Written beside the file and renamed over it rather than written in
-        // place. A rename is one step to a reader: another shell opening a
-        // menu sees the whole of this answer or the whole of the last one
-        // and never the empty file a write in place leaves behind for as
-        // long as it takes to fill. A rename also replaces a symbolic link
-        // planted where the file goes rather than writing through it. The
-        // process id keeps two shells off each other's working file and the
-        // one left by a process that died mid-save is this one's to clear.
-        // `toml` writes the whole struct rather than a `format!` per field.
-        // A field added to `State` is then written by the same derive that
-        // reads it back and cannot be left out of one of the two.
+        // `toml` writes the whole struct rather than a `format!` per field. A
+        // field added to `State` is then written by the same derive that reads
+        // it back and cannot be left out of one of the two.
         let text = toml::to_string(self).map_err(std::io::Error::other)?;
-        let mut temp = path.as_os_str().to_os_string();
-        temp.push(format!(".{}", std::process::id()));
-        let temp = PathBuf::from(temp);
-        let _ = std::fs::remove_file(&temp);
-        OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .mode(0o600)
-            .open(&temp)?
-            .write_all(text.as_bytes())?;
-        // A rename that will not land leaves the file it wrote behind.
-        // Nothing else would ever clear it: the name carries this
-        // process's own id and the next save is another process.
-        std::fs::rename(&temp, path).inspect_err(|_| {
-            let _ = std::fs::remove_file(&temp);
-        })
+        // Owner-only. This file is surmise's own and is always its own to
+        // read. `atomic` says why the write goes through a rename.
+        crate::atomic::replace(path, &text, 0o600)
     }
 }
 

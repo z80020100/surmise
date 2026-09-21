@@ -10,6 +10,7 @@
 
 pub mod app;
 pub mod argwalk;
+pub mod atomic;
 pub mod candidates;
 pub mod config;
 pub mod demo;

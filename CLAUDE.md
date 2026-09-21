@@ -365,9 +365,11 @@ The answer outlives the menu it was given in. It is kept in
 `$XDG_DATA_HOME/surmise/state.toml`, beside the directory history and
 resolved the same way. Every later menu opens the way the key last left it.
 That file is surmise's own note to itself rather than a setting. That is why
-it is not `config.toml`: a file a person writes is not one surmise may
-rewrite. Nothing there reaches the prompt either. A file that will not
-read leaves the word on its one row and a write that will not land loses one
+it is not `config.toml`: this is written because a key was pressed and nobody
+asked for it to be kept, and `config.toml` is only ever written by a person
+naming the change themselves. "Configuration" below is where that is written
+down. Nothing here reaches the prompt either. A file that will not read
+leaves the word on its one row and a write that will not land loses one
 menu's answer.
 
 Enter accepts the highlighted subcommand and adds a space. Right does the same
@@ -750,6 +752,49 @@ or an absolute home directory there is no config and the defaults stand. A
 missing file also means defaults. `surmise settings path` prints the resolved
 path whether or not the file exists.
 
+Four commands write that file:
+
+```sh
+surmise settings set icons nerd              # one value
+surmise settings unset icons                 # drop it and let the default stand
+surmise settings add disabled_commands kubectl    # one entry of a list
+surmise settings remove disabled_commands kubectl # one entry back out
+```
+
+`set` and `unset` answer for `enabled` and `icons`. `add` and `remove` answer
+for `disabled_commands` and `spec_dirs`. Naming the wrong one of the two says
+which verb reaches that key rather than writing anything, and so does a key or
+a value this build does not read. A value the picker would silently ignore is
+the one thing a person typing a command must not be handed, because nothing
+prints a warning at the prompt.
+
+Only these four write there, and each of them is a person naming the change.
+Nothing surmise decides for itself touches this file: a menu reads it and
+leaves it where it found it. That is the whole of the difference between this
+and `state.toml` above.
+
+The file comes back with one value changed and nothing else moved. Comments,
+blank lines and the order of the keys all survive, because the writer reads a
+document rather than a value. `unset` is the one exception and it is TOML's
+own rule rather than a choice: a comment on the line above a key belongs to
+that key, so dropping the key drops that comment with it. A comment at the end
+of the key's own line survives a `set`.
+
+A write lands whole or not at all. It goes to a file beside the real one and
+is renamed over it, the way `state.toml` is written, and the file keeps the
+permissions it already had. Two things are refused rather than written. A file
+that does not parse is left exactly as it was, because a document surmise
+cannot read is one it cannot put back either. A file that cannot be read at
+all is left alone for the same reason and it is the stronger case: only a file
+that is not there starts a write from nothing, and treating an unreadable one
+as absent would replace everything in it.
+
+A `config.toml` that is a symbolic link is followed and the file it names is
+the one written. A person who keeps their settings in a dotfiles repository
+and links to them there gets that file changed and keeps the link. The
+`state.toml` write refuses a link instead, because that file is surmise's own
+and nothing should be able to point it somewhere else.
+
 A parse error never reaches the prompt, because nothing surmise does may
 write to a person's terminal outside the menu. It becomes a warning instead,
 kept for a later `doctor` command to report, and the picker runs with
@@ -757,8 +802,9 @@ defaults meanwhile. An unknown key is a warning of the same kind rather than
 an error, because a file carrying a key from a later surmise should still
 work with this one. A value one of the keys below does not know is a warning
 of that kind too and that key keeps its default. Every complaint one file
-earns is kept rather than the first of them, because a person sent back twice
-for one file has been told half of what the reader already knew.
+earns is kept rather
+than the first of them, because a person sent back twice for one file has
+been told half of what the reader already knew.
 
 Four keys have a reader today.
 

@@ -45,6 +45,18 @@ serde_json = "1.0.151"
 # what turns a table into `Config` rather than a second, hand-written pass over
 # a generic value, and what writes `State` back without a `format!` per field.
 toml = "1.1.6"
+# Changing one value in the config file and leaving the rest of it alone.
+# `toml` above parses a file into a value and writing that value back would
+# hand a person their own file with every comment and every blank line gone.
+# This reads a document rather than a value, so a write replaces one entry and
+# touches nothing else. It shares `toml`'s own parser, writer and datetime
+# crates, so the whole of it costs one more crate in the lockfile. `serde` is
+# off because nothing here turns a document into a struct: `config` already
+# reads the file through `toml` and this is only the writing end.
+toml_edit = { version = "0.25.15", default-features = false, features = [
+  "parse",
+  "display",
+] }
 # Display width. A line can hold a character that is wider than one cell.
 unicode-width = "0.2"
 
