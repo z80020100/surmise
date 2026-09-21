@@ -12,6 +12,7 @@ pub mod app;
 pub mod argwalk;
 pub mod candidates;
 pub mod config;
+pub mod demo;
 pub mod fixture;
 pub mod fuzzy;
 pub mod git;

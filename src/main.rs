@@ -10,13 +10,14 @@ use std::ffi::OsString;
 use std::io::{self, Write};
 use std::path::Path;
 use std::process::ExitCode;
-use surmise::{config, pick, spec_store, ui};
+use surmise::{config, demo, pick, spec_store, ui};
 
 const USAGE: &str = "\
 surmise — complete cd directories, Git subcommands, and any command with a
 committed specification.
 
   surmise init zsh                the shell widget, for `eval \"$(surmise init zsh)\"`
+  surmise demo                    a throwaway home and an interactive zsh in it
   surmise --pick LINE             the picker that widget calls, result on stdout
   surmise --record SOURCE TARGET  record a successful directory change
   surmise settings path           the config path, whether it exists yet or not
@@ -38,6 +39,8 @@ enum Mode<'a> {
     Settings(&'a str),
     /// A `specs` subcommand. An empty name is no name.
     Specs(&'a str),
+    /// The demo shell. It takes no word of its own.
+    Demo,
     /// The usage.
     Help,
     /// An argument this build does not know.
@@ -72,6 +75,12 @@ fn mode(args: &[String]) -> Mode<'_> {
         Some("specs") => match args.get(2) {
             Some(extra) => Mode::Unknown(extra),
             None => Mode::Specs(args.get(1).map_or("", String::as_str)),
+        },
+        // `demo` names one thing to do and takes no word of its own. A
+        // second argument is a typo and the arm below already reports one.
+        Some("demo") => match args.get(1) {
+            Some(extra) => Mode::Unknown(extra),
+            None => Mode::Demo,
         },
         // Without an argument there is no line to complete. The usage is the
         // whole of what this build can say on its own.
@@ -191,6 +200,15 @@ fn main() -> ExitCode {
             "no specs command named {}. names is the only one this build has.",
             ui::printable(word)
         )),
+        // The demo owns the terminal until the shell inside it exits. No
+        // menu is drawing over stderr here, so a complaint may go there.
+        Mode::Demo => match demo::run() {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(complaint) => {
+                eprintln!("surmise: {complaint}");
+                ExitCode::FAILURE
+            }
+        },
         Mode::Help => {
             usage(io::stdout());
             ExitCode::SUCCESS
@@ -301,6 +319,13 @@ mod tests {
     #[test]
     fn a_third_argument_to_specs_is_never_a_word() {
         let a = args(&["specs", "names", "--nope"]);
+        assert!(matches!(mode(&a), Mode::Unknown("--nope")));
+    }
+
+    #[test]
+    fn demo_takes_no_word_of_its_own() {
+        assert!(matches!(mode(&args(&["demo"])), Mode::Demo));
+        let a = args(&["demo", "--nope"]);
         assert!(matches!(mode(&a), Mode::Unknown("--nope")));
     }
 
