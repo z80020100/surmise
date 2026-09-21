@@ -308,6 +308,14 @@ pub fn run(seed: &str) -> io::Result<u8> {
                     KeyCode::Tab => {
                         if !app.accept_common() {
                             ui.bell()?;
+                        } else if app.menu_repeats || !app.menu_open() {
+                            // A whole name went in and left nothing behind to
+                            // answer the next press with. The Enter arm below
+                            // ends on the same two conditions and says why.
+                            // A prefix is not a whole name and never lands on
+                            // the first of them: the rows it came from are the
+                            // rows that still match it.
+                            break ACCEPTED;
                         }
                     }
                     // A directory row is one to go into and the menu stays
@@ -331,7 +339,14 @@ pub fn run(seed: &str) -> io::Result<u8> {
                         // and nothing to go on into. A directory nobody may
                         // read does that. Hand the line to the shell's own
                         // editor rather than hold a frame with no menu on it.
-                        if !app.menu_open() {
+                        //
+                        // A menu that came back with the list it already had
+                        // is handed back for the same reason: the row took
+                        // nothing out of it and the next press would put the
+                        // same name on the line a second time. The shell has
+                        // the finished word and the press after this one runs
+                        // it. `App::menu_repeats` is where that is written down.
+                        if app.menu_repeats || !app.menu_open() {
                             break ACCEPTED;
                         }
                     }

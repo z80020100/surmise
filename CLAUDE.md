@@ -561,6 +561,19 @@ on, or a row's whole name where only one agrees. Accepting a row never runs
 it. Moving the cursor off the word a row would replace makes that row go
 stale, the same way a Git row does.
 
+A row that takes nothing out of the list ends the menu. `ls ` offers every
+name in the directory and the argument behind it takes as many names as it is
+given. The menu an accepted file would reopen is therefore the menu that was
+already there and the next press would put that same name on the line a second
+time. Accepting one hands the line back to the shell instead. The word is
+finished and a space follows it and the press after that runs the line. A row
+that changes what comes next keeps the menu open: a subcommand moves the walk
+to another node and a folder moves the scan into itself. Tab reads the same
+answer for a whole name it takes. The prefix several rows share is not a whole
+name and never ends the menu: the rows it came from are the rows that still
+match it. Neither `cd`'s own menu nor Git's is affected. Each of their queries
+drops what it has just given.
+
 A generator's own template answers for three of the four names the corpus
 carries. `filepaths` and `folders` read the filesystem the way `cd`'s own menu
 does, through the one directory walk a menu already keeps for its own life;
@@ -570,6 +583,16 @@ none, the way `cd` never offers one to weigh in the first place. `help` offers
 the sibling subcommands of the argument's own enclosing node, so `fnm help `
 offers `fnm`'s own subcommands rather than `help`'s, which has none of its
 own. `history` answers nothing yet; a later phase gives it a reader.
+
+An argument one of those two templates fills also gets `cd`'s own row that
+runs the line, at the top of the menu and under the highlight, whenever what
+is typed already names something on disk. `ls assets/`, `ls assets` and
+`ls readme` each get one. A name still being typed does not and neither does
+an empty argument. A `folders` argument refuses a file. That is not what it
+asked for and the menu never offered it either. A link with no target still
+counts, the same way the scan behind the rows still lists it. Nothing else
+here gets the row. A subcommand is a word to go on from rather than an answer
+and the menu under it is what says where.
 
 Two arguments are answered by a reader of surmise's own. `make ` offers the
 targets of the makefile beside the line and the same argument behind `-j`,
