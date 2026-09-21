@@ -584,6 +584,16 @@ the sibling subcommands of the argument's own enclosing node, so `fnm help `
 offers `fnm`'s own subcommands rather than `help`'s, which has none of its
 own. `history` answers nothing yet; a later phase gives it a reader.
 
+An argument one of those two templates fills also gets `cd`'s own row that
+runs the line, at the top of the menu and under the highlight, whenever what
+is typed already names something on disk. `ls assets/`, `ls assets` and
+`ls readme` each get one. A name still being typed does not and neither does
+an empty argument. A `folders` argument refuses a file. That is not what it
+asked for and the menu never offered it either. A link with no target still
+counts, the same way the scan behind the rows still lists it. Nothing else
+here gets the row. A subcommand is a word to go on from rather than an answer
+and the menu under it is what says where.
+
 Two arguments are answered by a reader of surmise's own. `make ` offers the
 targets of the makefile beside the line and the same argument behind `-j`,
 `-B` and `-e` offers them too. `ssh ` offers host names. Both readers read

@@ -6,8 +6,8 @@
 
 use crate::argwalk::{self, Walk};
 use crate::candidates::{
-    Candidate, DEFAULT_PRIORITY, FOLDER, Kind, Query, Scan, UsedAfter, priority_of, rank,
-    resolved_in, split,
+    Candidate, DEFAULT_PRIORITY, FOLDER, Kind, MAX_RESULTS, Query, Scan, UsedAfter, priority_of,
+    rank, resolved_in, run_row, split,
 };
 use crate::fuzzy;
 use crate::histfile;
@@ -190,6 +190,16 @@ impl Completions {
                     counts: &self.cmd_history,
                 });
                 rank(&mut rows, walk.search_term.as_str(), used_after);
+                // In front of that order rather than into it, the way `cd`'s
+                // own menu puts its row there. A line that already names a
+                // path is the one most often meant and a score would leave
+                // that to chance. The cap counts the row. The list therefore
+                // gives up its last name rather than grow past what `rank`
+                // left.
+                if let Some(arg) = whole_path(&walk, cwd) {
+                    rows.insert(0, run_row(arg));
+                    rows.truncate(MAX_RESULTS);
+                }
                 return rows;
             }
             for name in new_names {
@@ -372,23 +382,102 @@ fn generator_rows(
     scan: &mut Scan,
     enclosing: Option<&Subcommand>,
 ) -> Vec<Candidate> {
-    let names = |wanted: &str| generator.template.iter().any(|t| t == wanted);
-    if names("filepaths") {
-        path_rows(generator, term, cwd, history, scan, false)
-    } else if names("folders") {
-        path_rows(generator, term, cwd, history, scan, true)
-    } else if names("help") {
+    if let Some(show_folders) = reads_paths(generator) {
+        path_rows(term, cwd, history, scan, show_folders)
+    } else if generator.template.iter().any(|t| t == "help") {
         help_rows(term, enclosing)
     } else {
         Vec::new()
     }
 }
 
+/// What a generator that reads the filesystem keeps of what it finds, as
+/// `showFolders` names it: `always`, `only` or `never`. `None` for a
+/// generator that does not read the filesystem at all.
+///
+/// [`path_rows`] answers such a generator and [`whole_path`] asks whether
+/// the argument holding one is already a whole answer. Both read the rule
+/// from here so that neither can drift from the other.
+///
+/// `apply_path_defaults` in `spec.rs` sets `get_query_term` to `/` for both
+/// templates unless the corpus already carried something else. A generator
+/// arriving with anything else is one this reader has no split rule for, the
+/// same way a `dyn` argument has no generator at all.
+fn reads_paths(generator: &Generator) -> Option<&str> {
+    if generator.get_query_term.as_deref() != Some("/") {
+        return None;
+    }
+    let names = |wanted: &str| generator.template.iter().any(|t| t == wanted);
+    // `filepaths` first. A generator may name both templates and `ls`'s own
+    // does. Reading `folders` ahead of it would keep the directories and
+    // throw every file away.
+    if names("filepaths") {
+        return Some(
+            generator
+                .extra
+                .get("showFolders")
+                .and_then(Value::as_str)
+                .unwrap_or("always"),
+        );
+    }
+    // npm §2 defines `folders` as `filepaths` with `showFolders` forced to
+    // `"only"`.
+    names("folders").then_some("only")
+}
+
+/// The argument as it stands, when it already names what a generator on this
+/// argument would have offered. `None` when nothing on the line is a whole
+/// answer of its own.
+///
+/// `cd`'s own menu gives such a line a row that runs it: the line is the
+/// answer already and a menu that can only grow it has no other way to say
+/// so. An argument a specification fills from the filesystem is the same
+/// shape and gets the same row. Without it `ls target/` goes on descending
+/// for as long as there are directories under it.
+///
+/// Nothing else here gets one. A subcommand is a word to go on from rather
+/// than an answer in itself and the menu under it is what says where.
+fn whole_path(walk: &Walk, cwd: &Path) -> Option<String> {
+    let term = walk.search_term.as_str();
+    if !walk.offers_args || term.is_empty() {
+        return None;
+    }
+    // What each generator on the argument keeps. The rows are the union of
+    // what they all offer, so every one of them is read here rather than the
+    // first. No argument in the corpus carries two of them today.
+    let reading: Vec<&str> = walk
+        .current_arg
+        .as_ref()?
+        .generators
+        .iter()
+        .filter_map(reads_paths)
+        .collect();
+    if reading.is_empty() {
+        return None;
+    }
+    // The same two questions the scan behind `path_rows` asks of every name
+    // it lists. Whether there is an entry there at all, which a link with no
+    // target still is, and whether what it leads to is a directory.
+    let named = resolved_in(term, cwd);
+    std::fs::symlink_metadata(&named).ok()?;
+    let is_dir = named.is_dir();
+    // A generator keeping only its directories never offered a file. A file
+    // is therefore no answer to the argument holding it.
+    reading
+        .into_iter()
+        .any(|show_folders| match show_folders {
+            "only" => is_dir,
+            "never" => !is_dir,
+            _ => true,
+        })
+        .then(|| term.to_string())
+}
+
 /// Rows for an argument whose generator names the `filepaths` or `folders`
 /// template. Both read the directory the argument names from the
 /// filesystem through the same [`Scan`] cache `cd` uses, one walk per menu
-/// rather than one per key. `folders_only` is what `folders` sets on itself:
-/// npm §2 has it as `filepaths` with `showFolders: "only"`.
+/// rather than one per key. `show_folders` is what [`reads_paths`] made of
+/// the two templates.
 ///
 /// npm §2 lists `extensions`, `equals`, `matches`, `filterFolders`,
 /// `rootDirectory`, `editFileSuggestions` and `editFolderSuggestions`
@@ -400,36 +489,18 @@ fn generator_rows(
 /// sets one of the other seven is silently not honoured — this sentence is
 /// what a person chasing that down should find.
 fn path_rows(
-    generator: &Generator,
     raw_term: &str,
     cwd: &Path,
     history: &History,
     scan: &mut Scan,
-    folders_only: bool,
+    show_folders: &str,
 ) -> Vec<Candidate> {
-    // `apply_path_defaults` in `spec.rs` sets this to `/` for both templates
-    // unless the corpus already carried something else for it. A generator
-    // that reaches here with anything else is one this reader has no split
-    // rule for, the same way a `dyn` argument has no generator at all.
-    if generator.get_query_term.as_deref() != Some("/") {
-        return Vec::new();
-    }
     let (prefix, term) = split(raw_term);
     let dir = if prefix.is_empty() {
         cwd.to_path_buf()
     } else {
         resolved_in(prefix, cwd)
     };
-    let show_folders = if folders_only {
-        "only"
-    } else {
-        generator
-            .extra
-            .get("showFolders")
-            .and_then(Value::as_str)
-            .unwrap_or("always")
-    };
-
     let mut out = Vec::new();
     for (name, is_dir) in scan.entries(&dir, term.starts_with('.')) {
         let is_dir = *is_dir;
@@ -754,8 +825,9 @@ mod tests {
     /// A `filepaths`/`folders` generator with no options of its own, the
     /// shape every real spec in the corpus uses today. `extra` adds the
     /// options a test wants on top of it.
-    fn path_generator(extra: serde_json::Value) -> Generator {
+    fn path_generator(template: &str, extra: serde_json::Value) -> Generator {
         Generator {
+            template: vec![template.to_string()],
             get_query_term: Some("/".to_string()),
             extra: extra.as_object().cloned().unwrap_or_default(),
             ..Generator::default()
@@ -764,10 +836,24 @@ mod tests {
 
     /// Every test below reads no real directory, so a path that cannot
     /// exist is cwd enough for the ones that never touch the filesystem.
+    /// A test that wants its own `Completions` back afterwards, to read the
+    /// specs it cached, calls this rather than [`rows_in`].
     fn complete(c: &mut Completions, target: &Target) -> Vec<Candidate> {
         c.complete(
             target,
             Path::new("/no-such-directory-here"),
+            &History::default(),
+            &mut Scan::default(),
+        )
+    }
+
+    /// The rows `line` offers in `cwd`, through the whole menu rather than
+    /// through one reader of it. The row that runs the line is put there
+    /// after the ranking and only a full call can show that.
+    fn rows_in(cwd: &Path, line: &str) -> Vec<Candidate> {
+        Completions::default().complete(
+            &target(line),
+            cwd,
             &History::default(),
             &mut Scan::default(),
         )
@@ -808,14 +894,8 @@ mod tests {
     fn cat_offers_files_and_folders_from_the_fixture_directory() {
         let f = Fixture::new(&["src", "readme*"]);
         std::fs::write(f.path().join("src").join("main.rs"), b"").unwrap();
-        let mut c = Completions::default();
-        let rows = c.complete(
-            &target("cat "),
-            f.path(),
-            &History::default(),
-            &mut Scan::default(),
-        );
-        let names: Vec<&str> = rows.iter().map(|r| r.display.as_str()).collect();
+        let rows = rows_in(f.path(), "cat ");
+        let names = names(&rows);
         assert!(names.contains(&"src/"), "{names:?}");
         assert!(names.contains(&"readme"), "{names:?}");
     }
@@ -825,30 +905,87 @@ mod tests {
         // `-C`'s own argument is a plain `template: "folders"`, with nothing
         // else on the arg or on `make`'s own `generators` list.
         let f = Fixture::new(&["src", "readme*"]);
-        let mut c = Completions::default();
-        let rows = c.complete(
-            &target("make -C "),
-            f.path(),
-            &History::default(),
-            &mut Scan::default(),
-        );
-        let names: Vec<&str> = rows.iter().map(|r| r.display.as_str()).collect();
+        let rows = rows_in(f.path(), "make -C ");
+        let names = names(&rows);
         assert!(names.contains(&"src/"), "{names:?}");
         assert!(!names.contains(&"readme"), "{names:?}");
+    }
+
+    #[test]
+    fn an_argument_that_already_names_a_path_leads_with_the_row_that_runs_it() {
+        let f = Fixture::new(&["assets/inner", "readme*"]);
+        for (line, arg) in [
+            ("ls assets/", "assets/"),
+            ("ls assets", "assets"),
+            ("ls readme", "readme"),
+        ] {
+            let rows = rows_in(f.path(), line);
+            assert_eq!(rows[0].kind, Kind::Run, "{line}");
+            assert_eq!(rows[0].insert, arg, "{line}");
+        }
+    }
+
+    #[test]
+    fn an_argument_naming_nothing_on_disk_gets_no_row_that_runs_the_line() {
+        let f = Fixture::new(&["assets/inner", "readme*"]);
+        // A name still being typed, an empty argument and a word for a
+        // directory that is not there. None of the three is an answer.
+        for line in ["ls read", "ls ", "ls nowhere/"] {
+            let rows = rows_in(f.path(), line);
+            assert!(rows.iter().all(|r| r.kind != Kind::Run), "{line}");
+        }
+    }
+
+    #[test]
+    fn a_link_with_no_target_is_still_a_name_the_line_can_run() {
+        // The scan behind the rows lists a broken link like any other entry,
+        // so the row that runs the line has to count it like any other entry
+        // too. A `folders` argument still refuses it: nothing it leads to is
+        // a directory.
+        let f = Fixture::new(&[]);
+        std::os::unix::fs::symlink("nowhere", f.path().join("dangling")).unwrap();
+        assert_eq!(rows_in(f.path(), "ls dangling")[0].kind, Kind::Run);
+        let rows = rows_in(f.path(), "make -C dangling");
+        assert!(
+            rows.iter().all(|r| r.kind != Kind::Run),
+            "{:?}",
+            names(&rows)
+        );
+    }
+
+    #[test]
+    fn a_folders_only_argument_refuses_a_file_as_its_whole_answer() {
+        // `make -C` takes a directory. A file there is not what the argument
+        // asked for and the menu never offered it either.
+        let f = Fixture::new(&["assets", "readme*"]);
+        assert_eq!(rows_in(f.path(), "make -C assets")[0].kind, Kind::Run);
+        let rows = rows_in(f.path(), "make -C readme");
+        assert!(
+            rows.iter().all(|r| r.kind != Kind::Run),
+            "{:?}",
+            names(&rows)
+        );
+    }
+
+    #[test]
+    fn a_subcommand_never_gets_the_row_that_runs_the_line() {
+        // `container` is a whole name and a word to go on from rather than
+        // an answer. The menu under it is what says where.
+        let f = Fixture::new(&[]);
+        let rows = rows_in(f.path(), "docker container");
+        assert_eq!(names(&rows), ["container"]);
     }
 
     #[test]
     fn the_query_term_is_read_after_the_last_slash() {
         let f = Fixture::new(&["src"]);
         std::fs::write(f.path().join("src").join("main.rs"), b"").unwrap();
-        let generator = path_generator(serde_json::json!({}));
         let rows = path_rows(
-            &generator,
             "src/ma",
             f.path(),
             &History::default(),
             &mut Scan::default(),
-            false,
+            "always",
         );
         let names: Vec<&str> = rows.iter().map(|r| r.display.as_str()).collect();
         assert_eq!(names, ["main.rs"]);
@@ -858,44 +995,34 @@ mod tests {
     #[test]
     fn a_folder_row_ends_in_a_slash() {
         let f = Fixture::new(&["assets"]);
-        let generator = path_generator(serde_json::json!({}));
         let rows = path_rows(
-            &generator,
             "",
             f.path(),
             &History::default(),
             &mut Scan::default(),
-            false,
+            "always",
         );
         assert_eq!(rows[0].display, "assets/");
         assert_eq!(rows[0].insert, "assets/");
     }
 
     #[test]
-    fn a_generator_without_a_slash_query_term_offers_nothing() {
-        let generator = Generator::default();
-        let rows = path_rows(
-            &generator,
-            "any",
-            Path::new("/no-such-directory-here"),
-            &History::default(),
-            &mut Scan::default(),
-            false,
-        );
-        assert!(rows.is_empty());
+    fn a_generator_without_a_slash_query_term_reads_no_paths() {
+        let mut generator = path_generator("filepaths", serde_json::json!({}));
+        generator.get_query_term = None;
+        assert_eq!(reads_paths(&generator), None);
+        assert_eq!(reads_paths(&Generator::default()), None);
     }
 
     #[test]
     fn show_folders_never_drops_every_folder() {
         let f = Fixture::new(&["assets", "notes.txt*"]);
-        let generator = path_generator(serde_json::json!({"showFolders": "never"}));
         let rows = path_rows(
-            &generator,
             "",
             f.path(),
             &History::default(),
             &mut Scan::default(),
-            false,
+            "never",
         );
         let names: Vec<&str> = rows.iter().map(|r| r.display.as_str()).collect();
         assert_eq!(names, ["notes.txt"]);
@@ -904,33 +1031,31 @@ mod tests {
     #[test]
     fn show_folders_only_drops_every_file() {
         let f = Fixture::new(&["assets", "notes.txt*"]);
-        let generator = path_generator(serde_json::json!({"showFolders": "only"}));
         let rows = path_rows(
-            &generator,
             "",
             f.path(),
             &History::default(),
             &mut Scan::default(),
-            false,
+            "only",
         );
         let names: Vec<&str> = rows.iter().map(|r| r.display.as_str()).collect();
         assert_eq!(names, ["assets/"]);
     }
 
     #[test]
-    fn a_folders_only_call_behaves_like_show_folders_only() {
-        let f = Fixture::new(&["assets", "notes.txt*"]);
-        let generator = path_generator(serde_json::json!({}));
-        let rows = path_rows(
-            &generator,
-            "",
-            f.path(),
-            &History::default(),
-            &mut Scan::default(),
-            true,
-        );
-        let names: Vec<&str> = rows.iter().map(|r| r.display.as_str()).collect();
-        assert_eq!(names, ["assets/"]);
+    fn a_folders_template_reads_paths_the_way_show_folders_only_does() {
+        let plain = path_generator("filepaths", serde_json::json!({}));
+        let only = path_generator("filepaths", serde_json::json!({"showFolders": "only"}));
+        let folders = path_generator("folders", serde_json::json!({}));
+        assert_eq!(reads_paths(&plain), Some("always"));
+        assert_eq!(reads_paths(&only), Some("only"));
+        assert_eq!(reads_paths(&folders), Some("only"));
+        // `ls` names both templates on one generator. `filepaths` is what
+        // that generator reads as. `folders` there would throw away every
+        // file the argument takes.
+        let mut both = plain;
+        both.template.push("folders".to_string());
+        assert_eq!(reads_paths(&both), Some("always"));
     }
 
     #[test]
@@ -939,14 +1064,12 @@ mod tests {
         entries.extend((0..300).map(|i| format!("dir-{i}")));
         let names: Vec<&str> = entries.iter().map(String::as_str).collect();
         let f = Fixture::new(&names);
-        let generator = path_generator(serde_json::json!({}));
         let rows = path_rows(
-            &generator,
             "",
             f.path(),
             &History::default(),
             &mut Scan::default(),
-            false,
+            "always",
         );
         assert_eq!(rows.len(), crate::candidates::SCAN_LIMIT);
     }
@@ -988,13 +1111,7 @@ mod tests {
     #[test]
     fn make_offers_the_targets_of_the_makefile_beside_it() {
         let f = make_fixture();
-        let mut c = Completions::default();
-        let rows = c.complete(
-            &target("make "),
-            f.path(),
-            &History::default(),
-            &mut Scan::default(),
-        );
+        let rows = rows_in(f.path(), "make ");
         let names = names(&rows);
         assert!(names.contains(&"sample-build"), "{names:?}");
         assert!(names.contains(&"sample-check"), "{names:?}");
@@ -1005,13 +1122,7 @@ mod tests {
         // `-j` takes a job count first and the same `target` argument
         // second, which is index 1 rather than index 0.
         let f = make_fixture();
-        let mut c = Completions::default();
-        let rows = c.complete(
-            &target("make -j 4 "),
-            f.path(),
-            &History::default(),
-            &mut Scan::default(),
-        );
+        let rows = rows_in(f.path(), "make -j 4 ");
         let names = names(&rows);
         assert!(names.contains(&"sample-build"), "{names:?}");
         assert!(names.contains(&"sample-check"), "{names:?}");
@@ -1020,13 +1131,7 @@ mod tests {
     #[test]
     fn make_offers_no_target_where_there_is_no_makefile() {
         let f = Fixture::new(&[]);
-        let mut c = Completions::default();
-        let rows = c.complete(
-            &target("make "),
-            f.path(),
-            &History::default(),
-            &mut Scan::default(),
-        );
+        let rows = rows_in(f.path(), "make ");
         assert!(
             rows.iter().all(|r| r.label != "target"),
             "{:?}",

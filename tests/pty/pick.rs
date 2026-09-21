@@ -731,6 +731,20 @@ fn enter_on_a_file_a_specification_offers_hands_the_line_back() {
 }
 
 #[test]
+fn a_path_argument_a_specification_fills_gets_the_row_that_runs_the_line() {
+    // `cd`'s own row, on an argument a specification reads off the
+    // filesystem. Without it this line descends for as long as there are
+    // directories under it.
+    let f = Fixture::new(&["assets/inner"]);
+    let mut t = opened(f.path(), "ls assets/");
+    let run_row = t.panel().get(1).expect("a row").text.clone();
+    assert!(run_row.contains(RUN_ICON), "{run_row:?}");
+    assert_eq!(run_row.replace(RUN_ICON, "").trim(), "", "{run_row:?}");
+    t.send("\r");
+    assert_eq!(t.status(WAIT), Some(pick::RUN));
+}
+
+#[test]
 fn the_menu_is_a_closed_box_with_the_row_that_runs_in_it() {
     // The other two `intact` cases open on a bare `cd ` and that line never
     // gets the row. This one does and the glyph and the row's empty name
