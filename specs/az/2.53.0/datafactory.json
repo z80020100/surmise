@@ -1,0 +1,5700 @@
+{
+  "description": "Manage Data Factory",
+  "name": "datafactory",
+  "subcommands": [
+    {
+      "description": "Manage activity run with datafactory",
+      "name": "activity-run",
+      "subcommands": [
+        {
+          "description": "Query activity runs based on input filter conditions",
+          "name": "query-by-pipeline-run",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "last-updated-after"
+                }
+              ],
+              "description": "The time at or after which the run event was updated in 'ISO 8601' format",
+              "isRequired": true,
+              "name": "--last-updated-after"
+            },
+            {
+              "args": [
+                {
+                  "name": "last-updated-before"
+                }
+              ],
+              "description": "The time at or before which the run event was updated in 'ISO 8601' format",
+              "isRequired": true,
+              "name": "--last-updated-before"
+            },
+            {
+              "args": [
+                {
+                  "name": "continuation-token"
+                }
+              ],
+              "description": "The continuation token for getting the next page of results. Null for first page",
+              "name": "--continuation-token"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "filters"
+                }
+              ],
+              "description": "List of filters",
+              "name": "--filters"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "order-by"
+                }
+              ],
+              "description": "List of OrderBy option",
+              "name": "--order-by"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "run-id"
+                }
+              ],
+              "description": "The pipeline run identifier",
+              "name": "--run-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Updates a factory's repo information",
+      "name": "configure-factory-repo",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "factory-git-hub-configuration"
+            }
+          ],
+          "description": "Factory's GitHub repo information",
+          "name": [
+            "--factory-git-hub-configuration",
+            "--github-config"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "factory-resource-id"
+            }
+          ],
+          "description": "The factory resource id",
+          "name": "--factory-resource-id"
+        },
+        {
+          "args": [
+            {
+              "name": "factory-vsts-configuration"
+            }
+          ],
+          "description": "Factory's VSTS repo information",
+          "name": [
+            "--factory-vsts-configuration",
+            "--vsts-config"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Create a factory",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "factory-name"
+            }
+          ],
+          "description": "The factory name",
+          "isRequired": true,
+          "name": [
+            "--factory-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "factory-git-hub-configuration"
+            }
+          ],
+          "description": "Factory's GitHub repo information",
+          "name": [
+            "--factory-git-hub-configuration",
+            "--github-config"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "factory-vsts-configuration"
+            }
+          ],
+          "description": "Factory's VSTS repo information",
+          "name": [
+            "--factory-vsts-configuration",
+            "--vsts-config"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "global-parameters"
+            }
+          ],
+          "description": "List of parameters for factory. Expected value: json-string/json-file/@json-file",
+          "name": "--global-parameters"
+        },
+        {
+          "args": [
+            {
+              "name": "if-match"
+            }
+          ],
+          "description": "ETag of the factory entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+          "name": "--if-match"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        }
+      ]
+    },
+    {
+      "description": "Deletes a factory",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "factory-name"
+            }
+          ],
+          "description": "The factory name",
+          "name": [
+            "--factory-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Get Data Plane access",
+      "name": "get-data-plane-access",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "access-resource-path"
+            }
+          ],
+          "description": "The resource path to get access relative to factory. Currently only empty string is supported which corresponds to the factory resource",
+          "name": "--access-resource-path"
+        },
+        {
+          "args": [
+            {
+              "name": "expire-time"
+            }
+          ],
+          "description": "Expiration time for the token. Maximum duration for the token is eight hours and by default the token will expire in eight hours",
+          "name": "--expire-time"
+        },
+        {
+          "args": [
+            {
+              "name": "factory-name"
+            }
+          ],
+          "description": "The factory name",
+          "name": [
+            "--factory-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "permissions"
+            }
+          ],
+          "description": "The string with permissions for Data Plane access. Currently only 'r' is supported which grants read only access",
+          "name": "--permissions"
+        },
+        {
+          "args": [
+            {
+              "name": "profile-name"
+            }
+          ],
+          "description": "The name of the profile. Currently only the default is supported. The default value is DefaultProfile",
+          "name": "--profile-name"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "start-time"
+            }
+          ],
+          "description": "Start time for the token. If not specified the current time will be used",
+          "name": "--start-time"
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Get GitHub Access Token",
+      "name": "get-git-hub-access-token",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "git-hub-access-code"
+            }
+          ],
+          "description": "GitHub access code",
+          "isRequired": true,
+          "name": "--git-hub-access-code"
+        },
+        {
+          "args": [
+            {
+              "name": "git-hub-access-token-base-url"
+            }
+          ],
+          "description": "GitHub access token base URL",
+          "isRequired": true,
+          "name": "--git-hub-access-token-base-url"
+        },
+        {
+          "args": [
+            {
+              "name": "factory-name"
+            }
+          ],
+          "description": "The factory name",
+          "name": [
+            "--factory-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "git-hub-client-id"
+            }
+          ],
+          "description": "GitHub application client ID",
+          "name": "--git-hub-client-id"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Lists factories. And Lists factories under the specified subscription",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Gets a factory",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "factory-name"
+            }
+          ],
+          "description": "The factory name",
+          "name": [
+            "--factory-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "if-none-match"
+            }
+          ],
+          "description": "ETag of the factory entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned",
+          "name": "--if-none-match"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Updates a factory",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "factory-name"
+            }
+          ],
+          "description": "The factory name",
+          "name": [
+            "--factory-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        }
+      ]
+    },
+    {
+      "description": "Managing and configuring Data Flows in Azure Data Factory",
+      "name": "data-flow",
+      "subcommands": [
+        {
+          "description": "Creates a data flow within a factory",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "data-flow-name"
+                }
+              ],
+              "description": "The data flow name",
+              "isRequired": true,
+              "name": [
+                "--data-flow-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": [
+                "--factory-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "flow-type"
+                }
+              ],
+              "description": "The data flow type. Valid choices: MappingDataFlow, Flowlet",
+              "isRequired": true,
+              "name": [
+                "--flow-type",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "properties"
+                }
+              ],
+              "description": "Specified properties for the dataflow. Expected value: json-string/json-file/@json-file",
+              "isRequired": true,
+              "name": "--properties"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the data flow entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+              "name": "--if-match"
+            }
+          ]
+        },
+        {
+          "description": "Delete a specific data flow in a given factory",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "data-flow-name"
+                }
+              ],
+              "description": "The data flow name",
+              "name": [
+                "--data-flow-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": [
+                "--factory-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "List data flows within a provided factory",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": [
+                "--factory-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show information about the specified data flow",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "data-flow-name"
+                }
+              ],
+              "description": "The data flow name",
+              "name": [
+                "--data-flow-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": [
+                "--factory-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the pipeline entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Updates a specified data flow within a factory",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "properties"
+                }
+              ],
+              "description": "Specified properties for the dataflow. Expected value: json-string/json-file/@json-file",
+              "isRequired": true,
+              "name": "--properties"
+            },
+            {
+              "args": [
+                {
+                  "name": "data-flow-name"
+                }
+              ],
+              "description": "The data flow name",
+              "name": [
+                "--data-flow-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": [
+                "--factory-name",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage dataset with datafactory",
+      "name": "dataset",
+      "subcommands": [
+        {
+          "description": "Create a dataset",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dataset-name"
+                }
+              ],
+              "description": "The dataset name",
+              "isRequired": true,
+              "name": [
+                "--dataset-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "properties"
+                }
+              ],
+              "description": "Dataset properties. Expected value: json-string/json-file/@json-file",
+              "isRequired": true,
+              "name": "--properties"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the dataset entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+              "name": "--if-match"
+            }
+          ]
+        },
+        {
+          "description": "Deletes a dataset",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dataset-name"
+                }
+              ],
+              "description": "The dataset name",
+              "name": [
+                "--dataset-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists datasets",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets a dataset",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dataset-name"
+                }
+              ],
+              "description": "The dataset name",
+              "name": [
+                "--dataset-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the dataset entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update a dataset",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "linked-service-name"
+                }
+              ],
+              "description": "Linked service reference. Expected value: json-string/json-file/@json-file",
+              "isRequired": true,
+              "name": "--linked-service-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "annotations"
+                }
+              ],
+              "description": "List of tags that can be used for describing the Dataset. Expected value: json-string/json-file/@json-file",
+              "name": "--annotations"
+            },
+            {
+              "args": [
+                {
+                  "name": "dataset-name"
+                }
+              ],
+              "description": "The dataset name",
+              "name": [
+                "--dataset-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Dataset description",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "folder"
+                }
+              ],
+              "description": "The folder that this Dataset is in. If not specified, Dataset will appear at the root level",
+              "name": "--folder"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the dataset entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+              "name": "--if-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the dataset entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned. Default value is None",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Parameters for dataset. Expected value: json-string/json-file/@json-file",
+              "name": "--parameters"
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "schema"
+                }
+              ],
+              "description": "Columns that define the physical type schema of the dataset. Type: array (or Expression with resultType array), itemType: DatasetSchemaDataElement. Expected value: json-string/json-file/@json-file",
+              "name": "--schema"
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "structure"
+                }
+              ],
+              "description": "Columns that define the structure of the dataset. Type: array (or Expression with resultType array), itemType: DatasetDataElement. Expected value: json-string/json-file/@json-file",
+              "name": "--structure"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage integration runtime with datafactory",
+      "name": "integration-runtime",
+      "subcommands": [
+        {
+          "description": "Deletes an integration runtime",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": [
+                "--integration-runtime-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets the on-premises integration runtime connection information for encrypting the on-premises data source credentials",
+          "name": "get-connection-info",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": [
+                "--integration-runtime-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Get the integration runtime monitoring data, which includes the monitor data for all the nodes under this integration runtime",
+          "name": "get-monitoring-data",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": [
+                "--integration-runtime-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Gets detailed status information for an integration runtime",
+          "name": "get-status",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": [
+                "--integration-runtime-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Lists integration runtimes",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Retrieves the authentication keys for an integration runtime",
+          "name": "list-auth-key",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "isRequired": true,
+              "name": [
+                "--integration-runtime-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Regenerates the authentication key for an integration runtime",
+          "name": "regenerate-auth-key",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": [
+                "--integration-runtime-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "key-name",
+                  "suggestions": [
+                    "authKey1",
+                    "authKey2"
+                  ]
+                }
+              ],
+              "description": "The name of the authentication key to regenerate",
+              "name": "--key-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Remove all linked integration runtimes under specific data factory in a self-hosted integration runtime",
+          "name": "remove-link",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "linked-factory-name"
+                }
+              ],
+              "description": "The data factory name for linked integration runtime",
+              "isRequired": true,
+              "name": "--linked-factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": [
+                "--integration-runtime-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Gets an integration runtime",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the integration runtime entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": [
+                "--integration-runtime-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Starts a ManagedReserved type integration runtime",
+          "name": "start",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": [
+                "--integration-runtime-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Stops a ManagedReserved type integration runtime",
+          "name": "stop",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": [
+                "--integration-runtime-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Force the integration runtime to synchronize credentials across integration runtime nodes, and this will override the credentials across all worker nodes with those available on the dispatcher node. If you already have the latest credential backup file, you should manually import it (preferred) on any self-hosted integration runtime node than using this API directly",
+          "name": "sync-credentials",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": [
+                "--integration-runtime-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Updates an integration runtime",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "auto-update",
+                  "suggestions": [
+                    "Off",
+                    "On"
+                  ]
+                }
+              ],
+              "description": "Enables or disables the auto-update feature of the self-hosted integration runtime. See https://go.microsoft.com/fwlink/?linkid=854189",
+              "name": "--auto-update"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": [
+                "--integration-runtime-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "update-delay-offset"
+                }
+              ],
+              "description": "The time offset (in hours) in the day, e.g., PT03H is 3 hours. The integration runtime auto update will happen on that time",
+              "name": "--update-delay-offset"
+            }
+          ]
+        },
+        {
+          "description": "Upgrade self-hosted integration runtime to latest version if availability",
+          "name": "upgrade",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": [
+                "--integration-runtime-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a condition of the datafactory integration-runtime is met",
+          "name": "wait",
+          "options": [
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the integration runtime entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": [
+                "--integration-runtime-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        },
+        {
+          "description": "Manage integration runtime with datafactory sub group linked-integration-runtime",
+          "name": "linked-integration-runtime",
+          "subcommands": [
+            {
+              "description": "Create a linked integration runtime entry in a shared integration runtime",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "factory-name"
+                    }
+                  ],
+                  "description": "The factory name",
+                  "isRequired": true,
+                  "name": "--factory-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "integration-runtime-name"
+                    }
+                  ],
+                  "description": "The integration runtime name",
+                  "isRequired": true,
+                  "name": "--integration-runtime-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "data-factory-name"
+                    }
+                  ],
+                  "description": "The name of the data factory that the linked integration runtime belongs to",
+                  "name": "--data-factory-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "location"
+                    }
+                  ],
+                  "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+                  "name": [
+                    "--location",
+                    "-l"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the linked integration runtime",
+                  "name": "--name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription-id"
+                    }
+                  ],
+                  "description": "The ID of the subscription that the linked integration runtime belongs to",
+                  "name": "--subscription-id"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage integration runtime with datafactory sub group managed",
+          "name": "managed",
+          "subcommands": [
+            {
+              "description": "Create an integration runtime",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "factory-name"
+                    }
+                  ],
+                  "description": "The factory name",
+                  "isRequired": true,
+                  "name": "--factory-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "integration-runtime-name"
+                    }
+                  ],
+                  "description": "The integration runtime name",
+                  "isRequired": true,
+                  "name": [
+                    "--integration-runtime-name",
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "compute-properties"
+                    }
+                  ],
+                  "description": "The compute resource for managed integration runtime. Expected value: json-string/json-file/@json-file",
+                  "name": "--compute-properties"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "description"
+                    }
+                  ],
+                  "description": "Integration runtime description",
+                  "name": "--description"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "if-match"
+                    }
+                  ],
+                  "description": "ETag of the integration runtime entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+                  "name": "--if-match"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ssis-properties"
+                    }
+                  ],
+                  "description": "SSIS properties for managed integration runtime. Expected value: json-string/json-file/@json-file",
+                  "name": "--ssis-properties"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage integration runtime with datafactory sub group self-hosted",
+          "name": "self-hosted",
+          "subcommands": [
+            {
+              "description": "Create an integration runtime",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "factory-name"
+                    }
+                  ],
+                  "description": "The factory name",
+                  "isRequired": true,
+                  "name": "--factory-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "integration-runtime-name"
+                    }
+                  ],
+                  "description": "The integration runtime name",
+                  "isRequired": true,
+                  "name": [
+                    "--integration-runtime-name",
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "description"
+                    }
+                  ],
+                  "description": "Integration runtime description",
+                  "name": "--description"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "if-match"
+                    }
+                  ],
+                  "description": "ETag of the integration runtime entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+                  "name": "--if-match"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "linked-info"
+                    }
+                  ],
+                  "description": "The base definition of a linked integration runtime. Expected value: json-string/json-file/@json-file",
+                  "name": "--linked-info"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage integration runtime node with datafactory",
+      "name": "integration-runtime-node",
+      "subcommands": [
+        {
+          "description": "Deletes a self-hosted integration runtime node",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": "--integration-runtime-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "node-name"
+                }
+              ],
+              "description": "The integration runtime node name",
+              "name": "--node-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the IP address of self-hosted integration runtime node",
+          "name": "get-ip-address",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": "--integration-runtime-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "node-name"
+                }
+              ],
+              "description": "The integration runtime node name",
+              "name": "--node-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Gets a self-hosted integration runtime node",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": "--integration-runtime-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "node-name"
+                }
+              ],
+              "description": "The integration runtime node name",
+              "name": "--node-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Updates a self-hosted integration runtime node",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "concurrent-jobs-limit"
+                }
+              ],
+              "description": "The number of concurrent jobs permitted to run on the integration runtime node. Values between 1 and maxConcurrentJobs(inclusive) are allowed",
+              "name": "--concurrent-jobs-limit"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "integration-runtime-name"
+                }
+              ],
+              "description": "The integration runtime name",
+              "name": "--integration-runtime-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "node-name"
+                }
+              ],
+              "description": "The integration runtime node name",
+              "name": "--node-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage linked service with datafactory",
+      "name": "linked-service",
+      "subcommands": [
+        {
+          "description": "Create a linked service",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "linked-service-name"
+                }
+              ],
+              "description": "The linked service name",
+              "isRequired": true,
+              "name": [
+                "--linked-service-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "properties"
+                }
+              ],
+              "description": "Properties of linked service. Expected value: json-string/json-file/@json-file",
+              "isRequired": true,
+              "name": "--properties"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the linkedService entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+              "name": "--if-match"
+            }
+          ]
+        },
+        {
+          "description": "Deletes a linked service",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "linked-service-name"
+                }
+              ],
+              "description": "The linked service name",
+              "name": [
+                "--linked-service-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists linked services",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets a linked service",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the linked service entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "linked-service-name"
+                }
+              ],
+              "description": "The linked service name",
+              "name": [
+                "--linked-service-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update a linked service",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "annotations"
+                }
+              ],
+              "description": "List of tags that can be used for describing the linked service. Expected value: json-string/json-file/@json-file",
+              "name": "--annotations"
+            },
+            {
+              "args": [
+                {
+                  "name": "connect-via"
+                }
+              ],
+              "description": "The integration runtime reference. Expected value: json-string/json-file/@json-file",
+              "name": "--connect-via"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Linked service description",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the linkedService entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+              "name": "--if-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the linked service entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned. Default value is None",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "linked-service-name"
+                }
+              ],
+              "description": "The linked service name",
+              "name": [
+                "--linked-service-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Parameters for linked service. Expected value: json-string/json-file/@json-file",
+              "name": "--parameters"
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage managed private endpoint with datafactory",
+      "name": "managed-private-endpoint",
+      "subcommands": [
+        {
+          "description": "Create a managed private endpoint",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "managed-private-endpoint-name"
+                }
+              ],
+              "description": "Managed private endpoint name",
+              "isRequired": true,
+              "name": [
+                "--managed-private-endpoint-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "managed-virtual-network-name"
+                }
+              ],
+              "description": "Managed virtual network name",
+              "isRequired": true,
+              "name": [
+                "--managed-virtual-network-name",
+                "--mvnet-name"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "fqdns"
+                }
+              ],
+              "description": "Fully qualified domain names",
+              "name": "--fqdns"
+            },
+            {
+              "args": [
+                {
+                  "name": "group-id"
+                }
+              ],
+              "description": "The groupId to which the managed private endpoint is created",
+              "name": "--group-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the managed private endpoint entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+              "name": "--if-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "private-link-resource-id"
+                }
+              ],
+              "description": "The ARM resource ID of the resource to which the managed private endpoint is created",
+              "name": [
+                "--private-link-resource-id",
+                "--private-link"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Deletes a managed private endpoint",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "managed-private-endpoint-name"
+                }
+              ],
+              "description": "Managed private endpoint name",
+              "name": [
+                "--managed-private-endpoint-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "managed-virtual-network-name"
+                }
+              ],
+              "description": "Managed virtual network name",
+              "name": [
+                "--managed-virtual-network-name",
+                "--mvnet-name"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists managed private endpoints",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "managed-virtual-network-name"
+                }
+              ],
+              "description": "Managed virtual network name",
+              "isRequired": true,
+              "name": [
+                "--managed-virtual-network-name",
+                "--mvnet-name"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets a managed private endpoint",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the managed private endpoint entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "managed-private-endpoint-name"
+                }
+              ],
+              "description": "Managed private endpoint name",
+              "name": [
+                "--managed-private-endpoint-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "managed-virtual-network-name"
+                }
+              ],
+              "description": "Managed virtual network name",
+              "name": [
+                "--managed-virtual-network-name",
+                "--mvnet-name"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update a managed private endpoint",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "fqdns"
+                }
+              ],
+              "description": "Fully qualified domain names",
+              "name": "--fqdns"
+            },
+            {
+              "args": [
+                {
+                  "name": "group-id"
+                }
+              ],
+              "description": "The groupId to which the managed private endpoint is created",
+              "name": "--group-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the managed private endpoint entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+              "name": "--if-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the managed private endpoint entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned. Default value is None",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "managed-private-endpoint-name"
+                }
+              ],
+              "description": "Managed private endpoint name",
+              "name": [
+                "--managed-private-endpoint-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "managed-virtual-network-name"
+                }
+              ],
+              "description": "Managed virtual network name",
+              "name": [
+                "--managed-virtual-network-name",
+                "--mvnet-name"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "private-link-resource-id"
+                }
+              ],
+              "description": "The ARM resource ID of the resource to which the managed private endpoint is created",
+              "name": [
+                "--private-link-resource-id",
+                "--private-link"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage managed virtual network with datafactory",
+      "name": "managed-virtual-network",
+      "subcommands": [
+        {
+          "description": "Create a managed Virtual Network",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "managed-virtual-network-name"
+                }
+              ],
+              "description": "Managed virtual network name",
+              "isRequired": true,
+              "name": [
+                "--managed-virtual-network-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the managed Virtual Network entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+              "name": "--if-match"
+            }
+          ]
+        },
+        {
+          "description": "Lists managed Virtual Networks",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets a managed Virtual Network",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the managed Virtual Network entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "managed-virtual-network-name"
+                }
+              ],
+              "description": "Managed virtual network name",
+              "name": [
+                "--managed-virtual-network-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update a managed Virtual Network",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the managed Virtual Network entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+              "name": "--if-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the managed Virtual Network entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned. Default value is None",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "managed-virtual-network-name"
+                }
+              ],
+              "description": "Managed virtual network name",
+              "name": [
+                "--managed-virtual-network-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage pipeline with datafactory",
+      "name": "pipeline",
+      "subcommands": [
+        {
+          "description": "Create a pipeline",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "pipeline-name"
+                }
+              ],
+              "description": "The pipeline name",
+              "isRequired": true,
+              "name": [
+                "--pipeline-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "pipeline"
+                }
+              ],
+              "description": "Pipeline resource definition. Expected value: json-string/json-file/@json-file",
+              "isRequired": true,
+              "name": "--pipeline"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the pipeline entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+              "name": "--if-match"
+            }
+          ]
+        },
+        {
+          "description": "Creates a run of a pipeline",
+          "name": "create-run",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "pipeline-name"
+                }
+              ],
+              "description": "The pipeline name",
+              "isRequired": true,
+              "name": [
+                "--pipeline-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "is-recovery",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Recovery mode flag. If recovery mode is set to true, the specified referenced pipeline run and the new run will be grouped under the same groupId",
+              "name": "--is-recovery"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Parameters of the pipeline run. These parameters will be used only if the runId is not specified. Expected value: json-string/json-file/@json-file",
+              "name": "--parameters"
+            },
+            {
+              "args": [
+                {
+                  "name": "reference-pipeline-run-id"
+                }
+              ],
+              "description": "The pipeline run identifier. If run ID is specified the parameters of the specified run will be used to create a new run",
+              "name": "--reference-pipeline-run-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "start-activity-name"
+                }
+              ],
+              "description": "In recovery mode, the rerun will start from this activity. If not specified, all activities will run",
+              "name": "--start-activity-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "start-from-failure",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "In recovery mode, if set to true, the rerun will start from failed activities. The property will be used only if startActivityName is not specified",
+              "name": "--start-from-failure"
+            }
+          ]
+        },
+        {
+          "description": "Deletes a pipeline",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "pipeline-name"
+                }
+              ],
+              "description": "The pipeline name",
+              "name": [
+                "--pipeline-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists pipelines",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets a pipeline",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the pipeline entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "pipeline-name"
+                }
+              ],
+              "description": "The pipeline name",
+              "name": [
+                "--pipeline-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update a pipeline",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "activities"
+                }
+              ],
+              "description": "List of activities in pipeline. Expected value: json-string/json-file/@json-file",
+              "name": "--activities"
+            },
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "annotations"
+                }
+              ],
+              "description": "List of tags that can be used for describing the Pipeline. Expected value: json-string/json-file/@json-file",
+              "name": "--annotations"
+            },
+            {
+              "args": [
+                {
+                  "name": "concurrency"
+                }
+              ],
+              "description": "The max number of concurrent runs for the pipeline",
+              "name": "--concurrency"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "The description of the pipeline",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "duration"
+                }
+              ],
+              "description": "TimeSpan value, after which an Azure Monitoring Metric is fired. Expected value: json-string/json-file/@json-file",
+              "name": "--duration"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "folder-name"
+                }
+              ],
+              "description": "The name of the folder that this Pipeline is in",
+              "name": "--folder-name"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the pipeline entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+              "name": "--if-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the pipeline entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned. Default value is None",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "pipeline-name"
+                }
+              ],
+              "description": "The pipeline name",
+              "name": [
+                "--pipeline-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "List of parameters for pipeline. Expected value: json-string/json-file/@json-file",
+              "name": "--parameters"
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "run-dimensions"
+                }
+              ],
+              "description": "Dimensions emitted by Pipeline. Expected value: json-string/json-file/@json-file",
+              "name": "--run-dimensions"
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "variables"
+                }
+              ],
+              "description": "List of variables for pipeline. Expected value: json-string/json-file/@json-file",
+              "name": "--variables"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage pipeline run with datafactory",
+      "name": "pipeline-run",
+      "subcommands": [
+        {
+          "description": "Cancel a pipeline run by its run ID",
+          "name": "cancel",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "is-recursive",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "If true, cancel all the Child pipelines that are triggered by the current pipeline",
+              "name": "--is-recursive"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "run-id"
+                }
+              ],
+              "description": "The pipeline run identifier",
+              "name": "--run-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Query pipeline runs in the factory based on input filter conditions",
+          "name": "query-by-factory",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "last-updated-after"
+                }
+              ],
+              "description": "The time at or after which the run event was updated in 'ISO 8601' format",
+              "isRequired": true,
+              "name": "--last-updated-after"
+            },
+            {
+              "args": [
+                {
+                  "name": "last-updated-before"
+                }
+              ],
+              "description": "The time at or before which the run event was updated in 'ISO 8601' format",
+              "isRequired": true,
+              "name": "--last-updated-before"
+            },
+            {
+              "args": [
+                {
+                  "name": "continuation-token"
+                }
+              ],
+              "description": "The continuation token for getting the next page of results. Null for first page",
+              "name": "--continuation-token"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "filters"
+                }
+              ],
+              "description": "List of filters",
+              "name": "--filters"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "order-by"
+                }
+              ],
+              "description": "List of OrderBy option",
+              "name": "--order-by"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Get a pipeline run by its run ID",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "run-id"
+                }
+              ],
+              "description": "The pipeline run identifier",
+              "name": "--run-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage trigger with datafactory",
+      "name": "trigger",
+      "subcommands": [
+        {
+          "description": "Create a trigger",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "trigger-name"
+                }
+              ],
+              "description": "The trigger name",
+              "isRequired": true,
+              "name": [
+                "--trigger-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "properties"
+                }
+              ],
+              "description": "Properties of the trigger. Expected value: json-string/json-file/@json-file",
+              "isRequired": true,
+              "name": "--properties"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the trigger entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+              "name": "--if-match"
+            }
+          ]
+        },
+        {
+          "description": "Deletes a trigger",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "trigger-name"
+                }
+              ],
+              "description": "The trigger name",
+              "name": [
+                "--trigger-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get a trigger's event subscription status",
+          "name": "get-event-subscription-status",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "trigger-name"
+                }
+              ],
+              "description": "The trigger name",
+              "name": [
+                "--trigger-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Lists triggers",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "isRequired": true,
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Query triggers",
+          "name": "query-by-factory",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "continuation-token"
+                }
+              ],
+              "description": "The continuation token for getting the next page of results. Null for first page",
+              "name": "--continuation-token"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent-trigger-name"
+                }
+              ],
+              "description": "The name of the parent TumblingWindowTrigger to get the child rerun triggers",
+              "name": "--parent-trigger-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Gets a trigger",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the trigger entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "trigger-name"
+                }
+              ],
+              "description": "The trigger name",
+              "name": [
+                "--trigger-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Starts a trigger",
+          "name": "start",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "trigger-name"
+                }
+              ],
+              "description": "The trigger name",
+              "name": [
+                "--trigger-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Stops a trigger",
+          "name": "stop",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "trigger-name"
+                }
+              ],
+              "description": "The trigger name",
+              "name": [
+                "--trigger-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Subscribe event trigger to events",
+          "name": "subscribe-to-event",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "trigger-name"
+                }
+              ],
+              "description": "The trigger name",
+              "name": [
+                "--trigger-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Unsubscribe event trigger from events",
+          "name": "unsubscribe-from-event",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "trigger-name"
+                }
+              ],
+              "description": "The trigger name",
+              "name": [
+                "--trigger-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update a trigger",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "annotations"
+                }
+              ],
+              "description": "List of tags that can be used for describing the trigger. Expected value: json-string/json-file/@json-file",
+              "name": "--annotations"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Trigger description",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-match"
+                }
+              ],
+              "description": "ETag of the trigger entity. Should only be specified for update, for which it should match existing entity or can be * for unconditional update",
+              "name": "--if-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the trigger entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned. Default value is None",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "trigger-name"
+                }
+              ],
+              "description": "The trigger name",
+              "name": [
+                "--trigger-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a condition of the datafactory trigger is met",
+          "name": "wait",
+          "options": [
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "if-none-match"
+                }
+              ],
+              "description": "ETag of the trigger entity. Should only be specified for get. If the ETag matches the existing entity tag, or if * was provided, then no content will be returned",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "trigger-name"
+                }
+              ],
+              "description": "The trigger name",
+              "name": [
+                "--trigger-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage trigger run with datafactory",
+      "name": "trigger-run",
+      "subcommands": [
+        {
+          "description": "Cancel a single trigger instance by runId",
+          "name": "cancel",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "run-id"
+                }
+              ],
+              "description": "The pipeline run identifier",
+              "name": "--run-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "trigger-name"
+                }
+              ],
+              "description": "The trigger name",
+              "name": "--trigger-name"
+            }
+          ]
+        },
+        {
+          "description": "Query trigger runs",
+          "name": "query-by-factory",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "last-updated-after"
+                }
+              ],
+              "description": "The time at or after which the run event was updated in 'ISO 8601' format",
+              "isRequired": true,
+              "name": "--last-updated-after"
+            },
+            {
+              "args": [
+                {
+                  "name": "last-updated-before"
+                }
+              ],
+              "description": "The time at or before which the run event was updated in 'ISO 8601' format",
+              "isRequired": true,
+              "name": "--last-updated-before"
+            },
+            {
+              "args": [
+                {
+                  "name": "continuation-token"
+                }
+              ],
+              "description": "The continuation token for getting the next page of results. Null for first page",
+              "name": "--continuation-token"
+            },
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "filters"
+                }
+              ],
+              "description": "List of filters",
+              "name": "--filters"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "order-by"
+                }
+              ],
+              "description": "List of OrderBy option",
+              "name": "--order-by"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Rerun single trigger instance by runId",
+          "name": "rerun",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "factory-name"
+                }
+              ],
+              "description": "The factory name",
+              "name": "--factory-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "run-id"
+                }
+              ],
+              "description": "The pipeline run identifier",
+              "name": "--run-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "trigger-name"
+                }
+              ],
+              "description": "The trigger name",
+              "name": "--trigger-name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

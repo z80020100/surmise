@@ -1,0 +1,643 @@
+{
+  "description": "Manage restore point with res",
+  "name": "restore-point",
+  "subcommands": [
+    {
+      "description": "Create the restore point collection. Please refer to https://aka.ms/RestorePoints for more details. When updating a restore point collection, only tags may be modified",
+      "name": "collection",
+      "subcommands": [
+        {
+          "description": "Create the restore point collection. Please refer to https://aka.ms/RestorePoints for more details. When updating a restore point collection, only tags may be modified",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "collection-name"
+                }
+              ],
+              "description": "The name of the restore point collection",
+              "isRequired": true,
+              "name": "--collection-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "source-id"
+                }
+              ],
+              "description": "Resource Id of the source resource used to create this restore point collection",
+              "isRequired": true,
+              "name": "--source-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Delete the restore point collection. This operation will also delete all the contained restore points",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "restore-point-collection-name"
+                }
+              ],
+              "description": "The name of the restore point collection",
+              "name": [
+                "--restore-point-collection-name",
+                "--collection-name"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the list of restore point collections in a resource group",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the list of restore point collections in the subscription. Use nextLink property in the response to get the next page of restore point collections. Do this till nextLink is not null to fetch all the restore point collections",
+          "name": "list-all"
+        },
+        {
+          "description": "Get the restore point collection",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "collection-name"
+                }
+              ],
+              "description": "The name of the restore point collection",
+              "isRequired": true,
+              "name": "--collection-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "restore-points"
+                }
+              ],
+              "description": "Show all contained restore points in the restore point collection",
+              "name": "--restore-points"
+            }
+          ]
+        },
+        {
+          "description": "Update the restore point collection",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "collection-name"
+                }
+              ],
+              "description": "The name of the restore point collection",
+              "isRequired": true,
+              "name": "--collection-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a condition of the restore-point-collection is met",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "collection-name"
+                }
+              ],
+              "description": "The name of the restore point collection",
+              "isRequired": true,
+              "name": "--collection-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "expand"
+                }
+              ],
+              "description": "The expand expression to apply on the operation. If expand=restorePoints, server will return all contained restore points in the restorePointCollection. \"restorePoints\" Default value is None",
+              "name": "--expand"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Create the restore point. Updating properties of an existing restore point is not allowed",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "collection-name"
+            }
+          ],
+          "description": "The name of the restore point collection",
+          "isRequired": true,
+          "name": "--collection-name"
+        },
+        {
+          "args": [
+            {
+              "name": "restore-point-name"
+            }
+          ],
+          "description": "The name of the restore point",
+          "isRequired": true,
+          "name": [
+            "--restore-point-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "consistency-mode",
+              "suggestions": [
+                "ApplicationConsistent",
+                "CrashConsistent",
+                "FileSystemConsistent"
+              ]
+            }
+          ],
+          "description": "Consistency mode of the restore point. Can be specified in the input while creating a restore point. For now, only CrashConsistent is accepted as a valid input. Please refer to https://aka.ms/RestorePoints for more details",
+          "name": "--consistency-mode"
+        },
+        {
+          "args": [
+            {
+              "name": "exclude-disks"
+            }
+          ],
+          "description": "List of disk resource ids that the customer wishes to exclude from the restore point. If no disks are specified, all disks will be included",
+          "name": "--exclude-disks"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "source-restore-point"
+            }
+          ],
+          "description": "Resource Id of the source restore point from which a copy needs to be created",
+          "name": "--source-restore-point"
+        }
+      ]
+    },
+    {
+      "description": "Delete the restore point",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "restore-point-collection-name"
+            }
+          ],
+          "description": "The name of the restore point collection",
+          "name": [
+            "--restore-point-collection-name",
+            "--collection-name"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "restore-point-name"
+            }
+          ],
+          "description": "The name of the restore point",
+          "name": [
+            "--restore-point-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "no-wait",
+              "suggestions": [
+                "0",
+                "1",
+                "f",
+                "false",
+                "n",
+                "no",
+                "t",
+                "true",
+                "y",
+                "yes"
+              ]
+            }
+          ],
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Get the restore point",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "collection-name"
+            }
+          ],
+          "description": "The name of the restore point collection",
+          "isRequired": true,
+          "name": "--collection-name"
+        },
+        {
+          "args": [
+            {
+              "name": "restore-point-name"
+            }
+          ],
+          "description": "The name of the restore point",
+          "isRequired": true,
+          "name": [
+            "--restore-point-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "instance-view"
+            }
+          ],
+          "description": "Show the instance view of a restore point",
+          "name": "--instance-view"
+        }
+      ]
+    },
+    {
+      "description": "Place the CLI in a waiting state until a condition of the restore-point is met",
+      "name": "wait",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "collection-name"
+            }
+          ],
+          "description": "The name of the restore point collection",
+          "isRequired": true,
+          "name": "--collection-name"
+        },
+        {
+          "args": [
+            {
+              "name": "restore-point-name"
+            }
+          ],
+          "description": "The name of the restore point",
+          "isRequired": true,
+          "name": [
+            "--restore-point-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+          "name": "--created"
+        },
+        {
+          "args": [
+            {
+              "name": "custom"
+            }
+          ],
+          "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+          "name": "--custom"
+        },
+        {
+          "description": "Wait until deleted",
+          "name": "--deleted"
+        },
+        {
+          "description": "Wait until the resource exists",
+          "name": "--exists"
+        },
+        {
+          "args": [
+            {
+              "name": "expand"
+            }
+          ],
+          "description": "The expand expression to apply on the operation. 'InstanceView' retrieves information about the run-time state of a restore point. 'instanceView' Default value is None",
+          "name": "--expand"
+        },
+        {
+          "args": [
+            {
+              "name": "interval"
+            }
+          ],
+          "description": "Polling interval in seconds",
+          "name": "--interval"
+        },
+        {
+          "args": [
+            {
+              "name": "timeout"
+            }
+          ],
+          "description": "Maximum wait in seconds",
+          "name": "--timeout"
+        },
+        {
+          "description": "Wait until updated with provisioningState at 'Succeeded'",
+          "name": "--updated"
+        }
+      ]
+    }
+  ]
+}

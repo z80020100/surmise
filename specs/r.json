@@ -1,0 +1,2151 @@
+{
+  "description": "Start R or invoke an R tool using CMD",
+  "icon": "https://www.r-project.org/favicon-32x32.png",
+  "name": "R",
+  "options": [
+    {
+      "description": "Print help message and exit",
+      "icon": "❔",
+      "name": [
+        "--help",
+        "-h"
+      ]
+    },
+    {
+      "description": "Print version info and exit",
+      "icon": "📣",
+      "name": [
+        "--version",
+        "-v"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "encoding",
+          "suggestions": [
+            "UTF-8"
+          ]
+        }
+      ],
+      "description": "Specify encoding to be used for stdin",
+      "name": "--encoding",
+      "requiresSeparator": true
+    },
+    {
+      "description": "Save workspace at the end of the session",
+      "exclusiveOn": [
+        "--no-save",
+        "--vanilla"
+      ],
+      "name": "--save"
+    },
+    {
+      "description": "Do not save workspace at the end of the session",
+      "exclusiveOn": [
+        "--save"
+      ],
+      "name": "--no-save"
+    },
+    {
+      "description": "Do not read the site and user environment files",
+      "name": "--no-environ"
+    },
+    {
+      "description": "Do not read the site-wide Rprofile",
+      "name": "--no-site-file"
+    },
+    {
+      "description": "Do not read the user R profile",
+      "name": "--no-init-file"
+    },
+    {
+      "description": "Do restore previously saved objects at startup",
+      "exclusiveOn": [
+        "--no-restore-data",
+        "--vanilla"
+      ],
+      "name": "--restore"
+    },
+    {
+      "description": "Do not restore previously saved objects",
+      "exclusiveOn": [
+        "--restore"
+      ],
+      "name": "--no-restore-data"
+    },
+    {
+      "description": "Do not restore the R history file",
+      "name": "--no-restore-history"
+    },
+    {
+      "description": "Do not restore anything",
+      "name": "--no-restore"
+    },
+    {
+      "description": "Combine --no-save, --no-restore, --no-site-file, --no-init-file and --no-environ",
+      "exclusiveOn": [
+        "--save",
+        "--restore"
+      ],
+      "name": "--vanilla"
+    },
+    {
+      "description": "Do not use readline for command-line editing",
+      "name": "--no-readline"
+    },
+    {
+      "args": [
+        {
+          "description": "Max size of protect stack",
+          "name": "max size"
+        }
+      ],
+      "description": "Set max size of protect stack",
+      "name": "--max-ppsize",
+      "requiresSeparator": true
+    },
+    {
+      "args": [
+        {
+          "description": "Minimum number of fixed size objects",
+          "name": "min size"
+        }
+      ],
+      "description": "Set min number of fixed size obj's ('cons cells')",
+      "name": "--min-nsize",
+      "requiresSeparator": true
+    },
+    {
+      "args": [
+        {
+          "description": "Minimum vector heap size",
+          "name": "min vsize"
+        }
+      ],
+      "description": "Set vector heap minimum (in bytes or '4M' = 4 MegaB)",
+      "name": "--min-vsize",
+      "requiresSeparator": true
+    },
+    {
+      "description": "Do not print startup message",
+      "exclusiveOn": [
+        "--verbose"
+      ],
+      "name": [
+        "--quiet",
+        "--silent",
+        "-q"
+      ]
+    },
+    {
+      "description": "Make R run as quietly as possible",
+      "name": [
+        "--no-echo",
+        "-s"
+      ]
+    },
+    {
+      "description": "Force an interactive session",
+      "name": "--interactive"
+    },
+    {
+      "description": "Print more information about progress",
+      "exclusiveOn": [
+        "--quiet",
+        "--silent",
+        "-q",
+        "--no-echo",
+        "-s"
+      ],
+      "icon": "📣",
+      "name": "--verbose"
+    },
+    {
+      "args": [
+        {
+          "description": "Debugger to use",
+          "name": "debugger"
+        }
+      ],
+      "description": "Run R through a debugger",
+      "icon": "🪲",
+      "name": [
+        "--debugger",
+        "-d"
+      ],
+      "requiresSeparator": true
+    },
+    {
+      "args": [
+        {
+          "description": "Arguments for the debugger",
+          "name": "args"
+        }
+      ],
+      "description": "Pass arguments to the debugger",
+      "name": "--debugger-args",
+      "requiresSeparator": true
+    },
+    {
+      "args": [
+        {
+          "default": "X11",
+          "description": "Type of GUI",
+          "name": "gui",
+          "suggestions": [
+            "X11",
+            "Tk"
+          ]
+        }
+      ],
+      "description": "Type of GUI to use",
+      "name": [
+        "--gui",
+        "-g"
+      ],
+      "requiresSeparator": true
+    },
+    {
+      "args": [
+        {
+          "description": "Sub-architecture",
+          "name": "arch"
+        }
+      ],
+      "description": "Specify a sub-architecture",
+      "name": "--arch",
+      "requiresSeparator": true
+    },
+    {
+      "description": "Skip the rest of the command line",
+      "name": "--args"
+    },
+    {
+      "args": [
+        {
+          "description": "File to run",
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "name": "file"
+        }
+      ],
+      "description": "Take input from a file",
+      "name": [
+        "--file",
+        "-f"
+      ],
+      "requiresSeparator": true
+    },
+    {
+      "args": [
+        {
+          "description": "Expression to evaluate",
+          "name": "expr"
+        }
+      ],
+      "description": "Execute and R expression and exit",
+      "name": "-e",
+      "requiresSeparator": true
+    }
+  ],
+  "subcommands": [
+    {
+      "description": "Print path to R home directory and exit",
+      "name": "RHOME"
+    },
+    {
+      "description": "Invoke an R tool",
+      "name": "CMD",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "A file with R code to be executed",
+              "dyn": true,
+              "generators": [
+                {}
+              ],
+              "name": "infile"
+            },
+            {
+              "description": "A file to which to write output. If not given, the name used is that of infile, with a possible .R extension stripped, and .Rout appended",
+              "name": "outfile"
+            }
+          ],
+          "description": "Batch Execution of R",
+          "name": "BATCH",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "description": "Do not report the timings",
+              "name": "--no-timing"
+            },
+            {
+              "description": "End processing of options",
+              "name": "--"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Source files to be compiled",
+              "dyn": true,
+              "generators": [
+                {}
+              ],
+              "isVariadic": true,
+              "name": "files"
+            }
+          ],
+          "description": "Compile files for use with R (not available on Windows)",
+          "name": "COMPILE",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "The object files to be included in the shared object/DLL",
+              "dyn": true,
+              "generators": [
+                {}
+              ],
+              "isVariadic": true,
+              "name": "files"
+            }
+          ],
+          "description": "Compile the given source files and then link all specified object files",
+          "name": "SHLIB",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "description": "Remove files created during compilation",
+              "name": [
+                "--clean",
+                "-c"
+              ]
+            },
+            {
+              "description": "Remove files created during a previous run",
+              "name": "--preclean"
+            },
+            {
+              "args": [
+                {
+                  "description": "Full name for the built library",
+                  "name": "LIB"
+                }
+              ],
+              "description": "Name for the built library",
+              "name": [
+                "--output",
+                "-o"
+              ],
+              "requiresSeparator": true
+            },
+            {
+              "description": "Dry run; shows commands that would be used",
+              "name": [
+                "--dry-run",
+                "-n"
+              ]
+            },
+            {
+              "description": "Use Link-Time Optimization",
+              "exclusiveOn": [
+                "--no-use-LTO"
+              ],
+              "name": "--use-LTO"
+            },
+            {
+              "description": "Do not use Link-Time Optimization",
+              "exclusiveOn": [
+                "--use-LTO"
+              ],
+              "name": "--no-use-LTO"
+            },
+            {
+              "description": "Build a debug DLL (Windows only)",
+              "icon": "🪲",
+              "name": [
+                "--debug",
+                "-d"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Directories with the package sources",
+              "generators": [
+                {
+                  "template": "folders"
+                }
+              ],
+              "name": "packages"
+            }
+          ],
+          "description": "Utility for installing add-on packages",
+          "name": "INSTALL",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "description": "Remove files created during compilation",
+              "name": [
+                "--clean",
+                "-c"
+              ]
+            },
+            {
+              "description": "Remove files created during a previous run",
+              "name": "--preclean"
+            },
+            {
+              "description": "Turn on debugging messages",
+              "icon": "🪲",
+              "name": [
+                "--debug",
+                "-d"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "description": "Path to the R library tree to install to",
+                  "dyn": true,
+                  "generators": [
+                    {
+                      "script": [
+                        "Rscript",
+                        "-e",
+                        ".libPaths()"
+                      ]
+                    }
+                  ],
+                  "name": "LIB"
+                }
+              ],
+              "description": "Install packages to library tree LIB",
+              "name": [
+                "--library",
+                "-l"
+              ],
+              "requiresSeparator": true
+            },
+            {
+              "description": "Do not use the package's configure script",
+              "name": "--no-configure"
+            },
+            {
+              "description": "Do not install HTML, LaTeX or examples help",
+              "name": "--no-docs"
+            },
+            {
+              "description": "Build HTML help",
+              "exclusiveOn": [
+                "--no-html"
+              ],
+              "name": "--html"
+            },
+            {
+              "description": "Do not build HTML help",
+              "exclusiveOn": [
+                "--html"
+              ],
+              "name": "--no-html"
+            },
+            {
+              "description": "Install LaTeX help",
+              "name": "--latex"
+            },
+            {
+              "description": "Install R code for help examples",
+              "name": "--example"
+            },
+            {
+              "description": "Do minimal install for testing purposes",
+              "name": "--fake"
+            },
+            {
+              "description": "Install on top of any existing installation without using a lock directory",
+              "exclusiveOn": [
+                "--lock",
+                "--pkglock"
+              ],
+              "name": "--no-lock"
+            },
+            {
+              "description": "Use a per-library lock directory (default)",
+              "exclusiveOn": [
+                "--no-lock",
+                "--pkglock"
+              ],
+              "name": "--lock"
+            },
+            {
+              "description": "Use a per-package lock directory (default for a single package)",
+              "exclusiveOn": [
+                "--no-lock",
+                "--lock"
+              ],
+              "name": "--pkglock"
+            },
+            {
+              "description": "Build binaries of the installed package(s)",
+              "icon": "🛠",
+              "name": "--build"
+            },
+            {
+              "description": "Install package-specific tests (if any)",
+              "name": "--install-tests"
+            },
+            {
+              "description": "Suppress installation of the package R code",
+              "name": "--no-R"
+            },
+            {
+              "description": "Suppress installation of the package libs",
+              "name": "--no-libs"
+            },
+            {
+              "description": "Suppress installation of the package data",
+              "name": "--no-data"
+            },
+            {
+              "description": "Suppress installation of the package help",
+              "name": "--no-help"
+            },
+            {
+              "description": "Suppress installation of the package demo",
+              "name": "--no-demo"
+            },
+            {
+              "description": "Suppress installation of the 'exec' directory",
+              "name": "--no-exec"
+            },
+            {
+              "description": "Suppress installation of the 'inst' directory",
+              "name": "--no-inst"
+            },
+            {
+              "description": "Build only the main architecture",
+              "name": "--no-multiarch"
+            },
+            {
+              "description": "Only install the libs directory",
+              "name": "--libs-only"
+            },
+            {
+              "args": [
+                {
+                  "default": "gzip",
+                  "description": "Compression method",
+                  "name": "compression",
+                  "suggestions": [
+                    "gzip",
+                    "none",
+                    "bzip2",
+                    "xz"
+                  ]
+                }
+              ],
+              "description": "Compression to be used for lazy-loading of data",
+              "name": "--data-compress",
+              "requiresSeparator": true
+            },
+            {
+              "description": "Re-save data files as compactly as possible",
+              "name": "--resave-data"
+            },
+            {
+              "description": "Re-compress PDF files under inst/doc",
+              "name": "--compact-docs"
+            },
+            {
+              "description": "'keep.source' for R code",
+              "exclusiveOn": [
+                "--without-keep.source"
+              ],
+              "name": "--with-keep.source"
+            },
+            {
+              "description": "Do not use 'keep.source' for R code",
+              "exclusiveOn": [
+                "--with-keep.source"
+              ],
+              "name": "--without-keep.source"
+            },
+            {
+              "description": "Use 'keep.parse.data' for R code",
+              "exclusiveOn": [
+                "--without-keep.parse.data"
+              ],
+              "name": "--with-keep.parse.data"
+            },
+            {
+              "description": "Do not 'keep.parse.data' for R code",
+              "exclusiveOn": [
+                "--with-keep.parse.data"
+              ],
+              "name": "--without-keep.parse.data"
+            },
+            {
+              "description": "Byte-compile R code",
+              "exclusiveOn": [
+                "--no-byte-compile"
+              ],
+              "name": "--byte-compile"
+            },
+            {
+              "description": "Do not byte-compile R code",
+              "exclusiveOn": [
+                "--byte-compile"
+              ],
+              "name": "--no-byte-compile"
+            },
+            {
+              "description": "Install to a temporary directory and then move to the target directory (default)",
+              "exclusiveOn": [
+                "--staged-install"
+              ],
+              "name": "--staged-install"
+            },
+            {
+              "description": "Install directly to the target directory",
+              "exclusiveOn": [
+                "--no-staged-install"
+              ],
+              "name": "--no-staged-install"
+            },
+            {
+              "description": "Skip test of loading installed package",
+              "name": "--no-test-load"
+            },
+            {
+              "description": "Do not remove installed package on error",
+              "name": "--no-clean-on-error"
+            },
+            {
+              "description": "Multi-arch by merging (from a single tarball only)",
+              "name": "--merge-multiarch"
+            },
+            {
+              "description": "Do not read any Renviron or Rprofile files",
+              "name": "--use-vanilla"
+            },
+            {
+              "description": "Use Link-Time Optimization",
+              "exclusiveOn": [
+                "--no-use-LTO"
+              ],
+              "name": "--use-LTO"
+            },
+            {
+              "description": "Do not use Link-Time Optimization",
+              "exclusiveOn": [
+                "--use-LTO"
+              ],
+              "name": "--no-use-LTO"
+            },
+            {
+              "args": [
+                {
+                  "description": "Arguments for the configure script",
+                  "name": "ARGS"
+                }
+              ],
+              "description": "Set arguments for the configure scripts",
+              "name": "--configure-args",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "description": "Variables for the configure scripts",
+                  "name": "ARGS"
+                }
+              ],
+              "description": "Set variables for the configure scripts",
+              "name": "--configure-vars",
+              "requiresSeparator": true
+            },
+            {
+              "description": "Strip shared object(s) (Unix only)",
+              "name": "--strip"
+            },
+            {
+              "description": "Strip static/dynamic libraries under 'lib/' (Unix only)",
+              "name": "--strip-lib"
+            },
+            {
+              "description": "Generate dSYM directory (macOS only)",
+              "name": "--dsym"
+            },
+            {
+              "args": [
+                {
+                  "description": "A timestamp for the build (Unix only)",
+                  "name": "STAMP"
+                }
+              ],
+              "description": "Set timestamp for 'Built' entry in DESCRIPTION (Unix only)",
+              "name": "--built-timestamp",
+              "requiresSeparator": true
+            },
+            {
+              "description": "Attempt to build both architectures (Windows only)",
+              "name": "--force-biarch"
+            },
+            {
+              "description": "Compile both architectures on 32-bit Windows (Windows only)",
+              "name": "--compile-both"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Packages to remove",
+              "isDangerous": true,
+              "isVariadic": true,
+              "name": "packages"
+            }
+          ],
+          "description": "Remove add-on packages",
+          "icon": "🗑",
+          "name": "REMOVE",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "description": "Library tree",
+                  "dyn": true,
+                  "generators": [
+                    {
+                      "script": [
+                        "Rscript",
+                        "-e",
+                        ".libPaths()"
+                      ]
+                    }
+                  ],
+                  "name": "LIB"
+                }
+              ],
+              "description": "The library tree to remove from",
+              "name": [
+                "--library",
+                "-l"
+              ],
+              "requiresSeparator": true
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Package directories",
+              "generators": [
+                {
+                  "template": "folders"
+                }
+              ],
+              "isVariadic": true,
+              "name": "pakgdirs"
+            }
+          ],
+          "description": "Build R packages from package sources",
+          "icon": "🛠",
+          "name": "build",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "description": "Force removal of INDEX file",
+              "isDangerous": true,
+              "name": "--force"
+            },
+            {
+              "description": "Do not remove empty dirs",
+              "name": "--keep-empty-dirs"
+            },
+            {
+              "description": "Do not (re)build package vignettes",
+              "name": "--no-build-vignettes"
+            },
+            {
+              "description": "Do not build the PDF manual",
+              "name": "--no-manual"
+            },
+            {
+              "args": [
+                {
+                  "default": "best",
+                  "isOptional": true,
+                  "name": "Compression method",
+                  "suggestions": [
+                    "best",
+                    "gzip",
+                    "no"
+                  ]
+                }
+              ],
+              "description": "Re-save data files as compactly as possible",
+              "exclusiveOn": [
+                "--no-resave-data"
+              ],
+              "name": "--resave-data",
+              "requiresSeparator": true
+            },
+            {
+              "description": "Do not save data",
+              "exclusiveOn": [
+                "--resave-data"
+              ],
+              "name": "--no-resave-data"
+            },
+            {
+              "args": [
+                {
+                  "default": "no",
+                  "isOptional": true,
+                  "name": "Compression method",
+                  "suggestions": [
+                    "no",
+                    "qpdf",
+                    "gs",
+                    "gs+qpdf",
+                    "both"
+                  ]
+                }
+              ],
+              "description": "Try to compact PDF files under 'inst/doc'",
+              "name": "--compact-vignettes",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "default": "gzip",
+                  "isOptional": true,
+                  "name": "Compression method",
+                  "suggestions": [
+                    "gzip",
+                    "none",
+                    "bzip2",
+                    "xz"
+                  ]
+                }
+              ],
+              "description": "Type of compression to be used on tarball",
+              "name": "--compression",
+              "requiresSeparator": true
+            },
+            {
+              "description": "Add MD5 sums",
+              "name": "--md5"
+            },
+            {
+              "description": "Log to file 'pkg-00build.log' when processing the pkgdir with basename 'pkg'",
+              "name": "--log"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Packages to check",
+              "dyn": true,
+              "generators": [
+                {}
+              ],
+              "isVariadic": true,
+              "name": "packages"
+            }
+          ],
+          "description": "Check R packages from package sources",
+          "icon": "✅",
+          "name": "check",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "default": ".",
+                  "description": "Library tree",
+                  "generators": [
+                    {
+                      "template": "folders"
+                    }
+                  ],
+                  "name": "LIB"
+                }
+              ],
+              "description": "Library used for test installation of packages",
+              "name": [
+                "--library",
+                "-lib"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "default": ".",
+                  "description": "Directory for output",
+                  "generators": [
+                    {
+                      "template": "folders"
+                    }
+                  ],
+                  "name": "directory"
+                }
+              ],
+              "description": "Directory for output",
+              "name": [
+                "--output",
+                "-o"
+              ],
+              "requiresSeparator": true
+            },
+            {
+              "description": "Do not clean 'outdir' before using it",
+              "name": "--no-clean"
+            },
+            {
+              "description": "Do not check for code/documentation mismatches",
+              "name": "--no-codoc"
+            },
+            {
+              "description": "Do not run the examples in the Rd files",
+              "name": "--no-examples"
+            },
+            {
+              "description": "Skip installation and associated tests",
+              "name": "--no-install"
+            },
+            {
+              "description": "Do not run code in 'tests' subdirectory",
+              "name": "--no-tests"
+            },
+            {
+              "description": "Do not produce the PDF manual",
+              "name": "--no-manual"
+            },
+            {
+              "description": "Do not run R code in vignettes nor build outputs",
+              "name": "--no-vignettes"
+            },
+            {
+              "description": "Do not build vignette outputs",
+              "name": "--no-build-vignettes"
+            },
+            {
+              "description": "Skip all tests on vignettes",
+              "name": "--ignore-vignettes"
+            },
+            {
+              "description": "Do run `dontrun{}` sections in the Rd files",
+              "name": "--run-dontrun"
+            },
+            {
+              "description": "Do run `donttest{}` sections in the Rd files",
+              "name": "--run-donttest"
+            },
+            {
+              "description": "Use `gctorture(TRUE)` when running examples, tests",
+              "name": "--use-gct"
+            },
+            {
+              "description": "Use `valgrind` when running examples, tests, vignettes",
+              "name": "--use-valgrind"
+            },
+            {
+              "description": "Record timings for examples",
+              "icon": "⏱",
+              "name": "--timings"
+            },
+            {
+              "args": [
+                {
+                  "description": "Command-line args to be passed to INSTALL",
+                  "name": "args"
+                }
+              ],
+              "description": "Command-line args to be passed to INSTALL",
+              "name": "--install-args",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "default": "tests",
+                  "description": "Directory with the tests directory",
+                  "generators": [
+                    {
+                      "template": "folders"
+                    }
+                  ],
+                  "name": "directory"
+                }
+              ],
+              "description": "Look in this subdirectory for test scripts",
+              "name": "--test-dir",
+              "requiresSeparator": true
+            },
+            {
+              "description": "Do not stop running tests after first error",
+              "name": "--no-stop-on-test-error"
+            },
+            {
+              "args": [
+                {
+                  "default": "default",
+                  "description": "Run checks on subdirectories?",
+                  "name": "yes-or-no",
+                  "suggestions": [
+                    "default",
+                    "yes",
+                    "no"
+                  ]
+                }
+              ],
+              "description": "Run checks on the package subdirectories",
+              "name": "--check-subdirs",
+              "requiresSeparator": true
+            },
+            {
+              "description": "Select customizations similar to those used by CRAN",
+              "icon": "https://www.r-project.org/favicon-32x32.png",
+              "name": "--as-cran"
+            },
+            {
+              "description": "Do only runtime tests needed for an additional sub-architecture",
+              "name": "--extra-arch"
+            },
+            {
+              "description": "Do runtime tests on all installed sub-archs",
+              "exclusiveOn": [
+                "--no-multiarch"
+              ],
+              "name": "--multiarch"
+            },
+            {
+              "description": "Do runtime tests only on the main sub-architecture",
+              "exclusiveOn": [
+                "--multiarch"
+              ],
+              "name": "--no-multiarch"
+            },
+            {
+              "description": "Run tests on all sub-archs even for packages with no compiled code",
+              "exclusiveOn": [
+                "--no-multiarch"
+              ],
+              "name": "--force-multiarch"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Command for linkcmd",
+              "name": "linkcmd"
+            }
+          ],
+          "description": "Perform the specified linkcmd",
+          "icon": "🔗",
+          "name": "LINK",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "default": "Rprof.out",
+              "description": "File generated by `Rprof()`",
+              "generators": [
+                {
+                  "template": "filepaths"
+                }
+              ],
+              "isOptional": true,
+              "name": "Rprof output file"
+            }
+          ],
+          "description": "Post-process profiling information from `Rprof()`",
+          "icon": "⏱",
+          "name": "rprof",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "description": "Print line information",
+              "name": "--lines"
+            },
+            {
+              "description": "Print only by total",
+              "name": "--total"
+            },
+            {
+              "description": "Print only by self",
+              "name": "--self"
+            },
+            {
+              "description": "Print only by line",
+              "name": "--linesonly"
+            },
+            {
+              "args": [
+                {
+                  "description": "Minimum % to print for 'by total'",
+                  "name": "min % total",
+                  "suggestions": [
+                    "1",
+                    "10",
+                    "50"
+                  ]
+                }
+              ],
+              "description": "Minimum % to print for 'by total'",
+              "name": "--min%total",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "description": "Minimum % to print for 'by self'",
+                  "name": "min % self",
+                  "suggestions": [
+                    "1",
+                    "10",
+                    "50"
+                  ]
+                }
+              ],
+              "description": "Minimum % to print for 'by self'",
+              "name": "--min%self",
+              "requiresSeparator": true
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "R doc file to convert",
+              "dyn": true,
+              "generators": [
+                {}
+              ],
+              "name": "file"
+            }
+          ],
+          "description": "Convert R documentation to other formats",
+          "name": "Rdconv",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "description": "Output format type",
+                  "name": "type",
+                  "suggestions": [
+                    "txt",
+                    "html",
+                    "latex",
+                    "example"
+                  ]
+                }
+              ],
+              "description": "Output format type",
+              "isRequired": true,
+              "name": [
+                "--type",
+                "-t"
+              ],
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "default": "UTF-8",
+                  "description": "Output encoding",
+                  "name": "enc"
+                }
+              ],
+              "description": "Encoding of the output",
+              "name": "--encoding",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "description": "Package name",
+                  "name": "package"
+                }
+              ],
+              "description": "Package name",
+              "name": "--package",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "default": "\"\"",
+                  "description": "Name of the output file, '\"\"' to use the input file without '.Rd'",
+                  "name": "output file",
+                  "suggestions": [
+                    "\"\"",
+                    "-"
+                  ]
+                }
+              ],
+              "description": "The output file",
+              "name": [
+                "--output",
+                "-o"
+              ],
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "description": "Name of the OS",
+                  "name": "OS",
+                  "suggestions": [
+                    "unix",
+                    "windows"
+                  ]
+                }
+              ],
+              "description": "Set name of OS ('unix' or 'windows')",
+              "name": [
+                "--os",
+                "--OS"
+              ],
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "description": "List of packages",
+                  "name": "package list"
+                }
+              ],
+              "description": "Packages from which to get Rd macros",
+              "name": "--RdMacros",
+              "requiresSeparator": true
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Rd files, or a directory with the sources of a pkg, or an installed pkg",
+              "generators": [
+                {
+                  "template": "folders"
+                }
+              ],
+              "name": "files or pkgs"
+            }
+          ],
+          "description": "Generate PDF output from R documentation files",
+          "name": "Rd2pdf",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "description": "No interaction between files",
+              "name": "--batch"
+            },
+            {
+              "description": "Do not remove created temporary files",
+              "name": "--no-clean"
+            },
+            {
+              "description": "Do not preview generated PDF file",
+              "name": "--no-preview"
+            },
+            {
+              "args": [
+                {
+                  "default": "UTF-8",
+                  "description": "Output encoding",
+                  "name": "enc"
+                }
+              ],
+              "description": "Set the default input encoding",
+              "name": "--encoding",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "default": "UTF-8",
+                  "description": "Output encoding",
+                  "name": "enc"
+                }
+              ],
+              "description": "Set the default output encoding",
+              "name": "--outputEncoding",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "description": "Name of the OS",
+                  "name": "OS",
+                  "suggestions": [
+                    "unix",
+                    "windows"
+                  ]
+                }
+              ],
+              "description": "Set name of OS ('unix' or 'windows')",
+              "name": [
+                "--os",
+                "--OS"
+              ],
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "description": "Name of output file",
+                  "name": "file"
+                }
+              ],
+              "description": "Write output to a file",
+              "name": [
+                "--output",
+                "-o"
+              ],
+              "requiresSeparator": true
+            },
+            {
+              "description": "Overwrite output file if it exists",
+              "isDangerous": true,
+              "name": "--force"
+            },
+            {
+              "args": [
+                {
+                  "description": "Title of the document",
+                  "name": "title"
+                }
+              ],
+              "description": "Set the title of the document",
+              "name": "--title",
+              "requiresSeparator": true
+            },
+            {
+              "description": "Do not index output",
+              "name": "--no-index"
+            },
+            {
+              "description": "Do not typeset the description of a package",
+              "name": "--no-description"
+            },
+            {
+              "description": "Typeset 'internal' documentation (usually skipped)",
+              "name": "--internals"
+            },
+            {
+              "args": [
+                {
+                  "description": "Working directory for the build",
+                  "generators": [
+                    {
+                      "template": "folders"
+                    }
+                  ],
+                  "name": "working dir"
+                }
+              ],
+              "description": "Set the working directory",
+              "name": "--build_dir",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "description": "List of packages",
+                  "name": "package list"
+                }
+              ],
+              "description": "Packages from which to get Rd macros",
+              "name": "--RdMacros",
+              "requiresSeparator": true
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "R doc file to convert",
+              "dyn": true,
+              "generators": [
+                {}
+              ],
+              "name": "file"
+            }
+          ],
+          "description": "Convert R documentation to text",
+          "name": "Rd2txt",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "default": "txt",
+                  "description": "Output format type",
+                  "name": "type",
+                  "suggestions": [
+                    "txt",
+                    "html",
+                    "latex",
+                    "example"
+                  ]
+                }
+              ],
+              "description": "Output format type",
+              "isRequired": true,
+              "name": [
+                "--type",
+                "-t"
+              ],
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "default": "UTF-8",
+                  "description": "Output encoding",
+                  "name": "enc"
+                }
+              ],
+              "description": "Encoding of the output",
+              "name": "--encoding",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "description": "Package name",
+                  "name": "package"
+                }
+              ],
+              "description": "Package name",
+              "icon": "📦",
+              "name": "--package",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "default": "\"\"",
+                  "description": "Name of the output file, '\"\"' to use the input file without '.Rd'",
+                  "name": "output file",
+                  "suggestions": [
+                    "\"\"",
+                    "-"
+                  ]
+                }
+              ],
+              "description": "The output file",
+              "name": [
+                "--output",
+                "-o"
+              ],
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "description": "Name of the OS",
+                  "name": "OS",
+                  "suggestions": [
+                    "unix",
+                    "windows"
+                  ]
+                }
+              ],
+              "description": "Set name of OS ('unix' or 'windows')",
+              "name": [
+                "--os",
+                "--OS"
+              ],
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "description": "List of packages",
+                  "name": "package list"
+                }
+              ],
+              "description": "Packages from which to get Rd macros",
+              "name": "--RdMacros",
+              "requiresSeparator": true
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "File to process",
+              "generators": [
+                {
+                  "template": "folders"
+                }
+              ],
+              "name": "file"
+            }
+          ],
+          "description": "A front-end for Stangle and other vignette engines",
+          "name": "Stangle",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "default": "Stangle",
+                  "description": "Vignette engine",
+                  "name": "pkg::engine",
+                  "suggestions": [
+                    "Stangle",
+                    "knitr::knit",
+                    "utils::Sweave"
+                  ]
+                }
+              ],
+              "description": "Use named vignette engine",
+              "name": "--engine",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "default": "UTF-8",
+                  "description": "File encoding",
+                  "name": "enc"
+                }
+              ],
+              "description": "Set the encoding for file",
+              "name": "--encoding",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "description": "Options for Stangle",
+                  "name": "options"
+                }
+              ],
+              "description": "Comma-separated list of Stangle options",
+              "name": "--options",
+              "requiresSeparator": true
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Vignette to build",
+              "generators": [
+                {
+                  "template": "filepaths"
+                }
+              ],
+              "name": "file"
+            }
+          ],
+          "description": "A front-end for Sweave and other vignette engines",
+          "name": "Sweave",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "description": "Sweave driver",
+                  "name": "driver"
+                }
+              ],
+              "description": "Use named Sweave driver",
+              "name": "--driver",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "description": "Vignette engine",
+                  "name": "pkg::engine"
+                }
+              ],
+              "description": "Use named vignette engine",
+              "name": "--engine",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "default": "UTF-8",
+                  "description": "File encoding",
+                  "name": "enc"
+                }
+              ],
+              "description": "Default encoding 'enc' for file",
+              "name": "--encoding=enc",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "default": "default",
+                  "description": "How to clean the results",
+                  "isOptional": true,
+                  "name": "method",
+                  "suggestions": [
+                    "default",
+                    "keepOuts"
+                  ]
+                }
+              ],
+              "description": "Remove some of the created files",
+              "icon": "🧹",
+              "name": "--clean",
+              "requiresSeparator": true
+            },
+            {
+              "args": [
+                {
+                  "description": "Options for Sweave/engine",
+                  "name": "options"
+                }
+              ],
+              "description": "Comma-separated list of Sweave/engine options",
+              "name": "--options",
+              "requiresSeparator": true
+            },
+            {
+              "description": "Convert to PDF document",
+              "name": "--pdf"
+            },
+            {
+              "args": [
+                {
+                  "default": "qpdf",
+                  "description": "How to compact the PDF doc",
+                  "isOptional": true,
+                  "name": "Compacting method",
+                  "suggestions": [
+                    "no",
+                    "qpdf",
+                    "gs",
+                    "gs+qpdf",
+                    "both"
+                  ]
+                }
+              ],
+              "description": "Try to compact PDF document",
+              "name": "--compact",
+              "requiresSeparator": true
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "'From' R output file (or '-' for stdin)",
+              "generators": [
+                {
+                  "template": "filepaths"
+                }
+              ],
+              "name": "from"
+            },
+            {
+              "description": "'To' R output file",
+              "generators": [
+                {
+                  "template": "filepaths"
+                }
+              ],
+              "name": "to"
+            }
+          ],
+          "description": "Diff R output files, discarding the R startup message",
+          "name": "Rdiff",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "R config variable",
+              "name": "variable",
+              "suggestions": [
+                "AR",
+                "BLAS_LIBS",
+                "CC",
+                "CFLAGS",
+                "CPICFLAGS",
+                "CPPFLAGS",
+                "CXX",
+                "CXXFLAGS",
+                "CXXPICFLAGS",
+                "CXX11",
+                "CXX11STD",
+                "CXX11FLAGS",
+                "CXX11PICFLAGS",
+                "CXX14",
+                "CXX14STD",
+                "CXX14FLAGS",
+                "CXX14PICFLAGS",
+                "CXX17",
+                "CXX17STD",
+                "CXX17FLAGS",
+                "CXX17PICFLAGS",
+                "CXX20",
+                "CXX20STD",
+                "CXX20FLAGS",
+                "CXX20PICFLAGS",
+                "DYLIB_EXT",
+                "DYLIB_LD",
+                "DYLIB_LDFLAGS",
+                "FC",
+                "FFLAGS",
+                "FCFLAGS",
+                "FLIBS",
+                "FPICFLAGS",
+                "JAR",
+                "JAVA",
+                "JAVAC",
+                "JAVAH",
+                "JAVA_HOME",
+                "JAVA_LIBS",
+                "JAVA_CPPFLAGS",
+                "LAPACK_LIBS",
+                "LIBnn",
+                "LDFLAGS",
+                "LTO",
+                "MAKE",
+                "NM",
+                "OBJC",
+                "OBJCFLAGS",
+                "RANLIB",
+                "SAFE_FFLAGS",
+                "SHLIB_CFLAGS",
+                "SHLIB_CXXFLAGS",
+                "SHLIB_CXXLD",
+                "SHLIB_CXXLDFLAGS",
+                "SHLIB_EXT",
+                "SHLIB_FFLAGS",
+                "SHLIB_LD",
+                "SHLIB_LDFLAGS",
+                "TCLTK_CPPFLAGS",
+                "TCLTK_LIBS"
+              ]
+            }
+          ],
+          "description": "Get the value of a basic R configure variable",
+          "name": "config",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "description": "Print pre-processor flags required to compile a C/C++ file as part of a front-end using R as a library",
+              "name": "--cppflags"
+            },
+            {
+              "description": "Print linker flags needed for linking a front-end against the R library",
+              "name": "--ldflags"
+            },
+            {
+              "description": "Ignore customization files under '~/.R'",
+              "name": "--no-user-files"
+            },
+            {
+              "description": "Ignore site customization files under 'R_HOME/etc'",
+              "name": "--no-site-files"
+            },
+            {
+              "description": "Print names and values of all variables",
+              "name": "--all"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Evaluate the corresponding expression",
+              "isOptional": true,
+              "name": "expression",
+              "suggestions": [
+                "JAVA_HOME=/usr/lib/java",
+                "JAVAC=/usr/bin/javac",
+                "JAR=/usr/bin/jar"
+              ]
+            }
+          ],
+          "description": "Detect current Java setup and update the corresponding configuration in R",
+          "name": "javareconf",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "description": "Perform Java detection, but don't touch any configuration files",
+              "name": [
+                "-n",
+                "--dry-run"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "description": "Program to run or '' to use shell",
+                  "name": "program"
+                }
+              ],
+              "description": "Same as -n but exports all detected variables and runs '<prog>'",
+              "name": "-e"
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "default": ".",
+              "description": "Directory in which files will be tagged",
+              "isOptional": true,
+              "name": "path"
+            }
+          ],
+          "description": "Tag C, R, and Rd files under a directory",
+          "name": "rtags",
+          "options": [
+            {
+              "description": "Print help message and exit",
+              "icon": "❔",
+              "name": [
+                "--help",
+                "-h"
+              ]
+            },
+            {
+              "description": "Print version info and exit",
+              "icon": "📣",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "description": "Output file name",
+                  "isOptional": true,
+                  "name": "file"
+                }
+              ],
+              "description": "Write output to a file",
+              "name": [
+                "--output",
+                "-o"
+              ]
+            },
+            {
+              "description": "Do not tag C (.c, .h) files",
+              "name": "--no-c"
+            },
+            {
+              "description": "Do not tag R (.R, .r, .S, .s) files",
+              "name": "--no-R"
+            },
+            {
+              "description": "Do not tag Rd (.Rd) files",
+              "name": "--no-Rd"
+            },
+            {
+              "description": "Write Ctags format (default is Etags)",
+              "name": "--ctags"
+            },
+            {
+              "description": "Append to output file (overwrites by default)",
+              "name": [
+                "--append",
+                "-a"
+              ]
+            },
+            {
+              "description": "Echo the name of files processed",
+              "name": [
+                "--verbose",
+                "-V"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

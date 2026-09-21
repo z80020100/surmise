@@ -1,0 +1,1498 @@
+{
+  "description": "Manage Azure resources",
+  "name": "resource",
+  "subcommands": [
+    {
+      "description": "Create a resource",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "properties"
+            }
+          ],
+          "description": "A JSON-formatted string containing resource properties",
+          "isRequired": true,
+          "name": [
+            "--properties",
+            "-p"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "api-version"
+            }
+          ],
+          "description": "The api version of the resource (omit for the latest stable version)",
+          "name": "--api-version"
+        },
+        {
+          "args": [
+            {
+              "name": "id"
+            }
+          ],
+          "description": "Resource ID",
+          "name": "--id"
+        },
+        {
+          "description": "Indicate that the properties object includes other options such as location, tags, sku, and/or plan",
+          "name": "--is-full-object"
+        },
+        {
+          "description": "Indicate that the latest api-version will be used regardless of whether it is preview version (like 2020-01-01-preview) or not. For example, if the supported api-version of resource provider is 2020-01-01-preview and 2019-01-01: when passing in this parameter it will take the latest version 2020-01-01-preview, otherwise it will take the latest stable version 2019-01-01 without passing in this parameter",
+          "name": [
+            "--latest-include-preview",
+            "-v"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The resource name. (Ex: myC)",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "namespace"
+            }
+          ],
+          "description": "Provider namespace (Ex: 'Microsoft.Provider')",
+          "name": "--namespace"
+        },
+        {
+          "args": [
+            {
+              "name": "parent"
+            }
+          ],
+          "description": "The parent path (Ex: 'resA/myA/resB/myB')",
+          "name": "--parent"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-type"
+            }
+          ],
+          "description": "The resource type (Ex: 'resC'). Can also accept namespace/type format (Ex: 'Microsoft.Provider/resC')",
+          "name": "--resource-type"
+        }
+      ]
+    },
+    {
+      "description": "Delete a resource",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "api-version"
+            }
+          ],
+          "description": "The api version of the resource (omit for the latest stable version)",
+          "name": "--api-version"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). If provided, no other \"Resource Id\" arguments should be specified",
+          "name": "--ids"
+        },
+        {
+          "description": "Indicate that the latest api-version will be used regardless of whether it is preview version (like 2020-01-01-preview) or not. For example, if the supported api-version of resource provider is 2020-01-01-preview and 2019-01-01: when passing in this parameter it will take the latest version 2020-01-01-preview, otherwise it will take the latest stable version 2019-01-01 without passing in this parameter",
+          "name": [
+            "--latest-include-preview",
+            "-v"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The resource name. (Ex: myC)",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "namespace"
+            }
+          ],
+          "description": "Provider namespace (Ex: 'Microsoft.Provider')",
+          "name": "--namespace"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "parent"
+            }
+          ],
+          "description": "The parent path (Ex: 'resA/myA/resB/myB')",
+          "name": "--parent"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-type"
+            }
+          ],
+          "description": "The resource type (Ex: 'resC'). Can also accept namespace/type format (Ex: 'Microsoft.Provider/resC')",
+          "name": "--resource-type"
+        }
+      ]
+    },
+    {
+      "description": "Invoke an action on the resource",
+      "name": "invoke-action",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "action"
+            }
+          ],
+          "description": "The action that will be invoked on the specified resource",
+          "isRequired": true,
+          "name": "--action"
+        },
+        {
+          "args": [
+            {
+              "name": "api-version"
+            }
+          ],
+          "description": "The api version of the resource (omit for the latest stable version)",
+          "name": "--api-version"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). If provided, no other \"Resource Id\" arguments should be specified",
+          "name": "--ids"
+        },
+        {
+          "description": "Indicate that the latest api-version will be used regardless of whether it is preview version (like 2020-01-01-preview) or not. For example, if the supported api-version of resource provider is 2020-01-01-preview and 2019-01-01: when passing in this parameter it will take the latest version 2020-01-01-preview, otherwise it will take the latest stable version 2019-01-01 without passing in this parameter",
+          "name": [
+            "--latest-include-preview",
+            "-v"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The resource name. (Ex: myC)",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "namespace"
+            }
+          ],
+          "description": "Provider namespace (Ex: 'Microsoft.Provider')",
+          "name": "--namespace"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "parent"
+            }
+          ],
+          "description": "The parent path (Ex: 'resA/myA/resB/myB')",
+          "name": "--parent"
+        },
+        {
+          "args": [
+            {
+              "name": "request-body"
+            }
+          ],
+          "description": "JSON encoded parameter arguments for the action that will be passed along in the post request body. Use @{file} to load from a file",
+          "name": "--request-body"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-type"
+            }
+          ],
+          "description": "The resource type (Ex: 'resC'). Can also accept namespace/type format (Ex: 'Microsoft.Provider/resC')",
+          "name": "--resource-type"
+        }
+      ]
+    },
+    {
+      "description": "List resources",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The resource name. (Ex: myC)",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "namespace"
+            }
+          ],
+          "description": "Provider namespace (Ex: 'Microsoft.Provider')",
+          "name": "--namespace"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-type"
+            }
+          ],
+          "description": "The resource type (Ex: 'resC'). Can also accept namespace/type format (Ex: 'Microsoft.Provider/resC')",
+          "name": "--resource-type"
+        },
+        {
+          "args": [
+            {
+              "name": "tag"
+            }
+          ],
+          "description": "A single tag in 'key[=value]' format. Use \"\" to clear existing tags",
+          "name": "--tag"
+        }
+      ]
+    },
+    {
+      "description": "Move resources from one resource group to another (can be under different subscription)",
+      "name": "move",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "destination-group"
+            }
+          ],
+          "description": "The destination resource group name",
+          "isRequired": true,
+          "name": "--destination-group"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "The space-separated resource ids to be moved",
+          "isRequired": true,
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "destination-subscription-id"
+            }
+          ],
+          "description": "The destination subscription identifier",
+          "name": "--destination-subscription-id"
+        }
+      ]
+    },
+    {
+      "description": "Update a resource by PATCH request",
+      "name": "patch",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "properties"
+            }
+          ],
+          "description": "A JSON-formatted string containing resource properties",
+          "isRequired": true,
+          "name": [
+            "--properties",
+            "-p"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "api-version"
+            }
+          ],
+          "description": "The api version of the resource (omit for the latest stable version)",
+          "name": "--api-version"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). If provided, no other \"Resource Id\" arguments should be specified",
+          "name": "--ids"
+        },
+        {
+          "description": "Indicate that the properties object includes other options such as location, tags, sku, and/or plan",
+          "name": "--is-full-object"
+        },
+        {
+          "description": "Indicate that the latest api-version will be used regardless of whether it is preview version (like 2020-01-01-preview) or not. For example, if the supported api-version of resource provider is 2020-01-01-preview and 2019-01-01: when passing in this parameter it will take the latest version 2020-01-01-preview, otherwise it will take the latest stable version 2019-01-01 without passing in this parameter",
+          "name": [
+            "--latest-include-preview",
+            "-v"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The resource name. (Ex: myC)",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "namespace"
+            }
+          ],
+          "description": "Provider namespace (Ex: 'Microsoft.Provider')",
+          "name": "--namespace"
+        },
+        {
+          "args": [
+            {
+              "name": "parent"
+            }
+          ],
+          "description": "The parent path (Ex: 'resA/myA/resB/myB')",
+          "name": "--parent"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-type"
+            }
+          ],
+          "description": "The resource type (Ex: 'resC'). Can also accept namespace/type format (Ex: 'Microsoft.Provider/resC')",
+          "name": "--resource-type"
+        }
+      ]
+    },
+    {
+      "description": "Get the details of a resource",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "api-version"
+            }
+          ],
+          "description": "The api version of the resource (omit for the latest stable version)",
+          "name": "--api-version"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). If provided, no other \"Resource Id\" arguments should be specified",
+          "name": "--ids"
+        },
+        {
+          "description": "Use if the default command output doesn't capture all of the property data",
+          "name": "--include-response-body"
+        },
+        {
+          "description": "Indicate that the latest api-version will be used regardless of whether it is preview version (like 2020-01-01-preview) or not. For example, if the supported api-version of resource provider is 2020-01-01-preview and 2019-01-01: when passing in this parameter it will take the latest version 2020-01-01-preview, otherwise it will take the latest stable version 2019-01-01 without passing in this parameter",
+          "name": [
+            "--latest-include-preview",
+            "-v"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The resource name. (Ex: myC)",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "namespace"
+            }
+          ],
+          "description": "Provider namespace (Ex: 'Microsoft.Provider')",
+          "name": "--namespace"
+        },
+        {
+          "args": [
+            {
+              "name": "parent"
+            }
+          ],
+          "description": "The parent path (Ex: 'resA/myA/resB/myB')",
+          "name": "--parent"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-type"
+            }
+          ],
+          "description": "The resource type (Ex: 'resC'). Can also accept namespace/type format (Ex: 'Microsoft.Provider/resC')",
+          "name": "--resource-type"
+        }
+      ]
+    },
+    {
+      "description": "Tag a resource",
+      "name": "tag",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "isRequired": true,
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "api-version"
+            }
+          ],
+          "description": "The api version of the resource (omit for the latest stable version)",
+          "name": "--api-version"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). If provided, no other \"Resource Id\" arguments should be specified",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "is-incremental"
+            }
+          ],
+          "description": "The option to add tags incrementally without deleting the original tags. If the key of new tag and original tag are duplicated, the original value will be overwritten",
+          "name": [
+            "--is-incremental",
+            "-i"
+          ]
+        },
+        {
+          "description": "Indicate that the latest api-version will be used regardless of whether it is preview version (like 2020-01-01-preview) or not. For example, if the supported api-version of resource provider is 2020-01-01-preview and 2019-01-01: when passing in this parameter it will take the latest version 2020-01-01-preview, otherwise it will take the latest stable version 2019-01-01 without passing in this parameter",
+          "name": [
+            "--latest-include-preview",
+            "-v"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The resource name. (Ex: myC)",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "namespace"
+            }
+          ],
+          "description": "Provider namespace (Ex: 'Microsoft.Provider')",
+          "name": "--namespace"
+        },
+        {
+          "args": [
+            {
+              "name": "parent"
+            }
+          ],
+          "description": "The parent path (Ex: 'resA/myA/resB/myB')",
+          "name": "--parent"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-type"
+            }
+          ],
+          "description": "The resource type (Ex: 'resC'). Can also accept namespace/type format (Ex: 'Microsoft.Provider/resC')",
+          "name": "--resource-type"
+        }
+      ]
+    },
+    {
+      "description": "Update a resource by PUT request",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "add"
+            }
+          ],
+          "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+          "name": "--add"
+        },
+        {
+          "args": [
+            {
+              "name": "api-version"
+            }
+          ],
+          "description": "The api version of the resource (omit for the latest stable version)",
+          "name": "--api-version"
+        },
+        {
+          "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+          "name": "--force-string"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). If provided, no other \"Resource Id\" arguments should be specified",
+          "name": "--ids"
+        },
+        {
+          "description": "Use if the default command output doesn't capture all of the property data",
+          "name": "--include-response-body"
+        },
+        {
+          "description": "Indicate that the latest api-version will be used regardless of whether it is preview version (like 2020-01-01-preview) or not. For example, if the supported api-version of resource provider is 2020-01-01-preview and 2019-01-01: when passing in this parameter it will take the latest version 2020-01-01-preview, otherwise it will take the latest stable version 2019-01-01 without passing in this parameter",
+          "name": [
+            "--latest-include-preview",
+            "-v"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The resource name. (Ex: myC)",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "namespace"
+            }
+          ],
+          "description": "Provider namespace (Ex: 'Microsoft.Provider')",
+          "name": "--namespace"
+        },
+        {
+          "args": [
+            {
+              "name": "parent"
+            }
+          ],
+          "description": "The parent path (Ex: 'resA/myA/resB/myB')",
+          "name": "--parent"
+        },
+        {
+          "args": [
+            {
+              "name": "remove"
+            }
+          ],
+          "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+          "name": "--remove"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-type"
+            }
+          ],
+          "description": "The resource type (Ex: 'resC'). Can also accept namespace/type format (Ex: 'Microsoft.Provider/resC')",
+          "name": "--resource-type"
+        },
+        {
+          "args": [
+            {
+              "name": "set"
+            }
+          ],
+          "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+          "name": "--set"
+        }
+      ]
+    },
+    {
+      "description": "Place the CLI in a waiting state until a condition of a resources is met",
+      "name": "wait",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "api-version"
+            }
+          ],
+          "description": "The api version of the resource (omit for the latest stable version)",
+          "name": "--api-version"
+        },
+        {
+          "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+          "name": "--created"
+        },
+        {
+          "args": [
+            {
+              "name": "custom"
+            }
+          ],
+          "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+          "name": "--custom"
+        },
+        {
+          "description": "Wait until deleted",
+          "name": "--deleted"
+        },
+        {
+          "description": "Wait until the resource exists",
+          "name": "--exists"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). If provided, no other \"Resource Id\" arguments should be specified",
+          "name": "--ids"
+        },
+        {
+          "description": "Use if the default command output doesn't capture all of the property data",
+          "name": "--include-response-body"
+        },
+        {
+          "args": [
+            {
+              "name": "interval"
+            }
+          ],
+          "description": "Polling interval in seconds",
+          "name": "--interval"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The resource name. (Ex: myC)",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "namespace"
+            }
+          ],
+          "description": "Provider namespace (Ex: 'Microsoft.Provider')",
+          "name": "--namespace"
+        },
+        {
+          "args": [
+            {
+              "name": "parent"
+            }
+          ],
+          "description": "The parent path (Ex: 'resA/myA/resB/myB')",
+          "name": "--parent"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-type"
+            }
+          ],
+          "description": "The resource type (Ex: 'resC'). Can also accept namespace/type format (Ex: 'Microsoft.Provider/resC')",
+          "name": "--resource-type"
+        },
+        {
+          "args": [
+            {
+              "name": "timeout"
+            }
+          ],
+          "description": "Maximum wait in seconds",
+          "name": "--timeout"
+        },
+        {
+          "description": "Wait until updated with provisioningState at 'Succeeded'",
+          "name": "--updated"
+        }
+      ]
+    },
+    {
+      "description": "Manage links between resources.\n\n\t\tLinking is a feature of the Resource Manager. It enables declaring relationships between resources even if they do not reside in the same resource group. Linking has no impact on resource usage, billing, or role-based access. It allows for managing multiple resources across groups as a single unit",
+      "name": "link",
+      "subcommands": [
+        {
+          "description": "Create a new link between resources",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "link"
+                }
+              ],
+              "description": "Fully-qualified resource ID of the resource link",
+              "isRequired": true,
+              "name": "--link"
+            },
+            {
+              "args": [
+                {
+                  "name": "target"
+                }
+              ],
+              "description": "Fully-qualified resource ID of the resource link target",
+              "isRequired": true,
+              "name": "--target"
+            },
+            {
+              "args": [
+                {
+                  "name": "notes"
+                }
+              ],
+              "description": "Notes for the link",
+              "name": "--notes"
+            }
+          ]
+        },
+        {
+          "description": "Delete a link between resources",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "link"
+                }
+              ],
+              "description": "Fully-qualified resource ID of the resource link",
+              "isRequired": true,
+              "name": "--link"
+            }
+          ]
+        },
+        {
+          "description": "List resource links",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "Filter string for limiting results",
+              "name": "--filter"
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "Fully-qualified scope for retrieving links",
+              "name": "--scope"
+            }
+          ]
+        },
+        {
+          "description": "Gets a resource link with the specified ID",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "link"
+                }
+              ],
+              "description": "Fully-qualified resource ID of the resource link",
+              "isRequired": true,
+              "name": "--link"
+            }
+          ]
+        },
+        {
+          "description": "Update link between resources",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "link"
+                }
+              ],
+              "description": "Fully-qualified resource ID of the resource link",
+              "isRequired": true,
+              "name": "--link"
+            },
+            {
+              "args": [
+                {
+                  "name": "notes"
+                }
+              ],
+              "description": "Notes for the link",
+              "name": "--notes"
+            },
+            {
+              "args": [
+                {
+                  "name": "target"
+                }
+              ],
+              "description": "Fully-qualified resource ID of the resource link target",
+              "name": "--target"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure resource level locks",
+      "name": "lock",
+      "subcommands": [
+        {
+          "description": "Create a resource-level lock",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "lock-type",
+                  "suggestions": [
+                    "CanNotDelete",
+                    "ReadOnly"
+                  ]
+                }
+              ],
+              "description": "The type of lock restriction",
+              "isRequired": true,
+              "name": [
+                "--lock-type",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the lock",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: 'Microsoft.Provider')",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "notes"
+                }
+              ],
+              "description": "Notes about this lock",
+              "name": "--notes"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: 'resA/myA/resB/myB')",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-name"
+                }
+              ],
+              "description": "If an ID is given, other resource arguments should not be given",
+              "name": [
+                "--resource-name",
+                "--resource"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "The resource type (Ex: 'resC'). Can also accept namespace/type format (Ex: 'Microsoft.Provider/resC')",
+              "name": "--resource-type"
+            }
+          ]
+        },
+        {
+          "description": "Delete a resource-level lock",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). If provided, no other \"Resource Id\" arguments should be specified",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the lock",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: 'Microsoft.Provider')",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: 'resA/myA/resB/myB')",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-name"
+                }
+              ],
+              "description": "If an ID is given, other resource arguments should not be given",
+              "name": [
+                "--resource-name",
+                "--resource"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "The resource type (Ex: 'resC'). Can also accept namespace/type format (Ex: 'Microsoft.Provider/resC')",
+              "name": "--resource-type"
+            }
+          ]
+        },
+        {
+          "description": "List lock information in the resource-level",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "filter-string"
+                }
+              ],
+              "description": "A query filter to use to restrict the results",
+              "name": "--filter-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: 'Microsoft.Provider')",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: 'resA/myA/resB/myB')",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-name"
+                }
+              ],
+              "description": "If an ID is given, other resource arguments should not be given",
+              "name": [
+                "--resource-name",
+                "--resource"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "The resource type (Ex: 'resC'). Can also accept namespace/type format (Ex: 'Microsoft.Provider/resC')",
+              "name": "--resource-type"
+            }
+          ]
+        },
+        {
+          "description": "Show the details of a resource-level lock",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). If provided, no other \"Resource Id\" arguments should be specified",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the lock",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: 'Microsoft.Provider')",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: 'resA/myA/resB/myB')",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-name"
+                }
+              ],
+              "description": "If an ID is given, other resource arguments should not be given",
+              "name": [
+                "--resource-name",
+                "--resource"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "The resource type (Ex: 'resC'). Can also accept namespace/type format (Ex: 'Microsoft.Provider/resC')",
+              "name": "--resource-type"
+            }
+          ]
+        },
+        {
+          "description": "Update a resource-level lock",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). If provided, no other \"Resource Id\" arguments should be specified",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "lock-type",
+                  "suggestions": [
+                    "CanNotDelete",
+                    "ReadOnly"
+                  ]
+                }
+              ],
+              "description": "The type of lock restriction",
+              "name": [
+                "--lock-type",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the lock",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "namespace"
+                }
+              ],
+              "description": "Provider namespace (Ex: 'Microsoft.Provider')",
+              "name": "--namespace"
+            },
+            {
+              "args": [
+                {
+                  "name": "notes"
+                }
+              ],
+              "description": "Notes about this lock",
+              "name": "--notes"
+            },
+            {
+              "args": [
+                {
+                  "name": "parent"
+                }
+              ],
+              "description": "The parent path (Ex: 'resA/myA/resB/myB')",
+              "name": "--parent"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-name"
+                }
+              ],
+              "description": "If an ID is given, other resource arguments should not be given",
+              "name": [
+                "--resource-name",
+                "--resource"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-type"
+                }
+              ],
+              "description": "The resource type (Ex: 'resC'). Can also accept namespace/type format (Ex: 'Microsoft.Provider/resC')",
+              "name": "--resource-type"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

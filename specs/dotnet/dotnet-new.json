@@ -1,0 +1,275 @@
+{
+  "args": [
+    {
+      "description": "The template to instantiate when the command is invoked. Each template might have specific options you can pass",
+      "dyn": true,
+      "generators": [
+        {
+          "script": [
+            "dotnet",
+            "new",
+            "--list"
+          ]
+        }
+      ],
+      "name": "template"
+    }
+  ],
+  "description": "The dotnet new command creates a .NET project or other artifacts based on a template",
+  "name": "new",
+  "options": [
+    {
+      "description": "Displays a summary of what would happen if the given command were run if it would result in a template creation",
+      "name": "--dry-run"
+    },
+    {
+      "description": "Forces content to be generated even if it would change existing files. This is required when the template chosen would override existing files in the output directory",
+      "name": "--force"
+    },
+    {
+      "description": "Prints out help for the command. It can be invoked for the dotnet new command itself or for any template. For example, dotnet new mvc --help",
+      "name": [
+        "-?",
+        "-h",
+        "--help"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "language",
+          "suggestions": [
+            "C#",
+            "F#",
+            "VB"
+          ]
+        }
+      ],
+      "description": "The language of the template to create",
+      "name": [
+        "-lang",
+        "--language"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "output_name"
+        }
+      ],
+      "description": "The name for the created output. If no name is specified, the name of the current directory is used",
+      "name": [
+        "-n",
+        "--name"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "output_directory",
+          "template": "folders"
+        }
+      ],
+      "dependsOn": [
+        "template"
+      ],
+      "description": "Location to place the generated output. The default is the current directory",
+      "name": [
+        "-o",
+        "--output"
+      ]
+    }
+  ],
+  "subcommands": [
+    {
+      "description": "The dotnet new --list option lists available templates to use with dotnet new",
+      "name": "--list",
+      "options": [
+        {
+          "name": "--author"
+        },
+        {
+          "args": [
+            {
+              "name": "columns",
+              "suggestions": [
+                "language",
+                "tags",
+                "author",
+                "type"
+              ]
+            }
+          ],
+          "description": "Comma-separated list of columns to display in the output",
+          "name": "--columns"
+        },
+        {
+          "description": "Displays all columns in the output. Available since .NET Core 5.0.300 SDK",
+          "name": "--columns-all"
+        },
+        {
+          "args": [
+            {
+              "name": "tag"
+            }
+          ],
+          "description": "Filters templates based on template tags. To be selected, a template must have at least one tag that exactly matches the criteria. Available since .NET Core 5.0.300 SDK",
+          "name": "--tag"
+        },
+        {
+          "args": [
+            {
+              "name": "type",
+              "suggestions": [
+                "project",
+                "item"
+              ]
+            }
+          ],
+          "name": "--type"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "If the argument is specified, only templates containing <TEMPLATE_NAME> in the template name or short name will be shown. The argument is mandatory when --author, --language, --package, --tag or --type options are not specified",
+          "isOptional": true,
+          "name": "template"
+        }
+      ],
+      "description": "The dotnet new --search option searches for templates supported by dotnet new on NuGet.org",
+      "name": "--search",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "author"
+            }
+          ],
+          "description": "Filters templates based on template author. Partial match is supported",
+          "name": "--author"
+        },
+        {
+          "args": [
+            {
+              "name": "columns",
+              "suggestions": [
+                "language",
+                "tags",
+                "author",
+                "type"
+              ]
+            }
+          ],
+          "description": "Comma-separated list of columns to display in the output",
+          "name": "--columns"
+        },
+        {
+          "description": "Displays all columns in the output",
+          "name": "--columns-all"
+        },
+        {
+          "args": [
+            {
+              "name": "language",
+              "suggestions": [
+                "C#",
+                "F#",
+                "VB"
+              ]
+            }
+          ],
+          "description": "Filters templates based on language supported by the template. The language accepted varies by the template. Not valid for some templates",
+          "name": [
+            "-lang",
+            "--language"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "package"
+            }
+          ],
+          "description": "Filters templates based on NuGet package ID. Partial match is supported",
+          "name": "--package"
+        },
+        {
+          "args": [
+            {
+              "name": "tag"
+            }
+          ],
+          "description": "Filters templates based on template tags. To be selected, a template must have at least one tag that exactly matches the criteria",
+          "name": "--tag"
+        },
+        {
+          "args": [
+            {
+              "name": "type",
+              "suggestions": [
+                "project",
+                "item"
+              ]
+            }
+          ],
+          "description": "Filters templates based on template type. Predefined values are project and item",
+          "name": "--type"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "debounce": true,
+          "description": "The dotnet new --install command installs a template package from the PATH or NUGET_ID provided",
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "name": "id"
+        }
+      ],
+      "name": [
+        "-i",
+        "--install"
+      ],
+      "options": [
+        {
+          "description": "Allows the command to stop and wait for user input or action. For example, to complete authentication. Available since .NET 5.0 SDK",
+          "name": "--interactive"
+        },
+        {
+          "args": [
+            {
+              "name": "source"
+            }
+          ],
+          "description": "By default, dotnet new --install uses the hierarchy of NuGet configuration files from the current directory to determine the NuGet source the package can be installed from. If --nuget-source is specified, the source will be added to the list of sources to be checked",
+          "name": "--nuget-source"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "id"
+        }
+      ],
+      "description": "The dotnet new --uninstall command uninstalls a template package at the PATH or NUGET_ID provided",
+      "name": [
+        "-u",
+        "--uninstall"
+      ]
+    },
+    {
+      "description": "The dotnet new --update-check option checks if there are updates available for the template packs that are currently installed",
+      "name": "--update-check"
+    },
+    {
+      "description": "The dotnet new --update-apply option checks if there are updates available for the template packages that are currently installed and installs them",
+      "name": "--update-apply"
+    }
+  ]
+}

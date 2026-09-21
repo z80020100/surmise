@@ -1,0 +1,1376 @@
+{
+  "description": "Cloud cost estimates for Terraform",
+  "name": "infracost",
+  "options": [
+    {
+      "description": "Generate a debug report file which can be sent to Infracost team",
+      "isPersistent": true,
+      "name": "--debug-report"
+    },
+    {
+      "args": [
+        {
+          "name": "log-level",
+          "suggestions": [
+            {
+              "name": "trace"
+            },
+            {
+              "name": "debug"
+            },
+            {
+              "name": "info"
+            },
+            {
+              "name": "warn"
+            },
+            {
+              "name": "error"
+            },
+            {
+              "name": "fatal"
+            }
+          ]
+        }
+      ],
+      "description": "Log level",
+      "isPersistent": true,
+      "name": "--log-level"
+    },
+    {
+      "description": "Turn off colored output",
+      "isPersistent": true,
+      "name": "--no-color"
+    },
+    {
+      "description": "Display help",
+      "isPersistent": true,
+      "name": [
+        "--help",
+        "-h"
+      ]
+    }
+  ],
+  "subcommands": [
+    {
+      "description": "Get a free API key, or log in to your existing account",
+      "name": "auth",
+      "subcommands": [
+        {
+          "description": "Authenticate the CLI with your Infracost account",
+          "name": "login"
+        }
+      ]
+    },
+    {
+      "description": "Show breakdown of costs",
+      "name": "breakdown",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "config-file",
+              "template": [
+                "filepaths"
+              ]
+            }
+          ],
+          "description": "Path to Infracost config file. Cannot be used with path, terraform* or usage-file flags",
+          "name": "--config-file"
+        },
+        {
+          "args": [
+            {
+              "name": "exclude-path"
+            }
+          ],
+          "description": "Paths of directories to exclude, glob patterns need quotes",
+          "name": "--exclude-path"
+        },
+        {
+          "args": [
+            {
+              "default": "[monthlyQuantity,unit,monthlyCost]",
+              "name": "fields"
+            }
+          ],
+          "description": "Comma separated list of output fields: all,price,monthlyQuantity,unit,hourlyCost,monthlyCost. Supported by table and html output formats",
+          "name": "--fields"
+        },
+        {
+          "args": [
+            {
+              "default": "table",
+              "name": "format",
+              "suggestions": [
+                {
+                  "name": "json"
+                },
+                {
+                  "name": "table"
+                },
+                {
+                  "name": "html"
+                }
+              ]
+            }
+          ],
+          "description": "Output format: json, table, html",
+          "name": "--format"
+        },
+        {
+          "args": [
+            {
+              "default": "master",
+              "name": "git-diff-target"
+            }
+          ],
+          "description": "Show only costs that have git changes compared to the provided branch. Use the name of the current branch to fetch changes from the last two commits",
+          "hidden": true,
+          "name": "--git-diff-target"
+        },
+        {
+          "description": "Set project auto-detection to use all subdirectories in given path",
+          "name": "--include-all-paths"
+        },
+        {
+          "description": "Don't attempt to cache Terraform plans",
+          "name": "--no-cache"
+        },
+        {
+          "args": [
+            {
+              "name": "out-file"
+            }
+          ],
+          "description": "Save output to a file, helpful with format flag",
+          "name": "--out-file"
+        },
+        {
+          "args": [
+            {
+              "name": "path",
+              "template": [
+                "filepaths"
+              ]
+            }
+          ],
+          "description": "Path to the Terraform directory or JSON/plan file",
+          "name": [
+            "--path",
+            "-p"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "project-name"
+            }
+          ],
+          "description": "Name of project in the output. Defaults to path or git repo name",
+          "name": "--project-name"
+        },
+        {
+          "description": "List unsupported and free resources",
+          "name": "--show-skipped"
+        },
+        {
+          "description": "Sync usage-file with missing resources, needs usage-file too (experimental)",
+          "name": "--sync-usage-file"
+        },
+        {
+          "description": "Generate the Terraform plan JSON using the Terraform CLI. This may require cloud credentials",
+          "hidden": true,
+          "name": "--terraform-force-cli"
+        },
+        {
+          "args": [
+            {
+              "name": "terraform-init-flags"
+            }
+          ],
+          "description": "Flags to pass to 'terraform init'. Applicable with --terraform-force-cli",
+          "hidden": true,
+          "name": "--terraform-init-flags"
+        },
+        {
+          "args": [
+            {
+              "name": "terraform-plan-flags"
+            }
+          ],
+          "description": "Flags to pass to 'terraform plan'. Applicable with --terraform-force-cli",
+          "hidden": true,
+          "name": "--terraform-plan-flags"
+        },
+        {
+          "description": "Use Terraform state instead of generating a plan. Applicable with --terraform-force-cli",
+          "hidden": true,
+          "name": "--terraform-use-state"
+        },
+        {
+          "args": [
+            {
+              "name": "terraform-var"
+            }
+          ],
+          "description": "Set value for an input variable, similar to Terraform's -var flag",
+          "name": "--terraform-var"
+        },
+        {
+          "args": [
+            {
+              "name": "terraform-var-file"
+            }
+          ],
+          "description": "Load variable files, similar to Terraform's -var-file flag. Provided files must be relative to the --path flag",
+          "name": "--terraform-var-file"
+        },
+        {
+          "args": [
+            {
+              "name": "terraform-workspace"
+            }
+          ],
+          "description": "Terraform workspace to use. Applicable when path is a Terraform directory",
+          "name": "--terraform-workspace"
+        },
+        {
+          "args": [
+            {
+              "name": "usage-file",
+              "template": [
+                "filepaths"
+              ]
+            }
+          ],
+          "description": "Path to Infracost usage file that specifies values for usage-based resources",
+          "name": "--usage-file"
+        }
+      ]
+    },
+    {
+      "description": "Post an Infracost comment to GitHub, GitLab, Azure Repos or Bitbucket",
+      "name": "comment",
+      "subcommands": [
+        {
+          "description": "Post an Infracost comment to Azure Repos",
+          "name": "azure-repos",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "additional-comment-data-path"
+                }
+              ],
+              "description": "Path to additional comment text (experimental)",
+              "hidden": true,
+              "name": "--additional-comment-data-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "azure-access-token"
+                }
+              ],
+              "description": "Azure DevOps access token",
+              "isRequired": true,
+              "name": "--azure-access-token"
+            },
+            {
+              "args": [
+                {
+                  "default": "update",
+                  "name": "behavior",
+                  "suggestions": [
+                    {
+                      "description": "Update latest comment",
+                      "name": "update"
+                    },
+                    {
+                      "description": "Create a new comment",
+                      "name": "new"
+                    },
+                    {
+                      "description": "Hide previous matching comments and create a new comment",
+                      "name": "hide-and-new"
+                    },
+                    {
+                      "description": "Delete previous matching comments and create a new comment",
+                      "name": "delete-and-new"
+                    }
+                  ]
+                }
+              ],
+              "description": "Behavior when posting comment",
+              "name": "--behavior"
+            },
+            {
+              "description": "Generate comment without actually posting to Azure Repos",
+              "name": "--dry-run"
+            },
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": [
+                    "filepaths"
+                  ]
+                }
+              ],
+              "description": "Path to Infracost JSON files, glob patterns need quotes",
+              "isRepeatable": true,
+              "isRequired": true,
+              "name": [
+                "--path",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-path"
+                }
+              ],
+              "description": "Path to Infracost policy files, glob patterns need quotes (experimental)",
+              "isRepeatable": true,
+              "name": "--policy-path"
+            },
+            {
+              "args": [
+                {
+                  "default": "0",
+                  "name": "pull-request"
+                }
+              ],
+              "description": "Pull request number to post comment on",
+              "isRequired": true,
+              "name": "--pull-request"
+            },
+            {
+              "args": [
+                {
+                  "name": "repo-url"
+                }
+              ],
+              "description": "Repository URL, e.g. https://dev.azure.com/my-org/my-project/_git/my-repo",
+              "isRequired": true,
+              "name": "--repo-url"
+            },
+            {
+              "description": "Show all projects in the table of the comment output",
+              "name": "--show-all-projects"
+            },
+            {
+              "description": "Show only projects in the table that have code changes",
+              "hidden": true,
+              "name": "--show-changed"
+            },
+            {
+              "description": "List unsupported and free resources",
+              "name": "--show-skipped"
+            },
+            {
+              "description": "Skip posting comment if there are no resource changes. Only applies to update, hide-and-new, and delete-and-new behaviors",
+              "hidden": true,
+              "name": "--skip-no-diff"
+            },
+            {
+              "args": [
+                {
+                  "name": "tag"
+                }
+              ],
+              "description": "Customize hidden markdown tag used to detect comments posted by Infracost",
+              "name": "--tag"
+            }
+          ]
+        },
+        {
+          "description": "Post an Infracost comment to Bitbucket",
+          "name": "bitbucket",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "additional-comment-data-path"
+                }
+              ],
+              "description": "Path to additional comment text (experimental)",
+              "hidden": true,
+              "name": "--additional-comment-data-path"
+            },
+            {
+              "args": [
+                {
+                  "default": "update",
+                  "name": "behavior",
+                  "suggestions": [
+                    {
+                      "description": "Update latest comment",
+                      "name": "update"
+                    },
+                    {
+                      "description": "Create a new comment",
+                      "name": "new"
+                    },
+                    {
+                      "description": "Delete previous matching comments and create a new comment",
+                      "name": "delete-and-new"
+                    }
+                  ]
+                }
+              ],
+              "description": "Behavior when posting comment",
+              "name": "--behavior"
+            },
+            {
+              "args": [
+                {
+                  "default": "https://bitbucket.org",
+                  "name": "bitbucket-server-url"
+                }
+              ],
+              "description": "Bitbucket Server URL",
+              "name": "--bitbucket-server-url"
+            },
+            {
+              "args": [
+                {
+                  "name": "bitbucket-token"
+                }
+              ],
+              "description": "Bitbucket access token. Use 'username:app-password' for Bitbucket Cloud and HTTP access token for Bitbucket Server",
+              "isRequired": true,
+              "name": "--bitbucket-token"
+            },
+            {
+              "args": [
+                {
+                  "name": "commit"
+                }
+              ],
+              "description": "Commit SHA to post comment on, mutually exclusive with pull-request. Not available when bitbucket-server-url is set",
+              "exclusiveOn": [
+                "--pull-request"
+              ],
+              "name": "--commit"
+            },
+            {
+              "description": "Generate comment without actually posting to Bitbucket",
+              "name": "--dry-run"
+            },
+            {
+              "description": "Exclude CLI output so comment has just the summary table",
+              "name": "--exclude-cli-output"
+            },
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": [
+                    "filepaths"
+                  ]
+                }
+              ],
+              "description": "Path to Infracost JSON files, glob patterns need quotes",
+              "isRepeatable": true,
+              "isRequired": true,
+              "name": [
+                "--path",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-path"
+                }
+              ],
+              "description": "Path to Infracost policy files, glob patterns need quotes (experimental)",
+              "isRepeatable": true,
+              "name": "--policy-path"
+            },
+            {
+              "args": [
+                {
+                  "default": "0",
+                  "name": "pull-request"
+                }
+              ],
+              "description": "Pull request number to post comment on",
+              "exclusiveOn": [
+                "--commit"
+              ],
+              "name": "--pull-request"
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace/repo"
+                }
+              ],
+              "description": "Repository in format workspace/repo",
+              "isRequired": true,
+              "name": "--repo"
+            },
+            {
+              "description": "Show all projects in the table of the comment output",
+              "name": "--show-all-projects"
+            },
+            {
+              "description": "Show only projects in the table that have code changes",
+              "hidden": true,
+              "name": "--show-changed"
+            },
+            {
+              "description": "List unsupported and free resources",
+              "name": "--show-skipped"
+            },
+            {
+              "description": "Skip posting comment if there are no resource changes. Only applies to update, hide-and-new, and delete-and-new behaviors",
+              "hidden": true,
+              "name": "--skip-no-diff"
+            },
+            {
+              "args": [
+                {
+                  "name": "tag"
+                }
+              ],
+              "description": "Customize special text used to detect comments posted by Infracost (placed at the bottom of a comment)",
+              "name": "--tag"
+            }
+          ]
+        },
+        {
+          "description": "Post an Infracost comment to GitHub",
+          "name": "github",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "additional-comment-data-path"
+                }
+              ],
+              "description": "Path to additional comment text (experimental)",
+              "hidden": true,
+              "name": "--additional-comment-data-path"
+            },
+            {
+              "args": [
+                {
+                  "default": "update",
+                  "name": "behavior",
+                  "suggestions": [
+                    {
+                      "description": "Update latest comment",
+                      "name": "update"
+                    },
+                    {
+                      "description": "Create a new comment",
+                      "name": "new"
+                    },
+                    {
+                      "description": "Hide previous matching comments and create a new comment",
+                      "name": "hide-and-new"
+                    },
+                    {
+                      "description": "Delete previous matching comments and create a new comment",
+                      "name": "delete-and-new"
+                    }
+                  ]
+                }
+              ],
+              "description": "Behavior when posting comment",
+              "name": "--behavior"
+            },
+            {
+              "args": [
+                {
+                  "name": "commit"
+                }
+              ],
+              "description": "Commit SHA to post comment on, mutually exclusive with pull-request",
+              "exclusiveOn": [
+                "--pull-request"
+              ],
+              "name": "--commit"
+            },
+            {
+              "description": "Generate comment without actually posting to GitHub",
+              "name": "--dry-run"
+            },
+            {
+              "args": [
+                {
+                  "default": "https://api.github.com",
+                  "name": "github-api-url"
+                }
+              ],
+              "description": "GitHub API URL",
+              "name": "--github-api-url"
+            },
+            {
+              "args": [
+                {
+                  "name": "github-tls-cert-file"
+                }
+              ],
+              "description": "Path to optional client certificate file when communicating with GitHub Enterprise API",
+              "name": "--github-tls-cert-file"
+            },
+            {
+              "description": "Skip TLS certificate checks for GitHub Enterprise API",
+              "name": "--github-tls-insecure-skip-verify"
+            },
+            {
+              "args": [
+                {
+                  "name": "github-tls-key-file"
+                }
+              ],
+              "description": "Path to optional client key file when communicating with GitHub Enterprise API",
+              "name": "--github-tls-key-file"
+            },
+            {
+              "args": [
+                {
+                  "name": "github-token"
+                }
+              ],
+              "description": "GitHub token",
+              "isRequired": true,
+              "name": "--github-token"
+            },
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": [
+                    "filepaths"
+                  ]
+                }
+              ],
+              "description": "Path to Infracost JSON files, glob patterns need quotes",
+              "isRepeatable": true,
+              "isRequired": true,
+              "name": [
+                "--path",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-path"
+                }
+              ],
+              "description": "Path to Infracost policy files, glob patterns need quotes (experimental)",
+              "isRepeatable": true,
+              "name": "--policy-path"
+            },
+            {
+              "args": [
+                {
+                  "default": "0",
+                  "name": "pull-request"
+                }
+              ],
+              "description": "Pull request number to post comment on, mutually exclusive with commit",
+              "exclusiveOn": [
+                "--commit"
+              ],
+              "name": "--pull-request"
+            },
+            {
+              "args": [
+                {
+                  "name": "owner/repo"
+                }
+              ],
+              "description": "Repository in format owner/repo",
+              "isRequired": true,
+              "name": "--repo"
+            },
+            {
+              "description": "Show all projects in the table of the comment output",
+              "name": "--show-all-projects"
+            },
+            {
+              "description": "Show only projects in the table that have code changes",
+              "hidden": true,
+              "name": "--show-changed"
+            },
+            {
+              "description": "List unsupported and free resources",
+              "name": "--show-skipped"
+            },
+            {
+              "description": "Skip posting comment if there are no resource changes. Only applies to update, hide-and-new, and delete-and-new behaviors",
+              "hidden": true,
+              "name": "--skip-no-diff"
+            },
+            {
+              "args": [
+                {
+                  "name": "tag"
+                }
+              ],
+              "description": "Customize hidden markdown tag used to detect comments posted by Infracost",
+              "name": "--tag"
+            }
+          ]
+        },
+        {
+          "description": "Post an Infracost comment to GitLab",
+          "name": "gitlab",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "additional-comment-data-path"
+                }
+              ],
+              "description": "Path to additional comment text (experimental)",
+              "hidden": true,
+              "name": "--additional-comment-data-path"
+            },
+            {
+              "args": [
+                {
+                  "default": "update",
+                  "name": "behavior",
+                  "suggestions": [
+                    {
+                      "description": "Update latest comment",
+                      "name": "update"
+                    },
+                    {
+                      "description": "Create a new comment",
+                      "name": "new"
+                    },
+                    {
+                      "description": "Delete previous matching comments and create a new comment",
+                      "name": "delete-and-new"
+                    }
+                  ]
+                }
+              ],
+              "description": "Behavior when posting comment",
+              "name": "--behavior"
+            },
+            {
+              "args": [
+                {
+                  "name": "commit"
+                }
+              ],
+              "description": "Commit SHA to post comment on, mutually exclusive with merge-request",
+              "exclusiveOn": [
+                "--merge-request"
+              ],
+              "name": "--commit"
+            },
+            {
+              "description": "Generate comment without actually posting to GitLab",
+              "name": "--dry-run"
+            },
+            {
+              "args": [
+                {
+                  "default": "https://gitlab.com",
+                  "name": "gitlab-server-url"
+                }
+              ],
+              "description": "GitLab Server URL",
+              "name": "--gitlab-server-url"
+            },
+            {
+              "args": [
+                {
+                  "name": "gitlab-token"
+                }
+              ],
+              "description": "GitLab token",
+              "isRequired": true,
+              "name": "--gitlab-token"
+            },
+            {
+              "args": [
+                {
+                  "default": "0",
+                  "name": "merge-request"
+                }
+              ],
+              "description": "Merge request number to post comment on, mutually exclusive with commit",
+              "exclusiveOn": [
+                "--commit"
+              ],
+              "name": "--merge-request"
+            },
+            {
+              "args": [
+                {
+                  "name": "path",
+                  "template": [
+                    "filepaths"
+                  ]
+                }
+              ],
+              "description": "Path to Infracost JSON files, glob patterns need quotes",
+              "isRepeatable": true,
+              "isRequired": true,
+              "name": [
+                "--path",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "policy-path"
+                }
+              ],
+              "description": "Path to Infracost policy files, glob patterns need quotes (experimental)",
+              "isRepeatable": true,
+              "name": "--policy-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "owner/repo"
+                }
+              ],
+              "description": "Repository in format owner/repo",
+              "isRequired": true,
+              "name": "--repo"
+            },
+            {
+              "description": "Show all projects in the table of the comment output",
+              "name": "--show-all-projects"
+            },
+            {
+              "description": "Show only projects in the table that have code changes",
+              "hidden": true,
+              "name": "--show-changed"
+            },
+            {
+              "description": "List unsupported and free resources",
+              "name": "--show-skipped"
+            },
+            {
+              "description": "Skip posting comment if there are no resource changes. Only applies to update, hide-and-new, and delete-and-new behaviors",
+              "hidden": true,
+              "name": "--skip-no-diff"
+            },
+            {
+              "args": [
+                {
+                  "name": "tag"
+                }
+              ],
+              "description": "Customize hidden markdown tag used to detect comments posted by Infracost",
+              "name": "--tag"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Generate shell completion script",
+      "name": "completion",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "shell"
+            }
+          ],
+          "description": "Supported shell formats: bash, zsh, fish, powershell",
+          "isRequired": true,
+          "name": "--shell"
+        }
+      ]
+    },
+    {
+      "description": "Display or change global configuration",
+      "name": "configure",
+      "subcommands": [
+        {
+          "description": "Get global configuration",
+          "name": "get",
+          "subcommands": [
+            {
+              "name": "api_key"
+            },
+            {
+              "name": "currency"
+            },
+            {
+              "name": "pricing_api_endpoint"
+            },
+            {
+              "name": "enable_dashboard"
+            },
+            {
+              "name": "enable_cloud"
+            },
+            {
+              "name": "disable_hcl"
+            },
+            {
+              "name": "tls_insecure_skip_verify"
+            },
+            {
+              "name": "tls_ca_cert_file"
+            }
+          ]
+        },
+        {
+          "description": "Set global configuration",
+          "name": "set",
+          "subcommands": [
+            {
+              "args": [
+                {
+                  "name": "api_key"
+                }
+              ],
+              "name": "api_key"
+            },
+            {
+              "args": [
+                {
+                  "name": "currency"
+                }
+              ],
+              "description": "Currency code (ISO 4217)",
+              "name": "currency"
+            },
+            {
+              "args": [
+                {
+                  "name": "Pricing API endpoint"
+                }
+              ],
+              "name": "pricing_api_endpoint"
+            },
+            {
+              "name": "enable_dashboard"
+            },
+            {
+              "name": "enable_cloud"
+            },
+            {
+              "name": "disable_hcl"
+            },
+            {
+              "args": [
+                {
+                  "name": "tls_insecure_skip_verify",
+                  "suggestions": [
+                    {
+                      "name": "true"
+                    },
+                    {
+                      "name": "false"
+                    }
+                  ]
+                }
+              ],
+              "name": "tls_insecure_skip_verify"
+            },
+            {
+              "name": "tls_ca_cert_file"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Show diff of monthly costs between current and planned state",
+      "name": "diff",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "compare-to"
+            }
+          ],
+          "description": "Path to Infracost JSON file to compare against",
+          "name": "--compare-to"
+        },
+        {
+          "args": [
+            {
+              "name": "config-file",
+              "template": [
+                "filepaths"
+              ]
+            }
+          ],
+          "description": "Path to Infracost config file. Cannot be used with path, terraform* or usage-file flags",
+          "name": "--config-file"
+        },
+        {
+          "args": [
+            {
+              "name": "exclude-path"
+            }
+          ],
+          "description": "Paths of directories to exclude, glob patterns need quotes",
+          "name": "--exclude-path"
+        },
+        {
+          "args": [
+            {
+              "default": "diff",
+              "name": "format"
+            }
+          ],
+          "description": "Output format: json, diff",
+          "name": "--format"
+        },
+        {
+          "args": [
+            {
+              "default": "master",
+              "name": "git-diff-target"
+            }
+          ],
+          "description": "Show only costs that have git changes compared to the provided branch. Use the name of the current branch to fetch changes from the last two commits",
+          "hidden": true,
+          "name": "--git-diff-target"
+        },
+        {
+          "description": "Set project auto-detection to use all subdirectories in given path",
+          "name": "--include-all-paths"
+        },
+        {
+          "description": "Don't attempt to cache Terraform plans",
+          "name": "--no-cache"
+        },
+        {
+          "args": [
+            {
+              "name": "out-file"
+            }
+          ],
+          "description": "Save output to a file",
+          "name": "--out-file"
+        },
+        {
+          "args": [
+            {
+              "name": "path",
+              "template": [
+                "filepaths"
+              ]
+            }
+          ],
+          "description": "Path to the Terraform directory or JSON/plan file",
+          "name": [
+            "--path",
+            "-p"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "project-name"
+            }
+          ],
+          "description": "Name of project in the output. Defaults to path or git repo name",
+          "name": "--project-name"
+        },
+        {
+          "description": "List unsupported and free resources",
+          "name": "--show-skipped"
+        },
+        {
+          "description": "Sync usage-file with missing resources, needs usage-file too (experimental)",
+          "name": "--sync-usage-file"
+        },
+        {
+          "description": "Generate the Terraform plan JSON using the Terraform CLI. This may require cloud credentials",
+          "hidden": true,
+          "name": "--terraform-force-cli"
+        },
+        {
+          "args": [
+            {
+              "name": "terraform-init-flags"
+            }
+          ],
+          "description": "Flags to pass to 'terraform init'. Applicable with --terraform-force-cli",
+          "hidden": true,
+          "name": "--terraform-init-flags"
+        },
+        {
+          "args": [
+            {
+              "name": "terraform-plan-flags"
+            }
+          ],
+          "description": "Flags to pass to 'terraform plan'. Applicable with --terraform-force-cli",
+          "hidden": true,
+          "name": "--terraform-plan-flags"
+        },
+        {
+          "args": [
+            {
+              "name": "terraform-var"
+            }
+          ],
+          "description": "Set value for an input variable, similar to Terraform's -var flag",
+          "name": "--terraform-var"
+        },
+        {
+          "args": [
+            {
+              "name": "terraform-var-file"
+            }
+          ],
+          "description": "Load variable files, similar to Terraform's -var-file flag. Provided files must be relative to the --path flag",
+          "name": "--terraform-var-file"
+        },
+        {
+          "args": [
+            {
+              "name": "terraform-workspace"
+            }
+          ],
+          "description": "Terraform workspace to use. Applicable when path is a Terraform directory",
+          "name": "--terraform-workspace"
+        },
+        {
+          "args": [
+            {
+              "name": "usage-file",
+              "template": [
+                "filepaths"
+              ]
+            }
+          ],
+          "description": "Path to Infracost usage file that specifies values for usage-based resources",
+          "name": "--usage-file"
+        }
+      ]
+    },
+    {
+      "description": "Generate configuration to help run Infracost",
+      "name": "generate",
+      "subcommands": [
+        {
+          "description": "Generate Infracost config file from a template file",
+          "name": "config",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "out-file"
+                }
+              ],
+              "description": "Save output to a file",
+              "name": "--out-file"
+            },
+            {
+              "args": [
+                {
+                  "default": ".",
+                  "name": "repo-path"
+                }
+              ],
+              "description": "Path to the Terraform repo or directory you want to run the template file on",
+              "name": "--repo-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "template"
+                }
+              ],
+              "description": "Infracost template string that will generate the config-file yaml output",
+              "name": "--template"
+            },
+            {
+              "args": [
+                {
+                  "name": "template-path"
+                }
+              ],
+              "description": "Path to the Infracost template file that will generate the config-file yaml output",
+              "name": "--template-path"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Combine and output Infracost JSON files in different formats",
+      "name": "output",
+      "options": [
+        {
+          "args": [
+            {
+              "default": "[monthlyQuantity,unit,monthlyCost]",
+              "name": "fields"
+            }
+          ],
+          "description": "Comma separated list of output fields: all,price,monthlyQuantity,unit,hourlyCost,monthlyCost. Supported by table and html output formats",
+          "name": "--fields"
+        },
+        {
+          "args": [
+            {
+              "default": "table",
+              "name": "format"
+            }
+          ],
+          "description": "Output format: json, diff, table, html, github-comment, gitlab-comment, azure-repos-comment, bitbucket-comment, bitbucket-comment-summary, slack-message",
+          "name": "--format"
+        },
+        {
+          "args": [
+            {
+              "name": "out-file"
+            }
+          ],
+          "description": "Save output to a file, helpful with format flag",
+          "name": [
+            "--out-file",
+            "-o"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "path",
+              "template": [
+                "filepaths"
+              ]
+            }
+          ],
+          "description": "Path to Infracost JSON files, glob patterns need quotes",
+          "isRepeatable": true,
+          "isRequired": true,
+          "name": [
+            "--path",
+            "-p"
+          ]
+        },
+        {
+          "description": "Show all projects in the table of the comment output",
+          "name": "--show-all-projects"
+        },
+        {
+          "description": "List unsupported and free resources",
+          "name": "--show-skipped"
+        }
+      ]
+    },
+    {
+      "description": "Upload an Infracost JSON file to Infracost Cloud",
+      "name": "upload",
+      "options": [
+        {
+          "args": [
+            {
+              "default": "p",
+              "name": "path",
+              "template": [
+                "filepaths"
+              ]
+            }
+          ],
+          "description": "Path to Infracost JSON file",
+          "isRequired": true,
+          "name": "--path"
+        }
+      ]
+    },
+    {
+      "description": "Help about any command",
+      "name": "help",
+      "subcommands": [
+        {
+          "description": "Get a free API key, or log in to your existing account",
+          "name": "auth",
+          "subcommands": [
+            {
+              "description": "Authenticate the CLI with your Infracost account",
+              "name": "login"
+            }
+          ]
+        },
+        {
+          "description": "Show breakdown of costs",
+          "name": "breakdown"
+        },
+        {
+          "description": "Post an Infracost comment to GitHub, GitLab, Azure Repos or Bitbucket",
+          "name": "comment",
+          "subcommands": [
+            {
+              "description": "Post an Infracost comment to Azure Repos",
+              "name": "azure-repos"
+            },
+            {
+              "description": "Post an Infracost comment to Bitbucket",
+              "name": "bitbucket"
+            },
+            {
+              "description": "Post an Infracost comment to GitHub",
+              "name": "github"
+            },
+            {
+              "description": "Post an Infracost comment to GitLab",
+              "name": "gitlab"
+            }
+          ]
+        },
+        {
+          "description": "Generate shell completion script",
+          "name": "completion"
+        },
+        {
+          "description": "Display or change global configuration",
+          "name": "configure",
+          "subcommands": [
+            {
+              "description": "Get global configuration",
+              "name": "get"
+            },
+            {
+              "description": "Set global configuration",
+              "name": "set"
+            }
+          ]
+        },
+        {
+          "description": "Show diff of monthly costs between current and planned state",
+          "name": "diff"
+        },
+        {
+          "description": "Generate configuration to help run Infracost",
+          "name": "generate",
+          "subcommands": [
+            {
+              "description": "Generate Infracost config file from a template file",
+              "name": "config"
+            }
+          ]
+        },
+        {
+          "description": "Combine and output Infracost JSON files in different formats",
+          "name": "output"
+        },
+        {
+          "description": "Upload an Infracost JSON file to Infracost Cloud",
+          "name": "upload"
+        }
+      ]
+    }
+  ]
+}

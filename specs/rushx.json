@@ -1,0 +1,42 @@
+{
+  "args": [
+    {
+      "description": "Script to run from your package.json",
+      "dyn": true,
+      "filterStrategy": "fuzzy",
+      "generators": [
+        {
+          "cache": {
+            "cacheByDirectory": true,
+            "strategy": "stale-while-revalidate"
+          },
+          "script": [
+            "bash",
+            "-c",
+            "until [[ -f package.json ]] || [[ $PWD = '/' ]]; do cd ..; done; cat package.json"
+          ]
+        }
+      ],
+      "isCommand": true,
+      "name": "Scripts"
+    }
+  ],
+  "description": "Run arbitrary package scripts for rush project. analogous to npm run",
+  "name": "rushx",
+  "options": [
+    {
+      "description": "Show this help message and exit",
+      "name": [
+        "-h",
+        "--help"
+      ]
+    },
+    {
+      "description": "Hide rushx startup information",
+      "name": [
+        "-q",
+        "--quiet"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,829 @@
+{
+  "description": "Commands to manage hpc cache",
+  "name": "hpc-cache",
+  "subcommands": [
+    {
+      "description": "Commands to create hpc cache blob storage target",
+      "name": "blob-storage-target",
+      "subcommands": [
+        {
+          "description": "Create or update a blob Storage Target. This operation is allowed at any time, but if the Cache is down or unhealthy, the actual creation/modification of the Storage Target may be delayed until the Cache is healthy again",
+          "name": "add",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cache-name"
+                }
+              ],
+              "description": "Name of Cache",
+              "isRequired": true,
+              "name": "--cache-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "container-name"
+                }
+              ],
+              "description": "Name of target storage container",
+              "isRequired": true,
+              "name": "--container-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Storage Target",
+              "isRequired": true,
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-account"
+                }
+              ],
+              "description": "Resource ID or Name of target storage account",
+              "isRequired": true,
+              "name": "--storage-account"
+            },
+            {
+              "args": [
+                {
+                  "name": "virtual-namespace-path"
+                }
+              ],
+              "description": "Path to create for this storage target in the client-facing virtual filesystem",
+              "isRequired": true,
+              "name": [
+                "--virtual-namespace-path",
+                "-v"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Create or update a blob Storage Target. This operation is allowed at any time, but if the Cache is down or unhealthy, the actual creation/modification of the Storage Target may be delayed until the Cache is healthy again",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cache-name"
+                }
+              ],
+              "description": "Name of Cache",
+              "isRequired": true,
+              "name": "--cache-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Storage Target",
+              "isRequired": true,
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "container-name"
+                }
+              ],
+              "description": "Name of target storage container",
+              "name": "--container-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-account"
+                }
+              ],
+              "description": "Resource ID or Name of target storage account",
+              "name": "--storage-account"
+            },
+            {
+              "args": [
+                {
+                  "name": "virtual-namespace-path"
+                }
+              ],
+              "description": "Path to create for this storage target in the client-facing virtual filesystem",
+              "name": [
+                "--virtual-namespace-path",
+                "-v"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Create or update a Cache",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "cache-size-gb"
+            }
+          ],
+          "description": "The size of this Cache, in GB",
+          "isRequired": true,
+          "name": "--cache-size-gb"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "isRequired": true,
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of Cache",
+          "isRequired": true,
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "sku-name"
+            }
+          ],
+          "description": "SKU name for this Cache",
+          "isRequired": true,
+          "name": "--sku-name"
+        },
+        {
+          "args": [
+            {
+              "name": "subnet"
+            }
+          ],
+          "description": "Subnet used for the Cache",
+          "isRequired": true,
+          "name": "--subnet"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        }
+      ]
+    },
+    {
+      "description": "Schedule a Cache for deletion",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of Cache",
+          "isRequired": true,
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        }
+      ]
+    },
+    {
+      "description": "Tell a Cache to write all dirty data to the Storage Target(s). During the flush, clients will see errors returned until the flush is complete",
+      "name": "flush",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of Cache",
+          "isRequired": true,
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Return all Caches the user has access to under a resource group",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Return a Cache",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of Cache",
+          "isRequired": true,
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Tell a Stopped state Cache to transition to Active state",
+      "name": "start",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of Cache",
+          "isRequired": true,
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        }
+      ]
+    },
+    {
+      "description": "Tell an Active Cache to transition to Stopped state",
+      "name": "stop",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of Cache",
+          "isRequired": true,
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        }
+      ]
+    },
+    {
+      "description": "Update a Cache",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of Cache",
+          "isRequired": true,
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        }
+      ]
+    },
+    {
+      "description": "Upgrade a Cache's firmware if a new version is available. Otherwise, this operation has no effect",
+      "name": "upgrade-firmware",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of Cache",
+          "isRequired": true,
+          "name": "--name"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Wait a hpc Cache to specified state",
+      "name": "wait",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of Cache",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+          "name": "--created"
+        },
+        {
+          "args": [
+            {
+              "name": "custom"
+            }
+          ],
+          "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+          "name": "--custom"
+        },
+        {
+          "description": "Wait until deleted",
+          "name": "--deleted"
+        },
+        {
+          "description": "Wait until the resource exists",
+          "name": "--exists"
+        },
+        {
+          "args": [
+            {
+              "name": "interval"
+            }
+          ],
+          "description": "Polling interval in seconds",
+          "name": "--interval"
+        },
+        {
+          "args": [
+            {
+              "name": "timeout"
+            }
+          ],
+          "description": "Maximum wait in seconds",
+          "name": "--timeout"
+        },
+        {
+          "description": "Wait until updated with provisioningState at 'Succeeded'",
+          "name": "--updated"
+        }
+      ]
+    },
+    {
+      "description": "Commands to create hpc cache nfs storage target",
+      "name": "nfs-storage-target",
+      "subcommands": [
+        {
+          "description": "Create or update a nfs Storage Target. This operation is allowed at any time, but if the Cache is down or unhealthy, the actual creation/modification of the Storage Target may be delayed until the Cache is healthy again",
+          "name": "add",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cache-name"
+                }
+              ],
+              "description": "Name of Cache",
+              "isRequired": true,
+              "name": "--cache-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "junction"
+                }
+              ],
+              "description": "List of Cache namespace junctions to target for namespace associations.The sub parameters contains: (1) --namespace-path: Namespace path on a Cache for a Storage Target (2) --nfs-export: NFS export where targetPath exists (3) --target-path(Optional): Path in Storage Target to which namespacePath points",
+              "isRequired": true,
+              "name": "--junction"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Storage Target",
+              "isRequired": true,
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "nfs3-target"
+                }
+              ],
+              "description": "IP address or host name of an NFSv3 host (e.g., 10.0.44.44)",
+              "isRequired": true,
+              "name": "--nfs3-target"
+            },
+            {
+              "args": [
+                {
+                  "name": "nfs3-usage-model"
+                }
+              ],
+              "description": "Identify the primary usage model to be used for this Storage Target. You can use command az hpc-cache usage-model list to see the names of usage models. For more details about usage models, please refer to https://docs.microsoft.com/azure/hpc-cache/hpc-cache-add-storage?tabs=azure-cli#choose-a-usage-model",
+              "isRequired": true,
+              "name": "--nfs3-usage-model"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Create or update a nfs Storage Target. This operation is allowed at any time, but if the Cache is down or unhealthy, the actual creation/modification of the Storage Target may be delayed until the Cache is healthy again",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cache-name"
+                }
+              ],
+              "description": "Name of Cache",
+              "isRequired": true,
+              "name": "--cache-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Storage Target",
+              "isRequired": true,
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "junction"
+                }
+              ],
+              "description": "List of Cache namespace junctions to target for namespace associations.The sub parameters contains: (1) --namespace-path: Namespace path on a Cache for a Storage Target (2) --nfs-export: NFS export where targetPath exists (3) --target-path(Optional): Path in Storage Target to which namespacePath points",
+              "name": "--junction"
+            },
+            {
+              "args": [
+                {
+                  "name": "nfs3-target"
+                }
+              ],
+              "description": "IP address or host name of an NFSv3 host (e.g., 10.0.44.44)",
+              "name": "--nfs3-target"
+            },
+            {
+              "args": [
+                {
+                  "name": "nfs3-usage-model"
+                }
+              ],
+              "description": "Identify the primary usage model to be used for this Storage Target. You can use command az hpc-cache usage-model list to see the names of usage models. For more details about usage models, please refer to https://docs.microsoft.com/azure/hpc-cache/hpc-cache-add-storage?tabs=azure-cli#choose-a-usage-model",
+              "name": "--nfs3-usage-model"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage hpc cache skus",
+      "name": "skus",
+      "subcommands": [
+        {
+          "description": "Get the list of StorageCache.Cache SKUs available to this subscription",
+          "name": "list"
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage hpc cache storage target",
+      "name": "storage-target",
+      "subcommands": [
+        {
+          "description": "Return a list of Storage Targets for the specified Cache",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cache-name"
+                }
+              ],
+              "description": "Name of Cache",
+              "isRequired": true,
+              "name": "--cache-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Remove a Storage Target from a Cache. This operation is allowed at any time, but if the Cache is down or unhealthy, the actual removal of the Storage Target may be delayed until the Cache is healthy again. Note that if the Cache has data to flush to the Storage Target, the data will be flushed before the Storage Target will be deleted",
+          "name": "remove",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cache-name"
+                }
+              ],
+              "description": "Name of Cache",
+              "isRequired": true,
+              "name": "--cache-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Storage Target",
+              "isRequired": true,
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Return a Storage Target from a Cache",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cache-name"
+                }
+              ],
+              "description": "Name of Cache",
+              "isRequired": true,
+              "name": "--cache-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Storage Target",
+              "isRequired": true,
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage hpc cache usage model",
+      "name": "usage-model",
+      "subcommands": [
+        {
+          "description": "Get the list of Cache Usage Models available to this subscription",
+          "name": "list"
+        }
+      ]
+    }
+  ]
+}

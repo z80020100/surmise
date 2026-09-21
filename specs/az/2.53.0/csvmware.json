@@ -1,0 +1,1055 @@
+{
+  "description": "Manage Azure VMware Solution by CloudSimple",
+  "name": "csvmware",
+  "subcommands": [
+    {
+      "description": "Manage VMware private clouds",
+      "name": "private-cloud",
+      "subcommands": [
+        {
+          "description": "List details of private clouds in a region",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Region in which the private cloud is present",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the details of a private cloud in a region",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Region in which the private cloud is present",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name or ID of the CloudSimple private cloud",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage VMware resource pools",
+      "name": "resource-pool",
+      "subcommands": [
+        {
+          "description": "List details of resource pools in a private cloud",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Region in which the private cloud is present",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "private-cloud"
+                }
+              ],
+              "description": "Name or ID of the CloudSimple private cloud",
+              "isRequired": true,
+              "name": [
+                "--private-cloud",
+                "-p"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the details of a resource pool in a private cloud",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Region in which the private cloud is present",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "ID of the VMware resource pool in your CloudSimple Private Cloud. You can also pass the basename of the ID",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "private-cloud"
+                }
+              ],
+              "description": "Name or ID of the CloudSimple private cloud",
+              "isRequired": true,
+              "name": [
+                "--private-cloud",
+                "-p"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage virtual networks",
+      "name": "virtual-network",
+      "subcommands": [
+        {
+          "description": "List details of available virtual networks in a private cloud",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Region in which the private cloud is present",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "private-cloud"
+                }
+              ],
+              "description": "Name or ID of the CloudSimple private cloud",
+              "isRequired": true,
+              "name": [
+                "--private-cloud",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-pool"
+                }
+              ],
+              "description": "ID of the resource pool used to derive vSphere cluster which contains virtual networks. You can also pass the basename of the ID",
+              "isRequired": true,
+              "name": [
+                "--resource-pool",
+                "-r"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the details of a virtual network in a private cloud",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Region in which the private cloud is present",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "ID of the virtual network (vsphereId). You can also pass the basename of the ID",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "private-cloud"
+                }
+              ],
+              "description": "Name or ID of the CloudSimple private cloud",
+              "isRequired": true,
+              "name": [
+                "--private-cloud",
+                "-p"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage VMware virtual machines",
+      "name": "vm",
+      "subcommands": [
+        {
+          "description": "Create a VMware virtual machine",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the virtual machine",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "private-cloud"
+                }
+              ],
+              "description": "Name or ID of the CloudSimple private cloud",
+              "isRequired": true,
+              "name": [
+                "--private-cloud",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-pool"
+                }
+              ],
+              "description": "ID of the VMware resource pool for this virtual machine in your CloudSimple Private Cloud. You can also pass the basename of the ID",
+              "isRequired": true,
+              "name": [
+                "--resource-pool",
+                "-r"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template"
+                }
+              ],
+              "description": "ID of the vSphere template from which this virtual machine will be created. You can also pass the basename of the ID",
+              "isRequired": true,
+              "name": "--template"
+            },
+            {
+              "args": [
+                {
+                  "name": "cores"
+                }
+              ],
+              "description": "The number of CPU cores required. The default is taken from the vSphere VM template specified",
+              "name": "--cores"
+            },
+            {
+              "args": [
+                {
+                  "name": "disk"
+                }
+              ],
+              "description": "Add or modify disks",
+              "name": "--disk"
+            },
+            {
+              "args": [
+                {
+                  "name": "expose-to-guest-vm",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Will expose full CPU virtualization to the guest operating system. The default is taken from the vSphere VM template specified",
+              "name": "--expose-to-guest-vm"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Region in which the private cloud is present. If default location is not configured, will default to the resource group's location",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "nic"
+                }
+              ],
+              "description": "Add or modify NICs",
+              "name": "--nic"
+            },
+            {
+              "args": [
+                {
+                  "name": "ram"
+                }
+              ],
+              "description": "The amount of memory in MB. The default is taken from the vSphere VM template specified",
+              "name": "--ram"
+            }
+          ]
+        },
+        {
+          "description": "Delete a VMware virtual machine",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the virtual machine",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List details of VMware virtual machines in the current subscription. If resource group is specified, only the details of virtual machines in that resource group would be listed",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the details of a VMware virtual machine",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the virtual machine",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Start a VMware virtual machine",
+          "name": "start",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the virtual machine",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Stop/Reboot/Suspend a VMware virtual machine",
+          "name": "stop",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "mode",
+                  "suggestions": [
+                    "poweroff",
+                    "reboot",
+                    "shutdown",
+                    "suspend"
+                  ]
+                }
+              ],
+              "description": "Stop mode",
+              "isRequired": true,
+              "name": "--mode"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the virtual machine",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update the tags field of a VMware virtual machine",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the virtual machine",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            }
+          ]
+        },
+        {
+          "description": "Manage VMware virtual machine's disks",
+          "name": "disk",
+          "subcommands": [
+            {
+              "description": "Add disk to a VMware virtual machine",
+              "name": "add",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "vm-name"
+                    }
+                  ],
+                  "description": "Name of the virtual machine",
+                  "isRequired": true,
+                  "name": "--vm-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "controller"
+                    }
+                  ],
+                  "description": "Id of the controller. Input 1000 for SCSI controller 0, and 15000 for SATA controller 0",
+                  "name": "--controller"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "mode",
+                      "suggestions": [
+                        "independent_nonpersistent",
+                        "independent_persistent",
+                        "persistent"
+                      ]
+                    }
+                  ],
+                  "description": "The disk independence mode",
+                  "name": "--mode"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "size"
+                    }
+                  ],
+                  "description": "The amount of disk size in KB",
+                  "name": "--size"
+                }
+              ]
+            },
+            {
+              "description": "Delete disks from a VM",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "disks"
+                    }
+                  ],
+                  "description": "Names of disks",
+                  "isRequired": true,
+                  "name": "--disks"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "vm-name"
+                    }
+                  ],
+                  "description": "Name of the virtual machine",
+                  "isRequired": true,
+                  "name": "--vm-name"
+                }
+              ]
+            },
+            {
+              "description": "List details of disks available on a VMware virtual machine",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "vm-name"
+                    }
+                  ],
+                  "description": "Name of the virtual machine",
+                  "isRequired": true,
+                  "name": "--vm-name"
+                }
+              ]
+            },
+            {
+              "description": "Get the details of a VMware virtual machine's disk",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the disk",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "vm-name"
+                    }
+                  ],
+                  "description": "Name of the virtual machine",
+                  "isRequired": true,
+                  "name": "--vm-name"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage VMware virtual machine's Network Interface Cards",
+          "name": "nic",
+          "subcommands": [
+            {
+              "description": "Add NIC to a VMware virtual machine",
+              "name": "add",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "virtual-network"
+                    }
+                  ],
+                  "description": "ID of the virtual network. You can also pass the basename of the ID",
+                  "isRequired": true,
+                  "name": "--virtual-network"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "vm-name"
+                    }
+                  ],
+                  "description": "Name of the virtual machine",
+                  "isRequired": true,
+                  "name": "--vm-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "adapter",
+                      "suggestions": [
+                        "E1000",
+                        "E1000E",
+                        "PCNET32",
+                        "VMXNET",
+                        "VMXNET2",
+                        "VMXNET3"
+                      ]
+                    }
+                  ],
+                  "description": "The adapter for the NIC",
+                  "name": "--adapter"
+                },
+                {
+                  "description": "Will power on the NIC at boot time",
+                  "name": "--power-on-boot"
+                }
+              ]
+            },
+            {
+              "description": "Delete NICs from a VM",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "nics"
+                    }
+                  ],
+                  "description": "Names of NICs",
+                  "isRequired": true,
+                  "name": "--nics"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "vm-name"
+                    }
+                  ],
+                  "description": "Name of the virtual machine",
+                  "isRequired": true,
+                  "name": "--vm-name"
+                }
+              ]
+            },
+            {
+              "description": "List details of NICs available on a VMware virtual machine",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "vm-name"
+                    }
+                  ],
+                  "description": "Name of the virtual machine",
+                  "isRequired": true,
+                  "name": "--vm-name"
+                }
+              ]
+            },
+            {
+              "description": "Get the details of a VMware virtual machine's NIC",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the NIC",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "vm-name"
+                    }
+                  ],
+                  "description": "Name of the virtual machine",
+                  "isRequired": true,
+                  "name": "--vm-name"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage VMware virtual machine templates",
+      "name": "vm-template",
+      "subcommands": [
+        {
+          "description": "List details of VMware virtual machines templates in a private cloud",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Region in which the private cloud is present",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "private-cloud"
+                }
+              ],
+              "description": "Name or ID of the CloudSimple private cloud",
+              "isRequired": true,
+              "name": [
+                "--private-cloud",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-pool"
+                }
+              ],
+              "description": "ID of the VMware resource pool in your CloudSimple Private Cloud. You can also pass the basename of the ID",
+              "isRequired": true,
+              "name": [
+                "--resource-pool",
+                "-r"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the details of a VMware virtual machines template in a private cloud",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Region in which the private cloud is present",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "ID of the vSphere virtual machine template. You can also pass the basename of the ID",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "private-cloud"
+                }
+              ],
+              "description": "Name or ID of the CloudSimple private cloud",
+              "isRequired": true,
+              "name": [
+                "--private-cloud",
+                "-p"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

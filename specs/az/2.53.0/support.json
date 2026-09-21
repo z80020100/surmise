@@ -1,0 +1,588 @@
+{
+  "description": "Manage Azure support resource",
+  "name": "support",
+  "subcommands": [
+    {
+      "description": "Azure services and related problem categories",
+      "name": "services",
+      "subcommands": [
+        {
+          "description": "Lists all the Azure services available for support ticket creation. Always use the service and it's corresponding problem classification(s) obtained programmatically for support ticket creation. This practice ensures that you always have the most recent set of service and problem classification Ids",
+          "name": "list"
+        },
+        {
+          "description": "Gets a specific Azure service for support ticket creation",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "service-name"
+                }
+              ],
+              "description": "Name of Azure service",
+              "isRequired": true,
+              "name": "--service-name"
+            }
+          ]
+        },
+        {
+          "description": "Problem classifications for an Azure service",
+          "name": "problem-classifications",
+          "subcommands": [
+            {
+              "description": "Lists all the problem classifications (categories) available for an Azure service. Always use the service and it's corresponding problem classification(s) obtained programmatically for support ticket creation. This practice ensures that you always have the most recent set of service and problem classification Ids",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "Name of Azure service",
+                  "isRequired": true,
+                  "name": "--service-name"
+                }
+              ]
+            },
+            {
+              "description": "Gets the problem classification details for an Azure service",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "problem-classification-name"
+                    }
+                  ],
+                  "description": "Name of problem classification",
+                  "isRequired": true,
+                  "name": "--problem-classification-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-name"
+                    }
+                  ],
+                  "description": "Name of Azure service",
+                  "isRequired": true,
+                  "name": "--service-name"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Create and manage Azure support ticket",
+      "name": "tickets",
+      "subcommands": [
+        {
+          "description": "Creates a new support ticket for Quota increase, Technical, Billing, and Subscription Management issues for the specified subscription",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "contact-country"
+                }
+              ],
+              "description": "Country of the user. This is the ISO Alpha-3 code",
+              "isRequired": true,
+              "name": "--contact-country"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-email"
+                }
+              ],
+              "description": "Primary email address",
+              "isRequired": true,
+              "name": "--contact-email"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-first-name"
+                }
+              ],
+              "description": "First Name",
+              "isRequired": true,
+              "name": "--contact-first-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-language"
+                }
+              ],
+              "description": "Preferred language of support from Azure. Support languages vary based on the severity you choose for your support ticket. This is the standard country-language code",
+              "isRequired": true,
+              "name": "--contact-language"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-last-name"
+                }
+              ],
+              "description": "Last Name",
+              "isRequired": true,
+              "name": "--contact-last-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-method",
+                  "suggestions": [
+                    "email",
+                    "phone"
+                  ]
+                }
+              ],
+              "description": "Preferred contact method",
+              "isRequired": true,
+              "name": "--contact-method"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-timezone"
+                }
+              ],
+              "description": "Time zone of the user. This is the name of the time zone from Microsoft Time Zone Index Values",
+              "isRequired": true,
+              "name": "--contact-timezone"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Detailed description of the question or issue",
+              "isRequired": true,
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "problem-classification"
+                }
+              ],
+              "description": "Each Azure service has its own set of issue category called problem classification that corresponds to the type of problem you are experiencing. This parameter is the resource id of ProblemClassification resource",
+              "isRequired": true,
+              "name": "--problem-classification"
+            },
+            {
+              "args": [
+                {
+                  "name": "severity",
+                  "suggestions": [
+                    "critical",
+                    "highestcriticalimpact",
+                    "minimal",
+                    "moderate"
+                  ]
+                }
+              ],
+              "description": "A value that indicates the urgency of the case, which in turn determines the response time according to the service level agreement of the technical support plan you have with Azure",
+              "isRequired": true,
+              "name": "--severity"
+            },
+            {
+              "args": [
+                {
+                  "name": "ticket-name"
+                }
+              ],
+              "description": "Support ticket name",
+              "isRequired": true,
+              "name": "--ticket-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "title"
+                }
+              ],
+              "description": "Title of the support ticket",
+              "isRequired": true,
+              "name": "--title"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-additional-emails"
+                }
+              ],
+              "description": "Space-separated list of additional email addresses. Additional email addresses will be copied on any correspondence about the support ticket",
+              "name": "--contact-additional-emails"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-phone-number"
+                }
+              ],
+              "description": "Phone number. This is required if preferred contact method is phone",
+              "name": "--contact-phone-number"
+            },
+            {
+              "args": [
+                {
+                  "name": "partner-tenant-id"
+                }
+              ],
+              "description": "Partner tenant id for Admin On Behalf of (AOBO) scenario. In addition to logging in to the customer tenant, logging in to the partner tenant (PT) using \"az login -t PT --allow-no-subscriptions\" is required",
+              "name": "--partner-tenant-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "quota-change-payload"
+                }
+              ],
+              "description": "Space -separated list of serialized payload of the quota increase request corresponding to regions. Visit https://aka.ms/supportrpquotarequestpayload for details",
+              "name": "--quota-change-payload"
+            },
+            {
+              "args": [
+                {
+                  "name": "quota-change-regions"
+                }
+              ],
+              "description": "Space-separated list of region for which the quota increase request is being made",
+              "name": "--quota-change-regions"
+            },
+            {
+              "args": [
+                {
+                  "name": "quota-change-subtype"
+                }
+              ],
+              "description": "Required for certain quota types when there is a sub type that you are requesting quota increase for. Example: Batch",
+              "name": "--quota-change-subtype"
+            },
+            {
+              "args": [
+                {
+                  "name": "quota-change-version"
+                }
+              ],
+              "description": "Quota change request version",
+              "name": "--quota-change-version"
+            },
+            {
+              "args": [
+                {
+                  "name": "require-24-by-7-response",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Indicates if this requires a 24x7 response from Azure. Default is false",
+              "name": "--require-24-by-7-response"
+            },
+            {
+              "args": [
+                {
+                  "name": "start-time"
+                }
+              ],
+              "description": "Time in UTC datetime (Y-m-d'T'H:M:S'Z') when the problem started. Default is today",
+              "name": "--start-time"
+            },
+            {
+              "args": [
+                {
+                  "name": "technical-resource"
+                }
+              ],
+              "description": "This is the resource id of the Azure service resource for which the support ticket is created",
+              "name": "--technical-resource"
+            }
+          ]
+        },
+        {
+          "description": "Lists all the support tickets for an Azure subscription",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "filters"
+                }
+              ],
+              "description": "The filter to apply on the operation. We support OData v4.0 semtantics. Filter can be specified on \"Status\" property using eq operator or on \"CreatedDate\" using gt/ge. To combine both filters, use the logical and operator. Default is CreatedDate >= one week",
+              "name": "--filters"
+            }
+          ]
+        },
+        {
+          "description": "Gets support ticket details for an Azure subscription",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ticket-name"
+                }
+              ],
+              "description": "Support ticket name",
+              "isRequired": true,
+              "name": "--ticket-name"
+            }
+          ]
+        },
+        {
+          "description": "Updates severity level, status and customer contact information for a support ticket",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ticket-name"
+                }
+              ],
+              "description": "Support ticket name",
+              "isRequired": true,
+              "name": "--ticket-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-additional-emails"
+                }
+              ],
+              "description": "Space-separated list of additional email addresses. Additional email addresses will be copied on any correspondence about the support ticket",
+              "name": "--contact-additional-emails"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-country"
+                }
+              ],
+              "description": "Country of the user. This is the ISO Alpha-3 code",
+              "name": "--contact-country"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-email"
+                }
+              ],
+              "description": "Primary email address",
+              "name": "--contact-email"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-first-name"
+                }
+              ],
+              "description": "First Name",
+              "name": "--contact-first-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-language"
+                }
+              ],
+              "description": "Preferred language of support from Azure. Support languages vary based on the severity you choose for your support ticket. This is the standard country-language code",
+              "name": "--contact-language"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-last-name"
+                }
+              ],
+              "description": "Last Name",
+              "name": "--contact-last-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-method",
+                  "suggestions": [
+                    "email",
+                    "phone"
+                  ]
+                }
+              ],
+              "description": "Preferred contact method",
+              "name": "--contact-method"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-phone-number"
+                }
+              ],
+              "description": "Phone number. This is required if preferred contact method is phone",
+              "name": "--contact-phone-number"
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-timezone"
+                }
+              ],
+              "description": "Time zone of the user. This is the name of the time zone from Microsoft Time Zone Index Values",
+              "name": "--contact-timezone"
+            },
+            {
+              "args": [
+                {
+                  "name": "severity",
+                  "suggestions": [
+                    "critical",
+                    "highestcriticalimpact",
+                    "minimal",
+                    "moderate"
+                  ]
+                }
+              ],
+              "description": "A value that indicates the urgency of the case, which in turn determines the response time according to the service level agreement of the technical support plan you have with Azure",
+              "name": "--severity"
+            },
+            {
+              "args": [
+                {
+                  "name": "status",
+                  "suggestions": [
+                    "closed",
+                    "open"
+                  ]
+                }
+              ],
+              "description": "Status to be updated on the ticket",
+              "name": "--status"
+            }
+          ]
+        },
+        {
+          "description": "Manage support ticket communications",
+          "name": "communications",
+          "subcommands": [
+            {
+              "description": "Adds a new customer communication to an Azure support ticket",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "communication-body"
+                    }
+                  ],
+                  "description": "Text of the communication",
+                  "isRequired": true,
+                  "name": "--communication-body"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "communication-name"
+                    }
+                  ],
+                  "description": "Communication name",
+                  "isRequired": true,
+                  "name": "--communication-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "communication-subject"
+                    }
+                  ],
+                  "description": "Subject of the communication",
+                  "isRequired": true,
+                  "name": "--communication-subject"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ticket-name"
+                    }
+                  ],
+                  "description": "Support ticket name",
+                  "isRequired": true,
+                  "name": "--ticket-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "communication-sender"
+                    }
+                  ],
+                  "description": "Email address of the sender",
+                  "name": "--communication-sender"
+                }
+              ]
+            },
+            {
+              "description": "Lists all communications (attachments not included) for a support ticket",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ticket-name"
+                    }
+                  ],
+                  "description": "Support ticket name",
+                  "isRequired": true,
+                  "name": "--ticket-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "filters"
+                    }
+                  ],
+                  "description": "The filter to apply on the operation. We support OData v4.0 semtantics. Filter can be specified on \"CommunicationType\" using eq operator or on \"CreatedDate\" using gt/ge. To combine both filters, use the logical and operator",
+                  "name": "--filters"
+                }
+              ]
+            },
+            {
+              "description": "Gets communication details for a support ticket",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "communication-name"
+                    }
+                  ],
+                  "description": "Communication name",
+                  "isRequired": true,
+                  "name": "--communication-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ticket-name"
+                    }
+                  ],
+                  "description": "Support ticket name",
+                  "isRequired": true,
+                  "name": "--ticket-name"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

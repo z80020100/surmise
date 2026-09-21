@@ -1,0 +1,2510 @@
+{
+  "description": "Manage Data Lake Store accounts and filesystems",
+  "name": "dls",
+  "subcommands": [
+    {
+      "description": "Manage Data Lake Store accounts",
+      "name": "account",
+      "subcommands": [
+        {
+          "description": "Creates a Data Lake Store account",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "isRequired": true,
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "default-group"
+                }
+              ],
+              "description": "Name of the default group to give permissions to for freshly created files and folders in the Data Lake Store account",
+              "name": "--default-group"
+            },
+            {
+              "description": "Indicates that the account will not have any form of encryption applied to it",
+              "name": "--disable-encryption"
+            },
+            {
+              "args": [
+                {
+                  "name": "encryption-type",
+                  "suggestions": [
+                    "ServiceManaged",
+                    "UserManaged"
+                  ]
+                }
+              ],
+              "description": "Indicates what type of encryption to provision the account with. By default, encryption is ServiceManaged. If no encryption is desired, it must be explicitly set with the --disable-encryption flag",
+              "name": "--encryption-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-name"
+                }
+              ],
+              "description": "Key name for the user-assigned encryption type",
+              "name": "--key-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-vault-id"
+                }
+              ],
+              "description": "Key vault for the user-assigned encryption type",
+              "name": "--key-vault-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-version"
+                }
+              ],
+              "description": "Key version for the user-assigned encryption type",
+              "name": "--key-version"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            },
+            {
+              "args": [
+                {
+                  "name": "tier",
+                  "suggestions": [
+                    "Commitment_100TB",
+                    "Commitment_10TB",
+                    "Commitment_1PB",
+                    "Commitment_1TB",
+                    "Commitment_500TB",
+                    "Commitment_5PB",
+                    "Consumption"
+                  ]
+                }
+              ],
+              "description": "The desired commitment tier for this account to use",
+              "name": "--tier"
+            }
+          ]
+        },
+        {
+          "description": "Delete a Data Lake Store account",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "If not specified, will attempt to discover the resource group for the specified Data Lake Store account",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Enable the use of Azure Key Vault for encryption of a Data Lake Store account",
+          "name": "enable-key-vault",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "If not specified, will attempt to discover the resource group for the specified Data Lake Store account",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Lists available Data Lake Store accounts",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the details of a Data Lake Store account",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "If not specified, will attempt to discover the resource group for the specified Data Lake Store account",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Updates a Data Lake Store account",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "allow-azure-ips",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Allow/block Azure originating IPs through the firewall",
+              "name": "--allow-azure-ips"
+            },
+            {
+              "args": [
+                {
+                  "name": "default-group"
+                }
+              ],
+              "description": "Name of the default group to give permissions to for freshly created files and folders in the Data Lake Store account",
+              "name": "--default-group"
+            },
+            {
+              "args": [
+                {
+                  "name": "firewall-state",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Enable/disable existing firewall rules",
+              "name": "--firewall-state"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-version"
+                }
+              ],
+              "description": "Key version for the user-assigned encryption type",
+              "name": "--key-version"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "If not specified, will attempt to discover the resource group for the specified Data Lake Store account",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            },
+            {
+              "args": [
+                {
+                  "name": "tier",
+                  "suggestions": [
+                    "Commitment_100TB",
+                    "Commitment_10TB",
+                    "Commitment_1PB",
+                    "Commitment_1TB",
+                    "Commitment_500TB",
+                    "Commitment_5PB",
+                    "Consumption"
+                  ]
+                }
+              ],
+              "description": "The desired commitment tier for this account to use",
+              "name": "--tier"
+            },
+            {
+              "args": [
+                {
+                  "name": "trusted-id-provider-state",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Enable/disable the existing trusted ID providers",
+              "name": "--trusted-id-provider-state"
+            }
+          ]
+        },
+        {
+          "description": "Manage Data Lake Store account firewall rules",
+          "name": "firewall",
+          "subcommands": [
+            {
+              "description": "Creates a firewall rule in a Data Lake Store account",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "isRequired": true,
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "end-ip-address"
+                    }
+                  ],
+                  "description": "The end of the valid ip range for the firewall rule",
+                  "isRequired": true,
+                  "name": "--end-ip-address"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "firewall-rule-name"
+                    }
+                  ],
+                  "description": "The name of the firewall rule",
+                  "isRequired": true,
+                  "name": "--firewall-rule-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "start-ip-address"
+                    }
+                  ],
+                  "description": "The start of the valid ip range for the firewall rule",
+                  "isRequired": true,
+                  "name": "--start-ip-address"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "If not specified, will attempt to discover the resource group for the specified Data Lake Store account",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Deletes a firewall rule in a Data Lake Store account",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "firewall-rule-name"
+                    }
+                  ],
+                  "description": "The name of the firewall rule to delete",
+                  "isRequired": true,
+                  "name": "--firewall-rule-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "If not specified, will attempt to discover the resource group for the specified Data Lake Store account",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Lists firewall rules in a Data Lake Store account",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "If not specified, will attempt to discover the resource group for the specified Data Lake Store account",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Get the details of a firewall rule in a Data Lake Store account",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "firewall-rule-name"
+                    }
+                  ],
+                  "description": "The name of the firewall rule to retrieve",
+                  "isRequired": true,
+                  "name": "--firewall-rule-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "If not specified, will attempt to discover the resource group for the specified Data Lake Store account",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Updates a firewall rule in a Data Lake Store account",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "firewall-rule-name"
+                    }
+                  ],
+                  "description": "The name of the firewall rule to update",
+                  "isRequired": true,
+                  "name": "--firewall-rule-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "end-ip-address"
+                    }
+                  ],
+                  "description": "The end IP address for the firewall rule. This can be either ipv4 or ipv6. Start and End should be in the same protocol",
+                  "name": "--end-ip-address"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "If not specified, will attempt to discover the resource group for the specified Data Lake Store account",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "start-ip-address"
+                    }
+                  ],
+                  "description": "The start IP address for the firewall rule. This can be either ipv4 or ipv6. Start and End should be in the same protocol",
+                  "name": "--start-ip-address"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage Data Lake Store account virtual network rules",
+          "name": "network-rule",
+          "subcommands": [
+            {
+              "description": "Creates a virtual network rule in a Data Lake Store account",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "account-name"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "isRequired": true,
+                  "name": "--account-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The virtual network rule name",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subnet"
+                    }
+                  ],
+                  "description": "The subnet name or id for the virtual network rule",
+                  "isRequired": true,
+                  "name": "--subnet"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "vnet-name"
+                    }
+                  ],
+                  "description": "The name of the virtual network rule",
+                  "name": "--vnet-name"
+                }
+              ]
+            },
+            {
+              "description": "Deletes a virtual network rule in a Data Lake Store account",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "account-name"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "isRequired": true,
+                  "name": "--account-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The virtual network rule name",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Lists virtual network rules in a Data Lake Store account",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "account-name"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "isRequired": true,
+                  "name": "--account-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Get the details of a virtual network rule in a Data Lake Store account",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "account-name"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "isRequired": true,
+                  "name": "--account-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The virtual network rule name",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Updates a virtual network rule in a Data Lake Store account",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "account-name"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "isRequired": true,
+                  "name": "--account-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subnet"
+                    }
+                  ],
+                  "description": "Name or ID of the subnet that allows access to DLS. If subnet name is provided, --name must be provided",
+                  "isRequired": true,
+                  "name": "--subnet"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "add"
+                    }
+                  ],
+                  "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+                  "name": "--add"
+                },
+                {
+                  "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+                  "name": "--force-string"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The virtual network rule name",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "remove"
+                    }
+                  ],
+                  "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+                  "name": "--remove"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "set"
+                    }
+                  ],
+                  "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+                  "name": "--set"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "vnet-name"
+                    }
+                  ],
+                  "description": "The virtual network rule name",
+                  "name": "--vnet-name"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage Data Lake Store account trusted identity providers",
+          "name": "trusted-provider",
+          "subcommands": [
+            {
+              "description": "Creates or updates the specified trusted identity provider",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "isRequired": true,
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "id-provider"
+                    }
+                  ],
+                  "description": "The URL of this trusted identity provider",
+                  "isRequired": true,
+                  "name": "--id-provider"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "trusted-id-provider-name"
+                    }
+                  ],
+                  "description": "The name of the trusted identity provider. This is used for differentiation of providers in the account",
+                  "isRequired": true,
+                  "name": "--trusted-id-provider-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "If not specified, will attempt to discover the resource group for the specified Data Lake Store account",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Deletes the specified trusted identity provider from the specified Data Lake Store account",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "trusted-id-provider-name"
+                    }
+                  ],
+                  "description": "The name of the trusted identity provider to delete",
+                  "isRequired": true,
+                  "name": "--trusted-id-provider-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "If not specified, will attempt to discover the resource group for the specified Data Lake Store account",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Lists the Data Lake Store trusted identity providers within the specified Data Lake Store account",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "If not specified, will attempt to discover the resource group for the specified Data Lake Store account",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Gets the specified Data Lake Store trusted identity provider",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "trusted-id-provider-name"
+                    }
+                  ],
+                  "description": "The name of the trusted identity provider to retrieve",
+                  "isRequired": true,
+                  "name": "--trusted-id-provider-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "If not specified, will attempt to discover the resource group for the specified Data Lake Store account",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Updates the specified trusted identity provider",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "trusted-id-provider-name"
+                    }
+                  ],
+                  "description": "The name of the trusted identity provider. This is used for differentiation of providers in the account",
+                  "isRequired": true,
+                  "name": "--trusted-id-provider-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "id-provider"
+                    }
+                  ],
+                  "description": "The URL of this trusted identity provider",
+                  "name": "--id-provider"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "If not specified, will attempt to discover the resource group for the specified Data Lake Store account",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage a Data Lake Store filesystem",
+      "name": "fs",
+      "subcommands": [
+        {
+          "description": "Append content to a file in a Data Lake Store account",
+          "name": "append",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "content"
+                }
+              ],
+              "description": "Content to be appended to the file",
+              "isRequired": true,
+              "name": "--content"
+            },
+            {
+              "args": [
+                {
+                  "name": "path"
+                }
+              ],
+              "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+              "isRequired": true,
+              "name": "--path"
+            },
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Creates a file or folder in a Data Lake Store account",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "isRequired": true,
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "path"
+                }
+              ],
+              "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+              "isRequired": true,
+              "name": "--path"
+            },
+            {
+              "args": [
+                {
+                  "name": "content"
+                }
+              ],
+              "description": "Content for the file to contain upon creation",
+              "name": "--content"
+            },
+            {
+              "description": "Indicates that this new item is a folder and not a file",
+              "name": "--folder"
+            },
+            {
+              "description": "Indicates that, if the file or folder exists, it should be overwritten",
+              "name": "--force"
+            }
+          ]
+        },
+        {
+          "description": "Delete a file or folder in a Data Lake Store account",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "path"
+                }
+              ],
+              "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+              "isRequired": true,
+              "name": "--path"
+            },
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "description": "Indicates this should be a recursive delete of the folder",
+              "name": "--recurse"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Download a file or folder from a Data Lake Store account to the local machine",
+          "name": "download",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "destination-path"
+                }
+              ],
+              "description": "The local path where the file or folder will be downloaded to",
+              "isRequired": true,
+              "name": "--destination-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "source-path"
+                }
+              ],
+              "description": "The full path in the Data Lake Store filesystem to download the file or folder from",
+              "isRequired": true,
+              "name": "--source-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "block-size"
+                }
+              ],
+              "description": "Size of a block, in bytes",
+              "name": "--block-size"
+            },
+            {
+              "args": [
+                {
+                  "name": "buffer-size"
+                }
+              ],
+              "description": "Size of the transfer buffer, in bytes",
+              "name": "--buffer-size"
+            },
+            {
+              "args": [
+                {
+                  "name": "chunk-size"
+                }
+              ],
+              "description": "Size of a chunk, in bytes",
+              "name": "--chunk-size"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "description": "Indicates that, if the destination file or folder exists, it should be overwritten",
+              "name": "--overwrite"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "thread-count"
+                }
+              ],
+              "description": "Parallelism of the download. Default: The number of cores in the local machine",
+              "name": "--thread-count"
+            }
+          ]
+        },
+        {
+          "description": "Join files in a Data Lake Store account into one file",
+          "name": "join",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "destination-path"
+                }
+              ],
+              "description": "The destination path in the Data Lake Store account",
+              "isRequired": true,
+              "name": "--destination-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "source-paths"
+                }
+              ],
+              "description": "The space-separated list of files in the Data Lake Store account to join",
+              "isRequired": true,
+              "name": "--source-paths"
+            },
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "description": "Indicates that, if the destination file already exists, it should be overwritten",
+              "name": "--force"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "List the files and folders in a Data Lake Store account",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "path"
+                }
+              ],
+              "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+              "isRequired": true,
+              "name": "--path"
+            },
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Move a file or folder in a Data Lake Store account",
+          "name": "move",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "destination-path"
+                }
+              ],
+              "description": "The destination path in the Data Lake Store account",
+              "isRequired": true,
+              "name": "--destination-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "source-path"
+                }
+              ],
+              "description": "The file or folder to move",
+              "isRequired": true,
+              "name": "--source-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "description": "Indicates that, if the destination file or folder already exists, it should be overwritten and replaced with the file or folder being moved",
+              "name": "--force"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Preview the content of a file in a Data Lake Store account",
+          "name": "preview",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "path"
+                }
+              ],
+              "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+              "isRequired": true,
+              "name": "--path"
+            },
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "description": "Indicates that, if the preview is larger than 1MB, still retrieve it. This can potentially be very slow, depending on how large the file is",
+              "name": "--force"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "length"
+                }
+              ],
+              "description": "The amount of data to preview in bytes",
+              "name": "--length"
+            },
+            {
+              "args": [
+                {
+                  "name": "offset"
+                }
+              ],
+              "description": "The position in bytes to start the preview from",
+              "name": "--offset"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Remove the expiration time for a file",
+          "name": "remove-expiry",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "path"
+                }
+              ],
+              "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+              "isRequired": true,
+              "name": "--path"
+            },
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Set the expiration time for a file",
+          "name": "set-expiry",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "expiration-time"
+                }
+              ],
+              "description": "The absolute value of the expiration time expressed as milliseconds since the epoch",
+              "isRequired": true,
+              "name": "--expiration-time"
+            },
+            {
+              "args": [
+                {
+                  "name": "path"
+                }
+              ],
+              "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+              "isRequired": true,
+              "name": "--path"
+            },
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Get file or folder information in a Data Lake Store account",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "path"
+                }
+              ],
+              "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+              "isRequired": true,
+              "name": "--path"
+            },
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Test for the existence of a file or folder in a Data Lake Store account",
+          "name": "test",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "path"
+                }
+              ],
+              "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+              "isRequired": true,
+              "name": "--path"
+            },
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Upload a file or folder to a Data Lake Store account",
+          "name": "upload",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "destination-path"
+                }
+              ],
+              "description": "The full path in the Data Lake Store filesystem to upload the file or folder to",
+              "isRequired": true,
+              "name": "--destination-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "source-path"
+                }
+              ],
+              "description": "The path to the file or folder to upload",
+              "isRequired": true,
+              "name": "--source-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "account"
+                }
+              ],
+              "description": "Name of the Data Lake Store account",
+              "name": [
+                "--account",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "block-size"
+                }
+              ],
+              "description": "Size of a block, in bytes",
+              "name": "--block-size"
+            },
+            {
+              "args": [
+                {
+                  "name": "buffer-size"
+                }
+              ],
+              "description": "Size of the transfer buffer, in bytes",
+              "name": "--buffer-size"
+            },
+            {
+              "args": [
+                {
+                  "name": "chunk-size"
+                }
+              ],
+              "description": "Size of a chunk, in bytes",
+              "name": "--chunk-size"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "description": "Indicates that, if the destination file or folder exists, it should be overwritten",
+              "name": "--overwrite"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "thread-count"
+                }
+              ],
+              "description": "Parallelism of the upload. Default: The number of cores in the local machine",
+              "name": "--thread-count"
+            }
+          ]
+        },
+        {
+          "description": "Manage Data Lake Store filesystem access and permissions",
+          "name": "access",
+          "subcommands": [
+            {
+              "description": "Remove the access control list for a file or folder",
+              "name": "remove-all",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+                  "isRequired": true,
+                  "name": "--path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "description": "A switch that, if specified, indicates that the remove ACL operation should remove the default ACL of the folder. Otherwise the regular ACL is removed",
+                  "name": "--default-acl"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Remove entries for the access control list of a file or folder",
+              "name": "remove-entry",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "acl-spec"
+                    }
+                  ],
+                  "description": "The ACL specification to set on the path in the format '[default:]user|group|other:[entity id or UPN]:r|-w|-x|-,[default:]user|group|other:[entity id or UPN]:r|-w|-x|-,...'",
+                  "isRequired": true,
+                  "name": "--acl-spec"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+                  "isRequired": true,
+                  "name": "--path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Replace the existing access control list for a file or folder",
+              "name": "set",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "acl-spec"
+                    }
+                  ],
+                  "description": "The ACL specification to set on the path in the format '[default:]user|group|other:[entity id or UPN]:r|-w|-x|-,[default:]user|group|other:[entity id or UPN]:r|-w|-x|-,...'",
+                  "isRequired": true,
+                  "name": "--acl-spec"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+                  "isRequired": true,
+                  "name": "--path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Update the access control list for a file or folder",
+              "name": "set-entry",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "acl-spec"
+                    }
+                  ],
+                  "description": "The ACL specification to set on the path in the format '[default:]user|group|other:[entity id or UPN]:r|-w|-x|-,[default:]user|group|other:[entity id or UPN]:r|-w|-x|-,...'",
+                  "isRequired": true,
+                  "name": "--acl-spec"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+                  "isRequired": true,
+                  "name": "--path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Set the owner information for a file or folder in a Data Lake Store account",
+              "name": "set-owner",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+                  "isRequired": true,
+                  "name": "--path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "group"
+                    }
+                  ],
+                  "description": "The group Azure Active Directory object ID or user principal name to set as the owning group",
+                  "name": "--group"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "owner"
+                    }
+                  ],
+                  "description": "The user Azure Active Directory object ID or user principal name to set as the owner",
+                  "name": "--owner"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Set the permissions for a file or folder in a Data Lake Store account",
+              "name": "set-permission",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+                  "isRequired": true,
+                  "name": "--path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "permission"
+                    }
+                  ],
+                  "description": "The octal representation of the permissions for user, group and mask",
+                  "isRequired": true,
+                  "name": "--permission"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Display the access control list (ACL)",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "The path in the specified Data Lake Store account where the action should take place. In the format '/folder/file.txt', where the first '/' after the DNS indicates the root of the file system",
+                  "isRequired": true,
+                  "name": "--path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "account"
+                    }
+                  ],
+                  "description": "Name of the Data Lake Store account",
+                  "name": [
+                    "--account",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

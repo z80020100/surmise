@@ -1,0 +1,1139 @@
+{
+  "description": "Blitz.js CLI is your single access point for interacting with your app, from database management to code generation",
+  "name": "blitz",
+  "subcommands": [
+    {
+      "description": "Creates a production build",
+      "icon": "https://raw.githubusercontent.com/blitz-js/art/master/square-logo-600.png",
+      "name": [
+        "build",
+        "b"
+      ],
+      "options": [
+        {
+          "description": "Show help for command",
+          "name": [
+            "--help",
+            "-h"
+          ],
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "description": "Generates Routes Manifest",
+      "icon": "https://raw.githubusercontent.com/blitz-js/art/master/square-logo-600.png",
+      "name": [
+        "codegen",
+        "cg"
+      ],
+      "options": [
+        {
+          "description": "Show help for command",
+          "name": [
+            "--help",
+            "-h"
+          ],
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "description": "Run the Blitz console REPL",
+      "icon": "https://raw.githubusercontent.com/blitz-js/art/master/square-logo-600.png",
+      "name": [
+        "console",
+        "c"
+      ],
+      "options": [
+        {
+          "description": "Show help for command",
+          "name": [
+            "--help",
+            "-h"
+          ],
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Run specific db command",
+          "name": "command",
+          "suggestions": [
+            {
+              "description": "Generates seeded data in database via Prisma 2. You need db/seeds.ts or db/seeds/index.ts",
+              "name": "seed"
+            }
+          ]
+        }
+      ],
+      "description": "Run database commands",
+      "icon": "https://raw.githubusercontent.com/blitz-js/art/master/square-logo-600.png",
+      "name": "db",
+      "options": [
+        {
+          "description": "Show help for command",
+          "name": [
+            "--help",
+            "-h"
+          ],
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "description": "Start a development server",
+      "icon": "https://raw.githubusercontent.com/blitz-js/art/master/square-logo-600.png",
+      "name": [
+        "dev",
+        "d"
+      ],
+      "options": [
+        {
+          "description": "Show help for command",
+          "name": [
+            "--help",
+            "-h"
+          ],
+          "priority": 1
+        },
+        {
+          "args": [
+            {
+              "name": "port"
+            }
+          ],
+          "description": "Set port number",
+          "name": [
+            "-p",
+            "--port"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "hostname"
+            }
+          ],
+          "description": "Set server hostname",
+          "name": [
+            "-H",
+            "--hostname"
+          ]
+        },
+        {
+          "description": "Enable the Node.js inspector",
+          "name": "--inspect"
+        },
+        {
+          "description": "Disable incremental build and start from a fresh cache",
+          "name": "--no-incremental-build"
+        }
+      ]
+    },
+    {
+      "description": "Exports a static page",
+      "icon": "https://raw.githubusercontent.com/blitz-js/art/master/square-logo-600.png",
+      "name": [
+        "export",
+        "e"
+      ],
+      "options": [
+        {
+          "description": "Show help for command",
+          "name": [
+            "--help",
+            "-h"
+          ],
+          "priority": 1
+        },
+        {
+          "args": [
+            {
+              "name": "outdir"
+            }
+          ],
+          "description": "Set the output dir (defaults to 'out')",
+          "name": [
+            "-o",
+            "--outdir"
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "What files to generate",
+          "name": "type",
+          "suggestions": [
+            {
+              "insertValue": "all ",
+              "name": "all",
+              "priority": 100
+            },
+            {
+              "insertValue": "crud ",
+              "name": "crud",
+              "priority": 100
+            },
+            {
+              "insertValue": "model ",
+              "name": "model",
+              "priority": 100
+            },
+            {
+              "insertValue": "pages ",
+              "name": "pages",
+              "priority": 100
+            },
+            {
+              "insertValue": "queries ",
+              "name": "queries",
+              "priority": 100
+            },
+            {
+              "insertValue": "query ",
+              "name": "query",
+              "priority": 100
+            },
+            {
+              "insertValue": "mutations ",
+              "name": "mutations",
+              "priority": 100
+            },
+            {
+              "insertValue": "mutation ",
+              "name": "mutation",
+              "priority": 100
+            },
+            {
+              "insertValue": "resource ",
+              "name": "resource",
+              "priority": 100
+            }
+          ]
+        },
+        {
+          "description": "The name of your model, like \"user\". Can be singular or plural - same result",
+          "name": "model"
+        }
+      ],
+      "description": "Generate new files for your Blitz project",
+      "icon": "https://raw.githubusercontent.com/blitz-js/art/master/square-logo-600.png",
+      "isDangerous": true,
+      "name": [
+        "generate",
+        "g"
+      ],
+      "options": [
+        {
+          "description": "Show help for command",
+          "name": [
+            "--help",
+            "-h"
+          ],
+          "priority": 1
+        },
+        {
+          "args": [
+            {
+              "name": "context"
+            }
+          ],
+          "description": "Provide a context folder within which we'll place the generated files for better code organization. You can also supply this in the name of the model to be generated (e.g. `blitz generate query admin/projects`). Combining the `--context` flags and supplying context via the model name in the same command is not supported",
+          "name": [
+            "-c",
+            "--context"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "parent"
+            }
+          ],
+          "description": "Specify a parent model to be used for generating nested routes for dependent data when generating pages, or to create hierarchical validation in queries and mutations. The code will be generated with the nested data model in mind. Most often this should be used in conjunction with 'blitz generate all'",
+          "name": [
+            "-p",
+            "--parent"
+          ]
+        },
+        {
+          "description": "Show what files will be created without writing them to disk",
+          "name": [
+            "-d",
+            "--dry-run"
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Command to show help for",
+          "isOptional": true,
+          "name": "command"
+        }
+      ],
+      "description": "Display help for <%= config.bin %>",
+      "name": [
+        "help",
+        "h"
+      ],
+      "options": [
+        {
+          "description": "See all commands in CLI",
+          "name": "--all"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Name of a Blitz recipe from @blitzjs/blitz/recipes, or a file path to a local recipe definition",
+          "name": "recipe"
+        },
+        {
+          "description": "A list of flags to pass to the recipe. Blitz will only parse these in the form key=value",
+          "isOptional": true,
+          "name": "recipe-flags"
+        }
+      ],
+      "description": "Install a Recipe into your Blitz app",
+      "icon": "https://raw.githubusercontent.com/blitz-js/art/master/square-logo-600.png",
+      "name": [
+        "install",
+        "i"
+      ],
+      "options": [
+        {
+          "description": "Show help for command",
+          "name": [
+            "--help",
+            "-h"
+          ],
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Name of your new project",
+          "name": "name"
+        }
+      ],
+      "description": "Create a new Blitz project",
+      "icon": "https://raw.githubusercontent.com/blitz-js/art/master/square-logo-600.png",
+      "name": "new",
+      "options": [
+        {
+          "description": "Show help for command",
+          "name": [
+            "--help",
+            "-h"
+          ],
+          "priority": 1
+        },
+        {
+          "description": "Use npm as the package manager",
+          "name": "--npm"
+        },
+        {
+          "description": "Use yarn as the package manager",
+          "name": "--yarn"
+        },
+        {
+          "args": [
+            {
+              "name": "form",
+              "suggestions": [
+                "react-final-form",
+                "react-hook-form",
+                "formik"
+              ]
+            }
+          ],
+          "description": "A form library",
+          "name": "--form"
+        },
+        {
+          "description": "Show what files will be created without writing them to disk",
+          "name": [
+            "-d",
+            "--dry-run"
+          ]
+        },
+        {
+          "description": "Skip git repository creation",
+          "name": "--no-git"
+        },
+        {
+          "description": "Skip blitz upgrade if outdated",
+          "name": "--skip-upgrade"
+        }
+      ]
+    },
+    {
+      "description": "Loads env variables then proxies all args to Prisma CLI",
+      "name": [
+        "prisma",
+        "p"
+      ],
+      "subcommands": [
+        {
+          "description": "Setup Prisma for your app",
+          "name": "init",
+          "options": [
+            {
+              "description": "Display this help message",
+              "name": [
+                "-h",
+                "--help"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "default": "PostgreSQL",
+                  "description": "Choose provider",
+                  "suggestions": [
+                    "PostgreSQL",
+                    "MySQL",
+                    "SQLite",
+                    "SQLServer",
+                    "MongoDB",
+                    "CockroachDB"
+                  ]
+                }
+              ],
+              "description": "Define the datasource provider to use",
+              "name": "--datasource-provider"
+            },
+            {
+              "args": [
+                {
+                  "name": "full url",
+                  "template": "filepaths"
+                }
+              ],
+              "description": "Define a custom datasource url",
+              "name": "--url"
+            }
+          ]
+        },
+        {
+          "description": "Generate artifacts (e.g. Prisma Client)",
+          "name": "generate",
+          "options": [
+            {
+              "description": "Display this help message",
+              "name": [
+                "-h",
+                "--help"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "Schema path",
+                  "template": "filepaths"
+                }
+              ],
+              "description": "Custom path to your Prisma schema",
+              "name": "--schema"
+            },
+            {
+              "description": "Enable the Data Proxy in the Prisma Client",
+              "name": "--data-proxy"
+            },
+            {
+              "description": "Hides the hint messages but still outputs errors and warnings",
+              "name": "--no-hints"
+            },
+            {
+              "description": "Generate a client for use with Accelerate only",
+              "name": "--no-engine"
+            },
+            {
+              "description": "Watch the Prisma schema and rerun after a change",
+              "name": "--watch"
+            },
+            {
+              "description": "Allow generating a client without models",
+              "name": "--allow-no-models"
+            }
+          ]
+        },
+        {
+          "description": "Open Prisma Studio",
+          "name": "studio",
+          "options": [
+            {
+              "description": "Display this help message",
+              "name": [
+                "-h",
+                "--help"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "Schema path",
+                  "template": "filepaths"
+                }
+              ],
+              "description": "Custom path to your Prisma schema",
+              "name": "--schema"
+            },
+            {
+              "args": [
+                {
+                  "name": "port"
+                }
+              ],
+              "description": "Port to start Studio on",
+              "name": [
+                "-p",
+                "--port"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "Browser choice",
+                  "suggestions": [
+                    "firefox",
+                    "chrome",
+                    "safari",
+                    "none"
+                  ]
+                }
+              ],
+              "description": "Browser to open Studio in",
+              "name": [
+                "-b",
+                "--browser"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "port"
+                }
+              ],
+              "description": "Hostname to bind the Express server to",
+              "name": [
+                "-n",
+                "--hostname"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Format your schema",
+          "name": "format",
+          "options": [
+            {
+              "description": "Display this help message",
+              "name": [
+                "-h",
+                "--help"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "Schema path",
+                  "template": "filepaths"
+                }
+              ],
+              "description": "Custom path to your Prisma schema",
+              "name": "--schema"
+            }
+          ]
+        },
+        {
+          "description": "Migrate your database",
+          "name": "migrate",
+          "subcommands": [
+            {
+              "description": "The migrate dev command updates your database using migrations files during development",
+              "icon": "💻",
+              "name": "dev",
+              "options": [
+                {
+                  "description": "Display this help message",
+                  "name": [
+                    "-h",
+                    "--help"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "Schema path",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Custom path to your Prisma schema",
+                  "name": "--schema"
+                },
+                {
+                  "description": "Skip triggering seed",
+                  "name": "--skip-seed"
+                },
+                {
+                  "description": "Skip triggering generators (e.g. Prisma Client)",
+                  "name": "--skip-generate"
+                },
+                {
+                  "description": "Create a new migration but do not apply it. The migration will be empty if there are no changes in Prisma schema",
+                  "name": "--create-only"
+                },
+                {
+                  "args": [
+                    {
+                      "isOptional": true,
+                      "name": "filename"
+                    }
+                  ],
+                  "description": "The name of the migration. If no name is provided, the CLI will prompt you",
+                  "name": [
+                    "-n",
+                    "--name"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Reset your database and apply all migrations, all data will be lost",
+              "icon": "🔃",
+              "name": "reset",
+              "options": [
+                {
+                  "description": "Display this help message",
+                  "name": [
+                    "-h",
+                    "--help"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "Schema path",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Custom path to your Prisma schema",
+                  "name": "--schema"
+                },
+                {
+                  "description": "Skip triggering seed",
+                  "name": "--skip-seed"
+                },
+                {
+                  "description": "Skip triggering generators (e.g. Prisma Client)",
+                  "name": "--skip-generate"
+                },
+                {
+                  "description": "Skip the confirmation prompt",
+                  "isDangerous": true,
+                  "name": [
+                    "-f",
+                    "--force"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Apply pending migrations to update the database schema in production/staging",
+              "icon": "🚀",
+              "name": "deploy",
+              "options": [
+                {
+                  "description": "Display this help message",
+                  "name": [
+                    "-h",
+                    "--help"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "Schema path",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Custom path to your Prisma schema",
+                  "name": "--schema"
+                }
+              ]
+            },
+            {
+              "description": "Resolve issues with database migrations in deployment databases",
+              "name": "resolve",
+              "options": [
+                {
+                  "description": "Display this help message",
+                  "name": [
+                    "-h",
+                    "--help"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "Schema path",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Custom path to your Prisma schema",
+                  "name": "--schema"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "migration file path",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Record a specific migration as applied",
+                  "name": "--applied"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "migration file path",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Record a specific migration as rolled back",
+                  "name": "--rolled-back"
+                }
+              ]
+            },
+            {
+              "description": "Check the status of your database migrations",
+              "name": "status",
+              "options": [
+                {
+                  "description": "Display this help message",
+                  "name": [
+                    "-h",
+                    "--help"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "Schema path",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Custom path to your Prisma schema",
+                  "name": "--schema"
+                }
+              ]
+            },
+            {
+              "description": "Compares the database schema from two arbitrary sources, and outputs the differences either as a human-readable summary (by default) or an executable script",
+              "name": "diff",
+              "options": [
+                {
+                  "description": "Display this help message",
+                  "name": [
+                    "-h",
+                    "--help"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "full url",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "A datasource url",
+                  "name": "--from-url"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "full url",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "A datasource url",
+                  "name": "--to-url"
+                },
+                {
+                  "description": "Flag to assume from is an empty datamodel",
+                  "name": "--from-empty"
+                },
+                {
+                  "description": "Flag to assume to is an empty datamodel",
+                  "name": "--to-empty"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "filepath",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Path to a Prisma schema file, uses the 'datamodel' for the diff",
+                  "name": "--from-schema-datamodel"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "filepath",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Path to a Prisma schema file, uses the 'datamodel' for the diff",
+                  "name": "--to-schema-datamodel"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "filepath",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Path to a Prisma schema file, uses the 'datasource url' for the diff",
+                  "name": "--from-schema-datasource"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "filepath",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Path to a Prisma schema file, uses the 'datasource url' for the diff",
+                  "name": "--to-schema-datasource"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "folder",
+                      "template": "folders"
+                    }
+                  ],
+                  "description": "Path to the Prisma Migrate migrations directory",
+                  "name": "--from-migrations"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "folder",
+                      "template": "folders"
+                    }
+                  ],
+                  "description": "Path to the Prisma Migrate migrations directory",
+                  "name": "--to-migrations"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "full url",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "URL for the shadow database. Only required if using --from-migrations or --to-migrations",
+                  "name": "--shadow-database-url"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "filepath",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Render a SQL script to stdout instead of the default human readable summary (not supported on MongoDB)",
+                  "name": "--script"
+                },
+                {
+                  "description": "Change the exit code behavior to signal if the diff is empty or not (Empty: 0, Error: 1, Not empty: 2). Default behavior is Success: 0, Error: 1.`",
+                  "name": "--exit-code"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage your database schema and lifecycle (Preview)",
+          "name": "db",
+          "subcommands": [
+            {
+              "name": "pull",
+              "options": [
+                {
+                  "description": "Display this help message",
+                  "name": [
+                    "-h",
+                    "--help"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "Schema path",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Custom path to your Prisma schema",
+                  "name": "--schema"
+                },
+                {
+                  "description": "Ignore current Prisma schema file",
+                  "isDangerous": true,
+                  "name": "--force"
+                },
+                {
+                  "description": "Print the introspected Prisma schema to stdout",
+                  "name": "--print"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "full url",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "The datasource url",
+                  "name": "--url"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "number"
+                    }
+                  ],
+                  "description": "Specify the depth for introspecting composite types (e.g. Embedded Documents in MongoDB). Number, default is -1 for infinite depth, 0 = off",
+                  "name": "--composite-type-depth"
+                }
+              ]
+            },
+            {
+              "description": "This command pushes the state of your Prisma schema file to the database without using migrations files",
+              "name": "push",
+              "options": [
+                {
+                  "description": "Display this help message",
+                  "name": [
+                    "-h",
+                    "--help"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "Schema path",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Custom path to your Prisma schema",
+                  "name": "--schema"
+                },
+                {
+                  "description": "Skip generation of artifacts such as Prisma Client",
+                  "name": "--skip-generate"
+                },
+                {
+                  "description": "Resets the database and then updates the schema - useful if you need to start from scratch due to unexecutable migrations",
+                  "isDangerous": true,
+                  "name": "--force-reset"
+                },
+                {
+                  "description": "Ignore data loss warnings. This option is required if as a result of making the schema changes, data may be lost",
+                  "isDangerous": true,
+                  "name": "--accept-data-loss"
+                }
+              ]
+            },
+            {
+              "description": "Seed your database",
+              "isDangerous": true,
+              "name": "seed",
+              "options": [
+                {
+                  "description": "Display this help message",
+                  "name": [
+                    "-h",
+                    "--help"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "Schema path",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Custom path to your Prisma schema",
+                  "name": "--schema"
+                }
+              ]
+            },
+            {
+              "description": "Execute native commands to your database",
+              "isDangerous": true,
+              "name": "execute",
+              "options": [
+                {
+                  "description": "Display this help message",
+                  "name": [
+                    "-h",
+                    "--help"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "Schema path",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Custom path to your Prisma schema",
+                  "name": "--schema"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "full url",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "The datasource url",
+                  "name": "--url"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "filepath",
+                      "template": "filepaths"
+                    }
+                  ],
+                  "description": "Path to a file. The content will be sent as the script to be executed",
+                  "name": "--file"
+                },
+                {
+                  "description": "Use the terminal standard input as the script to be executed",
+                  "name": "--stdin"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Print current version of Prisma components",
+          "name": [
+            "version",
+            "-v"
+          ],
+          "subcommands": [
+            {
+              "description": "Output JSON",
+              "name": "--json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Display all Blitz URL Routes",
+      "icon": "https://raw.githubusercontent.com/blitz-js/art/master/square-logo-600.png",
+      "name": [
+        "routes",
+        "r"
+      ],
+      "options": [
+        {
+          "description": "Show help for command",
+          "name": [
+            "--help",
+            "-h"
+          ],
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "description": "Start the production server",
+      "icon": "https://raw.githubusercontent.com/blitz-js/art/master/square-logo-600.png",
+      "name": [
+        "start",
+        "s"
+      ],
+      "options": [
+        {
+          "description": "Show help for command",
+          "name": [
+            "--help",
+            "-h"
+          ],
+          "priority": 1
+        },
+        {
+          "args": [
+            {
+              "name": "port"
+            }
+          ],
+          "description": "Set port number",
+          "name": [
+            "-p",
+            "--port"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "hostname"
+            }
+          ],
+          "description": "Set server hostname",
+          "name": [
+            "-H",
+            "--hostname"
+          ]
+        },
+        {
+          "description": "Enable the Node.js inspector",
+          "name": "--inspect"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Shell type",
+          "isOptional": true,
+          "name": "shell",
+          "suggestions": [
+            "zsh",
+            "bash"
+          ]
+        }
+      ],
+      "description": "Display autocomplete installation instructions",
+      "icon": "https://raw.githubusercontent.com/blitz-js/art/master/square-logo-600.png",
+      "name": "autocomplete",
+      "options": [
+        {
+          "description": "Refresh cache (ignores displaying instructions)",
+          "name": [
+            "-r",
+            "--refresh-cache"
+          ]
+        }
+      ]
+    }
+  ]
+}

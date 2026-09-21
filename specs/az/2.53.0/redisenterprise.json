@@ -1,0 +1,1795 @@
+{
+  "description": "Manage the redisenterprise cache",
+  "name": "redisenterprise",
+  "subcommands": [
+    {
+      "description": "Create an existing (overwrite/recreate, with potential downtime) cache cluster",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "cluster-name"
+            }
+          ],
+          "description": "The name of the RedisEnterprise cluster",
+          "isRequired": true,
+          "name": [
+            "--cluster-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "sku",
+              "suggestions": [
+                "EnterpriseFlash_F1500",
+                "EnterpriseFlash_F300",
+                "EnterpriseFlash_F700",
+                "Enterprise_E10",
+                "Enterprise_E100",
+                "Enterprise_E20",
+                "Enterprise_E200",
+                "Enterprise_E400",
+                "Enterprise_E5",
+                "Enterprise_E50"
+              ]
+            }
+          ],
+          "description": "The type of RedisEnterprise cluster to deploy. Possible values: (Enterprise_E10, EnterpriseFlash_F300 etc.)",
+          "isRequired": true,
+          "name": "--sku"
+        },
+        {
+          "args": [
+            {
+              "name": "user-assigned-identities"
+            }
+          ],
+          "description": "The set of user assigned identities associated with the resource. The userAssignedIdentities dictionary keys will be ARM resource ids in the form: '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}. The dictionary values can be empty objects ({}) in requests",
+          "name": [
+            "--user-assigned-identities",
+            "--assigned-identities"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "capacity"
+            }
+          ],
+          "description": "The size of the RedisEnterprise cluster. Defaults to 2 or 3 depending on SKU. Valid values are (2, 4, 6, ...) for Enterprise SKUs and (3, 9, 15, ...) for Flash SKUs",
+          "name": "--capacity"
+        },
+        {
+          "args": [
+            {
+              "name": "client-protocol",
+              "suggestions": [
+                "Encrypted",
+                "Plaintext"
+              ]
+            }
+          ],
+          "description": "Specifies whether redis clients can connect using TLS-encrypted or plaintext redis protocols. Default is TLS-encrypted",
+          "name": "--client-protocol"
+        },
+        {
+          "args": [
+            {
+              "name": "clustering-policy",
+              "suggestions": [
+                "EnterpriseCluster",
+                "OSSCluster"
+              ]
+            }
+          ],
+          "description": "Clustering policy - default is OSSCluster. Specified at create time",
+          "name": "--clustering-policy"
+        },
+        {
+          "args": [
+            {
+              "name": "eviction-policy",
+              "suggestions": [
+                "AllKeysLFU",
+                "AllKeysLRU",
+                "AllKeysRandom",
+                "NoEviction",
+                "VolatileLFU",
+                "VolatileLRU",
+                "VolatileRandom",
+                "VolatileTTL"
+              ]
+            }
+          ],
+          "description": "Redis eviction policy - default is VolatileLRU",
+          "name": "--eviction-policy"
+        },
+        {
+          "args": [
+            {
+              "name": "group-nickname"
+            }
+          ],
+          "description": "Name for the group of linked database resources",
+          "name": "--group-nickname"
+        },
+        {
+          "args": [
+            {
+              "name": "user-assigned-identity-resource-id"
+            }
+          ],
+          "description": "User assigned identity to use for accessing key encryption key Url. Ex: /subscriptions//resourceGroups//providers/Microsoft.ManagedIdentity/userAssignedIdentities/myId",
+          "name": [
+            "--user-assigned-identity-resource-id",
+            "--identity-resource-id"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "identity-type",
+              "suggestions": [
+                "None",
+                "SystemAssigned",
+                "SystemAssigned",
+                "UserAssigned",
+                "UserAssigned"
+              ]
+            }
+          ],
+          "description": "Type of managed service identity (where both SystemAssigned and UserAssigned types are allowed)",
+          "name": "--identity-type"
+        },
+        {
+          "args": [
+            {
+              "name": "key-encryption-identity-type",
+              "suggestions": [
+                "systemAssignedIdentity",
+                "userAssignedIdentity"
+              ]
+            }
+          ],
+          "description": "Only userAssignedIdentity is supported in this API version; other types may be supported in the future",
+          "name": [
+            "--key-encryption-identity-type",
+            "--key-identity-type"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "key-encryption-key-url"
+            }
+          ],
+          "description": "Key encryption key Url, versioned only.Ex: https://contosovault.vault.azure.net/keys/contosokek/562a4bb76b524a1493a6afe8e536ee78",
+          "name": "--key-encryption-key-url"
+        },
+        {
+          "args": [
+            {
+              "name": "linked-databases"
+            }
+          ],
+          "description": "List of database resources to link with this database",
+          "name": "--linked-databases"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "minimum-tls-version",
+              "suggestions": [
+                "1.0",
+                "1.1",
+                "1.2"
+              ]
+            }
+          ],
+          "description": "The minimum TLS version for the cluster to support, e.g. '1.2'",
+          "name": "--minimum-tls-version"
+        },
+        {
+          "args": [
+            {
+              "name": "modules"
+            }
+          ],
+          "description": "Optional set of redis modules to enable in this database - modules can only be added at creation time",
+          "name": [
+            "--modules",
+            "--module"
+          ]
+        },
+        {
+          "description": "Advanced. Do not automatically create a default database. Warning: the cache will not be usable until you create a database",
+          "name": "--no-database"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "persistence"
+            }
+          ],
+          "description": "Persistence settings",
+          "name": "--persistence"
+        },
+        {
+          "args": [
+            {
+              "name": "port"
+            }
+          ],
+          "description": "TCP port of the database endpoint. Specified at create time. Defaults to an available port",
+          "name": "--port"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "zones"
+            }
+          ],
+          "description": "The Availability Zones where this cluster will be deployed",
+          "name": [
+            "--zones",
+            "-z"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Delete a RedisEnterprise cache cluster",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "cluster-name"
+            }
+          ],
+          "description": "The name of the RedisEnterprise cluster",
+          "name": [
+            "--cluster-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "no-wait",
+              "suggestions": [
+                "0",
+                "1",
+                "f",
+                "false",
+                "n",
+                "no",
+                "t",
+                "true",
+                "y",
+                "yes"
+              ]
+            }
+          ],
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List all RedisEnterprise clusters in the specified subscription",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Get information about a RedisEnterprise cluster",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "cluster-name"
+            }
+          ],
+          "description": "The name of the RedisEnterprise cluster",
+          "name": [
+            "--cluster-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Update an existing (overwrite/recreate, with potential downtime) cache cluster",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "add"
+            }
+          ],
+          "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+          "name": "--add"
+        },
+        {
+          "args": [
+            {
+              "name": "user-assigned-identities"
+            }
+          ],
+          "description": "The set of user assigned identities associated with the resource. The userAssignedIdentities dictionary keys will be ARM resource ids in the form: '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}. The dictionary values can be empty objects ({}) in requests. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+          "name": [
+            "--user-assigned-identities",
+            "--assigned-identities"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "capacity"
+            }
+          ],
+          "description": "The size of the RedisEnterprise cluster. Defaults to 2 or 3 depending on SKU. Valid values are (2, 4, 6, ...) for Enterprise SKUs and (3, 9, 15, ...) for Flash SKUs",
+          "name": "--capacity"
+        },
+        {
+          "args": [
+            {
+              "name": "cluster-name"
+            }
+          ],
+          "description": "The name of the RedisEnterprise cluster",
+          "name": [
+            "--cluster-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "force-string",
+              "suggestions": [
+                "0",
+                "1",
+                "f",
+                "false",
+                "n",
+                "no",
+                "t",
+                "true",
+                "y",
+                "yes"
+              ]
+            }
+          ],
+          "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+          "name": "--force-string"
+        },
+        {
+          "args": [
+            {
+              "name": "user-assigned-identity-resource-id"
+            }
+          ],
+          "description": "User assigned identity to use for accessing key encryption key Url. Ex: /subscriptions//resourceGroups//providers/Microsoft.ManagedIdentity/userAssignedIdentities/myId",
+          "name": [
+            "--user-assigned-identity-resource-id",
+            "--identity-resource-id"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "identity-type",
+              "suggestions": [
+                "None",
+                "SystemAssigned",
+                "SystemAssigned",
+                "UserAssigned",
+                "UserAssigned"
+              ]
+            }
+          ],
+          "description": "Type of managed service identity (where both SystemAssigned and UserAssigned types are allowed)",
+          "name": "--identity-type"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "key-encryption-identity-type",
+              "suggestions": [
+                "systemAssignedIdentity",
+                "userAssignedIdentity"
+              ]
+            }
+          ],
+          "description": "Only userAssignedIdentity is supported in this API version; other types may be supported in the future",
+          "name": [
+            "--key-encryption-identity-type",
+            "--key-identity-type"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "key-encryption-key-url"
+            }
+          ],
+          "description": "Key encryption key Url, versioned only. Ex: https://contosovault.vault.azure.net/keys/contosokek/562a4bb76b524a1493a6afe8e536ee78",
+          "name": "--key-encryption-key-url"
+        },
+        {
+          "args": [
+            {
+              "name": "minimum-tls-version",
+              "suggestions": [
+                "1.0",
+                "1.1",
+                "1.2"
+              ]
+            }
+          ],
+          "description": "The minimum TLS version for the cluster to support, e.g. '1.2'",
+          "name": "--minimum-tls-version"
+        },
+        {
+          "args": [
+            {
+              "name": "no-wait",
+              "suggestions": [
+                "0",
+                "1",
+                "f",
+                "false",
+                "n",
+                "no",
+                "t",
+                "true",
+                "y",
+                "yes"
+              ]
+            }
+          ],
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "remove"
+            }
+          ],
+          "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+          "name": "--remove"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "set"
+            }
+          ],
+          "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+          "name": "--set"
+        },
+        {
+          "args": [
+            {
+              "name": "sku",
+              "suggestions": [
+                "EnterpriseFlash_F1500",
+                "EnterpriseFlash_F300",
+                "EnterpriseFlash_F700",
+                "Enterprise_E10",
+                "Enterprise_E100",
+                "Enterprise_E20",
+                "Enterprise_E200",
+                "Enterprise_E400",
+                "Enterprise_E5",
+                "Enterprise_E50"
+              ]
+            }
+          ],
+          "description": "The type of RedisEnterprise cluster to deploy. Possible values: (Enterprise_E10, EnterpriseFlash_F300 etc.)",
+          "name": "--sku"
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Resource tags. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "zones"
+            }
+          ],
+          "description": "The Availability Zones where this cluster will be deployed. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+          "name": "--zones"
+        }
+      ]
+    },
+    {
+      "description": "Place the CLI in a waiting state until a condition is met",
+      "name": "wait",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "cluster-name"
+            }
+          ],
+          "description": "The name of the RedisEnterprise cluster",
+          "name": [
+            "--cluster-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+          "name": "--created"
+        },
+        {
+          "args": [
+            {
+              "name": "custom"
+            }
+          ],
+          "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+          "name": "--custom"
+        },
+        {
+          "description": "Wait until deleted",
+          "name": "--deleted"
+        },
+        {
+          "description": "Wait until the resource exists",
+          "name": "--exists"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "interval"
+            }
+          ],
+          "description": "Polling interval in seconds",
+          "name": "--interval"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "args": [
+            {
+              "name": "timeout"
+            }
+          ],
+          "description": "Maximum wait in seconds",
+          "name": "--timeout"
+        },
+        {
+          "description": "Wait until updated with provisioningState at 'Succeeded'",
+          "name": "--updated"
+        }
+      ]
+    },
+    {
+      "description": "Manage Redis Enterprise databases",
+      "name": "database",
+      "subcommands": [
+        {
+          "description": "Create a database",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "The name of the RedisEnterprise cluster",
+              "isRequired": true,
+              "name": "--cluster-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "client-protocol",
+                  "suggestions": [
+                    "Encrypted",
+                    "Plaintext"
+                  ]
+                }
+              ],
+              "description": "Specifies whether redis clients can connect using TLS-encrypted or plaintext redis protocols. Default is TLS-encrypted",
+              "name": "--client-protocol"
+            },
+            {
+              "args": [
+                {
+                  "name": "clustering-policy",
+                  "suggestions": [
+                    "EnterpriseCluster",
+                    "OSSCluster"
+                  ]
+                }
+              ],
+              "description": "Clustering policy - default is OSSCluster. Specified at create time",
+              "name": "--clustering-policy"
+            },
+            {
+              "args": [
+                {
+                  "name": "eviction-policy",
+                  "suggestions": [
+                    "AllKeysLFU",
+                    "AllKeysLRU",
+                    "AllKeysRandom",
+                    "NoEviction",
+                    "VolatileLFU",
+                    "VolatileLRU",
+                    "VolatileRandom",
+                    "VolatileTTL"
+                  ]
+                }
+              ],
+              "description": "Redis eviction policy - default is VolatileLRU",
+              "name": "--eviction-policy"
+            },
+            {
+              "args": [
+                {
+                  "name": "group-nickname"
+                }
+              ],
+              "description": "Name for the group of linked database resources",
+              "name": "--group-nickname"
+            },
+            {
+              "args": [
+                {
+                  "name": "linked-databases"
+                }
+              ],
+              "description": "List of database resources to link with this database Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more. Singular flags: --linked-database --linked-databases",
+              "name": [
+                "--linked-databases",
+                "--linked-database",
+                "--linkeddatabase"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "modules"
+                }
+              ],
+              "description": "Optional set of redis modules to enable in this database - modules can only be added at creation time. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more. Singular flags: --module --modules",
+              "name": [
+                "--modules",
+                "--module",
+                "--mods"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "persistence"
+                }
+              ],
+              "description": "Persistence settings Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--persistence"
+            },
+            {
+              "args": [
+                {
+                  "name": "port"
+                }
+              ],
+              "description": "TCP port of the database endpoint. Specified at create time. Defaults to an available port",
+              "name": "--port"
+            }
+          ]
+        },
+        {
+          "description": "Delete a single database",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "The name of the RedisEnterprise cluster",
+              "name": "--cluster-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Exports a database file from target database",
+          "name": "export",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "sas-uri"
+                }
+              ],
+              "description": "SAS URI for the target directory to export to",
+              "isRequired": true,
+              "name": "--sas-uri"
+            },
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "The name of the RedisEnterprise cluster",
+              "name": "--cluster-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Flushes all the keys in this database and also from its linked databases",
+          "name": "flush",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "The name of the RedisEnterprise cluster",
+              "name": "--cluster-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "linked-ids"
+                }
+              ],
+              "description": "The resource identifiers of all the other database resources in the georeplication group to be flushed Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--linked-ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Forcibly removes the link to the specified database resource",
+          "name": "force-unlink",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "unlink-ids"
+                }
+              ],
+              "description": "The resource IDs of the database resources to be unlinked. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "isRequired": true,
+              "name": "--unlink-ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "The name of the RedisEnterprise cluster",
+              "name": "--cluster-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Imports database files to target database",
+          "name": "import",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "sas-uris"
+                }
+              ],
+              "description": "SAS URIs for the target blobs to import from Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "isRequired": true,
+              "name": "--sas-uris"
+            },
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "The name of the RedisEnterprise cluster",
+              "name": "--cluster-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "List all databases in the specified RedisEnterprise cluster",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "The name of the RedisEnterprise cluster",
+              "isRequired": true,
+              "name": "--cluster-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Retrieves the access keys for the RedisEnterprise database",
+          "name": "list-keys",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "The name of the RedisEnterprise cluster",
+              "name": "--cluster-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Regenerates the RedisEnterprise database's access keys",
+          "name": "regenerate-key",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "key-type",
+                  "suggestions": [
+                    "Primary",
+                    "Secondary"
+                  ]
+                }
+              ],
+              "description": "Which access key to regenerate",
+              "isRequired": true,
+              "name": "--key-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "The name of the RedisEnterprise cluster",
+              "name": "--cluster-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Get information about a database in a RedisEnterprise cluster",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "The name of the RedisEnterprise cluster",
+              "name": "--cluster-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update a database",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "client-protocol",
+                  "suggestions": [
+                    "Encrypted",
+                    "Plaintext"
+                  ]
+                }
+              ],
+              "description": "Specifies whether redis clients can connect using TLS-encrypted or plaintext redis protocols. Default is TLS-encrypted",
+              "name": "--client-protocol"
+            },
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "The name of the RedisEnterprise cluster",
+              "name": "--cluster-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "eviction-policy",
+                  "suggestions": [
+                    "AllKeysLFU",
+                    "AllKeysLRU",
+                    "AllKeysRandom",
+                    "NoEviction",
+                    "VolatileLFU",
+                    "VolatileLRU",
+                    "VolatileRandom",
+                    "VolatileTTL"
+                  ]
+                }
+              ],
+              "description": "Redis eviction policy - default is VolatileLRU",
+              "name": "--eviction-policy"
+            },
+            {
+              "args": [
+                {
+                  "name": "force-string",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "persistence"
+                }
+              ],
+              "description": "Persistence settings Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--persistence"
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a condition is met",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cluster-name"
+                }
+              ],
+              "description": "The name of the RedisEnterprise cluster",
+              "name": [
+                "--cluster-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Get the status of an operation",
+      "name": "operation-status",
+      "subcommands": [
+        {
+          "description": "Get the status of operation",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "operation-id"
+                }
+              ],
+              "description": "The ID of an ongoing async operation",
+              "name": [
+                "--operation-id",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

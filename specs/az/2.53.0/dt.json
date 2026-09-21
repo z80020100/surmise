@@ -1,0 +1,4232 @@
+{
+  "description": "Manage Azure Digital Twins solutions & infrastructure",
+  "name": "dt",
+  "subcommands": [
+    {
+      "description": "Create or update a Digital Twins instance",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "dt-name"
+            }
+          ],
+          "description": "Digital Twins instance name",
+          "isRequired": true,
+          "name": [
+            "--dt-name",
+            "--dtn",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "assign-identity",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Argument 'assign_identity' has been deprecated and will be removed in a future release. Use '--mi-system-assigned' instead. Assign a system generated identity to the Digital Twins instance",
+          "name": "--assign-identity"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Digital Twins instance location. If no location is provided the resource group location is used.You can configure the default location using az configure --defaults location=<name>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "mi-system-assigned",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Assign a system generated identity to this Digital Twins instance",
+          "name": "--mi-system-assigned"
+        },
+        {
+          "args": [
+            {
+              "name": "mi-user-assigned"
+            }
+          ],
+          "description": "Space-separated user identity resource ids to add to the Digital Twins instance",
+          "name": "--mi-user-assigned"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "public-network-access",
+              "suggestions": [
+                "Disabled",
+                "Enabled"
+              ]
+            }
+          ],
+          "description": "Determines if the Digital Twins instance can be accessed from a public network",
+          "name": [
+            "--public-network-access",
+            "--pna"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "role"
+            }
+          ],
+          "description": "Role name or Id the system assigned identity will have",
+          "name": "--role"
+        },
+        {
+          "args": [
+            {
+              "name": "scopes"
+            }
+          ],
+          "description": "Space-separated scopes the system assigned identity can access. Cannot be used with --no-wait",
+          "name": "--scopes"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Digital Twins instance tags. Property bag in key-value pairs with the following format: a=b c=d",
+          "name": "--tags"
+        }
+      ]
+    },
+    {
+      "description": "Delete an existing Digital Twins instance",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "dt-name"
+            }
+          ],
+          "description": "Digital Twins instance name",
+          "isRequired": true,
+          "name": [
+            "--dt-name",
+            "--dtn",
+            "-n"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List the collection of Digital Twins instances by subscription or resource group",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Reset an existing Digital Twins instance by deleting associated assets. Currently only supports deleting models and twins",
+      "name": "reset",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "dt-name"
+            }
+          ],
+          "description": "Digital Twins instance name",
+          "isRequired": true,
+          "name": [
+            "--dt-name",
+            "--dtn",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Show an existing Digital Twins instance",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "dt-name"
+            }
+          ],
+          "description": "Digital Twins instance name",
+          "isRequired": true,
+          "name": [
+            "--dt-name",
+            "--dtn",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Wait until an operation on an Digital Twins instance is complete",
+      "name": "wait",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "dt-name"
+            }
+          ],
+          "description": "Digital Twins instance name",
+          "isRequired": true,
+          "name": [
+            "--dt-name",
+            "--dtn",
+            "-n"
+          ]
+        },
+        {
+          "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+          "name": "--created"
+        },
+        {
+          "args": [
+            {
+              "name": "custom"
+            }
+          ],
+          "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+          "name": "--custom"
+        },
+        {
+          "description": "Wait until deleted",
+          "name": "--deleted"
+        },
+        {
+          "description": "Wait until the resource exists",
+          "name": "--exists"
+        },
+        {
+          "args": [
+            {
+              "name": "interval"
+            }
+          ],
+          "description": "Polling interval in seconds",
+          "name": "--interval"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "timeout"
+            }
+          ],
+          "description": "Maximum wait in seconds",
+          "name": "--timeout"
+        }
+      ]
+    },
+    {
+      "description": "Manage and configure data history",
+      "name": "data-history",
+      "subcommands": [
+        {
+          "description": "Manage and configure data history connections",
+          "name": "connection",
+          "subcommands": [
+            {
+              "description": "Delete a data history connection configured on a Digital Twins instance",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "conn-name"
+                    }
+                  ],
+                  "description": "Name of data history connection",
+                  "isRequired": true,
+                  "name": [
+                    "--conn-name",
+                    "--cn"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "description": "Specifies whether or not to attempt to clean up artifacts that were created in order to establish a connection to the time series database. This is a best-effort attempt that will fail if appropriate permissions are not in place. Setting this to 'true' does not delete any recorded data",
+                  "name": [
+                    "--clean",
+                    "-c"
+                  ]
+                },
+                {
+                  "description": "Do not wait for the long-running operation to finish",
+                  "name": "--no-wait"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List all data history connections configured on a Digital Twins instance",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Show details of a data history connection configured on a Digital Twins instance",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "conn-name"
+                    }
+                  ],
+                  "description": "Name of data history connection",
+                  "isRequired": true,
+                  "name": [
+                    "--conn-name",
+                    "--cn"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Wait until an operation on a data history connection is complete",
+              "name": "wait",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "conn-name"
+                    }
+                  ],
+                  "description": "Name of data history connection",
+                  "isRequired": true,
+                  "name": [
+                    "--conn-name",
+                    "--cn"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+                  "name": "--created"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "custom"
+                    }
+                  ],
+                  "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+                  "name": "--custom"
+                },
+                {
+                  "description": "Wait until deleted",
+                  "name": "--deleted"
+                },
+                {
+                  "description": "Wait until the resource exists",
+                  "name": "--exists"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "interval"
+                    }
+                  ],
+                  "description": "Polling interval in seconds",
+                  "name": "--interval"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "timeout"
+                    }
+                  ],
+                  "description": "Maximum wait in seconds",
+                  "name": "--timeout"
+                },
+                {
+                  "description": "Wait until updated with provisioningState at 'Succeeded'",
+                  "name": "--updated"
+                }
+              ]
+            },
+            {
+              "description": "Creates a data history connection between a Digital Twins instance and supported resources",
+              "name": "create",
+              "subcommands": [
+                {
+                  "description": "Creates a data history connection between a Digital Twins instance and an Azure Data Explorer database. Requires pre-created Azure Data Explorer and Event Hub resources",
+                  "name": "adx",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "adx-cluster-name"
+                        }
+                      ],
+                      "description": "Name of Azure Data Explorer cluster to integrate with",
+                      "isRequired": true,
+                      "name": [
+                        "--adx-cluster-name",
+                        "--adxc"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "adx-database-name"
+                        }
+                      ],
+                      "description": "Name of Azure Data Explorer database to integrate with",
+                      "isRequired": true,
+                      "name": [
+                        "--adx-database-name",
+                        "--adxd"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "conn-name"
+                        }
+                      ],
+                      "description": "Name of data history connection",
+                      "isRequired": true,
+                      "name": [
+                        "--conn-name",
+                        "--cn"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "dt-name"
+                        }
+                      ],
+                      "description": "Digital Twins instance name",
+                      "isRequired": true,
+                      "name": [
+                        "--dt-name",
+                        "--dtn",
+                        "-n"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "eventhub"
+                        }
+                      ],
+                      "description": "Name of EventHub to integrate with",
+                      "isRequired": true,
+                      "name": [
+                        "--eventhub",
+                        "--eh"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "eventhub-namespace"
+                        }
+                      ],
+                      "description": "EventHub Namespace identifier",
+                      "isRequired": true,
+                      "name": [
+                        "--eventhub-namespace",
+                        "--ehn"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "adx-property-events-table"
+                        }
+                      ],
+                      "description": "The name of the Azure Data Explorer table used for storing updates to properties of twins and relationships",
+                      "name": [
+                        "--adx-property-events-table",
+                        "--adxpet"
+                      ]
+                    },
+                    {
+                      "description": "Specifies whether or not to record twin / relationship property and item removals, including removals of indexed or keyed values (such as map entries, array elements, etc.). Setting this property to 'true' will generate an additional column in the property events table in ADX",
+                      "name": [
+                        "--adx-record-removals",
+                        "--adxrr"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "adx-relationship-events-table"
+                        }
+                      ],
+                      "description": "The name of the Azure Data Explorer table used for recording relationship lifecycle events. The table will not be created if this property is left unspecified",
+                      "name": [
+                        "--adx-relationship-events-table",
+                        "--adxret"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "adx-resource-group"
+                        }
+                      ],
+                      "description": "Name of Azure Data Explorer resource group. If not provided, will use the Digital Twin's resource group",
+                      "name": [
+                        "--adx-resource-group",
+                        "--adxg"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "adx-subscription"
+                        }
+                      ],
+                      "description": "Name or id of subscription where the Azure Data Explorer exists. If not provided, will use the subscription that contains the Digital Twin Instance",
+                      "name": [
+                        "--adx-subscription",
+                        "--adxs"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "adx-table-name"
+                        }
+                      ],
+                      "description": "Option '--adx-table-name' has been deprecated and will be removed in a future release. Use '--adx-property-events-table' instead. The name of the Azure Data Explorer table used for storing updates to properties of twins and relationships",
+                      "name": [
+                        "--adx-table-name",
+                        "--adxt"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "adx-twin-events-table"
+                        }
+                      ],
+                      "description": "The name of the Azure Data Explorer table used for recording twin lifecycle events. The table will not be created if this property is left unspecified",
+                      "name": [
+                        "--adx-twin-events-table",
+                        "--adxtet"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "eventhub-consumer-group"
+                        }
+                      ],
+                      "description": "The EventHub consumer group to use when ADX reads from EventHub",
+                      "name": [
+                        "--eventhub-consumer-group",
+                        "--ehc"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "eventhub-resource-group"
+                        }
+                      ],
+                      "description": "Name of EventHub resource group. If not provided, will use the Digital Twin's resource group",
+                      "name": [
+                        "--eventhub-resource-group",
+                        "--ehg"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "eventhub-subscription"
+                        }
+                      ],
+                      "description": "Name or id of subscription where the EventHub exists. If not provided, will use the subscription that contains the Digital Twin Instance",
+                      "name": [
+                        "--eventhub-subscription",
+                        "--ehs"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "mi-user-assigned"
+                        }
+                      ],
+                      "description": "Use an user-assigned managed identity for data history connection authentication. Accepts the identity resource id. If not provided, will use system identity instead",
+                      "name": [
+                        "--mi-user-assigned",
+                        "--user"
+                      ]
+                    },
+                    {
+                      "description": "Do not wait for the long-running operation to finish",
+                      "name": "--no-wait"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "resource-group"
+                        }
+                      ],
+                      "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                      "name": [
+                        "--resource-group",
+                        "-g"
+                      ]
+                    },
+                    {
+                      "description": "Do not prompt for confirmation when assigning required roles",
+                      "name": [
+                        "--yes",
+                        "-y"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage and configure Digital Twins instance endpoints",
+      "name": "endpoint",
+      "subcommands": [
+        {
+          "description": "Remove an endpoint from a Digital Twins instance",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "endpoint-name"
+                }
+              ],
+              "description": "Endpoint name",
+              "isRequired": true,
+              "name": [
+                "--endpoint-name",
+                "--en"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List all egress endpoints configured on a Digital Twins instance",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show details of an endpoint configured on a Digital Twins instance",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "endpoint-name"
+                }
+              ],
+              "description": "Endpoint name",
+              "isRequired": true,
+              "name": [
+                "--endpoint-name",
+                "--en"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Wait until an endpoint operation is done",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "endpoint-name"
+                }
+              ],
+              "description": "Endpoint name",
+              "isRequired": true,
+              "name": [
+                "--endpoint-name",
+                "--en"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            }
+          ]
+        },
+        {
+          "description": "Add egress endpoints to a Digital Twins instance",
+          "name": "create",
+          "subcommands": [
+            {
+              "description": "Adds an EventGrid Topic endpoint to a Digital Twins instance. Requires pre-created resource",
+              "name": "eventgrid",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "eventgrid-topic"
+                    }
+                  ],
+                  "description": "Name of EventGrid Topic to integrate with",
+                  "isRequired": true,
+                  "name": [
+                    "--eventgrid-topic",
+                    "--egt"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "endpoint-name"
+                    }
+                  ],
+                  "description": "Endpoint name",
+                  "isRequired": true,
+                  "name": [
+                    "--endpoint-name",
+                    "--en"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "deadletter-sas-uri"
+                    }
+                  ],
+                  "description": "Dead-letter storage container URL with SAS token for Key based authentication",
+                  "name": [
+                    "--deadletter-sas-uri",
+                    "--dsu"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "deadletter-uri"
+                    }
+                  ],
+                  "description": "Dead-letter storage container URL for Identity based authentication",
+                  "name": [
+                    "--deadletter-uri",
+                    "--du"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "eventgrid-resource-group"
+                    }
+                  ],
+                  "description": "Name of EventGrid Topic resource group. If not provided, the Digital Twin instance resource group will be used",
+                  "name": [
+                    "--eventgrid-resource-group",
+                    "--egg"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "eventgrid-subscription"
+                    }
+                  ],
+                  "description": "Name or id of subscription where the endpoint resource exists. If no subscription is provided the default subscription is used",
+                  "name": [
+                    "--eventgrid-subscription",
+                    "--egs"
+                  ]
+                },
+                {
+                  "description": "Do not wait for the long-running operation to finish",
+                  "name": "--no-wait"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Adds an EventHub endpoint to a Digital Twins instance",
+              "name": "eventhub",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "eventhub"
+                    }
+                  ],
+                  "description": "Name of EventHub to integrate with",
+                  "isRequired": true,
+                  "name": [
+                    "--eventhub",
+                    "--eh"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "eventhub-namespace"
+                    }
+                  ],
+                  "description": "EventHub Namespace identifier",
+                  "isRequired": true,
+                  "name": [
+                    "--eventhub-namespace",
+                    "--ehn"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "endpoint-name"
+                    }
+                  ],
+                  "description": "Endpoint name",
+                  "isRequired": true,
+                  "name": [
+                    "--endpoint-name",
+                    "--en"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "auth-type",
+                      "suggestions": [
+                        "IdentityBased",
+                        "KeyBased"
+                      ]
+                    }
+                  ],
+                  "description": "Argument 'auth_type' has been deprecated and will be removed in a future release. Use 'identity' instead. Endpoint authentication type",
+                  "name": "--auth-type"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "deadletter-sas-uri"
+                    }
+                  ],
+                  "description": "Dead-letter storage container URL with SAS token for Key based authentication",
+                  "name": [
+                    "--deadletter-sas-uri",
+                    "--dsu"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "deadletter-uri"
+                    }
+                  ],
+                  "description": "Dead-letter storage container URL for Identity based authentication",
+                  "name": [
+                    "--deadletter-uri",
+                    "--du"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "eventhub-resource-group"
+                    }
+                  ],
+                  "description": "Name of EventHub resource group. If not provided, the Digital Twin instance resource group will be used",
+                  "name": [
+                    "--eventhub-resource-group",
+                    "--ehg"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "eventhub-policy"
+                    }
+                  ],
+                  "description": "EventHub policy to use for endpoint configuration. Required when --auth-type is KeyBased",
+                  "name": [
+                    "--eventhub-policy",
+                    "--ehp"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "eventhub-subscription"
+                    }
+                  ],
+                  "description": "Name or id of subscription where the endpoint resource exists. If no subscription is provided the default subscription is used",
+                  "name": [
+                    "--eventhub-subscription",
+                    "--ehs"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "mi-system-assigned",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Use the system-assigned managed identity for endpoint authentication",
+                  "name": [
+                    "--mi-system-assigned",
+                    "--system"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "mi-user-assigned"
+                    }
+                  ],
+                  "description": "Use an user-assigned managed identity for endpoint authentication. Accepts the identity resource id",
+                  "name": [
+                    "--mi-user-assigned",
+                    "--user"
+                  ]
+                },
+                {
+                  "description": "Do not wait for the long-running operation to finish",
+                  "name": "--no-wait"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Adds a ServiceBus Topic endpoint to a Digital Twins instance",
+              "name": "servicebus",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "endpoint-name"
+                    }
+                  ],
+                  "description": "Endpoint name",
+                  "isRequired": true,
+                  "name": [
+                    "--endpoint-name",
+                    "--en"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "servicebus-namespace"
+                    }
+                  ],
+                  "description": "ServiceBus Namespace identifier",
+                  "isRequired": true,
+                  "name": [
+                    "--servicebus-namespace",
+                    "--sbn"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "servicebus-topic"
+                    }
+                  ],
+                  "description": "Name of ServiceBus Topic to integrate with",
+                  "isRequired": true,
+                  "name": [
+                    "--servicebus-topic",
+                    "--sbt"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "auth-type",
+                      "suggestions": [
+                        "IdentityBased",
+                        "KeyBased"
+                      ]
+                    }
+                  ],
+                  "description": "Argument 'auth_type' has been deprecated and will be removed in a future release. Use 'identity' instead. Endpoint authentication type",
+                  "name": "--auth-type"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "deadletter-sas-uri"
+                    }
+                  ],
+                  "description": "Dead-letter storage container URL with SAS token for Key based authentication",
+                  "name": [
+                    "--deadletter-sas-uri",
+                    "--dsu"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "deadletter-uri"
+                    }
+                  ],
+                  "description": "Dead-letter storage container URL for Identity based authentication",
+                  "name": [
+                    "--deadletter-uri",
+                    "--du"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "mi-system-assigned",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Use the system-assigned managed identity for endpoint authentication",
+                  "name": [
+                    "--mi-system-assigned",
+                    "--system"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "mi-user-assigned"
+                    }
+                  ],
+                  "description": "Use an user-assigned managed identity for endpoint authentication. Accepts the identity resource id",
+                  "name": [
+                    "--mi-user-assigned",
+                    "--user"
+                  ]
+                },
+                {
+                  "description": "Do not wait for the long-running operation to finish",
+                  "name": "--no-wait"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "servicebus-resource-group"
+                    }
+                  ],
+                  "description": "Name of ServiceBus resource group. If not provided, the Digital Twin instance resource group will be used",
+                  "name": [
+                    "--servicebus-resource-group",
+                    "--sbg"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "servicebus-policy"
+                    }
+                  ],
+                  "description": "ServiceBus Topic policy to use for endpoint configuration. Required when --auth-type is KeyBased",
+                  "name": [
+                    "--servicebus-policy",
+                    "--sbp"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "servicebus-subscription"
+                    }
+                  ],
+                  "description": "Name or id of subscription where the endpoint resource exists. If no subscription is provided the default subscription is used",
+                  "name": [
+                    "--servicebus-subscription",
+                    "--sbs"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage identites of a Digital Twins instance",
+      "name": "identity",
+      "subcommands": [
+        {
+          "description": "Assign managed identities to a Digital Twins instance",
+          "name": "assign",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "mi-system-assigned",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Assign a system-assigned managed identity to this Digital Twin instance",
+              "name": [
+                "--mi-system-assigned",
+                "--system"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "mi-user-assigned"
+                }
+              ],
+              "description": "Assign user-assigned managed identities to this Digital Twin instance. Accepts space-separated list of identity resource ids",
+              "name": [
+                "--mi-user-assigned",
+                "--user"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "role"
+                }
+              ],
+              "description": "Role to assign to the digital twin's system-assigned managed identity",
+              "name": "--role"
+            },
+            {
+              "args": [
+                {
+                  "name": "scopes"
+                }
+              ],
+              "description": "Space separated list of scopes to assign the role (--role) for the system-assigned managed identity",
+              "name": "--scopes"
+            }
+          ]
+        },
+        {
+          "description": "Remove managed identities from a Digital Twins instance",
+          "name": "remove",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "mi-system-assigned",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Remove the system-assigned managed identity to this Digital Twin instance",
+              "name": [
+                "--mi-system-assigned",
+                "--system"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "mi-user-assigned"
+                }
+              ],
+              "description": "Remove user-assigned managed identities to this Digital Twin instance. Accepts space-separated list of identity resource ids",
+              "name": [
+                "--mi-user-assigned",
+                "--user"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show the identity properties of a Digital Twins instance",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage and configure jobs for a digital twin instance",
+      "name": "job",
+      "subcommands": [
+        {
+          "description": "Manage and configure jobs for deleting model, twin and relationships data in a digital twin instance.\n\n\t\tA deletion job cannot be cancelled or deleted",
+          "name": "deletion",
+          "subcommands": [
+            {
+              "description": "Create and execute a deletion job on a digital twin instance",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "job-id"
+                    }
+                  ],
+                  "description": "Id of job. A system generated id is assigned when this parameter is ommitted during job creation",
+                  "name": [
+                    "--job-id",
+                    "-j"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List all deletion jobs executed on a digital twins instance",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Show details of a deletion job executed on a digital twins instance",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "job-id"
+                    }
+                  ],
+                  "description": "Id of job. A system generated id is assigned when this parameter is ommitted during job creation",
+                  "isRequired": true,
+                  "name": [
+                    "--job-id",
+                    "-j"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage and configure jobs for importing model, twin and relationships data to a digital twin instance",
+          "name": "import",
+          "subcommands": [
+            {
+              "description": "Cancel a data import job executed on a digital twins instance",
+              "name": "cancel",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "job-id"
+                    }
+                  ],
+                  "description": "Id of job. A system generated id is assigned when this parameter is ommitted during job creation",
+                  "isRequired": true,
+                  "name": [
+                    "--job-id",
+                    "-j"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Create and execute a data import job on a digital twin instance",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "data-file"
+                    }
+                  ],
+                  "description": "Name of data file input to the bulk import job. The file must be in 'ndjson' format. Sample input data file: https://github.com/Azure/azure-iot-cli-extension/tree/dev/docs/samples/adt-bulk-import-data-sample.ndjson",
+                  "isRequired": true,
+                  "name": [
+                    "--data-file",
+                    "--df"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "input-blob-container"
+                    }
+                  ],
+                  "description": "Name of Azure Storage blob container which contains the bulk import data file",
+                  "isRequired": true,
+                  "name": [
+                    "--input-blob-container",
+                    "--ibc"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "input-storage-account"
+                    }
+                  ],
+                  "description": "Name of Azure Storage account containing blob container which stores the bulk import data file",
+                  "isRequired": true,
+                  "name": [
+                    "--input-storage-account",
+                    "--isa"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "job-id"
+                    }
+                  ],
+                  "description": "Id of job. A system generated id is assigned when this parameter is ommitted during job creation",
+                  "name": [
+                    "--job-id",
+                    "-j"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "output-blob-container"
+                    }
+                  ],
+                  "description": "Name of Azure Storage blob container where the bulk import job's output file will be created. If not provided, will use the input blob container",
+                  "name": [
+                    "--output-blob-container",
+                    "--obc"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "output-file"
+                    }
+                  ],
+                  "description": "Name of the bulk import job's output file. This file will contain logs as well as error information. The file gets created automatically once the job finishes. The file gets overwritten if it already exists. If not provided the output file is created with the name: <job_id>_output.txt",
+                  "name": [
+                    "--output-file",
+                    "--of"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "output-storage-account"
+                    }
+                  ],
+                  "description": "Name of Azure Storage account containing blob container where bulk import job's output file will be created. If not provided, will use the input storage account",
+                  "name": [
+                    "--output-storage-account",
+                    "--osa"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Delete a data import job executed on a digital twins instance",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "job-id"
+                    }
+                  ],
+                  "description": "Id of job. A system generated id is assigned when this parameter is ommitted during job creation",
+                  "isRequired": true,
+                  "name": [
+                    "--job-id",
+                    "-j"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List all data import jobs executed on a digital twins instance",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Show details of a data import job executed on a digital twins instance",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "job-id"
+                    }
+                  ],
+                  "description": "Id of job. A system generated id is assigned when this parameter is ommitted during job creation",
+                  "isRequired": true,
+                  "name": [
+                    "--job-id",
+                    "-j"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage DTDL models and definitions on a Digital Twins instance",
+      "name": "model",
+      "subcommands": [
+        {
+          "description": "Uploads one or more models",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "failure-policy",
+                  "suggestions": [
+                    "None",
+                    "Rollback"
+                  ]
+                }
+              ],
+              "description": "Indicates the failure policy when an error occurs while processing a models batch. In the 'Rollback' mode all models created in previous batches are deleted one at a time. When selected as 'None' the models created in previous batches are not deleted from DT instance",
+              "name": [
+                "--failure-policy",
+                "--fp"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "from-directory"
+                }
+              ],
+              "description": "The directory JSON model files will be parsed from. Please Note: Models are created atomically when directory contains 250 or lesser models, hence in case of an error none of the models get created.Input model set is chunked & created in batches when directory has more than 250 models(API limit). In case of an error processing a batch, the behavior is determined by the --failure-policy parameter",
+              "name": [
+                "--from-directory",
+                "--fd"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "max-models-per-batch"
+                }
+              ],
+              "description": "The maximum model size per batch when creating more than 250 models.Reduce this number to prevent a DTDLParser error",
+              "name": [
+                "--max-models-per-batch",
+                "--mmpb"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "models"
+                }
+              ],
+              "description": "Inline model JSON or file path to model JSON. Please Note: Models are created atomically when model JSON contains 250 or lesser models, hence in case of an error none of the models get created.Input model set is chunked & created in batches when model JSON has more than 250 models(API limit). In case of an error processing a batch, the behavior is determined by the --failure-policy parameter",
+              "name": "--models"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete a model. A model can only be deleted if no other models reference it",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "model-id"
+                }
+              ],
+              "description": "Digital Twins model Id. Example: dtmi:com:example:Room;2",
+              "isRequired": true,
+              "name": [
+                "--model-id",
+                "--dtmi",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete all models within a Digital Twins instance",
+          "name": "delete-all",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List model metadata, definitions and dependencies",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "description": "The operation will retrieve the model definition",
+              "name": [
+                "--definition",
+                "--def"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "dependencies-for"
+                }
+              ],
+              "description": "The set of models which will have their dependencies retrieved. If omitted, all models are retrieved. Format is a whitespace separated list",
+              "name": "--dependencies-for"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Retrieve a target model or model definition",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "model-id"
+                }
+              ],
+              "description": "Digital Twins model Id. Example: dtmi:com:example:Room;2",
+              "isRequired": true,
+              "name": [
+                "--model-id",
+                "--dtmi",
+                "-m"
+              ]
+            },
+            {
+              "description": "The operation will retrieve the model definition",
+              "name": [
+                "--definition",
+                "--def"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Updates the metadata for a model. Currently a model can only be decommisioned",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "model-id"
+                }
+              ],
+              "description": "Digital Twins model Id. Example: dtmi:com:example:Room;2",
+              "isRequired": true,
+              "name": [
+                "--model-id",
+                "--dtmi",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "decommission",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Indicates intent to decommission a target model",
+              "name": "--decommission"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Digital Twins network configuration including private links and endpoint connections",
+      "name": "network",
+      "subcommands": [
+        {
+          "description": "Manage Digital Twins instance private-endpoints.\n\n\t\tUse 'az network private-endpoint create' to create a private-endpoint and link to a Digital Twins resource",
+          "name": "private-endpoint",
+          "subcommands": [
+            {
+              "description": "Manage Digital Twins instance private-endpoint connections",
+              "name": "connection",
+              "subcommands": [
+                {
+                  "description": "Delete a private-endpoint connection associated with the Digital Twins instance",
+                  "name": "delete",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "conn-name"
+                        }
+                      ],
+                      "description": "Private endpoint connection name",
+                      "isRequired": true,
+                      "name": [
+                        "--conn-name",
+                        "--cn"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "dt-name"
+                        }
+                      ],
+                      "description": "Digital Twins instance name",
+                      "isRequired": true,
+                      "name": [
+                        "--dt-name",
+                        "--dtn",
+                        "-n"
+                      ]
+                    },
+                    {
+                      "description": "Do not wait for the long-running operation to finish",
+                      "name": "--no-wait"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "resource-group"
+                        }
+                      ],
+                      "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                      "name": [
+                        "--resource-group",
+                        "-g"
+                      ]
+                    },
+                    {
+                      "description": "Do not prompt for confirmation",
+                      "name": [
+                        "--yes",
+                        "-y"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "description": "List private-endpoint connections associated with the Digital Twins instance",
+                  "name": "list",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "dt-name"
+                        }
+                      ],
+                      "description": "Digital Twins instance name",
+                      "isRequired": true,
+                      "name": [
+                        "--dt-name",
+                        "--dtn",
+                        "-n"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "resource-group"
+                        }
+                      ],
+                      "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                      "name": [
+                        "--resource-group",
+                        "-g"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "description": "Set the state of a private-endpoint connection associated with the Digital Twins instance",
+                  "name": "set",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "conn-name"
+                        }
+                      ],
+                      "description": "Private endpoint connection name",
+                      "isRequired": true,
+                      "name": [
+                        "--conn-name",
+                        "--cn"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "dt-name"
+                        }
+                      ],
+                      "description": "Digital Twins instance name",
+                      "isRequired": true,
+                      "name": [
+                        "--dt-name",
+                        "--dtn",
+                        "-n"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "status",
+                          "suggestions": [
+                            "Approved",
+                            "Disconnected",
+                            "Pending",
+                            "Rejected"
+                          ]
+                        }
+                      ],
+                      "description": "The status of a private endpoint connection",
+                      "isRequired": true,
+                      "name": "--status"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "actions-required"
+                        }
+                      ],
+                      "description": "A message indicating if changes on the service provider require any updates on the consumer",
+                      "name": [
+                        "--actions-required",
+                        "--ar"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "description"
+                        }
+                      ],
+                      "description": "Description for the private endpoint connection",
+                      "name": [
+                        "--description",
+                        "--desc"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "group-ids"
+                        }
+                      ],
+                      "description": "Space separated list of group ids that the private endpoint should connect to",
+                      "name": "--group-ids"
+                    },
+                    {
+                      "description": "Do not wait for the long-running operation to finish",
+                      "name": "--no-wait"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "resource-group"
+                        }
+                      ],
+                      "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                      "name": [
+                        "--resource-group",
+                        "-g"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "description": "Show a private-endpoint connection associated with the Digital Twins instance",
+                  "name": "show",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "conn-name"
+                        }
+                      ],
+                      "description": "Private endpoint connection name",
+                      "isRequired": true,
+                      "name": [
+                        "--conn-name",
+                        "--cn"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "dt-name"
+                        }
+                      ],
+                      "description": "Digital Twins instance name",
+                      "isRequired": true,
+                      "name": [
+                        "--dt-name",
+                        "--dtn",
+                        "-n"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "resource-group"
+                        }
+                      ],
+                      "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                      "name": [
+                        "--resource-group",
+                        "-g"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "description": "Wait until an operation on a private-endpoint connection is complete",
+                  "name": "wait",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "conn-name"
+                        }
+                      ],
+                      "description": "Private endpoint connection name",
+                      "isRequired": true,
+                      "name": [
+                        "--conn-name",
+                        "--cn"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "dt-name"
+                        }
+                      ],
+                      "description": "Digital Twins instance name",
+                      "isRequired": true,
+                      "name": [
+                        "--dt-name",
+                        "--dtn",
+                        "-n"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "custom"
+                        }
+                      ],
+                      "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+                      "name": "--custom"
+                    },
+                    {
+                      "description": "Wait until deleted",
+                      "name": "--deleted"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "interval"
+                        }
+                      ],
+                      "description": "Polling interval in seconds",
+                      "name": "--interval"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "resource-group"
+                        }
+                      ],
+                      "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                      "name": [
+                        "--resource-group",
+                        "-g"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "timeout"
+                        }
+                      ],
+                      "description": "Maximum wait in seconds",
+                      "name": "--timeout"
+                    },
+                    {
+                      "description": "Wait until updated with provisioningState at 'Succeeded'",
+                      "name": "--updated"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage Digital Twins instance private-link operations",
+          "name": "private-link",
+          "subcommands": [
+            {
+              "description": "List private-links associated with the Digital Twins instance",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Show a private-link associated with the instance",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "link-name"
+                    }
+                  ],
+                  "description": "Private link name",
+                  "isRequired": true,
+                  "name": [
+                    "--link-name",
+                    "--ln"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage RBAC role assignments for a Digital Twins instance.\n\n\t\tNote that in order to perform role assignments, the logged in principal needs permissions\nsuch as Owner or User Access Administrator at the assigned scope.\nThis command group is provided for convenience. For more complex role assignment scenarios\nuse the 'az role assignment' command group",
+      "name": "role-assignment",
+      "subcommands": [
+        {
+          "description": "Assign a user, group or service principal to a role against a Digital Twins instance",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "assignee"
+                }
+              ],
+              "description": "Represent a user, group, or service principal. supported format: object id, user sign-in name, or service principal name",
+              "isRequired": true,
+              "name": "--assignee"
+            },
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "role"
+                }
+              ],
+              "description": "Role name or Id",
+              "isRequired": true,
+              "name": "--role"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Remove a user, group or service principal role assignment from a Digital Twins instance",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "assignee"
+                }
+              ],
+              "description": "Represent a user, group, or service principal. supported format: object id, user sign-in name, or service principal name",
+              "name": "--assignee"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "role"
+                }
+              ],
+              "description": "Role name or Id",
+              "name": "--role"
+            }
+          ]
+        },
+        {
+          "description": "List the existing role assignments of a Digital Twins instance",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "description": "Include assignments applied on parent scopes",
+              "name": "--include-inherited"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "role"
+                }
+              ],
+              "description": "Role name or Id",
+              "name": "--role"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage and configure event routes.\n\n\t\tNote that an endpoint must first be configured before adding an event route",
+      "name": "route",
+      "subcommands": [
+        {
+          "description": "Add an event route to a Digital Twins instance",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "endpoint-name"
+                }
+              ],
+              "description": "Endpoint name",
+              "isRequired": true,
+              "name": [
+                "--endpoint-name",
+                "--en"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "route-name"
+                }
+              ],
+              "description": "Event route name",
+              "isRequired": true,
+              "name": [
+                "--route-name",
+                "--rn"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "Event route filter",
+              "name": "--filter"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Remove an event route from a Digital Twins instance",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "route-name"
+                }
+              ],
+              "description": "Event route name",
+              "isRequired": true,
+              "name": [
+                "--route-name",
+                "--rn"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List the configured event routes of a Digital Twins instance",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show details of an event route configured on a Digital Twins instance",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "route-name"
+                }
+              ],
+              "description": "Event route name",
+              "isRequired": true,
+              "name": [
+                "--route-name",
+                "--rn"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage and configure the digital twins of a Digital Twins instance",
+      "name": "twin",
+      "subcommands": [
+        {
+          "description": "Create a digital twin on an instance",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "model-id"
+                }
+              ],
+              "description": "Digital Twins model Id. Example: dtmi:com:example:Room;2",
+              "isRequired": true,
+              "name": [
+                "--model-id",
+                "--dtmi",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "twin-id"
+                }
+              ],
+              "description": "The digital twin Id",
+              "isRequired": true,
+              "name": [
+                "--twin-id",
+                "-t"
+              ]
+            },
+            {
+              "description": "Indicates the create operation should fail if an existing twin with the same id exists",
+              "name": "--if-none-match"
+            },
+            {
+              "args": [
+                {
+                  "name": "properties"
+                }
+              ],
+              "description": "Initial property values for instantiating a digital twin or related components. Provide file path or inline JSON. Properties are required for twins that contain components, at the minimum you must provide an empty $metadata object for each component",
+              "name": [
+                "--properties",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Remove a digital twin. All relationships referencing this twin must already be deleted",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "twin-id"
+                }
+              ],
+              "description": "The digital twin Id",
+              "isRequired": true,
+              "name": [
+                "--twin-id",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "etag"
+                }
+              ],
+              "description": "Entity tag value. The command will succeed if the etag matches the current etag for the resource",
+              "name": [
+                "--etag",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Deletes all digital twins within a Digital Twins instance, including all relationships for those twins",
+          "name": "delete-all",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Query the digital twins of an instance. Allows traversing relationships and filtering by property values",
+          "name": "query",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "query-command"
+                }
+              ],
+              "description": "User query to be executed",
+              "isRequired": true,
+              "name": [
+                "--query-command",
+                "-q"
+              ]
+            },
+            {
+              "description": "Calculates and shows the query charge",
+              "name": [
+                "--show-cost",
+                "--cost"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show the details of a digital twin",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "twin-id"
+                }
+              ],
+              "description": "The digital twin Id",
+              "isRequired": true,
+              "name": [
+                "--twin-id",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update an instance digital twin via JSON patch specification",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dt-name"
+                }
+              ],
+              "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+              "isRequired": true,
+              "name": [
+                "--dt-name",
+                "--dtn",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "json-patch"
+                }
+              ],
+              "description": "An update specification described by JSON-patch. Updates to property values and $model elements may happen in the same request. Operations are limited to add, replace and remove. Provide file path or inline JSON",
+              "isRequired": true,
+              "name": [
+                "--json-patch",
+                "--patch"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "twin-id"
+                }
+              ],
+              "description": "The digital twin Id",
+              "isRequired": true,
+              "name": [
+                "--twin-id",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "etag"
+                }
+              ],
+              "description": "Entity tag value. The command will succeed if the etag matches the current etag for the resource",
+              "name": [
+                "--etag",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show and update the digital twin components of a Digital Twins instance",
+          "name": "component",
+          "subcommands": [
+            {
+              "description": "Show details of a digital twin component",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "component"
+                    }
+                  ],
+                  "description": "The path to the DTDL component",
+                  "isRequired": true,
+                  "name": "--component"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "twin-id"
+                    }
+                  ],
+                  "description": "The digital twin Id",
+                  "isRequired": true,
+                  "name": [
+                    "--twin-id",
+                    "-t"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Update a digital twin component via JSON patch specification",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "component"
+                    }
+                  ],
+                  "description": "The path to the DTDL component",
+                  "isRequired": true,
+                  "name": "--component"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "json-patch"
+                    }
+                  ],
+                  "description": "An update specification described by JSON-patch. Updates to property values and $model elements may happen in the same request. Operations are limited to add, replace and remove. Provide file path or inline JSON",
+                  "isRequired": true,
+                  "name": [
+                    "--json-patch",
+                    "--patch"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "twin-id"
+                    }
+                  ],
+                  "description": "The digital twin Id",
+                  "isRequired": true,
+                  "name": [
+                    "--twin-id",
+                    "-t"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "etag"
+                    }
+                  ],
+                  "description": "Entity tag value. The command will succeed if the etag matches the current etag for the resource",
+                  "name": [
+                    "--etag",
+                    "-e"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage and configure the digital twin relationships of a Digital Twins instance",
+          "name": "relationship",
+          "subcommands": [
+            {
+              "description": "Create a relationship between source and target digital twins",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "relationship"
+                    }
+                  ],
+                  "description": "Relationship name or kind. For example: 'contains'",
+                  "isRequired": true,
+                  "name": [
+                    "--relationship",
+                    "--kind"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "relationship-id"
+                    }
+                  ],
+                  "description": "Relationship Id",
+                  "isRequired": true,
+                  "name": [
+                    "--relationship-id",
+                    "-r"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "twin-id"
+                    }
+                  ],
+                  "description": "The source twin Id for a relationship",
+                  "isRequired": true,
+                  "name": [
+                    "--twin-id",
+                    "--source",
+                    "-t"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "target-twin-id"
+                    }
+                  ],
+                  "description": "The target twin Id for a relationship",
+                  "isRequired": true,
+                  "name": [
+                    "--target-twin-id",
+                    "--target"
+                  ]
+                },
+                {
+                  "description": "Indicates the create operation should fail if an existing twin with the same id exists",
+                  "name": "--if-none-match"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "properties"
+                    }
+                  ],
+                  "description": "Initial property values for instantiating a digital twin relationship. Provide file path or inline JSON",
+                  "name": [
+                    "--properties",
+                    "-p"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Delete a digital twin relationship on a Digital Twins instance",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "relationship-id"
+                    }
+                  ],
+                  "description": "Relationship Id",
+                  "isRequired": true,
+                  "name": [
+                    "--relationship-id",
+                    "-r"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "twin-id"
+                    }
+                  ],
+                  "description": "The source twin Id for a relationship",
+                  "isRequired": true,
+                  "name": [
+                    "--twin-id",
+                    "--source",
+                    "-t"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "etag"
+                    }
+                  ],
+                  "description": "Entity tag value. The command will succeed if the etag matches the current etag for the resource",
+                  "name": [
+                    "--etag",
+                    "-e"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Deletes all digital twin relationships within a Digital Twins instance, including incoming relationships",
+              "name": "delete-all",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "twin-id"
+                    }
+                  ],
+                  "description": "The source twin Id for a relationship",
+                  "name": [
+                    "--twin-id",
+                    "--source",
+                    "-t"
+                  ]
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List the relationships of a digital twin",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "twin-id"
+                    }
+                  ],
+                  "description": "The source twin Id for a relationship",
+                  "isRequired": true,
+                  "name": [
+                    "--twin-id",
+                    "--source",
+                    "-t"
+                  ]
+                },
+                {
+                  "description": "Retrieves all incoming relationships for a digital twin",
+                  "name": "--incoming"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "relationship"
+                    }
+                  ],
+                  "description": "Filter result by the kind of relationship",
+                  "name": [
+                    "--relationship",
+                    "--kind"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Show details of a digital twin relationship",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "relationship-id"
+                    }
+                  ],
+                  "description": "Relationship Id",
+                  "isRequired": true,
+                  "name": [
+                    "--relationship-id",
+                    "-r"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "twin-id"
+                    }
+                  ],
+                  "description": "The source twin Id for a relationship",
+                  "isRequired": true,
+                  "name": [
+                    "--twin-id",
+                    "--source",
+                    "-t"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Updates the properties of a relationship between two digital twins via JSON patch specification",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "json-patch"
+                    }
+                  ],
+                  "description": "An update specification described by JSON-patch. Updates to property values and $model elements may happen in the same request. Operations are limited to add, replace and remove. Provide file path or inline JSON",
+                  "isRequired": true,
+                  "name": [
+                    "--json-patch",
+                    "--patch"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "relationship-id"
+                    }
+                  ],
+                  "description": "Relationship Id",
+                  "isRequired": true,
+                  "name": [
+                    "--relationship-id",
+                    "-r"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "twin-id"
+                    }
+                  ],
+                  "description": "The source twin Id for a relationship",
+                  "isRequired": true,
+                  "name": [
+                    "--twin-id",
+                    "--source",
+                    "-t"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "etag"
+                    }
+                  ],
+                  "description": "Entity tag value. The command will succeed if the etag matches the current etag for the resource",
+                  "name": [
+                    "--etag",
+                    "-e"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Test and validate the event routes and endpoints of a Digital Twins instance",
+          "name": "telemetry",
+          "subcommands": [
+            {
+              "description": "Sends telemetry on behalf of a digital twin. If component path is provided the emitted telemetry is on behalf of the component",
+              "name": "send",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "dt-name"
+                    }
+                  ],
+                  "description": "Digital Twins instance name or hostname. If an instance name is provided, the user subscription is first queried for the target instance to retrieve the hostname. If a hostname is provided, the subscription query is skipped and the provided value is used for subsequent interaction",
+                  "isRequired": true,
+                  "name": [
+                    "--dt-name",
+                    "--dtn",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "twin-id"
+                    }
+                  ],
+                  "description": "The digital twin Id",
+                  "isRequired": true,
+                  "name": [
+                    "--twin-id",
+                    "-t"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "component"
+                    }
+                  ],
+                  "description": "The path to the DTDL component. If set, telemetry will be emitted on behalf of the component",
+                  "name": "--component"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "dt-id"
+                    }
+                  ],
+                  "description": "A unique message identifier (in the scope of the digital twin id) that is commonly used for de-duplicating messages. If no value is provided a GUID is automatically generated",
+                  "name": "--dt-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Digital Twins instance resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "telemetry"
+                    }
+                  ],
+                  "description": "Inline telemetry JSON or file path to telemetry JSON. Default payload is an empty object: {}",
+                  "name": "--telemetry"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "telemetry-source-time"
+                    }
+                  ],
+                  "description": "An RFC 3339 timestamp that identifies the time the telemetry was measured",
+                  "name": [
+                    "--telemetry-source-time",
+                    "--tst"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

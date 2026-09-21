@@ -1,0 +1,953 @@
+{
+  "args": [
+    {
+      "dyn": true,
+      "generators": [
+        {}
+      ],
+      "isScript": true,
+      "isVariadic": true,
+      "name": "robot script"
+    }
+  ],
+  "description": "CLI for running Robot Framework automation tests",
+  "name": "robot",
+  "options": [
+    {
+      "description": "Print usage instructions",
+      "name": [
+        "-h",
+        "-?",
+        "--help"
+      ]
+    },
+    {
+      "description": "Turn on the generic automation mode. Mainly affects terminology so that \"test\" is replaced with \"task\" in logs and reports",
+      "name": "--rpa"
+    },
+    {
+      "args": [
+        {
+          "description": "File extensions divided by colon",
+          "name": "extension",
+          "suggestions": [
+            "txt",
+            "robot:txt"
+          ]
+        }
+      ],
+      "description": "Parse only files with this extension when executing a directory",
+      "name": [
+        "-F",
+        "--extension"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "name"
+        }
+      ],
+      "description": "Set a name of the top level suite",
+      "name": [
+        "-N",
+        "--name"
+      ]
+    },
+    {
+      "description": "Set a documentation of the top level suite",
+      "insertValue": "-D '{cursor}'",
+      "name": [
+        "-D",
+        "--doc"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "name:value"
+        }
+      ],
+      "description": "Set metadata of the top level suite",
+      "insertValue": "-M {cursor}:",
+      "name": [
+        "-M",
+        "--metadata"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "tag"
+        }
+      ],
+      "description": "Sets given tag to all executed tests",
+      "name": [
+        "-G",
+        "--settag"
+      ]
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "bash",
+                "-c",
+                "for i in $(find -E . -regex \".*.robot\" -type f); do cat -s $i ; done"
+              ]
+            }
+          ],
+          "name": "name"
+        }
+      ],
+      "description": "Select tests by name or by long name containing also parent suite name like `Parent.Test`",
+      "name": [
+        "-t",
+        "--test"
+      ]
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "bash",
+                "-c",
+                "for i in $(find -E . -regex \".*.robot\" -type f); do cat -s $i ; done"
+              ]
+            }
+          ],
+          "name": "name"
+        }
+      ],
+      "description": "Alias to --test. Especially applicable with --rpa",
+      "name": "--task"
+    },
+    {
+      "args": [
+        {
+          "name": "name"
+        }
+      ],
+      "description": "Select suites by name",
+      "name": [
+        "-s",
+        "--suite"
+      ]
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "bash",
+                "-c",
+                "for i in $(find -E . -regex \".*.robot\" -type f); do cat -s $i ; done"
+              ]
+            }
+          ],
+          "name": "tag"
+        }
+      ],
+      "description": "Select test cases by tag",
+      "name": [
+        "-i",
+        "--include"
+      ]
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "bash",
+                "-c",
+                "for i in $(find -E . -regex \".*.robot\" -type f); do cat -s $i ; done"
+              ]
+            }
+          ],
+          "name": "tag"
+        }
+      ],
+      "description": "Select test cases not to run by tag",
+      "name": [
+        "-e",
+        "--exclude"
+      ]
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "name": "output file"
+        }
+      ],
+      "description": "Select failed tests from an earlier output file to be re-executed",
+      "name": [
+        "-R",
+        "--rerunfailed"
+      ]
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "name": "output file"
+        }
+      ],
+      "description": "Select failed suites from an earlier output file to be re-executed",
+      "name": [
+        "-S",
+        "--rerunfailedsuites"
+      ]
+    },
+    {
+      "description": "Executes suite even if it contains no tests",
+      "name": "--runemptysuite"
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "bash",
+                "-c",
+                "for i in $(find -E . -regex \".*.robot\" -type f); do cat -s $i ; done"
+              ]
+            }
+          ],
+          "name": "tag"
+        }
+      ],
+      "description": "Tests having given tag will be skipped",
+      "name": "--skip"
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "bash",
+                "-c",
+                "for i in $(find -E . -regex \".*.robot\" -type f); do cat -s $i ; done"
+              ]
+            }
+          ],
+          "name": "tag"
+        }
+      ],
+      "description": "Tests having given tag will be skipped if they fail",
+      "name": "--skiponfailure"
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "trigger": ":"
+            }
+          ],
+          "name": "variable"
+        }
+      ],
+      "description": "Set variables in the test data",
+      "name": [
+        "-v",
+        "--variable"
+      ]
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "name": "file"
+        }
+      ],
+      "description": "Python or YAML file file to read variables from",
+      "name": [
+        "-V",
+        "--variablefile"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "directory",
+          "template": "folders"
+        }
+      ],
+      "description": "Where to create output files. The default is the directory where tests are run from",
+      "name": [
+        "-d",
+        "--outputdir"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "file",
+          "suggestions": [
+            "output.xml"
+          ]
+        }
+      ],
+      "description": "XML output file relative to --outputdir unless given as an absolute path. Default: output.xml",
+      "name": [
+        "-o",
+        "--output"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "file",
+          "suggestions": [
+            "log.html",
+            "NONE"
+          ]
+        }
+      ],
+      "description": "HTML log file. Can be disabled by giving a special value `NONE`. Default: log.html",
+      "name": [
+        "-l",
+        "--log"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "file",
+          "suggestions": [
+            "report.html",
+            "NONE"
+          ]
+        }
+      ],
+      "description": "HTML report file. Can be disabled with `NONE` similarly as --log. Default: report.html",
+      "name": [
+        "-r",
+        "--report"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "file",
+          "suggestions": [
+            "xunit.xml"
+          ]
+        }
+      ],
+      "description": "XUnit compatible result file. Not created unless this option is specified",
+      "name": [
+        "-x",
+        "--xunit"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "file"
+        }
+      ],
+      "description": "Debug file written during execution. Not created unless this option is specified",
+      "name": [
+        "-b",
+        "--debugfile"
+      ]
+    },
+    {
+      "description": "Adds timestamp in a format `YYYYMMDD-hhmmss` to all generated output files between their basename and extension",
+      "name": [
+        "-T",
+        "--timestampoutputs"
+      ]
+    },
+    {
+      "description": "Split the log file into smaller pieces that open in browsers transparently",
+      "name": "--splitlog"
+    },
+    {
+      "args": [
+        {
+          "name": "title"
+        }
+      ],
+      "description": "Title for the generated log file. The default title is `<SuiteName> Log.`",
+      "name": "--logtitle"
+    },
+    {
+      "args": [
+        {
+          "name": "title"
+        }
+      ],
+      "description": "Title for the generated report file. The default title is `<SuiteName> Report`",
+      "name": "--reporttitle"
+    },
+    {
+      "args": [
+        {
+          "name": "colors"
+        }
+      ],
+      "description": "Background colors to use in the report file. Given in format `passed:failed:skipped` where the `:skipped` part can be omitted",
+      "name": "--reportbackground"
+    },
+    {
+      "args": [
+        {
+          "name": "lines",
+          "suggestions": [
+            {
+              "description": "Default number of lines",
+              "displayName": "40 (default)",
+              "name": "40",
+              "priority": 76
+            },
+            {
+              "description": "Minimum number of lines",
+              "displayName": "10 (minimum)",
+              "name": "10"
+            },
+            {
+              "description": "Unlimited number of lines. Shows the full message",
+              "name": "NONE"
+            }
+          ]
+        }
+      ],
+      "description": "Maximum number of error message lines to show in report when tests fail. Default is 40, minimum is 10 and `NONE` can be used to show the full message",
+      "name": "--maxerrorlines"
+    },
+    {
+      "args": [
+        {
+          "name": "characters",
+          "suggestions": [
+            {
+              "description": "Default number of characters",
+              "displayName": "200 (default)",
+              "name": "200",
+              "priority": 76
+            },
+            {
+              "description": "No values at all",
+              "name": "0"
+            }
+          ]
+        }
+      ],
+      "description": "Maximum number of characters to show in log when variables are assigned. Zero or negative values can be used to avoid showing assigned values at all. Default is 200",
+      "name": "--maxassignlength"
+    },
+    {
+      "args": [
+        {
+          "name": "level",
+          "suggestions": [
+            {
+              "name": "TRACE",
+              "type": "option"
+            },
+            {
+              "name": "DEBUG",
+              "type": "option"
+            },
+            {
+              "displayName": "INFO (default)",
+              "name": "INFO",
+              "priority": 76,
+              "type": "option"
+            },
+            {
+              "name": "WARN",
+              "type": "option"
+            },
+            {
+              "displayName": "NONE (no logging)",
+              "name": "NONE",
+              "type": "option"
+            }
+          ]
+        }
+      ],
+      "description": "Threshold level for logging",
+      "name": [
+        "-L",
+        "--loglevel"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "level"
+        }
+      ],
+      "description": "How many levels to show in `Statistics by Suite` in log and report",
+      "name": "--suitestatlevel"
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "bash",
+                "-c",
+                "for i in $(find -E . -regex \".*.robot\" -type f); do cat -s $i ; done"
+              ]
+            }
+          ],
+          "name": "tag"
+        }
+      ],
+      "description": "Include only matching tags in `Statistics by Tag` in log and report",
+      "name": "--tagstatinclude"
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "bash",
+                "-c",
+                "for i in $(find -E . -regex \".*.robot\" -type f); do cat -s $i ; done"
+              ]
+            }
+          ],
+          "name": "tag"
+        }
+      ],
+      "description": "Exclude matching tags from `Statistics by Tag`",
+      "name": "--tagstatexclude"
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "bash",
+                "-c",
+                "for i in $(find -E . -regex \".*.robot\" -type f); do cat -s $i ; done"
+              ]
+            }
+          ],
+          "name": "tags:name"
+        }
+      ],
+      "description": "Create combined statistics based on tags. These statistics are added into `Statistics by Tag`",
+      "name": "--tagstatcombine"
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "bash",
+                "-c",
+                "for i in $(find -E . -regex \".*.robot\" -type f); do cat -s $i ; done"
+              ]
+            }
+          ],
+          "name": "pattern:doc"
+        }
+      ],
+      "description": "Add documentation to tags matching the given pattern",
+      "name": "--tagdoc"
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "bash",
+                "-c",
+                "for i in $(find -E . -regex \".*.robot\" -type f); do cat -s $i ; done"
+              ]
+            }
+          ],
+          "name": "pattern:link:title"
+        }
+      ],
+      "description": "Add external links into `Statistics by Tag`. Pattern can use `*`, `?` and `[]` as wildcards",
+      "name": "--tagstatlink"
+    },
+    {
+      "args": [
+        {
+          "name": "pattern",
+          "suggestions": [
+            {
+              "insertValue": "name:{cursor}",
+              "name": "name:<pattern>",
+              "type": "option"
+            },
+            {
+              "insertValue": "tag:{cursor}",
+              "name": "tag:<pattern>",
+              "type": "option"
+            }
+          ]
+        }
+      ],
+      "description": "Matching keywords will be automatically expanded in the log file",
+      "name": "--expandkeywords"
+    },
+    {
+      "args": [
+        {
+          "name": "pattern",
+          "suggestions": [
+            {
+              "description": "Remove data from all keywords",
+              "name": "all",
+              "type": "option"
+            },
+            {
+              "description": "Remove data only from keywords in passed test cases and suites",
+              "name": "passed",
+              "type": "option"
+            },
+            {
+              "description": "Remove passed iterations from for loops",
+              "name": "for",
+              "type": "option"
+            },
+            {
+              "description": "Remove passed iterations from while loops",
+              "name": "while",
+              "type": "option"
+            },
+            {
+              "description": "Remove all but the last failing keyword inside `BuiltIn.Wait Until Keyword Succeeds`",
+              "name": "wuks",
+              "type": "option"
+            },
+            {
+              "insertValue": "name:{cursor}",
+              "name": "name:<pattern>",
+              "type": "option"
+            },
+            {
+              "insertValue": "tag:{cursor}",
+              "name": "tag:<pattern>",
+              "type": "option"
+            }
+          ]
+        }
+      ],
+      "description": "Remove keyword data from the generated log file",
+      "name": "--removekeywords"
+    },
+    {
+      "args": [
+        {
+          "name": "pattern",
+          "suggestions": [
+            {
+              "description": "Flatten FOR loops fully",
+              "name": "for",
+              "type": "option"
+            },
+            {
+              "description": "Flatten WHILE loops fully",
+              "name": "while",
+              "type": "option"
+            },
+            {
+              "description": "Flatten FOR/WHILE loop iterations",
+              "name": "iteration",
+              "type": "option"
+            },
+            {
+              "insertValue": "name:{cursor}",
+              "name": "name:<pattern>",
+              "type": "option"
+            },
+            {
+              "insertValue": "tag:{cursor}",
+              "name": "tag:<pattern>",
+              "type": "option"
+            }
+          ]
+        }
+      ],
+      "description": "Flattens matching keywords in the generated log file",
+      "name": "--flattenkeywords"
+    },
+    {
+      "args": [
+        {
+          "name": "class"
+        }
+      ],
+      "description": "A class for monitoring test execution. Gets notifications e.g. when tests start and end",
+      "name": "--listener"
+    },
+    {
+      "description": "Sets the return code to zero regardless of failures in test cases. Error codes are returned normally",
+      "name": "--nostatusrc"
+    },
+    {
+      "description": "Sets the return code to zero regardless of failures in test cases. Error codes are returned normally",
+      "name": "--dryrun"
+    },
+    {
+      "description": "Stops test execution if any test fails",
+      "name": [
+        "-X",
+        "--exitonfailure"
+      ]
+    },
+    {
+      "description": "Stops test execution if any error occurs when parsing test data, importing libraries, and so on",
+      "name": "--exitonerror"
+    },
+    {
+      "description": "Causes teardowns to be skipped if test execution is stopped prematurely",
+      "name": "--skipteardownonexit"
+    },
+    {
+      "args": [
+        {
+          "name": "type",
+          "suggestions": [
+            {
+              "description": "Randomizes both suites and tests",
+              "name": "all",
+              "type": "option"
+            },
+            {
+              "description": "Randomizes suites",
+              "name": "suites",
+              "type": "option"
+            },
+            {
+              "description": "Randomizes tests",
+              "name": "tests",
+              "type": "option"
+            },
+            {
+              "description": "No randomization (default)",
+              "displayName": "none (default)",
+              "name": "none",
+              "priority": 76,
+              "type": "option"
+            }
+          ]
+        }
+      ],
+      "description": "Randomizes the test execution order",
+      "name": "--randomize"
+    },
+    {
+      "args": [
+        {
+          "name": "class"
+        }
+      ],
+      "description": "Class to programmatically modify the suite structure before execution",
+      "name": "--prerunmodifier"
+    },
+    {
+      "args": [
+        {
+          "name": "class"
+        }
+      ],
+      "description": "Class to programmatically modify the result model before creating reports and logs",
+      "name": "--prerebotmodifier"
+    },
+    {
+      "args": [
+        {
+          "name": "type",
+          "suggestions": [
+            {
+              "description": "Report every suite and test (default)",
+              "displayName": "verbose (default)",
+              "name": "verbose",
+              "priority": 76,
+              "type": "option"
+            },
+            {
+              "description": "Only show `.` for passed test, `s` for skipped tests, and `F` for failed tests",
+              "name": "dotted",
+              "type": "option"
+            },
+            {
+              "description": "No output except for errors and warnings",
+              "name": "quiet",
+              "type": "option"
+            },
+            {
+              "description": "No output whatsoever",
+              "name": "none",
+              "type": "option"
+            }
+          ]
+        }
+      ],
+      "description": "How to report execution on the console",
+      "name": "--console"
+    },
+    {
+      "description": "Shortcut for `--console dotted`",
+      "name": [
+        "-.",
+        "--dotted"
+      ]
+    },
+    {
+      "description": "Shortcut for `--console quiet`",
+      "name": "--quiet"
+    },
+    {
+      "args": [
+        {
+          "name": "chars",
+          "suggestions": [
+            {
+              "displayName": "78 (default)",
+              "name": "78",
+              "priority": 76
+            }
+          ]
+        }
+      ],
+      "description": "Width of the console output. Default is 78",
+      "name": [
+        "-W",
+        "--consolewidth"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "option",
+          "suggestions": [
+            {
+              "description": "Use colors when output not redirected (default)",
+              "displayName": "auto (default)",
+              "name": "auto",
+              "priority": 76,
+              "type": "option"
+            },
+            {
+              "description": "Always use colors",
+              "name": "on",
+              "type": "option"
+            },
+            {
+              "description": "Like `on` but use ANSI colors also on Windows",
+              "name": "ansi",
+              "type": "option"
+            },
+            {
+              "description": "Disable colors altogether",
+              "name": "off",
+              "type": "option"
+            }
+          ]
+        }
+      ],
+      "description": "Use colors on console output or not",
+      "name": [
+        "-C",
+        "--consolecolors"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "option",
+          "suggestions": [
+            {
+              "name": "auto",
+              "type": "option"
+            },
+            {
+              "name": "on",
+              "type": "option"
+            },
+            {
+              "name": "off",
+              "type": "option"
+            }
+          ]
+        }
+      ],
+      "description": "Show markers on the console when top level keywords in a test case end",
+      "name": [
+        "-K",
+        "--consolemarkers"
+      ]
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "name": "path"
+        }
+      ],
+      "description": "Additional locations (directories, ZIPs) where to search libraries and other extensions when they are imported",
+      "name": [
+        "-P",
+        "--pythonpath"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "path",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Text file to read more arguments from. Use special path `STDIN` to read contents from the standard input stream",
+      "name": [
+        "-A",
+        "--argumentfile"
+      ]
+    },
+    {
+      "description": "Print version information",
+      "name": "--version"
+    }
+  ]
+}

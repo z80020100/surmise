@@ -1,0 +1,53 @@
+{
+  "additionalSuggestions": [
+    {
+      "description": "Switch to previous namespace within the current context",
+      "icon": "fig://icon?type=asterisk",
+      "name": "-",
+      "priority": 85
+    }
+  ],
+  "args": [
+    {
+      "dyn": true,
+      "generators": [
+        {
+          "script": [
+            "bash",
+            "-c",
+            "kubens | grep -v $(kubens -c)"
+          ]
+        },
+        {
+          "script": [
+            "kubens",
+            "-c"
+          ]
+        }
+      ],
+      "isOptional": true,
+      "name": "namespace"
+    }
+  ],
+  "description": "Switch between Kubernetes-namespaces",
+  "name": "kubens",
+  "options": [
+    {
+      "description": "Show help for kubens",
+      "name": [
+        "--help",
+        "-h"
+      ]
+    },
+    {
+      "description": "Show current namespace",
+      "name": [
+        "--current",
+        "-c"
+      ]
+    }
+  ],
+  "parserDirectives": {
+    "flagsArePosixNoncompliant": true
+  }
+}

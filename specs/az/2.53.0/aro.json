@@ -1,0 +1,749 @@
+{
+  "description": "Manage Azure Red Hat OpenShift clusters",
+  "name": "aro",
+  "subcommands": [
+    {
+      "description": "Create a cluster",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "master-subnet"
+            }
+          ],
+          "description": "Name or ID of master vnet subnet. If name is supplied, --vnet must be supplied",
+          "isRequired": true,
+          "name": "--master-subnet"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of cluster",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "worker-subnet"
+            }
+          ],
+          "description": "Name or ID of worker vnet subnet. If name is supplied, --vnet must be supplied",
+          "isRequired": true,
+          "name": "--worker-subnet"
+        },
+        {
+          "args": [
+            {
+              "name": "apiserver-visibility",
+              "suggestions": [
+                "Private",
+                "Public"
+              ]
+            }
+          ],
+          "description": "API server visibility",
+          "name": "--apiserver-visibility"
+        },
+        {
+          "args": [
+            {
+              "name": "client-id"
+            }
+          ],
+          "description": "Client ID of cluster service principal",
+          "name": "--client-id"
+        },
+        {
+          "args": [
+            {
+              "name": "client-secret"
+            }
+          ],
+          "description": "Client secret of cluster service principal",
+          "name": "--client-secret"
+        },
+        {
+          "args": [
+            {
+              "name": "cluster-resource-group"
+            }
+          ],
+          "description": "Resource group of cluster",
+          "name": "--cluster-resource-group"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-encryption-set"
+            }
+          ],
+          "description": "ResourceID of the DiskEncryptionSet to be used for master and worker VMs",
+          "name": "--disk-encryption-set"
+        },
+        {
+          "args": [
+            {
+              "name": "domain"
+            }
+          ],
+          "description": "Domain of cluster",
+          "name": "--domain"
+        },
+        {
+          "args": [
+            {
+              "name": "fips-validated-modules",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Use FIPS validated cryptography modules",
+          "name": [
+            "--fips-validated-modules",
+            "--fips"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ingress-visibility",
+              "suggestions": [
+                "Private",
+                "Public"
+              ]
+            }
+          ],
+          "description": "Ingress visibility",
+          "name": "--ingress-visibility"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "description": "Encryption at host flag for master VMs",
+          "name": [
+            "--master-encryption-at-host",
+            "--master-enc-host"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "master-vm-size"
+            }
+          ],
+          "description": "Size of master VMs",
+          "name": "--master-vm-size"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "outbound-type"
+            }
+          ],
+          "description": "Outbound type of cluster. Must be \"Loadbalancer\" (default) or \"UserDefinedRouting\"",
+          "name": "--outbound-type"
+        },
+        {
+          "args": [
+            {
+              "name": "pod-cidr"
+            }
+          ],
+          "description": "CIDR of pod network. Must be a minimum of /18 or larger",
+          "name": "--pod-cidr"
+        },
+        {
+          "args": [
+            {
+              "name": "pull-secret"
+            }
+          ],
+          "description": "Pull secret of cluster",
+          "name": "--pull-secret"
+        },
+        {
+          "args": [
+            {
+              "name": "service-cidr"
+            }
+          ],
+          "description": "CIDR of service network. Must be a minimum of /18 or larger",
+          "name": "--service-cidr"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "version"
+            }
+          ],
+          "description": "OpenShift version to use for cluster creation",
+          "name": "--version"
+        },
+        {
+          "args": [
+            {
+              "name": "vnet"
+            }
+          ],
+          "description": "Name or ID of vnet. If name is supplied, --vnet-resource-group must be supplied",
+          "name": "--vnet"
+        },
+        {
+          "args": [
+            {
+              "name": "vnet-resource-group"
+            }
+          ],
+          "description": "Name of vnet resource group",
+          "name": "--vnet-resource-group"
+        },
+        {
+          "args": [
+            {
+              "name": "worker-count"
+            }
+          ],
+          "description": "Count of worker VMs",
+          "name": "--worker-count"
+        },
+        {
+          "description": "Encryption at host flag for worker VMs",
+          "name": [
+            "--worker-encryption-at-host",
+            "--worker-enc-host"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "worker-vm-disk-size-gb"
+            }
+          ],
+          "description": "Disk size in GB of worker VMs",
+          "name": "--worker-vm-disk-size-gb"
+        },
+        {
+          "args": [
+            {
+              "name": "worker-vm-size"
+            }
+          ],
+          "description": "Size of worker VMs",
+          "name": "--worker-vm-size"
+        }
+      ]
+    },
+    {
+      "description": "Delete a cluster",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of cluster",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List admin kubeconfig of a cluster",
+      "name": "get-admin-kubeconfig",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of cluster",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "file"
+            }
+          ],
+          "description": "Path to the file where kubeconfig should be saved. Default: kubeconfig in local directory",
+          "name": [
+            "--file",
+            "-f"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List versions available for installation",
+      "name": "get-versions",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "isRequired": true,
+          "name": [
+            "--location",
+            "-l"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List clusters",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List credentials of a cluster",
+      "name": "list-credentials",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of cluster",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Get the details of a cluster",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of cluster",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Update a cluster",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of cluster",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "client-id"
+            }
+          ],
+          "description": "Client ID of cluster service principal",
+          "name": "--client-id"
+        },
+        {
+          "args": [
+            {
+              "name": "client-secret"
+            }
+          ],
+          "description": "Client secret of cluster service principal",
+          "name": "--client-secret"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "description": "Refresh cluster application credentials",
+          "name": "--refresh-credentials"
+        }
+      ]
+    },
+    {
+      "description": "Validate permissions required to create a cluster",
+      "name": "validate",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "master-subnet"
+            }
+          ],
+          "description": "Name or ID of master vnet subnet. If name is supplied, --vnet must be supplied",
+          "isRequired": true,
+          "name": "--master-subnet"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of cluster",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "worker-subnet"
+            }
+          ],
+          "description": "Name or ID of worker vnet subnet. If name is supplied, --vnet must be supplied",
+          "isRequired": true,
+          "name": "--worker-subnet"
+        },
+        {
+          "args": [
+            {
+              "name": "client-id"
+            }
+          ],
+          "description": "Client ID of cluster service principal",
+          "name": "--client-id"
+        },
+        {
+          "args": [
+            {
+              "name": "client-secret"
+            }
+          ],
+          "description": "Client secret of cluster service principal",
+          "name": "--client-secret"
+        },
+        {
+          "args": [
+            {
+              "name": "cluster-resource-group"
+            }
+          ],
+          "description": "Resource group of cluster",
+          "name": "--cluster-resource-group"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-encryption-set"
+            }
+          ],
+          "description": "ResourceID of the DiskEncryptionSet to be used for master and worker VMs",
+          "name": "--disk-encryption-set"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "pod-cidr"
+            }
+          ],
+          "description": "CIDR of pod network. Must be a minimum of /18 or larger",
+          "name": "--pod-cidr"
+        },
+        {
+          "args": [
+            {
+              "name": "service-cidr"
+            }
+          ],
+          "description": "CIDR of service network. Must be a minimum of /18 or larger",
+          "name": "--service-cidr"
+        },
+        {
+          "args": [
+            {
+              "name": "version"
+            }
+          ],
+          "description": "OpenShift version to use for cluster creation",
+          "name": "--version"
+        },
+        {
+          "args": [
+            {
+              "name": "vnet"
+            }
+          ],
+          "description": "Name or ID of vnet. If name is supplied, --vnet-resource-group must be supplied",
+          "name": "--vnet"
+        },
+        {
+          "args": [
+            {
+              "name": "vnet-resource-group"
+            }
+          ],
+          "description": "Name of vnet resource group",
+          "name": "--vnet-resource-group"
+        }
+      ]
+    },
+    {
+      "description": "Wait for a cluster to reach a desired state",
+      "name": "wait",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of cluster",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+          "name": "--created"
+        },
+        {
+          "args": [
+            {
+              "name": "custom"
+            }
+          ],
+          "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+          "name": "--custom"
+        },
+        {
+          "description": "Wait until deleted",
+          "name": "--deleted"
+        },
+        {
+          "description": "Wait until the resource exists",
+          "name": "--exists"
+        },
+        {
+          "args": [
+            {
+              "name": "interval"
+            }
+          ],
+          "description": "Polling interval in seconds",
+          "name": "--interval"
+        },
+        {
+          "args": [
+            {
+              "name": "timeout"
+            }
+          ],
+          "description": "Maximum wait in seconds",
+          "name": "--timeout"
+        },
+        {
+          "description": "Wait until updated with provisioningState at 'Succeeded'",
+          "name": "--updated"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+# A development tool. It is deliberately outside the surmise package: the empty
+# `[workspace]` table below stops cargo searching upward, so `cargo build` at
+# the repository root never sees this crate and `cargo install` never sees its
+# dependencies. It carries its own `Cargo.lock`.
+#
+# No `rust-version`. Only the shipped crate makes an MSRV claim and only that
+# claim is tested.
+[workspace]
+
+[package]
+name = "spec-convert"
+version = "0.0.0"
+edition = "2024"
+description = "Freeze the static half of a completion-spec corpus into JSON"
+publish = false
+
+[dependencies]
+# A JavaScript engine in pure Rust. A spec is an ES module and reading one
+# means running it. Boa is about ten times slower than a C engine and that buys
+# a converter anybody can build with cargo alone, which is what a vendored
+# artifact needs to stay reproducible.
+boa_engine = "0.22"
+# Writing the output. Its map is ordered by key, so two runs of this tool on
+# the same corpus produce the same bytes.
+serde_json = "1"

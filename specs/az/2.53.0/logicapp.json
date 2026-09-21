@@ -1,0 +1,843 @@
+{
+  "description": "Manage logic apps",
+  "name": "logicapp",
+  "subcommands": [
+    {
+      "description": "Configure a logic app",
+      "name": "config",
+      "subcommands": [
+        {
+          "description": "Configure logic app settings",
+          "name": "appsettings",
+          "subcommands": [
+            {
+              "description": "Delete a logic app's settings",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the logic app",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "setting-names"
+                    }
+                  ],
+                  "description": "Space-separated app setting names",
+                  "isRequired": true,
+                  "name": "--setting-names"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "slot"
+                    }
+                  ],
+                  "description": "The name of the slot. Default to the productions slot if not specified",
+                  "name": [
+                    "--slot",
+                    "-s"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Show settings for a logic app",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the logic app",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "slot"
+                    }
+                  ],
+                  "description": "The name of the slot. Default to the productions slot if not specified",
+                  "name": [
+                    "--slot",
+                    "-s"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Update a logic app's settings",
+              "name": "set",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the logic app",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "settings"
+                    }
+                  ],
+                  "description": "Space-separated app settings in a format of <name>=<value>",
+                  "name": "--settings"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "slot"
+                    }
+                  ],
+                  "description": "The name of the slot. Default to the productions slot if not specified",
+                  "name": [
+                    "--slot",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "slot-settings"
+                    }
+                  ],
+                  "description": "Space-separated slot app settings in a format of <name>=<value>",
+                  "name": "--slot-settings"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Create a logic app",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the new logic app",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "storage-account"
+            }
+          ],
+          "description": "Provide a string value of a Storage Account in the provided Resource Group. Or Resource ID of a Storage Account in a different Resource Group",
+          "isRequired": true,
+          "name": [
+            "--storage-account",
+            "-s"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "app-insights"
+            }
+          ],
+          "description": "Name of the existing App Insights project to be added to the logic app. Must be in the same resource group",
+          "name": "--app-insights"
+        },
+        {
+          "args": [
+            {
+              "name": "app-insights-key"
+            }
+          ],
+          "description": "Instrumentation key of App Insights to be added",
+          "name": "--app-insights-key"
+        },
+        {
+          "args": [
+            {
+              "name": "deployment-container-image-name"
+            }
+          ],
+          "description": "Container image name from Docker Hub, e.g. publisher/image-name:tag",
+          "name": [
+            "--deployment-container-image-name",
+            "-i"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "deployment-local-git"
+            }
+          ],
+          "description": "Enable local git",
+          "name": [
+            "--deployment-local-git",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "deployment-source-branch"
+            }
+          ],
+          "description": "The branch to deploy",
+          "name": [
+            "--deployment-source-branch",
+            "-b"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "deployment-source-url"
+            }
+          ],
+          "description": "Git repository URL to link with manual integration",
+          "name": [
+            "--deployment-source-url",
+            "-u"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "disable-app-insights",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Disable creating application insights resource during logicapp create. No logs will be available",
+          "name": "--disable-app-insights"
+        },
+        {
+          "args": [
+            {
+              "name": "docker-registry-server-password"
+            }
+          ],
+          "description": "The container registry server password. Required for private registries",
+          "name": [
+            "--docker-registry-server-password",
+            "-w"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "docker-registry-server-user"
+            }
+          ],
+          "description": "The container registry server username",
+          "name": [
+            "--docker-registry-server-user",
+            "-d"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "functions-version",
+              "suggestions": [
+                "2",
+                "3",
+                "4"
+              ]
+            }
+          ],
+          "description": "The functions version for logic app",
+          "name": [
+            "--functions-version",
+            "-v"
+          ]
+        },
+        {
+          "description": "Redirect all traffic made to an app using HTTP to HTTPS",
+          "name": "--https-only"
+        },
+        {
+          "args": [
+            {
+              "name": "plan"
+            }
+          ],
+          "description": "Name or resource id of the logicapp app service plan. Use 'appservice plan create' to get one. If using an App Service plan from a different resource group, the full resource id must be used and not the plan name",
+          "name": [
+            "--plan",
+            "-p"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "runtime-version",
+              "suggestions": [
+                "~14",
+                "~16",
+                "~18"
+              ]
+            }
+          ],
+          "description": "The runtime version for logic app",
+          "name": "--runtime-version"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        }
+      ]
+    },
+    {
+      "description": "Delete a logic app",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the logic app",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "slot"
+            }
+          ],
+          "description": "The name of the slot. Default to the productions slot if not specified",
+          "name": [
+            "--slot",
+            "-s"
+          ]
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List logic apps",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Restart a logic app",
+      "name": "restart",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the logic app",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "slot"
+            }
+          ],
+          "description": "The name of the slot. Default to the productions slot if not specified",
+          "name": [
+            "--slot",
+            "-s"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Scale a logic app",
+      "name": "scale",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the logic app",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "max-instances"
+            }
+          ],
+          "description": "The maximum number of instances this logic app can scale out to under load",
+          "name": "--max-instances"
+        },
+        {
+          "args": [
+            {
+              "name": "min-instances"
+            }
+          ],
+          "description": "The number of instances that are always ready and warm for this logic app",
+          "name": "--min-instances"
+        },
+        {
+          "args": [
+            {
+              "name": "slot"
+            }
+          ],
+          "description": "The name of the slot. Default to the productions slot if not specified",
+          "name": [
+            "--slot",
+            "-s"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Get the details of a logic app",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the logic app",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Start a logic app",
+      "name": "start",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the logic app",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "slot"
+            }
+          ],
+          "description": "The name of the slot. Default to the productions slot if not specified",
+          "name": [
+            "--slot",
+            "-s"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Stop a logic app",
+      "name": "stop",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the logic app",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "slot"
+            }
+          ],
+          "description": "The name of the slot. Default to the productions slot if not specified",
+          "name": [
+            "--slot",
+            "-s"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Update a logic app",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the logic app",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "add"
+            }
+          ],
+          "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+          "name": "--add"
+        },
+        {
+          "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+          "name": "--force-string"
+        },
+        {
+          "args": [
+            {
+              "name": "plan"
+            }
+          ],
+          "description": "The name or resource id of the plan to update the logicapp with",
+          "name": "--plan"
+        },
+        {
+          "args": [
+            {
+              "name": "remove"
+            }
+          ],
+          "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+          "name": "--remove"
+        },
+        {
+          "args": [
+            {
+              "name": "set"
+            }
+          ],
+          "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+          "name": "--set"
+        },
+        {
+          "args": [
+            {
+              "name": "slot"
+            }
+          ],
+          "description": "The name of the slot. Default to the productions slot if not specified",
+          "name": [
+            "--slot",
+            "-s"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage logic app deployments",
+      "name": "deployment",
+      "subcommands": [
+        {
+          "description": "Manage logicapp app deployment via source control",
+          "name": "source",
+          "subcommands": [
+            {
+              "description": "Perform deployment using the kudu zip push deployment for a logic app",
+              "name": "config-zip",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the logic app",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "src"
+                    }
+                  ],
+                  "description": "A zip file path for deployment",
+                  "isRequired": true,
+                  "name": "--src"
+                },
+                {
+                  "description": "Enable remote build during deployment",
+                  "name": "--build-remote"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "slot"
+                    }
+                  ],
+                  "description": "The name of the slot. Default to the productions slot if not specified",
+                  "name": [
+                    "--slot",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "timeout"
+                    }
+                  ],
+                  "description": "Configurable timeout in seconds for checking the status of deployment",
+                  "name": [
+                    "--timeout",
+                    "-t"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

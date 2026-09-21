@@ -1,0 +1,2780 @@
+{
+  "description": "Manage Azure Active Directory Graph entities needed for Role Based Access Control",
+  "name": "ad",
+  "subcommands": [
+    {
+      "description": "Manage applications with AAD Graph",
+      "name": "app",
+      "subcommands": [
+        {
+          "description": "Create a web application, web API or native application",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "The display name of the application",
+              "isRequired": true,
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "app-roles"
+                }
+              ],
+              "description": "The collection of roles assigned to the application. With app role assignments, these roles can be assigned to users, groups, or service principals associated with other applications. Should be JSON file path or in-line JSON string. See examples for details",
+              "name": "--app-roles"
+            },
+            {
+              "args": [
+                {
+                  "name": "enable-access-token-issuance",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Specifies whether this web application can request an access token using the OAuth 2.0 implicit flow",
+              "name": "--enable-access-token-issuance"
+            },
+            {
+              "args": [
+                {
+                  "name": "enable-id-token-issuance",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Specifies whether this web application can request an ID token using the OAuth 2.0 implicit flow",
+              "name": "--enable-id-token-issuance"
+            },
+            {
+              "args": [
+                {
+                  "name": "end-date"
+                }
+              ],
+              "description": "Date or datetime after which credentials expire (e.g. '2017-12-31T11:59:59+00:00' or '2017-12-31'). Default value is one year after current time",
+              "name": "--end-date"
+            },
+            {
+              "args": [
+                {
+                  "name": "identifier-uris"
+                }
+              ],
+              "description": "Space-separated values. Also known as App ID URI, this value is set when an application is used as a resource app. The identifierUris acts as the prefix for the scopes you'll reference in your API's code, and it must be globally unique. You can use the default value provided, which is in the form api://, or specify a more readable URI like https://contoso.com/api",
+              "name": "--identifier-uris"
+            },
+            {
+              "args": [
+                {
+                  "name": "is-fallback-public-client",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Specifies the fallback application type as public client, such as an installed application running on a mobile device. The default value is false which means the fallback application type is confidential client such as a web app",
+              "name": "--is-fallback-public-client"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-display-name"
+                }
+              ],
+              "description": "Friendly name for the key",
+              "name": "--key-display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-type",
+                  "suggestions": [
+                    "AsymmetricX509Cert",
+                    "Password",
+                    "Symmetric"
+                  ]
+                }
+              ],
+              "description": "The type of the key credentials associated with the application",
+              "name": "--key-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-usage",
+                  "suggestions": [
+                    "Sign",
+                    "Verify"
+                  ]
+                }
+              ],
+              "description": "The usage of the key credentials associated with the application",
+              "name": "--key-usage"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-value"
+                }
+              ],
+              "description": "The value for the key credentials associated with the application",
+              "name": "--key-value"
+            },
+            {
+              "args": [
+                {
+                  "name": "optional-claims"
+                }
+              ],
+              "description": "Application developers can configure optional claims in their Azure AD applications to specify the claims that are sent to their application by the Microsoft security token service. For more information, see https://docs.microsoft.com/azure/active-directory/develop/active-directory-optional-claims. Should be JSON file path or in-line JSON string. See examples for details",
+              "name": "--optional-claims"
+            },
+            {
+              "args": [
+                {
+                  "name": "public-client-redirect-uris"
+                }
+              ],
+              "description": "Space-separated values. Specifies the URLs where user tokens are sent for sign-in, or the redirect URIs where OAuth 2.0 authorization codes and access tokens are sent",
+              "name": "--public-client-redirect-uris"
+            },
+            {
+              "args": [
+                {
+                  "name": "required-resource-accesses"
+                }
+              ],
+              "description": "Specifies the resources that the application needs to access. This property also specifies the set of delegated permissions and application roles that it needs for each of those resources. This configuration of access to the required resources drives the consent experience. Should be JSON file path or in-line JSON string. See examples for details",
+              "name": "--required-resource-accesses"
+            },
+            {
+              "args": [
+                {
+                  "name": "sign-in-audience",
+                  "suggestions": [
+                    "AzureADMultipleOrgs",
+                    "AzureADMyOrg",
+                    "AzureADandPersonalMicrosoftAccount",
+                    "PersonalMicrosoftAccount"
+                  ]
+                }
+              ],
+              "description": "Specifies the Microsoft accounts that are supported for the current application",
+              "name": "--sign-in-audience"
+            },
+            {
+              "args": [
+                {
+                  "name": "start-date"
+                }
+              ],
+              "description": "Date or datetime at which credentials become valid (e.g. '2017-01-01T01:00:00+00:00' or '2017-01-01'). Default value is current time",
+              "name": "--start-date"
+            },
+            {
+              "args": [
+                {
+                  "name": "web-home-page-url"
+                }
+              ],
+              "description": "Home page or landing page of the application",
+              "name": "--web-home-page-url"
+            },
+            {
+              "args": [
+                {
+                  "name": "web-redirect-uris"
+                }
+              ],
+              "description": "Space-separated values. Specifies the URLs where user tokens are sent for sign-in, or the redirect URIs where OAuth 2.0 authorization codes and access tokens are sent",
+              "name": "--web-redirect-uris"
+            }
+          ]
+        },
+        {
+          "description": "Delete an application",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "Identifier uri, application id, or object id",
+              "isRequired": true,
+              "name": "--id"
+            }
+          ]
+        },
+        {
+          "description": "List applications",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "all"
+                }
+              ],
+              "description": "List all entities, expect long delay if under a big organization",
+              "name": "--all"
+            },
+            {
+              "args": [
+                {
+                  "name": "app-id"
+                }
+              ],
+              "description": "Application id",
+              "name": "--app-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "The display name of the application",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "OData filter, e.g. --filter \"displayname eq 'test' and servicePrincipalType eq 'Application'\"",
+              "name": "--filter"
+            },
+            {
+              "args": [
+                {
+                  "name": "identifier-uri"
+                }
+              ],
+              "description": "Graph application identifier, must be in uri format",
+              "name": "--identifier-uri"
+            },
+            {
+              "args": [
+                {
+                  "name": "show-mine"
+                }
+              ],
+              "description": "List entities owned by the current user",
+              "name": "--show-mine"
+            }
+          ]
+        },
+        {
+          "description": "Get the details of an application",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "Identifier uri, application id, or object id",
+              "isRequired": true,
+              "name": "--id"
+            }
+          ]
+        },
+        {
+          "description": "Update an application",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "Identifier uri, application id, or object id",
+              "isRequired": true,
+              "name": "--id"
+            },
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "app-roles"
+                }
+              ],
+              "description": "The collection of roles assigned to the application. With app role assignments, these roles can be assigned to users, groups, or service principals associated with other applications. Should be JSON file path or in-line JSON string. See examples for details",
+              "name": "--app-roles"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "The display name of the application",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "enable-access-token-issuance",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Specifies whether this web application can request an access token using the OAuth 2.0 implicit flow",
+              "name": "--enable-access-token-issuance"
+            },
+            {
+              "args": [
+                {
+                  "name": "enable-id-token-issuance",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Specifies whether this web application can request an ID token using the OAuth 2.0 implicit flow",
+              "name": "--enable-id-token-issuance"
+            },
+            {
+              "args": [
+                {
+                  "name": "end-date"
+                }
+              ],
+              "description": "Date or datetime after which credentials expire (e.g. '2017-12-31T11:59:59+00:00' or '2017-12-31'). Default value is one year after current time",
+              "name": "--end-date"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "identifier-uris"
+                }
+              ],
+              "description": "Space-separated values. Also known as App ID URI, this value is set when an application is used as a resource app. The identifierUris acts as the prefix for the scopes you'll reference in your API's code, and it must be globally unique. You can use the default value provided, which is in the form api://, or specify a more readable URI like https://contoso.com/api",
+              "name": "--identifier-uris"
+            },
+            {
+              "args": [
+                {
+                  "name": "is-fallback-public-client",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Specifies the fallback application type as public client, such as an installed application running on a mobile device. The default value is false which means the fallback application type is confidential client such as a web app",
+              "name": "--is-fallback-public-client"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-display-name"
+                }
+              ],
+              "description": "Friendly name for the key",
+              "name": "--key-display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-type",
+                  "suggestions": [
+                    "AsymmetricX509Cert",
+                    "Password",
+                    "Symmetric"
+                  ]
+                }
+              ],
+              "description": "The type of the key credentials associated with the application",
+              "name": "--key-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-usage",
+                  "suggestions": [
+                    "Sign",
+                    "Verify"
+                  ]
+                }
+              ],
+              "description": "The usage of the key credentials associated with the application",
+              "name": "--key-usage"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-value"
+                }
+              ],
+              "description": "The value for the key credentials associated with the application",
+              "name": "--key-value"
+            },
+            {
+              "args": [
+                {
+                  "name": "optional-claims"
+                }
+              ],
+              "description": "Application developers can configure optional claims in their Azure AD applications to specify the claims that are sent to their application by the Microsoft security token service. For more information, see https://docs.microsoft.com/azure/active-directory/develop/active-directory-optional-claims. Should be JSON file path or in-line JSON string. See examples for details",
+              "name": "--optional-claims"
+            },
+            {
+              "args": [
+                {
+                  "name": "public-client-redirect-uris"
+                }
+              ],
+              "description": "Space-separated values. Specifies the URLs where user tokens are sent for sign-in, or the redirect URIs where OAuth 2.0 authorization codes and access tokens are sent",
+              "name": "--public-client-redirect-uris"
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "required-resource-accesses"
+                }
+              ],
+              "description": "Specifies the resources that the application needs to access. This property also specifies the set of delegated permissions and application roles that it needs for each of those resources. This configuration of access to the required resources drives the consent experience. Should be JSON file path or in-line JSON string. See examples for details",
+              "name": "--required-resource-accesses"
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "sign-in-audience",
+                  "suggestions": [
+                    "AzureADMultipleOrgs",
+                    "AzureADMyOrg",
+                    "AzureADandPersonalMicrosoftAccount",
+                    "PersonalMicrosoftAccount"
+                  ]
+                }
+              ],
+              "description": "Specifies the Microsoft accounts that are supported for the current application",
+              "name": "--sign-in-audience"
+            },
+            {
+              "args": [
+                {
+                  "name": "start-date"
+                }
+              ],
+              "description": "Date or datetime at which credentials become valid (e.g. '2017-01-01T01:00:00+00:00' or '2017-01-01'). Default value is current time",
+              "name": "--start-date"
+            },
+            {
+              "args": [
+                {
+                  "name": "web-home-page-url"
+                }
+              ],
+              "description": "Home page or landing page of the application",
+              "name": "--web-home-page-url"
+            },
+            {
+              "args": [
+                {
+                  "name": "web-redirect-uris"
+                }
+              ],
+              "description": "Space-separated values. Specifies the URLs where user tokens are sent for sign-in, or the redirect URIs where OAuth 2.0 authorization codes and access tokens are sent",
+              "name": "--web-redirect-uris"
+            }
+          ]
+        },
+        {
+          "description": "Manage an application's password or certificate credentials",
+          "name": "credential",
+          "subcommands": [
+            {
+              "description": "Delete an application's password or certificate credentials",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Identifier uri, application id, or object id",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "key-id"
+                    }
+                  ],
+                  "description": "Credential key id",
+                  "isRequired": true,
+                  "name": "--key-id"
+                },
+                {
+                  "description": "Operate on certificate credentials",
+                  "name": "--cert"
+                }
+              ]
+            },
+            {
+              "description": "List an application's password or certificate credential metadata. (The content of the password or certificate credential is not retrievable.)",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Identifier uri, application id, or object id",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "description": "Operate on certificate credentials",
+                  "name": "--cert"
+                }
+              ]
+            },
+            {
+              "description": "Reset an application's password or certificate credentials",
+              "name": "reset",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Identifier uri, application id, or object id",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "description": "Append the new credential instead of overwriting",
+                  "name": "--append"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "cert"
+                    }
+                  ],
+                  "description": "Certificate to use for credentials. When used with --keyvault,, indicates the name of the cert to use or create. Otherwise, supply a PEM or DER formatted public certificate string. Use @{path} to load from a file. Do not include private key info",
+                  "name": "--cert"
+                },
+                {
+                  "description": "Create a self-signed certificate to use for the credential. Only the current OS user has read/write permission to this certificate. Use with --keyvault to create the certificate in Key Vault. Otherwise, a certificate will be created locally",
+                  "name": "--create-cert"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "display-name"
+                    }
+                  ],
+                  "description": "Friendly name for the credential",
+                  "name": "--display-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "end-date"
+                    }
+                  ],
+                  "description": "Finer grain of expiry time if '--years' is insufficient, e.g. '2020-12-31T11:59:59+00:00' or '2299-12-31'",
+                  "name": "--end-date"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "keyvault"
+                    }
+                  ],
+                  "description": "Name or ID of a KeyVault to use for creating or retrieving certificates",
+                  "name": "--keyvault"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "years"
+                    }
+                  ],
+                  "description": "Number of years for which the credentials will be valid. Default: 1 year",
+                  "name": "--years"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage application federated identity credentials",
+          "name": "federated-credential",
+          "subcommands": [
+            {
+              "description": "Create application federated identity credential",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Application's appId, identifierUri, or id (formerly known as objectId)",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "parameters"
+                    }
+                  ],
+                  "description": "Parameters for creating federated identity credential. Should be JSON file path or in-line JSON string. See examples for details",
+                  "isRequired": true,
+                  "name": "--parameters"
+                }
+              ]
+            },
+            {
+              "description": "Delete application federated identity credential",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "federated-credential-id"
+                    }
+                  ],
+                  "description": "ID or name of the federated identity credential",
+                  "isRequired": true,
+                  "name": "--federated-credential-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Application's appId, identifierUri, or id (formerly known as objectId)",
+                  "isRequired": true,
+                  "name": "--id"
+                }
+              ]
+            },
+            {
+              "description": "List application federated identity credentials",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Application's appId, identifierUri, or id (formerly known as objectId)",
+                  "isRequired": true,
+                  "name": "--id"
+                }
+              ]
+            },
+            {
+              "description": "Show application federated identity credential",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "federated-credential-id"
+                    }
+                  ],
+                  "description": "ID or name of the federated identity credential",
+                  "isRequired": true,
+                  "name": "--federated-credential-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Application's appId, identifierUri, or id (formerly known as objectId)",
+                  "isRequired": true,
+                  "name": "--id"
+                }
+              ]
+            },
+            {
+              "description": "Update application federated identity credential",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "federated-credential-id"
+                    }
+                  ],
+                  "description": "ID or name of the federated identity credential",
+                  "isRequired": true,
+                  "name": "--federated-credential-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Application's appId, identifierUri, or id (formerly known as objectId)",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "parameters"
+                    }
+                  ],
+                  "description": "Parameters for creating federated identity credential. Should be JSON file path or in-line JSON string. See examples for details",
+                  "isRequired": true,
+                  "name": "--parameters"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage application owners",
+          "name": "owner",
+          "subcommands": [
+            {
+              "description": "Add an application owner",
+              "name": "add",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Identifier uri, application id, or object id",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "owner-object-id"
+                    }
+                  ],
+                  "description": "Owner's object id",
+                  "isRequired": true,
+                  "name": "--owner-object-id"
+                }
+              ]
+            },
+            {
+              "description": "List application owners",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Identifier uri, application id, or object id of the application",
+                  "isRequired": true,
+                  "name": "--id"
+                }
+              ]
+            },
+            {
+              "description": "Remove an application owner",
+              "name": "remove",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Identifier uri, application id, or object id",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "owner-object-id"
+                    }
+                  ],
+                  "description": "Owner's object id",
+                  "isRequired": true,
+                  "name": "--owner-object-id"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage an application's OAuth2 permissions",
+          "name": "permission",
+          "subcommands": [
+            {
+              "description": "Add an API permission",
+              "name": "add",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api"
+                    }
+                  ],
+                  "description": "RequiredResourceAccess.resourceAppId - The unique identifier for the resource that the application requires access to. This should be equal to the appId declared on the target resource application",
+                  "isRequired": true,
+                  "name": "--api"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "api-permissions"
+                    }
+                  ],
+                  "description": "Space-separated list of {id}={type}. {id} is resourceAccess.id - The unique identifier for one of the oauth2PermissionScopes or appRole instances that the resource application exposes. {type} is resourceAccess.type - Specifies whether the id property references an oauth2PermissionScopes or an appRole. The possible values are: Scope (for OAuth 2.0 permission scopes) or Role (for app roles)",
+                  "isRequired": true,
+                  "name": "--api-permissions"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Identifier uri, application id, or object id",
+                  "isRequired": true,
+                  "name": "--id"
+                }
+              ]
+            },
+            {
+              "description": "Grant Application & Delegated permissions through admin-consent",
+              "name": "admin-consent",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Identifier uri, application id, or object id",
+                  "isRequired": true,
+                  "name": "--id"
+                }
+              ]
+            },
+            {
+              "description": "Remove an API permission",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "api"
+                    }
+                  ],
+                  "description": "RequiredResourceAccess.resourceAppId - The unique identifier for the resource that the application requires access to. This should be equal to the appId declared on the target resource application",
+                  "isRequired": true,
+                  "name": "--api"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Identifier uri, application id, or object id",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "api-permissions"
+                    }
+                  ],
+                  "description": "Specify ResourceAccess.id - The unique identifier for one of the OAuth2Permission or AppRole instances that the resource application exposes. Space-separated list of <resource-access-id>",
+                  "name": "--api-permissions"
+                }
+              ]
+            },
+            {
+              "description": "Grant the app an API Delegated permissions",
+              "name": "grant",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "resource-id"
+                    }
+                  ],
+                  "description": "The id of the resource service principal to which access is authorized. This identifies the API which the client is authorized to attempt to call on behalf of a signed-in user",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-id",
+                    "--api,"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "client-id"
+                    }
+                  ],
+                  "description": "The id of the client service principal for the application which is authorized to act on behalf of a signed-in user when accessing an API",
+                  "isRequired": true,
+                  "name": [
+                    "--client-id",
+                    "--id,"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "scope"
+                    }
+                  ],
+                  "description": "A space-separated list of the claim values for delegated permissions which should be included in access tokens for the resource application (the API). For example, openid User.Read GroupMember.Read.All. Each claim value should match the value field of one of the delegated permissions defined by the API, listed in the oauth2PermissionScopes property of the resource service principal",
+                  "isRequired": true,
+                  "name": "--scope"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "consent-type",
+                      "suggestions": [
+                        "AllPrincipals",
+                        "Principal"
+                      ]
+                    }
+                  ],
+                  "description": "Indicates whether authorization is granted for the client application to impersonate all users or only a specific user. 'AllPrincipals' indicates authorization to impersonate all users. 'Principal' indicates authorization to impersonate a specific user. Consent on behalf of all users can be granted by an administrator. Non-admin users may be authorized to consent on behalf of themselves in some cases, for some delegated permissions",
+                  "name": "--consent-type"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "principal-id"
+                    }
+                  ],
+                  "description": "The id of the user on behalf of whom the client is authorized to access the resource, when consentType is 'Principal'. If consentType is 'AllPrincipals' this value is null. Required when consentType is 'Principal'",
+                  "name": "--principal-id"
+                }
+              ]
+            },
+            {
+              "description": "List API permissions the application has requested",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Identifier uri, application id, or object id of the associated application",
+                  "isRequired": true,
+                  "name": "--id"
+                }
+              ]
+            },
+            {
+              "description": "List Oauth2 permission grants",
+              "name": "list-grants",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "filter"
+                    }
+                  ],
+                  "description": "OData filter, e.g. --filter \"displayname eq 'test' and servicePrincipalType eq 'Application'\"",
+                  "name": "--filter"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Identifier uri, application id, or object id",
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "show-resource-name",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Show resource's display name",
+                  "name": [
+                    "--show-resource-name",
+                    "-r"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage domain service with azure active directory",
+      "name": "ds",
+      "subcommands": [
+        {
+          "description": "Create a new domain service with the specified parameters",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "domain"
+                }
+              ],
+              "description": "The name of the Azure domain that the user would like to deploy Domain Services to",
+              "isRequired": true,
+              "name": "--domain"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the domain service",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "replica-sets"
+                }
+              ],
+              "description": "List of ReplicaSets",
+              "isRequired": true,
+              "name": "--replica-sets"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "domain-config-type",
+                  "suggestions": [
+                    "FullySynced",
+                    "ResourceTrusting"
+                  ]
+                }
+              ],
+              "description": "Domain Configuration Type",
+              "name": "--domain-config-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "external-access",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "A flag to determine whether or not Secure LDAP access over the internet is enabled or disabled",
+              "name": "--external-access"
+            },
+            {
+              "args": [
+                {
+                  "name": "filtered-sync",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Enabled or Disabled flag to turn on Group-based filtered sync",
+              "name": "--filtered-sync"
+            },
+            {
+              "args": [
+                {
+                  "name": "ldaps",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "A flag to determine whether or not Secure LDAP is enabled or disabled",
+              "name": "--ldaps"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "notify-dc-admins",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Should domain controller admins be notified",
+              "name": "--notify-dc-admins"
+            },
+            {
+              "args": [
+                {
+                  "name": "notify-global-admins",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Should global admins be notified",
+              "name": "--notify-global-admins"
+            },
+            {
+              "args": [
+                {
+                  "name": "notify-others"
+                }
+              ],
+              "description": "The list of additional recipients",
+              "name": "--notify-others"
+            },
+            {
+              "args": [
+                {
+                  "name": "ntlm-v1",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "A flag to determine whether or not NtlmV1 is enabled or disabled",
+              "name": "--ntlm-v1"
+            },
+            {
+              "args": [
+                {
+                  "name": "pfx-cert"
+                }
+              ],
+              "description": "The certificate required to configure Secure LDAP. The parameter passed here should be the file path to the certificate pfx file or a base64encoded representation of the certificate pfx file",
+              "name": "--pfx-cert"
+            },
+            {
+              "args": [
+                {
+                  "name": "pfx-cert-pwd"
+                }
+              ],
+              "description": "The password to decrypt the provided Secure LDAP certificate pfx file",
+              "name": "--pfx-cert-pwd"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-forest",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Resource Forest",
+              "name": "--resource-forest"
+            },
+            {
+              "args": [
+                {
+                  "name": "settings"
+                }
+              ],
+              "description": "List of settings for Resource Forest. This can be either a JSON-formatted string or the location to a file containing the JSON object",
+              "name": "--settings"
+            },
+            {
+              "args": [
+                {
+                  "name": "sku",
+                  "suggestions": [
+                    "Enterprise",
+                    "Premium",
+                    "Standard"
+                  ]
+                }
+              ],
+              "description": "Sku Type",
+              "name": "--sku"
+            },
+            {
+              "args": [
+                {
+                  "name": "sync-kerberos-pwd",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "A flag to determine whether or not SyncKerberosPasswords is enabled or disabled",
+              "name": "--sync-kerberos-pwd"
+            },
+            {
+              "args": [
+                {
+                  "name": "sync-ntlm-pwd",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "A flag to determine whether or not SyncNtlmPasswords is enabled or disabled",
+              "name": "--sync-ntlm-pwd"
+            },
+            {
+              "args": [
+                {
+                  "name": "sync-on-prem-pwd",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "A flag to determine whether or not SyncOnPremPasswords is enabled or disabled",
+              "name": "--sync-on-prem-pwd"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            },
+            {
+              "args": [
+                {
+                  "name": "tls-v1",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "A flag to determine whether or not TlsV1 is enabled or disabled",
+              "name": "--tls-v1"
+            }
+          ]
+        },
+        {
+          "description": "The Delete Domain Service operation deletes an existing Domain Service",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the domain service",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List domain services in resource group or in subscription",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the specified domain service",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the domain service",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update the existing deployment properties for domain service",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "domain-config-type",
+                  "suggestions": [
+                    "FullySynced",
+                    "ResourceTrusting"
+                  ]
+                }
+              ],
+              "description": "Domain Configuration Type",
+              "name": "--domain-config-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "external-access",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "A flag to determine whether or not Secure LDAP access over the internet is enabled or disabled",
+              "name": "--external-access"
+            },
+            {
+              "args": [
+                {
+                  "name": "filtered-sync",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Enabled or Disabled flag to turn on Group-based filtered sync",
+              "name": "--filtered-sync"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "ldaps",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "A flag to determine whether or not Secure LDAP is enabled or disabled",
+              "name": "--ldaps"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the domain service",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "notify-dc-admins",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Should domain controller admins be notified",
+              "name": "--notify-dc-admins"
+            },
+            {
+              "args": [
+                {
+                  "name": "notify-global-admins",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Should global admins be notified",
+              "name": "--notify-global-admins"
+            },
+            {
+              "args": [
+                {
+                  "name": "notify-others"
+                }
+              ],
+              "description": "The list of additional recipients",
+              "name": "--notify-others"
+            },
+            {
+              "args": [
+                {
+                  "name": "ntlm-v1",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "A flag to determine whether or not NtlmV1 is enabled or disabled",
+              "name": "--ntlm-v1"
+            },
+            {
+              "args": [
+                {
+                  "name": "pfx-cert"
+                }
+              ],
+              "description": "The certificate required to configure Secure LDAP. The parameter passed here should be the file path to the certificate pfx file or a base64encoded representation of the certificate pfx file",
+              "name": "--pfx-cert"
+            },
+            {
+              "args": [
+                {
+                  "name": "pfx-cert-pwd"
+                }
+              ],
+              "description": "The password to decrypt the provided Secure LDAP certificate pfx file",
+              "name": "--pfx-cert-pwd"
+            },
+            {
+              "args": [
+                {
+                  "name": "replica-sets"
+                }
+              ],
+              "description": "List of ReplicaSets",
+              "name": "--replica-sets"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-forest",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Resource Forest",
+              "name": "--resource-forest"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "settings"
+                }
+              ],
+              "description": "List of settings for Resource Forest. This can be either a JSON-formatted string or the location to a file containing the JSON object",
+              "name": "--settings"
+            },
+            {
+              "args": [
+                {
+                  "name": "sku",
+                  "suggestions": [
+                    "Enterprise",
+                    "Premium",
+                    "Standard"
+                  ]
+                }
+              ],
+              "description": "Sku Type",
+              "name": "--sku"
+            },
+            {
+              "args": [
+                {
+                  "name": "sync-kerberos-pwd",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "A flag to determine whether or not SyncKerberosPasswords is enabled or disabled",
+              "name": "--sync-kerberos-pwd"
+            },
+            {
+              "args": [
+                {
+                  "name": "sync-ntlm-pwd",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "A flag to determine whether or not SyncNtlmPasswords is enabled or disabled",
+              "name": "--sync-ntlm-pwd"
+            },
+            {
+              "args": [
+                {
+                  "name": "sync-on-prem-pwd",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "A flag to determine whether or not SyncOnPremPasswords is enabled or disabled",
+              "name": "--sync-on-prem-pwd"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            },
+            {
+              "args": [
+                {
+                  "name": "tls-v1",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "A flag to determine whether or not TlsV1 is enabled or disabled",
+              "name": "--tls-v1"
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a condition of the ad ds is met",
+          "name": "wait",
+          "options": [
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the domain service",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Active Directory groups",
+      "name": "group",
+      "subcommands": [
+        {
+          "description": "Create a group in the directory",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Object's display name or its prefix",
+              "isRequired": true,
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "mail-nickname"
+                }
+              ],
+              "description": "Mail nickname",
+              "isRequired": true,
+              "name": "--mail-nickname"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Group description",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "force",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Always create a new group instead of updating the one with same display and mail nickname",
+              "name": "--force"
+            }
+          ]
+        },
+        {
+          "description": "Delete a group from the directory",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "group"
+                }
+              ],
+              "description": "Group's object id or display name(prefix also works if there is a unique match)",
+              "isRequired": true,
+              "name": [
+                "--group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get a collection of object IDs of groups of which the specified group is a member",
+          "name": "get-member-groups",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "group"
+                }
+              ],
+              "description": "Group's object id or display name(prefix also works if there is a unique match)",
+              "isRequired": true,
+              "name": [
+                "--group",
+                "-g"
+              ]
+            },
+            {
+              "description": "True to specify that only security groups that the entity is a member of should be returned; false to specify that all groups and directory roles that the entity is a member of should be returned",
+              "name": "--security-enabled-only"
+            }
+          ]
+        },
+        {
+          "description": "List groups in the directory",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Object's display name or its prefix",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "OData filter, e.g. --filter \"displayname eq 'test' and servicePrincipalType eq 'Application'\"",
+              "name": "--filter"
+            }
+          ]
+        },
+        {
+          "description": "Get group information from the directory",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "group"
+                }
+              ],
+              "description": "Group's object id or display name(prefix also works if there is a unique match)",
+              "isRequired": true,
+              "name": [
+                "--group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage Azure Active Directory group members",
+          "name": "member",
+          "subcommands": [
+            {
+              "description": "Add a member to a group",
+              "name": "add",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "group"
+                    }
+                  ],
+                  "description": "Group's object id or display name(prefix also works if there is a unique match)",
+                  "isRequired": true,
+                  "name": [
+                    "--group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "member-id"
+                    }
+                  ],
+                  "description": "The object ID of the contact, group, user, or service principal",
+                  "isRequired": true,
+                  "name": "--member-id"
+                }
+              ]
+            },
+            {
+              "description": "Check if a member is in a group",
+              "name": "check",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "group"
+                    }
+                  ],
+                  "description": "Group's object id or display name(prefix also works if there is a unique match)",
+                  "isRequired": true,
+                  "name": [
+                    "--group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "member-id"
+                    }
+                  ],
+                  "description": "The object ID of the contact, group, user, or service principal",
+                  "isRequired": true,
+                  "name": "--member-id"
+                }
+              ]
+            },
+            {
+              "description": "Get the members of a group",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "group"
+                    }
+                  ],
+                  "description": "Group's object id or display name(prefix also works if there is a unique match)",
+                  "isRequired": true,
+                  "name": [
+                    "--group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Remove a member from a group",
+              "name": "remove",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "group"
+                    }
+                  ],
+                  "description": "Group's object id or display name(prefix also works if there is a unique match)",
+                  "isRequired": true,
+                  "name": [
+                    "--group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "member-id"
+                    }
+                  ],
+                  "description": "The object ID of the contact, group, user, or service principal",
+                  "isRequired": true,
+                  "name": "--member-id"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage Azure Active Directory group owners",
+          "name": "owner",
+          "subcommands": [
+            {
+              "description": "Add a group owner",
+              "name": "add",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "group"
+                    }
+                  ],
+                  "description": "Group's object id or display name(prefix also works if there is a unique match)",
+                  "isRequired": true,
+                  "name": [
+                    "--group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "owner-object-id"
+                    }
+                  ],
+                  "description": "Owner's object id",
+                  "isRequired": true,
+                  "name": "--owner-object-id"
+                }
+              ]
+            },
+            {
+              "description": "List group owners",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "group"
+                    }
+                  ],
+                  "description": "Group's object id or display name(prefix also works if there is a unique match)",
+                  "isRequired": true,
+                  "name": [
+                    "--group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Remove a group owner",
+              "name": "remove",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "group"
+                    }
+                  ],
+                  "description": "Group's object id or display name(prefix also works if there is a unique match)",
+                  "isRequired": true,
+                  "name": [
+                    "--group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "owner-object-id"
+                    }
+                  ],
+                  "description": "Owner's object id",
+                  "isRequired": true,
+                  "name": "--owner-object-id"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Show graph information about current signed-in user in CLI",
+      "name": "signed-in-user",
+      "subcommands": [
+        {
+          "description": "Get the list of directory objects that are owned by the user",
+          "name": "list-owned-objects",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "type"
+                }
+              ],
+              "description": "Object type filter, e.g. \"application\", \"servicePrincipal\" \"group\", etc",
+              "name": [
+                "--type",
+                "-t"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the details for the currently logged-in user",
+          "name": "show"
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Active Directory service principals for automation authentication",
+      "name": "sp",
+      "subcommands": [
+        {
+          "description": "Create a service principal",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "Identifier uri, application id, or object id of the associated application",
+              "isRequired": true,
+              "name": "--id"
+            }
+          ]
+        },
+        {
+          "description": "Create a service principal and configure its access to Azure resources",
+          "name": "create-for-rbac",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "cert"
+                }
+              ],
+              "description": "Certificate to use for credentials. When used with --keyvault,, indicates the name of the cert to use or create. Otherwise, supply a PEM or DER formatted public certificate string. Use @{path} to load from a file. Do not include private key info",
+              "name": "--cert"
+            },
+            {
+              "description": "Create a self-signed certificate to use for the credential. Only the current OS user has read/write permission to this certificate. Use with --keyvault to create the certificate in Key Vault. Otherwise, a certificate will be created locally",
+              "name": "--create-cert"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Display name of the service principal. If not present, default to azure-cli-%Y-%m-%d-%H-%M-%S where the suffix is the time of creation",
+              "name": [
+                "--display-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "json-auth",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Option '--sdk-auth' has been deprecated and will be removed in a future release. Output service principal credential along with cloud endpoints in JSON format",
+              "name": [
+                "--json-auth",
+                "--sdk-auth"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "keyvault"
+                }
+              ],
+              "description": "Name or ID of a KeyVault to use for creating or retrieving certificates",
+              "name": "--keyvault"
+            },
+            {
+              "args": [
+                {
+                  "name": "role"
+                }
+              ],
+              "description": "Role of the service principal",
+              "name": "--role"
+            },
+            {
+              "args": [
+                {
+                  "name": "scopes"
+                }
+              ],
+              "description": "Space-separated list of scopes the service principal's role assignment applies to. e.g., subscriptions/0b1f6471-1bf0-4dda-aec3-111122223333/resourceGroups/myGroup, /subscriptions/0b1f6471-1bf0-4dda-aec3-111122223333/resourceGroups/myGroup/providers/Microsoft.Compute/virtualMachines/myVM",
+              "name": "--scopes"
+            },
+            {
+              "args": [
+                {
+                  "name": "years"
+                }
+              ],
+              "description": "Number of years for which the credentials will be valid. Default: 1 year",
+              "name": "--years"
+            }
+          ]
+        },
+        {
+          "description": "Delete a service principal",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "Service principal name, or object id",
+              "isRequired": true,
+              "name": "--id"
+            }
+          ]
+        },
+        {
+          "description": "List service principals",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "all"
+                }
+              ],
+              "description": "List all entities, expect long delay if under a big organization",
+              "name": "--all"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Object's display name or its prefix",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "OData filter, e.g. --filter \"displayname eq 'test' and servicePrincipalType eq 'Application'\"",
+              "name": "--filter"
+            },
+            {
+              "args": [
+                {
+                  "name": "show-mine"
+                }
+              ],
+              "description": "List entities owned by the current user",
+              "name": "--show-mine"
+            },
+            {
+              "args": [
+                {
+                  "name": "spn"
+                }
+              ],
+              "description": "Service principal name",
+              "name": "--spn"
+            }
+          ]
+        },
+        {
+          "description": "Get the details of a service principal",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "Service principal name, or object id",
+              "isRequired": true,
+              "name": "--id"
+            }
+          ]
+        },
+        {
+          "description": "Update a service principal",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "Service principal name, or object id",
+              "isRequired": true,
+              "name": "--id"
+            },
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            }
+          ]
+        },
+        {
+          "description": "Manage a service principal's password or certificate credentials",
+          "name": "credential",
+          "subcommands": [
+            {
+              "description": "Delete a service principal's password or certificate credentials",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Service principal name, or object id",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "key-id"
+                    }
+                  ],
+                  "description": "Credential key id",
+                  "isRequired": true,
+                  "name": "--key-id"
+                },
+                {
+                  "description": "Operate on certificate credentials",
+                  "name": "--cert"
+                }
+              ]
+            },
+            {
+              "description": "List a service principal's password or certificate credential metadata. (The content of the password or certificate credential is not retrievable.)",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Service principal name, or object id",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "description": "Operate on certificate credentials",
+                  "name": "--cert"
+                }
+              ]
+            },
+            {
+              "description": "Reset a service principal's password or certificate credentials",
+              "name": "reset",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Service principal name, or object id",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "description": "Append the new credential instead of overwriting",
+                  "name": "--append"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "cert"
+                    }
+                  ],
+                  "description": "Certificate to use for credentials. When used with --keyvault,, indicates the name of the cert to use or create. Otherwise, supply a PEM or DER formatted public certificate string. Use @{path} to load from a file. Do not include private key info",
+                  "name": "--cert"
+                },
+                {
+                  "description": "Create a self-signed certificate to use for the credential. Only the current OS user has read/write permission to this certificate. Use with --keyvault to create the certificate in Key Vault. Otherwise, a certificate will be created locally",
+                  "name": "--create-cert"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "display-name"
+                    }
+                  ],
+                  "description": "Friendly name for the credential",
+                  "name": "--display-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "end-date"
+                    }
+                  ],
+                  "description": "Finer grain of expiry time if '--years' is insufficient, e.g. '2020-12-31T11:59:59+00:00' or '2299-12-31'",
+                  "name": "--end-date"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "keyvault"
+                    }
+                  ],
+                  "description": "Name or ID of a KeyVault to use for creating or retrieving certificates",
+                  "name": "--keyvault"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "years"
+                    }
+                  ],
+                  "description": "Number of years for which the credentials will be valid. Default: 1 year",
+                  "name": "--years"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage service principal owners",
+          "name": "owner",
+          "subcommands": [
+            {
+              "description": "List service principal owners",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Service principal name, or object id or the service principal",
+                  "isRequired": true,
+                  "name": "--id"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Active Directory users and user authentication",
+      "name": "user",
+      "subcommands": [
+        {
+          "description": "Create an Azure Active Directory user",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Object's display name or its prefix",
+              "isRequired": true,
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "password"
+                }
+              ],
+              "description": "The password that should be assigned to the user for authentication",
+              "isRequired": true,
+              "name": "--password"
+            },
+            {
+              "args": [
+                {
+                  "name": "user-principal-name"
+                }
+              ],
+              "description": "The user principal name (someuser@contoso.com). It must contain one of the verified domains for the tenant",
+              "isRequired": true,
+              "name": "--user-principal-name"
+            },
+            {
+              "description": "Marks this user as needing to update their password the next time they authenticate. If omitted, false will be used",
+              "name": "--force-change-password-next-sign-in"
+            },
+            {
+              "args": [
+                {
+                  "name": "immutable-id"
+                }
+              ],
+              "description": "This must be specified if you are using a federated domain for the user's userPrincipalName (UPN) property when creating a new user account. It is used to associate an on-premises Active Directory user account with their Azure AD user object",
+              "name": "--immutable-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "mail-nickname"
+                }
+              ],
+              "description": "Mail alias. Defaults to user principal name",
+              "name": "--mail-nickname"
+            }
+          ]
+        },
+        {
+          "description": "Delete Azure Active Directory user",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "The object ID or principal name of the user for which to get information",
+              "isRequired": true,
+              "name": "--id"
+            }
+          ]
+        },
+        {
+          "description": "Get groups of which the user is a member",
+          "name": "get-member-groups",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "The object ID or principal name of the user for which to get information",
+              "isRequired": true,
+              "name": "--id"
+            },
+            {
+              "description": "True to specify that only security groups that the entity is a member of should be returned; false to specify that all groups and directory roles that the entity is a member of should be returned",
+              "name": "--security-enabled-only"
+            }
+          ]
+        },
+        {
+          "description": "List Azure Active Directory users",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Object's display name or its prefix",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "OData filter, e.g. --filter \"displayname eq 'test' and servicePrincipalType eq 'Application'\"",
+              "name": "--filter"
+            },
+            {
+              "args": [
+                {
+                  "name": "upn"
+                }
+              ],
+              "description": "User principal name, e.g. john.doe@contoso.com",
+              "name": "--upn"
+            }
+          ]
+        },
+        {
+          "description": "Show details for a Azure Active Directory user",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "The object ID or principal name of the user for which to get information",
+              "isRequired": true,
+              "name": "--id"
+            }
+          ]
+        },
+        {
+          "description": "Update Azure Active Directory users",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "The object ID or principal name of the user for which to get information",
+              "isRequired": true,
+              "name": "--id"
+            },
+            {
+              "args": [
+                {
+                  "name": "account-enabled",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Enable the user account",
+              "name": "--account-enabled"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Object's display name or its prefix",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "force-change-password-next-sign-in",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "If the user must change her password on the next login",
+              "name": "--force-change-password-next-sign-in"
+            },
+            {
+              "args": [
+                {
+                  "name": "mail-nickname"
+                }
+              ],
+              "description": "Mail alias. Defaults to user principal name",
+              "name": "--mail-nickname"
+            },
+            {
+              "args": [
+                {
+                  "name": "password"
+                }
+              ],
+              "description": "User password",
+              "name": "--password"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

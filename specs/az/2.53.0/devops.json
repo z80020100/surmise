@@ -1,0 +1,3916 @@
+{
+  "description": "Manage Azure DevOps organization level operations.\n\n\t\tRelated Groups\naz pipelines: Manage Azure Pipelines\naz boards: Manage Azure Boards\naz repos: Manage Azure Repos\naz artifacts: Manage Azure Artifacts",
+  "name": "devops",
+  "subcommands": [
+    {
+      "description": "Manage administration operations",
+      "name": "admin",
+      "subcommands": [
+        {
+          "description": "Manage organization banner",
+          "name": "banner",
+          "subcommands": [
+            {
+              "description": "Add a new banner and immediately show it",
+              "name": "add",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "message"
+                    }
+                  ],
+                  "description": "Message (string) to show in the banner",
+                  "isRequired": true,
+                  "name": [
+                    "--message",
+                    "-m"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "expiration"
+                    }
+                  ],
+                  "description": "Date/time when the banner should no longer be presented to users. If not set, the banner does not automatically expire and must be removed with the remove command. Example : \"2019-06-10 17:21:00 UTC\", \"2019-06-10\"",
+                  "name": "--expiration"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Identifier for the new banner. This identifier is needed to change or remove the message later. A unique identifier is automatically created if one is not specified",
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "type",
+                      "suggestions": [
+                        "error",
+                        "info",
+                        "warning"
+                      ]
+                    }
+                  ],
+                  "description": "Type of banner to present. Defaults is \"info\"",
+                  "name": [
+                    "--type",
+                    "-t"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List banners",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Remove a banner",
+              "name": "remove",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "ID of the banner to remove",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Show details for a banner",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Identifier for the banner",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Update the message, level, or expiration date for a banner",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "ID of the banner to update",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "expiration"
+                    }
+                  ],
+                  "description": "Date/time when the banner should no longer be presented to users. To unset the expiration for the banner, supply an empty value to this argument. Example : \"2019-06-10 17:21:00 UTC\", \"2019-06-10\"",
+                  "name": "--expiration"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "message"
+                    }
+                  ],
+                  "description": "Message (string) to show in the banner",
+                  "name": [
+                    "--message",
+                    "-m"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "type",
+                      "suggestions": [
+                        "error",
+                        "info",
+                        "warning"
+                      ]
+                    }
+                  ],
+                  "description": "Type of banner to present. Defaults is \"info\"",
+                  "name": [
+                    "--type",
+                    "-t"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Configure the Azure DevOps CLI or view your configuration",
+      "name": "configure",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "defaults"
+            }
+          ],
+          "description": "Space separated 'name=value' pairs for common arguments defaults, e.g. '--defaults project=my-project-name organization=https://dev.azure.com/organizationName arg=value'. Use '' to clear the defaults, e.g. --defaults project=''",
+          "name": [
+            "--defaults",
+            "-d"
+          ]
+        },
+        {
+          "description": "Lists the contents of the config file",
+          "name": [
+            "--list",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "use-git-aliases",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Set to 'true' to configure Git aliases global git config file (to enable commands like \"git pr list\"). Set to 'false' to remove any aliases set by the tool",
+          "name": "--use-git-aliases"
+        }
+      ]
+    },
+    {
+      "description": "Displays information on how to provide feedback to the Azure DevOps CLI team",
+      "name": "feedback"
+    },
+    {
+      "description": "This command will invoke request for any DevOps area and resource. Please use only json output as the response of this command is not fixed. Helpful docs - https://docs.microsoft.com/en-us/rest/api/azure/devops/",
+      "name": "invoke",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "accept-media-type"
+            }
+          ],
+          "description": "Specifies the content type of the response",
+          "name": "--accept-media-type"
+        },
+        {
+          "args": [
+            {
+              "name": "api-version"
+            }
+          ],
+          "description": "The version of the API to target",
+          "name": "--api-version"
+        },
+        {
+          "args": [
+            {
+              "name": "area"
+            }
+          ],
+          "description": "The area to find the resource",
+          "name": "--area"
+        },
+        {
+          "args": [
+            {
+              "name": "detect",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Automatically detect organization",
+          "name": "--detect"
+        },
+        {
+          "args": [
+            {
+              "name": "encoding",
+              "suggestions": [
+                "ascii",
+                "utf-16be",
+                "utf-16le",
+                "utf-8"
+              ]
+            }
+          ],
+          "description": "Encoding of the input file. Used in conjunction with --in-file",
+          "name": "--encoding"
+        },
+        {
+          "args": [
+            {
+              "name": "http-method",
+              "suggestions": [
+                "DELETE",
+                "GET",
+                "HEAD",
+                "OPTIONS",
+                "PATCH",
+                "POST",
+                "PUT"
+              ]
+            }
+          ],
+          "description": "Specifies the method used for the request",
+          "name": "--http-method"
+        },
+        {
+          "args": [
+            {
+              "name": "in-file"
+            }
+          ],
+          "description": "Path and file name to the file that contains the contents of the request",
+          "name": "--in-file"
+        },
+        {
+          "args": [
+            {
+              "name": "media-type"
+            }
+          ],
+          "description": "Specifies the content type of the request",
+          "name": "--media-type"
+        },
+        {
+          "args": [
+            {
+              "name": "organization"
+            }
+          ],
+          "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+          "name": [
+            "--organization",
+            "--org"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "out-file"
+            }
+          ],
+          "description": "Path and file name to the file for which this function saves the response body",
+          "name": "--out-file"
+        },
+        {
+          "args": [
+            {
+              "name": "query-parameters"
+            }
+          ],
+          "description": "Specifies the list of query parameters",
+          "name": "--query-parameters"
+        },
+        {
+          "args": [
+            {
+              "name": "resource"
+            }
+          ],
+          "description": "The name of the resource to operate on",
+          "name": "--resource"
+        },
+        {
+          "args": [
+            {
+              "name": "route-parameters"
+            }
+          ],
+          "description": "Specifies the list of route parameters",
+          "name": "--route-parameters"
+        }
+      ]
+    },
+    {
+      "description": "Set the credential (PAT) to use for a particular organization",
+      "name": "login",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "organization"
+            }
+          ],
+          "description": "Azure DevOps organization URL. Example: https://dev.azure.com/MyOrganizationName",
+          "name": [
+            "--organization",
+            "--org"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Clear the credential for all or a particular organization",
+      "name": "logout",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "organization"
+            }
+          ],
+          "description": "Azure DevOps organization URL. Example: https://dev.azure.com/MyOrganizationName/. If no organization is specified, all organizations will be logged out",
+          "name": [
+            "--organization",
+            "--org"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage extensions",
+      "name": "extension",
+      "subcommands": [
+        {
+          "description": "Disable an extension",
+          "name": "disable",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "extension-id"
+                }
+              ],
+              "description": "Extension Id. This will map to extension-name in the az devops extension search output",
+              "isRequired": true,
+              "name": "--extension-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "publisher-id"
+                }
+              ],
+              "description": "Publisher Id. This will map to publisher-name in the az devops extension search output",
+              "isRequired": true,
+              "name": "--publisher-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Enable an extension",
+          "name": "enable",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "extension-id"
+                }
+              ],
+              "description": "Extension Id. This will map to extension-name in the az devops extension search output",
+              "isRequired": true,
+              "name": "--extension-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "publisher-id"
+                }
+              ],
+              "description": "Publisher Id. This will map to publisher-name in the az devops extension search output",
+              "isRequired": true,
+              "name": "--publisher-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Install an extension",
+          "name": "install",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "extension-id"
+                }
+              ],
+              "description": "Extension Id. This will map to extension-name in the az devops extension search output",
+              "isRequired": true,
+              "name": "--extension-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "publisher-id"
+                }
+              ],
+              "description": "Publisher Id. This will map to publisher-name in the az devops extension search output",
+              "isRequired": true,
+              "name": "--publisher-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List extensions installed in an organization",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "include-built-in",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Include built in extensions",
+              "name": "--include-built-in"
+            },
+            {
+              "args": [
+                {
+                  "name": "include-disabled",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Include disabled extensions",
+              "name": "--include-disabled"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Search extensions from marketplace",
+          "name": "search",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "search-query"
+                }
+              ],
+              "description": "Search term",
+              "isRequired": true,
+              "name": [
+                "--search-query",
+                "-q"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get detail of single extension",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "extension-id"
+                }
+              ],
+              "description": "Extension Id. This will map to extension-name in the az devops extension search output",
+              "isRequired": true,
+              "name": "--extension-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "publisher-id"
+                }
+              ],
+              "description": "Publisher Id. This will map to publisher-name in the az devops extension search output",
+              "isRequired": true,
+              "name": "--publisher-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Uninstall an extension",
+          "name": "uninstall",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "extension-id"
+                }
+              ],
+              "description": "Extension Id. This will map to extension-name in the az devops extension search output",
+              "isRequired": true,
+              "name": "--extension-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "publisher-id"
+                }
+              ],
+              "description": "Publisher Id. This will map to publisher-name in the az devops extension search output",
+              "isRequired": true,
+              "name": "--publisher-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage team projects",
+      "name": "project",
+      "subcommands": [
+        {
+          "description": "Create a team project",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the new project",
+              "isRequired": true,
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Description for the new project",
+              "name": [
+                "--description",
+                "-d"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "description": "Open the team project in the default web browser",
+              "name": "--open"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "process"
+                }
+              ],
+              "description": "Process to use. Default if not specified",
+              "name": [
+                "--process",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "source-control",
+                  "suggestions": [
+                    "git",
+                    "tfvc"
+                  ]
+                }
+              ],
+              "description": "Source control type of the initial code repository created",
+              "name": [
+                "--source-control",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "visibility",
+                  "suggestions": [
+                    "private",
+                    "public"
+                  ]
+                }
+              ],
+              "description": "Project visibility",
+              "name": "--visibility"
+            }
+          ]
+        },
+        {
+          "description": "Delete team project",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "The id of the project to delete",
+              "isRequired": true,
+              "name": "--id"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List team projects",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "continuation-token"
+                }
+              ],
+              "description": "Continuation token. This can be retrived from previous run of this command if more results are present",
+              "name": "--continuation-token"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "get-default-team-image-url",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Whether to get default team image url or not",
+              "name": "--get-default-team-image-url"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "skip"
+                }
+              ],
+              "description": "Number of results to skip",
+              "name": "--skip"
+            },
+            {
+              "args": [
+                {
+                  "name": "state-filter",
+                  "suggestions": [
+                    "all",
+                    "createPending",
+                    "deleted",
+                    "deleting",
+                    "new",
+                    "unchanged",
+                    "wellFormed"
+                  ]
+                }
+              ],
+              "description": "State filter",
+              "name": "--state-filter"
+            },
+            {
+              "args": [
+                {
+                  "name": "top"
+                }
+              ],
+              "description": "Maximum number of results to list",
+              "name": "--top"
+            }
+          ]
+        },
+        {
+          "description": "Show team project",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "isRequired": true,
+              "name": [
+                "--project",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "description": "Open the team project in the default web browser",
+              "name": "--open"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage security related operations",
+      "name": "security",
+      "subcommands": [
+        {
+          "description": "Manage security groups",
+          "name": "group",
+          "subcommands": [
+            {
+              "description": "Create a new Azure DevOps group",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "description"
+                    }
+                  ],
+                  "description": "Description of Azure DevOps group",
+                  "name": "--description"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "email-id"
+                    }
+                  ],
+                  "description": "Create new group using the mail address as a reference to an existing group from an external AD or AAD backed provider. Required if name or origin-id is missing",
+                  "name": "--email-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "groups"
+                    }
+                  ],
+                  "description": "A comma separated list of descriptors referencing groups you want the newly created group to join",
+                  "name": "--groups"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of Azure DevOps group",
+                  "name": "--name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "origin-id"
+                    }
+                  ],
+                  "description": "Create new group using the OriginID as a reference to an existing group from an external AD or AAD backed provider. Required if name or email-id is missing",
+                  "name": "--origin-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project"
+                    }
+                  ],
+                  "description": "Name or ID of the project in which Azure DevOps group should be created",
+                  "name": [
+                    "--project",
+                    "-p"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "scope",
+                      "suggestions": [
+                        "organization",
+                        "project"
+                      ]
+                    }
+                  ],
+                  "description": "Create group at project or organization level",
+                  "name": "--scope"
+                }
+              ]
+            },
+            {
+              "description": "Delete an Azure DevOps group",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Descriptor of the group",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List all the groups in a project or organization",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "continuation-token"
+                    }
+                  ],
+                  "description": "If there are more results that can't be returned in a single page, the result set will contain a continuation token for retrieval of the next set of results",
+                  "name": "--continuation-token"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project"
+                    }
+                  ],
+                  "description": "List groups for a particular project",
+                  "name": [
+                    "--project",
+                    "-p"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "scope",
+                      "suggestions": [
+                        "organization",
+                        "project"
+                      ]
+                    }
+                  ],
+                  "description": "List groups at project or organization level",
+                  "name": "--scope"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subject-types"
+                    }
+                  ],
+                  "description": "A comma separated list of user subject subtypes to reduce the retrieved results. You can give initial part of descriptor [before the dot] as a filter e.g. vssgp,aadgp",
+                  "name": "--subject-types"
+                }
+              ]
+            },
+            {
+              "description": "Show group details",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Descriptor of the group",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Update name AND/OR description for an Azure DevOps group",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "Descriptor of the group",
+                  "isRequired": true,
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "description"
+                    }
+                  ],
+                  "description": "New description for Azure DevOps group",
+                  "name": "--description"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "New name for Azure DevOps group",
+                  "name": "--name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Manage memberships for security groups",
+              "name": "membership",
+              "subcommands": [
+                {
+                  "description": "Add membership",
+                  "name": "add",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "group-id"
+                        }
+                      ],
+                      "description": "Descriptor of the group to which member needs to be added",
+                      "isRequired": true,
+                      "name": "--group-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "member-id"
+                        }
+                      ],
+                      "description": "Descriptor of the group or Email Id of the user to be added. User should already be a part of the organization. Use az devops user add command to add an user to organization",
+                      "isRequired": true,
+                      "name": "--member-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "detect",
+                          "suggestions": [
+                            "false",
+                            "true"
+                          ]
+                        }
+                      ],
+                      "description": "Automatically detect organization",
+                      "name": "--detect"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "organization"
+                        }
+                      ],
+                      "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                      "name": [
+                        "--organization",
+                        "--org"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "description": "List memberships for a group or user",
+                  "name": "list",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "id"
+                        }
+                      ],
+                      "description": "Group descriptor or User Email whose membership details are required",
+                      "isRequired": true,
+                      "name": "--id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "detect",
+                          "suggestions": [
+                            "false",
+                            "true"
+                          ]
+                        }
+                      ],
+                      "description": "Automatically detect organization",
+                      "name": "--detect"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "organization"
+                        }
+                      ],
+                      "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                      "name": [
+                        "--organization",
+                        "--org"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "relationship",
+                          "suggestions": [
+                            "memberof",
+                            "members"
+                          ]
+                        }
+                      ],
+                      "description": "Get member of/members for this group",
+                      "name": "--relationship"
+                    }
+                  ]
+                },
+                {
+                  "description": "Remove membership",
+                  "name": "remove",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "group-id"
+                        }
+                      ],
+                      "description": "Descriptor of the group from which member needs to be removed",
+                      "isRequired": true,
+                      "name": "--group-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "member-id"
+                        }
+                      ],
+                      "description": "Descriptor of the group or Email Id of the user to be removed",
+                      "isRequired": true,
+                      "name": "--member-id"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "detect",
+                          "suggestions": [
+                            "false",
+                            "true"
+                          ]
+                        }
+                      ],
+                      "description": "Automatically detect organization",
+                      "name": "--detect"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "organization"
+                        }
+                      ],
+                      "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                      "name": [
+                        "--organization",
+                        "--org"
+                      ]
+                    },
+                    {
+                      "description": "Do not prompt for confirmation",
+                      "name": [
+                        "--yes",
+                        "-y"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage security permissions",
+          "name": "permission",
+          "subcommands": [
+            {
+              "description": "List tokens for given user/group and namespace",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "namespace-id"
+                    }
+                  ],
+                  "description": "ID of security namespace",
+                  "isRequired": true,
+                  "name": [
+                    "--namespace-id",
+                    "--id"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subject"
+                    }
+                  ],
+                  "description": "User Email ID or Group descriptor",
+                  "isRequired": true,
+                  "name": "--subject"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                },
+                {
+                  "description": "If true and this is a hierarchical namespace, return child ACLs of the specified token",
+                  "name": "--recurse"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "token"
+                    }
+                  ],
+                  "description": "Security token",
+                  "name": "--token"
+                }
+              ]
+            },
+            {
+              "description": "Reset permission for given permission bit(s)",
+              "name": "reset",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "namespace-id"
+                    }
+                  ],
+                  "description": "ID of security namespace",
+                  "isRequired": true,
+                  "name": [
+                    "--namespace-id",
+                    "--id"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "permission-bit"
+                    }
+                  ],
+                  "description": "Permission bit or addition of permission bits which needs to be reset for given user/group and token",
+                  "isRequired": true,
+                  "name": "--permission-bit"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subject"
+                    }
+                  ],
+                  "description": "User Email ID or Group descriptor",
+                  "isRequired": true,
+                  "name": "--subject"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "token"
+                    }
+                  ],
+                  "description": "Security token",
+                  "isRequired": true,
+                  "name": "--token"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Clear all permissions of this token for a user/group",
+              "name": "reset-all",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "namespace-id"
+                    }
+                  ],
+                  "description": "ID of security namespace",
+                  "isRequired": true,
+                  "name": [
+                    "--namespace-id",
+                    "--id"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subject"
+                    }
+                  ],
+                  "description": "User Email ID or Group descriptor",
+                  "isRequired": true,
+                  "name": "--subject"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "token"
+                    }
+                  ],
+                  "description": "Security token",
+                  "isRequired": true,
+                  "name": "--token"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Show permissions for given token, namespace and user/group",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "namespace-id"
+                    }
+                  ],
+                  "description": "ID of security namespace",
+                  "isRequired": true,
+                  "name": [
+                    "--namespace-id",
+                    "--id"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subject"
+                    }
+                  ],
+                  "description": "User Email ID or Group descriptor",
+                  "isRequired": true,
+                  "name": "--subject"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "token"
+                    }
+                  ],
+                  "description": "Security token",
+                  "isRequired": true,
+                  "name": "--token"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Assign allow or deny permission to given user/group",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "namespace-id"
+                    }
+                  ],
+                  "description": "ID of security namespace",
+                  "isRequired": true,
+                  "name": [
+                    "--namespace-id",
+                    "--id"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subject"
+                    }
+                  ],
+                  "description": "User Email ID or Group descriptor",
+                  "isRequired": true,
+                  "name": "--subject"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "token"
+                    }
+                  ],
+                  "description": "Security token",
+                  "isRequired": true,
+                  "name": "--token"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "allow-bit"
+                    }
+                  ],
+                  "description": "Allow bit or addition of bits. Required if --deny-bit is missing",
+                  "name": "--allow-bit"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "deny-bit"
+                    }
+                  ],
+                  "description": "Deny bit or addition of bits. Required if --allow-bit is missing",
+                  "name": "--deny-bit"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "merge",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "If set, the existing ACE has its allow and deny merged with the incoming ACE's allow and deny. If unset, the existing ACE is displaced",
+                  "name": "--merge"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Manage security namespaces",
+              "name": "namespace",
+              "subcommands": [
+                {
+                  "description": "List all available namespaces for an organization",
+                  "name": "list",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "detect",
+                          "suggestions": [
+                            "false",
+                            "true"
+                          ]
+                        }
+                      ],
+                      "description": "Automatically detect organization",
+                      "name": "--detect"
+                    },
+                    {
+                      "description": "If true, retrieve only local security namespaces",
+                      "name": "--local-only"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "organization"
+                        }
+                      ],
+                      "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                      "name": [
+                        "--organization",
+                        "--org"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "description": "Show details of permissions available in each namespace",
+                  "name": "show",
+                  "options": [
+                    {
+                      "args": [
+                        {
+                          "name": "namespace-id"
+                        }
+                      ],
+                      "description": "ID of security namespace",
+                      "isRequired": true,
+                      "name": [
+                        "--namespace-id",
+                        "--id"
+                      ]
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "detect",
+                          "suggestions": [
+                            "false",
+                            "true"
+                          ]
+                        }
+                      ],
+                      "description": "Automatically detect organization",
+                      "name": "--detect"
+                    },
+                    {
+                      "args": [
+                        {
+                          "name": "organization"
+                        }
+                      ],
+                      "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                      "name": [
+                        "--organization",
+                        "--org"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage service endpoints/connections",
+      "name": "service-endpoint",
+      "subcommands": [
+        {
+          "description": "Create a service endpoint using configuration file",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "service-endpoint-configuration"
+                }
+              ],
+              "description": "Configuration file with service endpoint request",
+              "isRequired": true,
+              "name": "--service-endpoint-configuration"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "encoding",
+                  "suggestions": [
+                    "ascii",
+                    "utf-16be",
+                    "utf-16le",
+                    "utf-8"
+                  ]
+                }
+              ],
+              "description": "Encoding of the input file",
+              "name": "--encoding"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Deletes service endpoint",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "Id of the service endpoint to delete",
+              "isRequired": true,
+              "name": "--id"
+            },
+            {
+              "description": "Specific to AzureRM endpoint created in Automatic flow. When it is specified, this will also delete corresponding AAD application in Azure",
+              "name": "--deep"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List service endpoints in a project",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the details of a service endpoint",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "ID of the service endpoint",
+              "isRequired": true,
+              "name": "--id"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update a service endpoint",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "ID of the service endpoint",
+              "isRequired": true,
+              "name": "--id"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "enable-for-all",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Allow all pipelines to access this service endpoint",
+              "name": "--enable-for-all"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage Azure RM service endpoints/connections",
+          "name": "azurerm",
+          "subcommands": [
+            {
+              "description": "Create an Azure RM type service endpoint",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "azure-rm-service-principal-id"
+                    }
+                  ],
+                  "description": "Service principal id for creating azure rm service endpoint",
+                  "isRequired": true,
+                  "name": "--azure-rm-service-principal-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "azure-rm-subscription-id"
+                    }
+                  ],
+                  "description": "Subscription id for azure rm service endpoint",
+                  "isRequired": true,
+                  "name": "--azure-rm-subscription-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "azure-rm-subscription-name"
+                    }
+                  ],
+                  "description": "Name of azure subscription for azure rm service endpoint",
+                  "isRequired": true,
+                  "name": "--azure-rm-subscription-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "azure-rm-tenant-id"
+                    }
+                  ],
+                  "description": "Tenant id for creating azure rm service endpoint",
+                  "isRequired": true,
+                  "name": "--azure-rm-tenant-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of service endpoint to create",
+                  "isRequired": true,
+                  "name": "--name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "azure-rm-service-principal-certificate-path"
+                    }
+                  ],
+                  "description": "Path to (.pem) which is certificate. Create using command \"openssl pkcs12 -in file.pfx -out file.pem -nodes -password pass:<password_here>\". More details : https://aka.ms/azure-devops-cli-azurerm-service-endpoint",
+                  "name": "--azure-rm-service-principal-certificate-path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project"
+                    }
+                  ],
+                  "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+                  "name": [
+                    "--project",
+                    "-p"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage GitHub service endpoints/connections",
+          "name": "github",
+          "subcommands": [
+            {
+              "description": "Create a GitHub service endpoint",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "github-url"
+                    }
+                  ],
+                  "description": "Url for github for creating service endpoint",
+                  "isRequired": true,
+                  "name": "--github-url"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of service endpoint to create",
+                  "isRequired": true,
+                  "name": "--name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project"
+                    }
+                  ],
+                  "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+                  "name": [
+                    "--project",
+                    "-p"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage teams",
+      "name": "team",
+      "subcommands": [
+        {
+          "description": "Create a team",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the new team",
+              "isRequired": true,
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "Description of the new team",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete a team",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "id"
+                }
+              ],
+              "description": "The id of the team to delete",
+              "isRequired": true,
+              "name": "--id"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List all teams in a project",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "skip"
+                }
+              ],
+              "description": "Number of teams to skip",
+              "name": "--skip"
+            },
+            {
+              "args": [
+                {
+                  "name": "top"
+                }
+              ],
+              "description": "Maximum number of teams to return",
+              "name": "--top"
+            }
+          ]
+        },
+        {
+          "description": "List members of a team",
+          "name": "list-member",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "team"
+                }
+              ],
+              "description": "The name or id of the team to show members of",
+              "isRequired": true,
+              "name": "--team"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "skip"
+                }
+              ],
+              "description": "Number of members to skip",
+              "name": "--skip"
+            },
+            {
+              "args": [
+                {
+                  "name": "top"
+                }
+              ],
+              "description": "Maximum number of members to return",
+              "name": "--top"
+            }
+          ]
+        },
+        {
+          "description": "Show team details",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "team"
+                }
+              ],
+              "description": "The name or id of the team to show",
+              "isRequired": true,
+              "name": "--team"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update a team's name and/or description",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "team"
+                }
+              ],
+              "description": "The name or id of the team to be updated",
+              "isRequired": true,
+              "name": "--team"
+            },
+            {
+              "args": [
+                {
+                  "name": "description"
+                }
+              ],
+              "description": "New description of the team",
+              "name": "--description"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "New name of the team",
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage users",
+      "name": "user",
+      "subcommands": [
+        {
+          "description": "Add user",
+          "name": "add",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "email-id"
+                }
+              ],
+              "description": "Email ID of the user",
+              "isRequired": true,
+              "name": "--email-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "license-type",
+                  "suggestions": [
+                    "advanced",
+                    "earlyAdopter",
+                    "express",
+                    "professional",
+                    "stakeholder"
+                  ]
+                }
+              ],
+              "description": "License type for the user",
+              "isRequired": true,
+              "name": "--license-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "send-email-invite",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Whether to send email invite for new user or not",
+              "name": "--send-email-invite"
+            }
+          ]
+        },
+        {
+          "description": "List users in an organization [except for users which are added via AAD groups]",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "skip"
+                }
+              ],
+              "description": "Offset: Number of records to skip",
+              "name": "--skip"
+            },
+            {
+              "args": [
+                {
+                  "name": "top"
+                }
+              ],
+              "description": "Maximum number of users to return. Max value is 10000",
+              "name": "--top"
+            }
+          ]
+        },
+        {
+          "description": "Remove user from an organization",
+          "name": "remove",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "user"
+                }
+              ],
+              "description": "Email ID or ID of the user",
+              "isRequired": true,
+              "name": "--user"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show user details",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "user"
+                }
+              ],
+              "description": "Email ID or ID of the user",
+              "isRequired": true,
+              "name": "--user"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update license type for a user",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "license-type",
+                  "suggestions": [
+                    "advanced",
+                    "earlyAdopter",
+                    "express",
+                    "professional",
+                    "stakeholder"
+                  ]
+                }
+              ],
+              "description": "License type for the user",
+              "isRequired": true,
+              "name": "--license-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "user"
+                }
+              ],
+              "description": "Email ID or ID of the user",
+              "isRequired": true,
+              "name": "--user"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage wikis",
+      "name": "wiki",
+      "subcommands": [
+        {
+          "description": "Create a wiki",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "mapped-path"
+                }
+              ],
+              "description": "[Required for codewiki type] Mapped path of the new wiki e.g. '/' to publish from root of repository",
+              "name": "--mapped-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the new wiki",
+              "name": "--name"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "repository"
+                }
+              ],
+              "description": "[Required for codewiki type] Name or ID of the repository to publish the wiki from",
+              "name": [
+                "--repository",
+                "-r"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "wiki-type",
+                  "suggestions": [
+                    "codewiki",
+                    "projectwiki"
+                  ]
+                }
+              ],
+              "description": "Type of wiki to create",
+              "name": [
+                "--wiki-type",
+                "--type"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "version"
+                }
+              ],
+              "description": "[Required for codewiki type] Repository branch name to publish the code wiki from",
+              "name": [
+                "--version",
+                "-v"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete a wiki",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "wiki"
+                }
+              ],
+              "description": "Name or Id of the wiki to delete",
+              "isRequired": true,
+              "name": "--wiki"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List all the wikis in a project or organization",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "scope",
+                  "suggestions": [
+                    "organization",
+                    "project"
+                  ]
+                }
+              ],
+              "description": "List the wikis at project or organization level",
+              "name": "--scope"
+            }
+          ]
+        },
+        {
+          "description": "Show details of a wiki",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "wiki"
+                }
+              ],
+              "description": "Name or Id of the wiki",
+              "isRequired": true,
+              "name": "--wiki"
+            },
+            {
+              "args": [
+                {
+                  "name": "detect",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Automatically detect organization",
+              "name": "--detect"
+            },
+            {
+              "description": "Open the wiki in your web browser",
+              "name": "--open"
+            },
+            {
+              "args": [
+                {
+                  "name": "organization"
+                }
+              ],
+              "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+              "name": [
+                "--organization",
+                "--org"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+              "name": [
+                "--project",
+                "-p"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage wiki pages",
+          "name": "page",
+          "subcommands": [
+            {
+              "description": "Add a new page",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "Path of the wiki page",
+                  "isRequired": true,
+                  "name": "--path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "wiki"
+                    }
+                  ],
+                  "description": "Name or Id of the wiki",
+                  "isRequired": true,
+                  "name": "--wiki"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "comment"
+                    }
+                  ],
+                  "description": "Comment in the commit message of file add operation",
+                  "name": "--comment"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "content"
+                    }
+                  ],
+                  "description": "Content of the wiki page. Ignored if --file-path is specified",
+                  "name": "--content"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "encoding",
+                      "suggestions": [
+                        "ascii",
+                        "utf-16be",
+                        "utf-16le",
+                        "utf-8"
+                      ]
+                    }
+                  ],
+                  "description": "Encoding of the file. Used in conjunction with --file-path parameter",
+                  "name": "--encoding"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "file-path"
+                    }
+                  ],
+                  "description": "Path of the file input if content is specified in the file",
+                  "name": "--file-path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project"
+                    }
+                  ],
+                  "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+                  "name": [
+                    "--project",
+                    "-p"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Delete a page",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "Path of the wiki page",
+                  "isRequired": true,
+                  "name": "--path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "wiki"
+                    }
+                  ],
+                  "description": "Name or Id of the wiki",
+                  "isRequired": true,
+                  "name": "--wiki"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "comment"
+                    }
+                  ],
+                  "description": "Comment in the commit message of delete operation",
+                  "name": "--comment"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project"
+                    }
+                  ],
+                  "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+                  "name": [
+                    "--project",
+                    "-p"
+                  ]
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Get the content of a page or open a page",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "Path of the wiki page",
+                  "isRequired": true,
+                  "name": "--path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "wiki"
+                    }
+                  ],
+                  "description": "Name or Id of the wiki",
+                  "isRequired": true,
+                  "name": "--wiki"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "description": "Include content of the page",
+                  "name": "--include-content"
+                },
+                {
+                  "description": "Open the wiki page in your web browser",
+                  "name": "--open"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project"
+                    }
+                  ],
+                  "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+                  "name": [
+                    "--project",
+                    "-p"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "version"
+                    }
+                  ],
+                  "description": "Version (ETag) of the wiki page",
+                  "name": [
+                    "--version",
+                    "-v"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Edit a page",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "path"
+                    }
+                  ],
+                  "description": "Path of the wiki page",
+                  "isRequired": true,
+                  "name": "--path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "version"
+                    }
+                  ],
+                  "description": "Version (ETag) of file to edit",
+                  "isRequired": true,
+                  "name": [
+                    "--version",
+                    "-v"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "wiki"
+                    }
+                  ],
+                  "description": "Name or Id of the wiki",
+                  "isRequired": true,
+                  "name": "--wiki"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "comment"
+                    }
+                  ],
+                  "description": "Comment in the commit message of file edit operation",
+                  "name": "--comment"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "content"
+                    }
+                  ],
+                  "description": "Content of the wiki page. Ignored if --file-path is specified",
+                  "name": "--content"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "detect",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Automatically detect organization",
+                  "name": "--detect"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "encoding",
+                      "suggestions": [
+                        "ascii",
+                        "utf-16be",
+                        "utf-16le",
+                        "utf-8"
+                      ]
+                    }
+                  ],
+                  "description": "Encoding of the file. Used in conjunction with --file-path parameter",
+                  "name": "--encoding"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "file-path"
+                    }
+                  ],
+                  "description": "Path of the file input if content is specified in the file",
+                  "name": "--file-path"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "organization"
+                    }
+                  ],
+                  "description": "Azure DevOps organization URL. You can configure the default organization using az devops configure -d organization=ORG_URL. Required if not configured as default or picked up via git config. Example: https://dev.azure.com/MyOrganizationName/",
+                  "name": [
+                    "--organization",
+                    "--org"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "project"
+                    }
+                  ],
+                  "description": "Name or ID of the project. You can configure the default project using az devops configure -d project=NAME_OR_ID. Required if not configured as default or picked up via git config",
+                  "name": [
+                    "--project",
+                    "-p"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

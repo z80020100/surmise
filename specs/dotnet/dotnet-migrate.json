@@ -1,0 +1,101 @@
+{
+  "args": [
+    {
+      "description": "The project or solution file to operate on. If not specified, the command searches the current directory for one. If more than one solution or project is found, an error is thrown",
+      "dyn": true,
+      "generators": [
+        {}
+      ],
+      "isOptional": true,
+      "name": "project"
+    }
+  ],
+  "name": "migrate",
+  "options": [
+    {
+      "args": [
+        {
+          "name": "file",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Output migration report file as JSON rather than user messages",
+      "name": "--format-report-file-json"
+    },
+    {
+      "args": [
+        {
+          "name": "report_file",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Output migration report to a file in addition to the console",
+      "name": [
+        "-r",
+        "--report"
+      ]
+    },
+    {
+      "args": [
+        {
+          "isOptional": true,
+          "name": "type",
+          "suggestions": [
+            "Debug",
+            "Release"
+          ]
+        }
+      ],
+      "description": "Skip migrating project references. By default, project references are migrated recursively",
+      "name": [
+        "-s",
+        "--skip-project-references"
+      ]
+    },
+    {
+      "description": "Skip moving project.json, global.json, and *.xproj to a backup directory after successful migration",
+      "name": "--skip-backup"
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "name": "file"
+        }
+      ],
+      "description": "Template csproj file to use for migration. By default, the same template as the one dropped by dotnet new console is used",
+      "name": [
+        "-t",
+        "--template-file"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "version"
+        }
+      ],
+      "description": "The version of the sdk package that's referenced in the migrated app. The default is the version of the SDK in dotnet new",
+      "name": [
+        "-v",
+        "--sdk-package-version"
+      ]
+    },
+    {
+      "args": [
+        {
+          "name": "file",
+          "template": "filepaths"
+        }
+      ],
+      "description": "The path to the xproj file to use. Required when there is more than one xproj in a project directory",
+      "name": [
+        "-x",
+        "--xproj-file"
+      ]
+    }
+  ]
+}

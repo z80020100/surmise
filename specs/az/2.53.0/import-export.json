@@ -1,0 +1,487 @@
+{
+  "description": "Manage Import Export",
+  "name": "import-export",
+  "subcommands": [
+    {
+      "description": "Import-export bit-locker-key",
+      "name": "bit-locker-key",
+      "subcommands": [
+        {
+          "description": "Returns the BitLocker Keys for all drives in the specified job",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "job-name"
+                }
+              ],
+              "description": "The name of the import/export job",
+              "isRequired": true,
+              "name": "--job-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Creates a new job or updates an existing job in the specified subscription",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the import/export job",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "backup-drive-manifest",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Default value is false. Indicates whether the manifest files on the drives should be copied to block blobs",
+          "name": "--backup-drive-manifest"
+        },
+        {
+          "args": [
+            {
+              "name": "cancel-requested",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Indicates whether a request has been submitted to cancel the job",
+          "name": "--cancel-requested"
+        },
+        {
+          "args": [
+            {
+              "name": "client-tenant-id"
+            }
+          ],
+          "description": "The tenant ID of the client making the request",
+          "name": "--client-tenant-id"
+        },
+        {
+          "args": [
+            {
+              "name": "delivery-package"
+            }
+          ],
+          "description": "Contains information about the package being shipped by the customer to the Microsoft data center",
+          "name": "--delivery-package"
+        },
+        {
+          "args": [
+            {
+              "name": "diagnostics-path"
+            }
+          ],
+          "description": "The virtual blob directory to which the copy logs and backups of drive manifest files (if enabled) will be stored",
+          "name": "--diagnostics-path"
+        },
+        {
+          "args": [
+            {
+              "name": "drive-list"
+            }
+          ],
+          "description": "List of up to ten drives that comprise the job. The drive list is a required element for an import job; it is not specified for export jobs",
+          "name": "--drive-list"
+        },
+        {
+          "args": [
+            {
+              "name": "export"
+            }
+          ],
+          "description": "A property containing information about the blobs to be exported for an export job. This property is required for export jobs, but must not be specified for import jobs",
+          "name": "--export"
+        },
+        {
+          "args": [
+            {
+              "name": "incomplete-blob-list-uri"
+            }
+          ],
+          "description": "A blob path that points to a block blob containing a list of blob names that were not exported due to insufficient drive space. If all blobs were exported successfully, then this element is not included in the response",
+          "name": "--incomplete-blob-list-uri"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "log-level"
+            }
+          ],
+          "description": "Default value is Error. Indicates whether error logging or verbose logging will be enabled",
+          "name": "--log-level"
+        },
+        {
+          "args": [
+            {
+              "name": "percent-complete"
+            }
+          ],
+          "description": "Overall percentage completed for the job",
+          "name": "--percent-complete"
+        },
+        {
+          "args": [
+            {
+              "name": "return-address"
+            }
+          ],
+          "description": "Specifies the return address information for the job",
+          "name": "--return-address"
+        },
+        {
+          "args": [
+            {
+              "name": "return-package"
+            }
+          ],
+          "description": "Contains information about the package being shipped by the customer to the Microsoft data center",
+          "name": "--return-package"
+        },
+        {
+          "args": [
+            {
+              "name": "return-shipping"
+            }
+          ],
+          "description": "Specifies the return carrier and customer's account with the carrier",
+          "name": "--return-shipping"
+        },
+        {
+          "args": [
+            {
+              "name": "shipping-information"
+            }
+          ],
+          "description": "Contains information about the Microsoft datacenter to which the drives should be shipped",
+          "name": "--shipping-information"
+        },
+        {
+          "args": [
+            {
+              "name": "state"
+            }
+          ],
+          "description": "Current state of the job",
+          "name": "--state"
+        },
+        {
+          "args": [
+            {
+              "name": "storage-account"
+            }
+          ],
+          "description": "Name or ID of the storage account where data will be imported to or exported from",
+          "name": "--storage-account"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "type"
+            }
+          ],
+          "description": "The type of job",
+          "name": "--type"
+        }
+      ]
+    },
+    {
+      "description": "Deletes an existing job. Only jobs in the Creating or Completed states can be deleted",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the import/export job",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Returns all active and completed jobs in a subscription",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Gets information about an existing job",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the import/export job",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Updates specific properties of a job. You can call this operation to notify the Import/Export service that the hard drives comprising the import or export job have been shipped to the Microsoft data center. It can also be used to cancel an existing job",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the import/export job",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "backup-drive-manifest",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Indicates whether the manifest files on the drives should be copied to block blobs",
+          "name": "--backup-drive-manifest"
+        },
+        {
+          "args": [
+            {
+              "name": "cancel-requested",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "If specified, the value must be true. The service will attempt to cancel the job",
+          "name": "--cancel-requested"
+        },
+        {
+          "args": [
+            {
+              "name": "delivery-package"
+            }
+          ],
+          "description": "Contains information about the package being shipped by the customer to the Microsoft data center",
+          "name": "--delivery-package"
+        },
+        {
+          "args": [
+            {
+              "name": "drive-list"
+            }
+          ],
+          "description": "List of drives that comprise the job",
+          "name": "--drive-list"
+        },
+        {
+          "args": [
+            {
+              "name": "log-level"
+            }
+          ],
+          "description": "Indicates whether error logging or verbose logging is enabled",
+          "name": "--log-level"
+        },
+        {
+          "args": [
+            {
+              "name": "return-address"
+            }
+          ],
+          "description": "Specifies the return address information for the job",
+          "name": "--return-address"
+        },
+        {
+          "args": [
+            {
+              "name": "return-shipping"
+            }
+          ],
+          "description": "Specifies the return carrier and customer's account with the carrier",
+          "name": "--return-shipping"
+        },
+        {
+          "args": [
+            {
+              "name": "state"
+            }
+          ],
+          "description": "If specified, the value must be Shipping, which tells the Import/Export service that the package for the job has been shipped. The ReturnAddress and DeliveryPackage properties must have been set either in this request or in a previous request, otherwise the request will fail",
+          "name": "--state"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        }
+      ]
+    },
+    {
+      "description": "Import-export location",
+      "name": "location",
+      "subcommands": [
+        {
+          "description": "Returns a list of locations to which you can ship the disks associated with an import or export job. A location is a Microsoft data center region",
+          "name": "list"
+        },
+        {
+          "description": "Returns the details about a location to which you can ship the disks associated with an import or export job. A location is an Azure region",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az import-export location list",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

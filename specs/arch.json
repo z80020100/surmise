@@ -1,0 +1,142 @@
+{
+  "args": [
+    {
+      "isCommand": true,
+      "isVariadic": true,
+      "name": "program",
+      "template": "filepaths"
+    }
+  ],
+  "description": "Print architecture type or run select architecture",
+  "name": "arch",
+  "options": [
+    {
+      "description": "Add the native 32-bit architecture to the list of architectures",
+      "name": "-32"
+    },
+    {
+      "description": "Add the native 64-bit architecture to the list of architectures",
+      "name": "-64"
+    },
+    {
+      "args": [
+        {
+          "name": "arch_name",
+          "suggestions": [
+            {
+              "description": "32-bit intel",
+              "icon": "fig://icon?type=cpu",
+              "name": "i386"
+            },
+            {
+              "description": "64-bit intel",
+              "icon": "fig://icon?type=cpu",
+              "name": "x86_64"
+            },
+            {
+              "description": "64-bit intel (haswell)",
+              "icon": "fig://icon?type=cpu",
+              "name": "x86_64h"
+            },
+            {
+              "description": "64-bit arm",
+              "icon": "fig://icon?type=cpu",
+              "name": "arm64"
+            },
+            {
+              "description": "64-bit arm (Apple Silicon)",
+              "icon": "fig://icon?type=cpu",
+              "name": "arm64e"
+            }
+          ]
+        }
+      ],
+      "exclusiveOn": [
+        "-i386",
+        "-x86_64",
+        "-x86_64h",
+        "-arm64",
+        "-arm64e"
+      ],
+      "isRepeatable": true,
+      "name": "-arch"
+    },
+    {
+      "description": "32-bit intel",
+      "exclusiveOn": [
+        "-arch"
+      ],
+      "icon": "fig://icon?type=cpu",
+      "isRepeatable": true,
+      "name": "-i386"
+    },
+    {
+      "description": "64-bit intel",
+      "exclusiveOn": [
+        "-arch"
+      ],
+      "icon": "fig://icon?type=cpu",
+      "isRepeatable": true,
+      "name": "-x86_64"
+    },
+    {
+      "description": "64-bit intel (haswell)",
+      "exclusiveOn": [
+        "-arch"
+      ],
+      "icon": "fig://icon?type=cpu",
+      "isRepeatable": true,
+      "name": "-x86_64h"
+    },
+    {
+      "description": "64-bit arm",
+      "exclusiveOn": [
+        "-arch"
+      ],
+      "icon": "fig://icon?type=cpu",
+      "isRepeatable": true,
+      "name": "-arm64"
+    },
+    {
+      "description": "64-bit arm (Apple Silicon)",
+      "exclusiveOn": [
+        "-arch"
+      ],
+      "icon": "fig://icon?type=cpu",
+      "isRepeatable": true,
+      "name": "-arm64e"
+    },
+    {
+      "description": "Clear the environment that will be passed to the command",
+      "name": "-c"
+    },
+    {
+      "args": [
+        {
+          "name": "envname"
+        }
+      ],
+      "description": "Delete the named environment variable from the command's environment",
+      "isRepeatable": true,
+      "name": "-d"
+    },
+    {
+      "args": [
+        {
+          "name": "envname=value"
+        }
+      ],
+      "description": "Assign the given value to the variable in the command's environment",
+      "isRepeatable": true,
+      "name": "-e"
+    },
+    {
+      "description": "Print a help message and exit",
+      "name": "-h"
+    }
+  ],
+  "parserDirectives": {
+    "flagsArePosixNoncompliant": true,
+    "optionsMustPrecedeArguments": true
+  }
+}

@@ -1,0 +1,1710 @@
+{
+  "description": "Manage dedicated Redis caches for your Azure applications",
+  "name": "redis",
+  "subcommands": [
+    {
+      "description": "Create new Redis Cache instance",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "isRequired": true,
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Redis cache",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "sku",
+              "suggestions": [
+                "Basic",
+                "Premium",
+                "Standard"
+              ]
+            }
+          ],
+          "description": "Type of Redis cache",
+          "isRequired": true,
+          "name": "--sku"
+        },
+        {
+          "args": [
+            {
+              "name": "vm-size",
+              "suggestions": [
+                "c0",
+                "c1",
+                "c2",
+                "c3",
+                "c4",
+                "c5",
+                "c6",
+                "p1",
+                "p2",
+                "p3",
+                "p4",
+                "p5"
+              ]
+            }
+          ],
+          "description": "Size of Redis cache to deploy. Basic and Standard Cache sizes start with C. Premium Cache sizes start with P",
+          "isRequired": true,
+          "name": "--vm-size"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-non-ssl-port"
+            }
+          ],
+          "description": "If specified, then the non-ssl redis server port (6379) will be enabled",
+          "name": "--enable-non-ssl-port"
+        },
+        {
+          "args": [
+            {
+              "name": "mi-system-assigned"
+            }
+          ],
+          "description": "Flag to specify system assigned identity",
+          "name": "--mi-system-assigned"
+        },
+        {
+          "args": [
+            {
+              "name": "mi-user-assigned"
+            }
+          ],
+          "description": "One or more space separated resource IDs of user assigned identities",
+          "name": "--mi-user-assigned"
+        },
+        {
+          "args": [
+            {
+              "name": "minimum-tls-version",
+              "suggestions": [
+                "1.0",
+                "1.1",
+                "1.2"
+              ]
+            }
+          ],
+          "description": "Specifies the TLS version required by clients to connect to cache",
+          "name": "--minimum-tls-version"
+        },
+        {
+          "args": [
+            {
+              "name": "redis-configuration"
+            }
+          ],
+          "description": "A json file used to set redis-configuration settings. You may encounter parse errors if the json file is invalid",
+          "name": "--redis-configuration"
+        },
+        {
+          "args": [
+            {
+              "name": "redis-version"
+            }
+          ],
+          "description": "Redis version. This should be in the form 'major[.minor]' (only 'major' is required) or the value 'latest' which refers to the latest stable Redis version that is available. Supported versions: 4.0, 6.0 (latest). Default value is 'latest'",
+          "name": "--redis-version"
+        },
+        {
+          "args": [
+            {
+              "name": "replicas-per-master"
+            }
+          ],
+          "description": "The number of replicas to be created per master",
+          "name": "--replicas-per-master"
+        },
+        {
+          "args": [
+            {
+              "name": "shard-count"
+            }
+          ],
+          "description": "The number of shards to be created on a Premium Cluster Cache",
+          "name": "--shard-count"
+        },
+        {
+          "args": [
+            {
+              "name": "static-ip"
+            }
+          ],
+          "description": "Specify a static ip if required for the VNET. If you do not specify a static IP then an IP address is chosen automatically",
+          "name": "--static-ip"
+        },
+        {
+          "args": [
+            {
+              "name": "subnet-id"
+            }
+          ],
+          "description": "The full resource ID of a subnet in a virtual network to deploy the redis cache in. Example format /subscriptions/{subid}/resourceGroups/{resourceGroupName}/providers/Microsoft.{Network|ClassicNetwork}/virtualNetworks/vnet1/subnets/subnet1",
+          "name": "--subnet-id"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "tenant-settings"
+            }
+          ],
+          "description": "Space-separated tenant settings in key[=value] format",
+          "name": "--tenant-settings"
+        },
+        {
+          "args": [
+            {
+              "name": "zones",
+              "suggestions": [
+                "1",
+                "2",
+                "3"
+              ]
+            }
+          ],
+          "description": "Space-separated list of availability zones into which to provision the resource",
+          "name": [
+            "--zones",
+            "-z"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Deletes a Redis cache",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Redis cache",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Export data stored in a Redis cache",
+      "name": "export",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "container"
+            }
+          ],
+          "description": "SAS url for container where data needs to be exported to",
+          "isRequired": true,
+          "name": "--container"
+        },
+        {
+          "args": [
+            {
+              "name": "prefix"
+            }
+          ],
+          "description": "Prefix to use for exported files",
+          "isRequired": true,
+          "name": "--prefix"
+        },
+        {
+          "args": [
+            {
+              "name": "preferred-data-archive-auth-method",
+              "suggestions": [
+                "ManagedIdentity",
+                "SAS"
+              ]
+            }
+          ],
+          "description": "Preferred auth method to communicate to storage account used for data archive, default value is SAS",
+          "name": [
+            "--preferred-data-archive-auth-method",
+            "--auth-method"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "file-format"
+            }
+          ],
+          "description": "Format of the blob (Currently rdb is the only supported format, with other formats expected in the future)",
+          "name": "--file-format"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Redis cache",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Reboot specified Redis node(s)",
+      "name": "force-reboot",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "reboot-type",
+              "suggestions": [
+                "AllNodes",
+                "PrimaryNode",
+                "SecondaryNode"
+              ]
+            }
+          ],
+          "description": "Which Redis node(s) to reboot. Depending on this value data loss is possible",
+          "isRequired": true,
+          "name": "--reboot-type"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Redis cache",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "shard-id"
+            }
+          ],
+          "description": "If clustering is enabled, the ID of the shard to be rebooted",
+          "name": "--shard-id"
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Import data into a Redis cache",
+      "name": "import",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "files"
+            }
+          ],
+          "description": "SAS url for blobs that needs to be imported",
+          "isRequired": true,
+          "name": "--files"
+        },
+        {
+          "args": [
+            {
+              "name": "preferred-data-archive-auth-method",
+              "suggestions": [
+                "ManagedIdentity",
+                "SAS"
+              ]
+            }
+          ],
+          "description": "Preferred auth method to communicate to storage account used for data archive, default value is SAS",
+          "name": [
+            "--preferred-data-archive-auth-method",
+            "--auth-method"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "file-format"
+            }
+          ],
+          "description": "Format of the blob (Currently rdb is the only supported format, with other formats expected in the future)",
+          "name": "--file-format"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Redis cache",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Import data into Redis cache",
+      "name": "import-method",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "files"
+            }
+          ],
+          "description": "SAS url for blobs that needs to be imported",
+          "isRequired": true,
+          "name": "--files"
+        },
+        {
+          "args": [
+            {
+              "name": "preferred-data-archive-auth-method",
+              "suggestions": [
+                "ManagedIdentity",
+                "SAS"
+              ]
+            }
+          ],
+          "description": "Preferred auth method to communicate to storage account used for data archive, default value is SAS",
+          "name": [
+            "--preferred-data-archive-auth-method",
+            "--auth-method"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "file-format"
+            }
+          ],
+          "description": "Format of the blob (Currently rdb is the only supported format, with other formats expected in the future)",
+          "name": "--file-format"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Redis cache",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "List Redis Caches",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Retrieve a Redis cache's access keys",
+      "name": "list-keys",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Redis cache",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Regenerate Redis cache's access keys",
+      "name": "regenerate-keys",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "key-type",
+              "suggestions": [
+                "Primary",
+                "Secondary"
+              ]
+            }
+          ],
+          "description": "The Redis access key to regenerate",
+          "isRequired": true,
+          "name": "--key-type"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Redis cache",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Gets a Redis cache (resource description)",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Redis cache",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Update a Redis cache",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "add"
+            }
+          ],
+          "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+          "name": "--add"
+        },
+        {
+          "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+          "name": "--force-string"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Redis cache",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "remove"
+            }
+          ],
+          "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+          "name": "--remove"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "set"
+            }
+          ],
+          "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+          "name": "--set"
+        },
+        {
+          "args": [
+            {
+              "name": "sku",
+              "suggestions": [
+                "Basic",
+                "Premium",
+                "Standard"
+              ]
+            }
+          ],
+          "description": "Type of Redis cache",
+          "name": "--sku"
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "args": [
+            {
+              "name": "vm-size",
+              "suggestions": [
+                "c0",
+                "c1",
+                "c2",
+                "c3",
+                "c4",
+                "c5",
+                "c6",
+                "p1",
+                "p2",
+                "p3",
+                "p4",
+                "p5"
+              ]
+            }
+          ],
+          "description": "Size of Redis cache to deploy. Basic and Standard Cache sizes start with C. Premium Cache sizes start with P",
+          "name": "--vm-size"
+        }
+      ]
+    },
+    {
+      "description": "Manage Redis firewall rules",
+      "name": "firewall-rules",
+      "subcommands": [
+        {
+          "description": "Create a redis cache firewall rule",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "end-ip"
+                }
+              ],
+              "description": "Highest IP address included in the range",
+              "isRequired": true,
+              "name": "--end-ip"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "rule-name"
+                }
+              ],
+              "description": "The name of the firewall rule",
+              "isRequired": true,
+              "name": "--rule-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "start-ip"
+                }
+              ],
+              "description": "Lowest IP address included in the range",
+              "isRequired": true,
+              "name": "--start-ip"
+            }
+          ]
+        },
+        {
+          "description": "Deletes a single firewall rule in a specified redis cache",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "rule-name"
+                }
+              ],
+              "description": "The name of the firewall rule",
+              "isRequired": true,
+              "name": "--rule-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Gets all firewall rules in the specified redis cache",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets a single firewall rule in a specified redis cache",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "rule-name"
+                }
+              ],
+              "description": "The name of the firewall rule",
+              "isRequired": true,
+              "name": "--rule-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update a redis cache firewall rule",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "end-ip"
+                }
+              ],
+              "description": "Highest IP address included in the range",
+              "isRequired": true,
+              "name": "--end-ip"
+            },
+            {
+              "args": [
+                {
+                  "name": "rule-name"
+                }
+              ],
+              "description": "The name of the firewall rule",
+              "isRequired": true,
+              "name": "--rule-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "start-ip"
+                }
+              ],
+              "description": "Lowest IP address included in the range",
+              "isRequired": true,
+              "name": "--start-ip"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage identity assigned to Azure cache for Redis",
+      "name": "identity",
+      "subcommands": [
+        {
+          "description": "Assign identity for Azure cache for Redis",
+          "name": "assign",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "mi-system-assigned"
+                }
+              ],
+              "description": "Flag to specify system assigned identity",
+              "name": "--mi-system-assigned"
+            },
+            {
+              "args": [
+                {
+                  "name": "mi-user-assigned"
+                }
+              ],
+              "description": "One or more space separated resource IDs of user assigned identities",
+              "name": "--mi-user-assigned"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Remove the identity already assigned for Azure cache for Redis",
+          "name": "remove",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "mi-system-assigned"
+                }
+              ],
+              "description": "Flag to specify system assigned identity",
+              "name": "--mi-system-assigned"
+            },
+            {
+              "args": [
+                {
+                  "name": "mi-user-assigned"
+                }
+              ],
+              "description": "One or more space separated resource IDs of user assigned identities",
+              "name": "--mi-user-assigned"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Show the identity assigned for Azure cache for Redis",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Redis patch schedules",
+      "name": "patch-schedule",
+      "subcommands": [
+        {
+          "description": "Create patching schedule for Redis cache",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "schedule-entries"
+                }
+              ],
+              "description": "List of Patch schedule entries. Example Value:[{\"dayOfWeek\":\"Monday\",\"startHourUtc\":\"00\",\"maintenanceWindow\":\"PT5H\"}]",
+              "isRequired": true,
+              "name": "--schedule-entries"
+            }
+          ]
+        },
+        {
+          "description": "Deletes the patching schedule of a redis cache",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets the patching schedule of a redis cache",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update the patching schedule for Redis cache",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "schedule-entries"
+                }
+              ],
+              "description": "List of Patch schedule entries. Example Value:[{\"dayOfWeek\":\"Monday\",\"startHourUtc\":\"00\",\"maintenanceWindow\":\"PT5H\"}]",
+              "isRequired": true,
+              "name": "--schedule-entries"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Redis server links",
+      "name": "server-link",
+      "subcommands": [
+        {
+          "description": "Adds a server link to the Redis cache (requires Premium SKU)",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "replication-role",
+                  "suggestions": [
+                    "Primary",
+                    "Secondary"
+                  ]
+                }
+              ],
+              "description": "Role of the redis cache to be linked",
+              "isRequired": true,
+              "name": "--replication-role"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "server-to-link"
+                }
+              ],
+              "description": "Resource ID or name of the redis cache to be linked",
+              "isRequired": true,
+              "name": "--server-to-link"
+            }
+          ]
+        },
+        {
+          "description": "Deletes the linked server from a redis cache (requires Premium SKU)",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "linked-server-name"
+                }
+              ],
+              "description": "Name of the linked redis cache",
+              "isRequired": true,
+              "name": "--linked-server-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets the list of linked servers associated with this redis cache (requires Premium SKU)",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets the detailed information about a linked server of a redis cache (requires Premium SKU)",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "linked-server-name"
+                }
+              ],
+              "description": "Name of the linked redis cache",
+              "isRequired": true,
+              "name": "--linked-server-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Redis cache",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

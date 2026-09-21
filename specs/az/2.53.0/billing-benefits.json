@@ -1,0 +1,773 @@
+{
+  "description": "Azure billing benefits commands",
+  "name": "billing-benefits",
+  "subcommands": [
+    {
+      "description": "Azure billing benefits reservation order aliases commands",
+      "name": "reservation-order-aliases",
+      "subcommands": [
+        {
+          "description": "Create a reservation order alias",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "order-alias-name"
+                }
+              ],
+              "description": "Name of the reservation order alias",
+              "isRequired": true,
+              "name": "--order-alias-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "applied-scope-prop"
+                }
+              ],
+              "description": "Properties specific to applied scope type. Not required if not applicable. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--applied-scope-prop"
+            },
+            {
+              "args": [
+                {
+                  "name": "applied-scope-type",
+                  "suggestions": [
+                    "ManagementGroup",
+                    "Shared",
+                    "Single"
+                  ]
+                }
+              ],
+              "description": "Type of the Applied Scope",
+              "name": "--applied-scope-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "billing-plan",
+                  "suggestions": [
+                    "P1M"
+                  ]
+                }
+              ],
+              "description": "Represents the billing plan in ISO 8601 format. Required only for monthly billing plans",
+              "name": "--billing-plan"
+            },
+            {
+              "args": [
+                {
+                  "name": "billing-scope-id"
+                }
+              ],
+              "description": "Subscription that will be charged for purchasing the benefit",
+              "name": "--billing-scope-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Display name",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "instance-flexibility",
+                  "suggestions": [
+                    "Off",
+                    "On"
+                  ]
+                }
+              ],
+              "description": "Turning this on will apply the reservation discount to other VMs in the same VM size group",
+              "name": "--instance-flexibility"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The Azure Region where the reservation benefits are applied to",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "quantity"
+                }
+              ],
+              "description": "Total Quantity of the SKUs purchased in the Reservation",
+              "name": "--quantity"
+            },
+            {
+              "description": "Setting this to true will automatically purchase a new benefit on the expiration date time",
+              "name": "--renew"
+            },
+            {
+              "args": [
+                {
+                  "name": "reserved-resource-type",
+                  "suggestions": [
+                    "AVS",
+                    "AppService",
+                    "AzureDataExplorer",
+                    "AzureFiles",
+                    "BlockBlob",
+                    "CosmosDb",
+                    "DataFactory",
+                    "Databricks",
+                    "DedicatedHost",
+                    "ManagedDisk",
+                    "MariaDb",
+                    "MySql",
+                    "NetAppStorage",
+                    "PostgreSql",
+                    "RedHat",
+                    "RedHatOsa",
+                    "RedisCache",
+                    "SapHana",
+                    "SqlAzureHybridBenefit",
+                    "SqlDataWarehouse",
+                    "SqlDatabases",
+                    "SqlEdge",
+                    "SuseLinux",
+                    "VMwareCloudSimple",
+                    "VirtualMachineSoftware",
+                    "VirtualMachines"
+                  ]
+                }
+              ],
+              "description": "The type of the resource that is being reserved",
+              "name": "--reserved-resource-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "review-date-time"
+                }
+              ],
+              "description": "This is the date-time when the Azure Hybrid Benefit needs to be reviewed",
+              "name": "--review-date-time"
+            },
+            {
+              "args": [
+                {
+                  "name": "sku"
+                }
+              ],
+              "description": "Name of the SKU to be applied",
+              "name": "--sku"
+            },
+            {
+              "args": [
+                {
+                  "name": "term",
+                  "suggestions": [
+                    "P1Y",
+                    "P3Y",
+                    "P5Y"
+                  ]
+                }
+              ],
+              "description": "Represent benefit term in ISO 8601 format",
+              "name": "--term"
+            }
+          ]
+        },
+        {
+          "description": "Get a reservation order alias",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "order-alias-name"
+                }
+              ],
+              "description": "Name of the reservation order alias",
+              "isRequired": true,
+              "name": "--order-alias-name"
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a condition is met",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "order-alias-name"
+                }
+              ],
+              "description": "Name of the reservation order alias",
+              "isRequired": true,
+              "name": "--order-alias-name"
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Azure billing benefits savings plan commands",
+      "name": "savings-plan",
+      "subcommands": [
+        {
+          "description": "List savings plans",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "May be used to filter by reservation properties. The filter supports 'eq', 'or', and 'and'. It does not currently support 'ne', 'gt', 'le', 'ge', or 'not'. Reservation properties include sku/name, properties/{appliedScopeType, archived, displayName, displayProvisioningState, effectiveDateTime, expiryDate, provisioningState, quantity, renew, reservedResourceType, term, userFriendlyAppliedScopeType, userFriendlyRenewState}",
+              "name": "--filter"
+            },
+            {
+              "args": [
+                {
+                  "name": "orderby"
+                }
+              ],
+              "description": "May be used to sort order by reservation properties",
+              "name": "--orderby"
+            },
+            {
+              "args": [
+                {
+                  "name": "selected-state"
+                }
+              ],
+              "description": "The selected provisioning state",
+              "name": "--selected-state"
+            },
+            {
+              "args": [
+                {
+                  "name": "skiptoken"
+                }
+              ],
+              "description": "The number of savings plans to skip from the list before returning results",
+              "name": "--skiptoken"
+            },
+            {
+              "args": [
+                {
+                  "name": "take"
+                }
+              ],
+              "description": "To number of savings plans to return",
+              "name": "--take"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Azure billing benefits savings plan order commands",
+      "name": "savings-plan-order",
+      "subcommands": [
+        {
+          "description": "Elevate as owner on savings plan order based on billing permissions",
+          "name": "elevate",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "savings-plan-order-id"
+                }
+              ],
+              "description": "Order ID of the savings plan",
+              "isRequired": true,
+              "name": "--savings-plan-order-id"
+            }
+          ]
+        },
+        {
+          "description": "List all Savings plan orders",
+          "name": "list"
+        },
+        {
+          "description": "Get a savings plan order",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "savings-plan-order-id"
+                }
+              ],
+              "description": "Order ID of the savings plan",
+              "isRequired": true,
+              "name": "--savings-plan-order-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "expand"
+                }
+              ],
+              "description": "May be used to expand the detail information of some properties",
+              "name": "--expand"
+            }
+          ]
+        },
+        {
+          "description": "Azure billing benefits savings plan in savings plan order commands",
+          "name": "savings-plan",
+          "subcommands": [
+            {
+              "description": "List savings plans in an order",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "savings-plan-order-id"
+                    }
+                  ],
+                  "description": "Order ID of the savings plan",
+                  "isRequired": true,
+                  "name": "--savings-plan-order-id"
+                }
+              ]
+            },
+            {
+              "description": "Get savings plan",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "savings-plan-id"
+                    }
+                  ],
+                  "description": "ID of the savings plan",
+                  "isRequired": true,
+                  "name": "--savings-plan-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "savings-plan-order-id"
+                    }
+                  ],
+                  "description": "Order ID of the savings plan",
+                  "isRequired": true,
+                  "name": "--savings-plan-order-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "expand"
+                    }
+                  ],
+                  "description": "May be used to expand the detail information of some properties",
+                  "name": "--expand"
+                }
+              ]
+            },
+            {
+              "description": "Update savings plan",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "savings-plan-id"
+                    }
+                  ],
+                  "description": "ID of the savings plan",
+                  "isRequired": true,
+                  "name": "--savings-plan-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "savings-plan-order-id"
+                    }
+                  ],
+                  "description": "Order ID of the savings plan",
+                  "isRequired": true,
+                  "name": "--savings-plan-order-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "applied-scope-prop"
+                    }
+                  ],
+                  "description": "Properties specific to applied scope type. Not required if not applicable. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+                  "name": "--applied-scope-prop"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "applied-scope-type",
+                      "suggestions": [
+                        "ManagementGroup",
+                        "Shared",
+                        "Single"
+                      ]
+                    }
+                  ],
+                  "description": "Type of the Applied Scope",
+                  "name": "--applied-scope-type"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "display-name"
+                    }
+                  ],
+                  "description": "Display name",
+                  "name": "--display-name"
+                },
+                {
+                  "description": "Setting this to true will automatically purchase a new benefit on the expiration date time",
+                  "name": "--renew"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "renew-properties"
+                    }
+                  ],
+                  "description": "Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+                  "name": "--renew-properties"
+                }
+              ]
+            },
+            {
+              "description": "Validate savings plan patch",
+              "name": "validate-update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "savings-plan-id"
+                    }
+                  ],
+                  "description": "ID of the savings plan",
+                  "isRequired": true,
+                  "name": "--savings-plan-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "savings-plan-order-id"
+                    }
+                  ],
+                  "description": "Order ID of the savings plan",
+                  "isRequired": true,
+                  "name": "--savings-plan-order-id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "benefits"
+                    }
+                  ],
+                  "description": "Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+                  "name": "--benefits"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Azure billing benefits savings plan order aliases commands",
+      "name": "savings-plan-order-aliases",
+      "subcommands": [
+        {
+          "description": "Create a savings plan. Learn more about permissions needed at https://go.microsoft.com/fwlink/?linkid=2215851",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "order-alias-name"
+                }
+              ],
+              "description": "Name of the savings plan order alias",
+              "isRequired": true,
+              "name": "--order-alias-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "applied-scope-prop"
+                }
+              ],
+              "description": "Properties specific to applied scope type. Not required if not applicable. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--applied-scope-prop"
+            },
+            {
+              "args": [
+                {
+                  "name": "applied-scope-type",
+                  "suggestions": [
+                    "ManagementGroup",
+                    "Shared",
+                    "Single"
+                  ]
+                }
+              ],
+              "description": "Type of the Applied Scope",
+              "name": "--applied-scope-type"
+            },
+            {
+              "args": [
+                {
+                  "name": "billing-plan",
+                  "suggestions": [
+                    "P1M"
+                  ]
+                }
+              ],
+              "description": "Represents the billing plan in ISO 8601 format. Required only for monthly billing plans",
+              "name": "--billing-plan"
+            },
+            {
+              "args": [
+                {
+                  "name": "billing-scope-id"
+                }
+              ],
+              "description": "Subscription that will be charged for purchasing the benefit",
+              "name": "--billing-scope-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "commitment"
+                }
+              ],
+              "description": "Commitment towards the benefit. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--commitment"
+            },
+            {
+              "args": [
+                {
+                  "name": "display-name"
+                }
+              ],
+              "description": "Display name",
+              "name": "--display-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "sku"
+                }
+              ],
+              "description": "Name of the SKU to be applied",
+              "name": "--sku"
+            },
+            {
+              "args": [
+                {
+                  "name": "term",
+                  "suggestions": [
+                    "P1Y",
+                    "P3Y",
+                    "P5Y"
+                  ]
+                }
+              ],
+              "description": "Represent benefit term in ISO 8601 format",
+              "name": "--term"
+            }
+          ]
+        },
+        {
+          "description": "Get a savings plan order alias",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "order-alias-name"
+                }
+              ],
+              "description": "Name of the savings plan order alias",
+              "isRequired": true,
+              "name": "--order-alias-name"
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a condition is met",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "order-alias-name"
+                }
+              ],
+              "description": "Name of the savings plan order alias",
+              "isRequired": true,
+              "name": "--order-alias-name"
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Validate savings plan purchase",
+      "name": "validate-purchase",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "benefits"
+            }
+          ],
+          "description": "Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+          "name": "--benefits"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,427 @@
+{
+  "description": "Unclutter your .profile",
+  "name": "direnv",
+  "options": [
+    {
+      "args": [
+        {
+          "isOptional": true,
+          "name": "VERSION_AT_LEAST"
+        }
+      ],
+      "description": "Prints the version or checks that direnv is older than VERSION_AT_LEAST",
+      "name": "--version"
+    },
+    {
+      "args": [
+        {
+          "description": "Any string",
+          "isOptional": true,
+          "name": "SHOW_PRIVATE"
+        }
+      ],
+      "description": "Help for direnv",
+      "name": "--help"
+    }
+  ],
+  "subcommands": [
+    {
+      "args": [
+        {
+          "generators": [
+            {
+              "template": "filepaths"
+            }
+          ],
+          "isOptional": true,
+          "name": "PATH_TO_RC"
+        }
+      ],
+      "description": "Grants direnv to load the given .envrc",
+      "isDangerous": true,
+      "name": "allow"
+    },
+    {
+      "args": [
+        {
+          "generators": [
+            {
+              "template": "filepaths"
+            }
+          ],
+          "isOptional": true,
+          "name": "PATH_TO_RC"
+        }
+      ],
+      "description": "Revokes the authorization of a given .envrc",
+      "isDangerous": true,
+      "name": "deny"
+    },
+    {
+      "args": [
+        {
+          "generators": [
+            {
+              "template": "filepaths"
+            }
+          ],
+          "isOptional": true,
+          "name": "PATH_TO_RC"
+        }
+      ],
+      "description": "Opens PATH_TO_RC or the current .envrc into an $EDITOR and allow the file to be loaded afterwards",
+      "name": "edit"
+    },
+    {
+      "args": [
+        {
+          "name": "DIR",
+          "template": "folders"
+        },
+        {
+          "isCommand": true,
+          "isDangerous": true,
+          "name": "COMMAND"
+        }
+      ],
+      "description": "Executes a command after loading the first .envrc found in DIR",
+      "name": "exec"
+    },
+    {
+      "args": [
+        {
+          "name": "url"
+        },
+        {
+          "description": "Check if the `integrity hash` is equal to the hash value of the file obtained from the `url`",
+          "isOptional": true,
+          "name": "integrity-hash"
+        }
+      ],
+      "description": "Fetches a given URL into direnv's CAS",
+      "name": "fetchurl"
+    },
+    {
+      "args": [
+        {
+          "description": "Any string",
+          "isOptional": true,
+          "name": "SHOW_PRIVATE"
+        }
+      ],
+      "description": "Help for direnv",
+      "name": "help"
+    },
+    {
+      "args": [
+        {
+          "name": "SHELL",
+          "suggestions": [
+            {
+              "icon": "🐚",
+              "name": "bash"
+            },
+            {
+              "icon": "🐚",
+              "name": "zsh"
+            },
+            {
+              "icon": "🐚",
+              "name": "fish"
+            },
+            {
+              "icon": "🐚",
+              "name": "tcsh"
+            },
+            {
+              "icon": "🐚",
+              "name": "elvish"
+            }
+          ]
+        }
+      ],
+      "description": "Used to setup the shell hook",
+      "name": "hook"
+    },
+    {
+      "description": "Removes old allowed files",
+      "isDangerous": true,
+      "name": "prune"
+    },
+    {
+      "description": "Triggers an env reload",
+      "isDangerous": true,
+      "name": "reload"
+    },
+    {
+      "description": "Prints some debug status information",
+      "name": "status"
+    },
+    {
+      "description": "Displays the stdlib available in the .envrc execution context",
+      "name": "stdlib"
+    },
+    {
+      "args": [
+        {
+          "isOptional": true,
+          "name": "VERSION_AT_LEAST"
+        }
+      ],
+      "description": "Prints the version or checks that direnv is older than VERSION_AT_LEAST",
+      "name": "version"
+    },
+    {
+      "args": [
+        {
+          "isDangerous": true,
+          "name": "FILE",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Accepts a filename containing `direnv dump` output and generates a series of bash export statements to apply the given env",
+      "name": "apply_dump",
+      "priority": 49
+    },
+    {
+      "args": [
+        {
+          "name": "DUMP",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Show the data inside of a dump for debugging purposes",
+      "name": "show_dump",
+      "priority": 49
+    },
+    {
+      "args": [
+        {
+          "isOptional": true,
+          "name": "SHELL",
+          "suggestions": [
+            {
+              "icon": "🐚",
+              "name": "bash"
+            },
+            {
+              "icon": "🐚",
+              "name": "zsh"
+            },
+            {
+              "icon": "🐚",
+              "name": "fish"
+            },
+            {
+              "icon": "🐚",
+              "name": "tcsh"
+            },
+            {
+              "icon": "🐚",
+              "name": "elvish"
+            }
+          ]
+        },
+        {
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "name": "PATH_TO_DOTENV"
+        }
+      ],
+      "description": "Transforms a .env file to evaluatable `export KEY=PAIR` statements",
+      "name": "dotenv",
+      "priority": 49
+    },
+    {
+      "args": [
+        {
+          "isOptional": true,
+          "name": "SHELL",
+          "suggestions": [
+            {
+              "icon": "🐚",
+              "name": "bash"
+            },
+            {
+              "icon": "🐚",
+              "name": "zsh"
+            },
+            {
+              "icon": "🐚",
+              "name": "fish"
+            },
+            {
+              "icon": "🐚",
+              "name": "tcsh"
+            },
+            {
+              "icon": "🐚",
+              "name": "elvish"
+            }
+          ]
+        },
+        {
+          "description": "Overwrites by dump data",
+          "isDangerous": true,
+          "isOptional": true,
+          "name": "FILE",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Used to export the inner bash state at the end of execution",
+      "name": "dump",
+      "priority": 49
+    },
+    {
+      "args": [
+        {
+          "name": "SHELL",
+          "suggestions": [
+            {
+              "icon": "🐚",
+              "name": "bash"
+            },
+            {
+              "icon": "🐚",
+              "name": "zsh"
+            },
+            {
+              "icon": "🐚",
+              "name": "fish"
+            },
+            {
+              "icon": "🐚",
+              "name": "tcsh"
+            },
+            {
+              "icon": "🐚",
+              "name": "elvish"
+            }
+          ]
+        }
+      ],
+      "description": "Loads an .envrc and prints the diff in terms of exports",
+      "name": "export",
+      "priority": 49
+    },
+    {
+      "args": [
+        {
+          "name": "SHELL",
+          "suggestions": [
+            {
+              "icon": "🐚",
+              "name": "bash"
+            },
+            {
+              "icon": "🐚",
+              "name": "zsh"
+            },
+            {
+              "icon": "🐚",
+              "name": "fish"
+            },
+            {
+              "icon": "🐚",
+              "name": "tcsh"
+            },
+            {
+              "icon": "🐚",
+              "name": "elvish"
+            }
+          ]
+        },
+        {
+          "isVariadic": true,
+          "name": "PATH",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Adds a path to the list that direnv watches for changes",
+      "name": "watch",
+      "priority": 49
+    },
+    {
+      "args": [
+        {
+          "name": "SHELL",
+          "suggestions": [
+            {
+              "icon": "🐚",
+              "name": "bash"
+            },
+            {
+              "icon": "🐚",
+              "name": "zsh"
+            },
+            {
+              "icon": "🐚",
+              "name": "fish"
+            },
+            {
+              "icon": "🐚",
+              "name": "tcsh"
+            },
+            {
+              "icon": "🐚",
+              "name": "elvish"
+            }
+          ]
+        },
+        {
+          "name": "DIR",
+          "template": "folders"
+        }
+      ],
+      "description": "Recursively adds a directory to the list that direnv watches for changes",
+      "name": "watch-dir",
+      "priority": 49
+    },
+    {
+      "args": [
+        {
+          "isOptional": true,
+          "name": "SHELL",
+          "suggestions": [
+            {
+              "icon": "🐚",
+              "name": "bash"
+            },
+            {
+              "icon": "🐚",
+              "name": "zsh"
+            },
+            {
+              "icon": "🐚",
+              "name": "fish"
+            },
+            {
+              "icon": "🐚",
+              "name": "tcsh"
+            },
+            {
+              "icon": "🐚",
+              "name": "elvish"
+            }
+          ]
+        }
+      ],
+      "description": "Pipe pairs of `mtime path` to stdin to build a list of files to watch",
+      "name": "watch-list",
+      "priority": 49
+    },
+    {
+      "args": [
+        {
+          "name": "PATH",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Reports whether direnv's view of a file is current (or stale)",
+      "name": "current",
+      "priority": 49
+    }
+  ]
+}

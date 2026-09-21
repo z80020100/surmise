@@ -1,0 +1,1770 @@
+{
+  "description": "Azure Orbital Ground Station as-a-Service (GSaaS)",
+  "name": "orbital",
+  "subcommands": [
+    {
+      "description": "Ground stations available to schedule contacts",
+      "name": "available-ground-station",
+      "subcommands": [
+        {
+          "description": "List available ground stations",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "capability",
+                  "suggestions": [
+                    "Communication",
+                    "EarthObservation"
+                  ]
+                }
+              ],
+              "description": "Ground Station Capability",
+              "name": "--capability"
+            }
+          ]
+        },
+        {
+          "description": "Get the specified available ground station",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ground-station-name"
+                }
+              ],
+              "description": "Ground Station name",
+              "name": [
+                "--ground-station-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Contact profile is a reusable contact configuration",
+      "name": "contact-profile",
+      "subcommands": [
+        {
+          "description": "Create a contact profile",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "contact-profile-name"
+                }
+              ],
+              "description": "Contact Profile name",
+              "isRequired": true,
+              "name": [
+                "--contact-profile-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "auto-tracking-configuration",
+                  "suggestions": [
+                    "disabled",
+                    "sBand",
+                    "xBand"
+                  ]
+                }
+              ],
+              "description": "Auto-tracking configuration",
+              "name": [
+                "--auto-tracking-configuration",
+                "--auto-tracking"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "event-hub-uri"
+                }
+              ],
+              "description": "ARM resource identifier of the Event Hub used for telemetry. Requires granting Orbital Resource Provider the rights to send telemetry into the hub",
+              "name": "--event-hub-uri"
+            },
+            {
+              "args": [
+                {
+                  "name": "links"
+                }
+              ],
+              "description": "Links of the Contact Profile. Describes RF links, modem processing, and IP endpoints. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--links"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The geo-location where the resource lives When not specified, the location of the resource group will be used",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "minimum-elevation-degrees"
+                }
+              ],
+              "description": "Minimum viable elevation for the contact in decimal degrees. Used for listing the available contacts with a spacecraft at a given ground station",
+              "name": [
+                "--minimum-elevation-degrees",
+                "--min-elevation"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "minimum-viable-contact-duration"
+                }
+              ],
+              "description": "Minimum viable contact duration in ISO 8601 format. Used for listing the available contacts with a spacecraft at a given ground station",
+              "name": [
+                "--minimum-viable-contact-duration",
+                "--min-viable-duration"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "network-configuration"
+                }
+              ],
+              "description": "Network configuration of customer virtual network. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--network-configuration"
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Resource tags. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Delete a specified contact profile resource",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "contact-profile-name"
+                }
+              ],
+              "description": "Contact Profile name",
+              "name": [
+                "--contact-profile-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List contact profiles",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "skiptoken"
+                }
+              ],
+              "description": "An opaque string that the resource provider uses to skip over previously-returned results. This is used when a previous list operation call returned a partial result. If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls",
+              "name": "--skiptoken"
+            }
+          ]
+        },
+        {
+          "description": "Get the specified contact Profile in a specified resource group",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "contact-profile-name"
+                }
+              ],
+              "description": "Contact Profile name",
+              "name": [
+                "--contact-profile-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update contact profile",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "auto-tracking-configuration",
+                  "suggestions": [
+                    "disabled",
+                    "sBand",
+                    "xBand"
+                  ]
+                }
+              ],
+              "description": "Auto-tracking configuration",
+              "name": [
+                "--auto-tracking-configuration",
+                "--auto-tracking"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "contact-profile-name"
+                }
+              ],
+              "description": "Contact Profile name",
+              "name": [
+                "--contact-profile-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "event-hub-uri"
+                }
+              ],
+              "description": "ARM resource identifier of the Event Hub used for telemetry. Requires granting Orbital Resource Provider the rights to send telemetry into the hub",
+              "name": "--event-hub-uri"
+            },
+            {
+              "args": [
+                {
+                  "name": "force-string",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "links"
+                }
+              ],
+              "description": "Links of the Contact Profile. Describes RF links, modem processing, and IP endpoints. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--links"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The geo-location where the resource lives",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "minimum-elevation-degrees"
+                }
+              ],
+              "description": "Minimum viable elevation for the contact in decimal degrees. Used for listing the available contacts with a spacecraft at a given ground station",
+              "name": [
+                "--minimum-elevation-degrees",
+                "--min-elevation"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "minimum-viable-contact-duration"
+                }
+              ],
+              "description": "Minimum viable contact duration in ISO 8601 format. Used for listing the available contacts with a spacecraft at a given ground station",
+              "name": [
+                "--minimum-viable-contact-duration",
+                "--min-viable-duration"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "network-configuration"
+                }
+              ],
+              "description": "Network configuration of customer virtual network. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--network-configuration"
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Resource tags. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a condition is met",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "contact-profile-name"
+                }
+              ],
+              "description": "Contact Profile name",
+              "name": [
+                "--contact-profile-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Result of a long running async operation",
+      "name": "operation-result",
+      "subcommands": [
+        {
+          "description": "Return operation results",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "operation-id"
+                }
+              ],
+              "description": "The ID of an ongoing async operation",
+              "name": [
+                "--operation-id",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Satellites must be registered as a spacecraft with Azure Orbital to establish contacts with the satellite",
+      "name": "spacecraft",
+      "subcommands": [
+        {
+          "description": "Create a spacecraft resource",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "spacecraft-name"
+                }
+              ],
+              "description": "Spacecraft ID",
+              "isRequired": true,
+              "name": [
+                "--spacecraft-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "links"
+                }
+              ],
+              "description": "Immutable list of Spacecraft links. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--links"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The geo-location where the resource lives When not specified, the location of the resource group will be used",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "norad-id"
+                }
+              ],
+              "description": "NORAD ID of the spacecraft",
+              "name": "--norad-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Resource tags. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--tags"
+            },
+            {
+              "args": [
+                {
+                  "name": "title-line"
+                }
+              ],
+              "description": "Title line of the two-line element set (TLE)",
+              "name": "--title-line"
+            },
+            {
+              "args": [
+                {
+                  "name": "tle-line1"
+                }
+              ],
+              "description": "Line 1 of the two-line element set (TLE)",
+              "name": "--tle-line1"
+            },
+            {
+              "args": [
+                {
+                  "name": "tle-line2"
+                }
+              ],
+              "description": "Line 2 of the two-line element set (TLE)",
+              "name": "--tle-line2"
+            }
+          ]
+        },
+        {
+          "description": "Delete a specified spacecraft resource",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "spacecraft-name"
+                }
+              ],
+              "description": "Spacecraft ID",
+              "name": [
+                "--spacecraft-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List spacecrafts",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "skiptoken"
+                }
+              ],
+              "description": "An opaque string that the resource provider uses to skip over previously-returned results. This is used when a previous list operation call returned a partial result. If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls",
+              "name": "--skiptoken"
+            }
+          ]
+        },
+        {
+          "description": "List available contacts. A contact is available if the spacecraft is visible from the ground station for more than the minimum viable contact duration provided in the contact profile",
+          "name": "list-available-contact",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "contact-profile"
+                }
+              ],
+              "description": "The reference to the contact profile resource. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "isRequired": true,
+              "name": "--contact-profile"
+            },
+            {
+              "args": [
+                {
+                  "name": "end-time"
+                }
+              ],
+              "description": "End time of a contact (ISO 8601 UTC standard)",
+              "isRequired": true,
+              "name": "--end-time"
+            },
+            {
+              "args": [
+                {
+                  "name": "ground-station-name"
+                }
+              ],
+              "description": "Name of Azure Ground Station",
+              "isRequired": true,
+              "name": "--ground-station-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "spacecraft-name"
+                }
+              ],
+              "description": "Spacecraft ID",
+              "isRequired": true,
+              "name": "--spacecraft-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "start-time"
+                }
+              ],
+              "description": "Start time of a contact (ISO 8601 UTC standard)",
+              "isRequired": true,
+              "name": "--start-time"
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            }
+          ]
+        },
+        {
+          "description": "Get the specified spacecraft in a specified resource group",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "spacecraft-name"
+                }
+              ],
+              "description": "Spacecraft ID",
+              "name": [
+                "--spacecraft-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update spacecraft",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "force-string",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The geo-location where the resource lives",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "spacecraft-name"
+                }
+              ],
+              "description": "Spacecraft ID",
+              "name": [
+                "--spacecraft-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "norad-id"
+                }
+              ],
+              "description": "NORAD ID of the spacecraft",
+              "name": "--norad-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Resource tags. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+              "name": "--tags"
+            },
+            {
+              "args": [
+                {
+                  "name": "title-line"
+                }
+              ],
+              "description": "Title line of the two-line element set (TLE)",
+              "name": "--title-line"
+            },
+            {
+              "args": [
+                {
+                  "name": "tle-line1"
+                }
+              ],
+              "description": "Line 1 of the two-line element set (TLE)",
+              "name": "--tle-line1"
+            },
+            {
+              "args": [
+                {
+                  "name": "tle-line2"
+                }
+              ],
+              "description": "Line 2 of the two-line element set (TLE)",
+              "name": "--tle-line2"
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a condition is met",
+          "name": "wait",
+          "options": [
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "spacecraft-name"
+                }
+              ],
+              "description": "Spacecraft ID",
+              "name": [
+                "--spacecraft-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        },
+        {
+          "description": "At the scheduled time, the selected ground station will contact the spacecraft and start data retrieval/delivery using the contact profile",
+          "name": "contact",
+          "subcommands": [
+            {
+              "description": "Create a contact",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "contact-name"
+                    }
+                  ],
+                  "description": "Contact name",
+                  "isRequired": true,
+                  "name": [
+                    "--contact-name",
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "spacecraft-name"
+                    }
+                  ],
+                  "description": "Spacecraft ID",
+                  "isRequired": true,
+                  "name": "--spacecraft-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "contact-profile"
+                    }
+                  ],
+                  "description": "The reference to the contact profile resource. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+                  "name": "--contact-profile"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ground-station-name"
+                    }
+                  ],
+                  "description": "Azure Ground Station name",
+                  "name": "--ground-station-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "no-wait",
+                      "suggestions": [
+                        "0",
+                        "1",
+                        "f",
+                        "false",
+                        "n",
+                        "no",
+                        "t",
+                        "true",
+                        "y",
+                        "yes"
+                      ]
+                    }
+                  ],
+                  "description": "Do not wait for the long-running operation to finish",
+                  "name": "--no-wait"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "reservation-end-time"
+                    }
+                  ],
+                  "description": "Reservation end time of a contact (ISO 8601 UTC standard)",
+                  "name": "--reservation-end-time"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "reservation-start-time"
+                    }
+                  ],
+                  "description": "Reservation start time of a contact (ISO 8601 UTC standard)",
+                  "name": "--reservation-start-time"
+                }
+              ]
+            },
+            {
+              "description": "Delete a specified contact",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "contact-name"
+                    }
+                  ],
+                  "description": "Contact name",
+                  "name": [
+                    "--contact-name",
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "no-wait",
+                      "suggestions": [
+                        "0",
+                        "1",
+                        "f",
+                        "false",
+                        "n",
+                        "no",
+                        "t",
+                        "true",
+                        "y",
+                        "yes"
+                      ]
+                    }
+                  ],
+                  "description": "Do not wait for the long-running operation to finish",
+                  "name": "--no-wait"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "spacecraft-name"
+                    }
+                  ],
+                  "description": "Spacecraft ID",
+                  "name": "--spacecraft-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List contacts by spacecraft",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "spacecraft-name"
+                    }
+                  ],
+                  "description": "Spacecraft ID",
+                  "isRequired": true,
+                  "name": "--spacecraft-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "skiptoken"
+                    }
+                  ],
+                  "description": "An opaque string that the resource provider uses to skip over previously-returned results. This is used when a previous list operation call returned a partial result. If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls",
+                  "name": "--skiptoken"
+                }
+              ]
+            },
+            {
+              "description": "Get the specified contact in a specified resource group",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "contact-name"
+                    }
+                  ],
+                  "description": "Contact name",
+                  "name": [
+                    "--contact-name",
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "spacecraft-name"
+                    }
+                  ],
+                  "description": "Spacecraft ID",
+                  "name": "--spacecraft-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Place the CLI in a waiting state until a condition is met",
+              "name": "wait",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "contact-name"
+                    }
+                  ],
+                  "description": "Contact name",
+                  "name": [
+                    "--contact-name",
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+                  "name": "--created"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "custom"
+                    }
+                  ],
+                  "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+                  "name": "--custom"
+                },
+                {
+                  "description": "Wait until deleted",
+                  "name": "--deleted"
+                },
+                {
+                  "description": "Wait until the resource exists",
+                  "name": "--exists"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "interval"
+                    }
+                  ],
+                  "description": "Polling interval in seconds",
+                  "name": "--interval"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "spacecraft-name"
+                    }
+                  ],
+                  "description": "Spacecraft ID",
+                  "name": "--spacecraft-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "timeout"
+                    }
+                  ],
+                  "description": "Maximum wait in seconds",
+                  "name": "--timeout"
+                },
+                {
+                  "description": "Wait until updated with provisioningState at 'Succeeded'",
+                  "name": "--updated"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

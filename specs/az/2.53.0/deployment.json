@@ -1,0 +1,3433 @@
+{
+  "description": "Manage Azure Resource Manager template deployment at subscription scope",
+  "name": "deployment",
+  "subcommands": [
+    {
+      "description": "Cancel a deployment at subscription scope",
+      "name": "cancel",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The deployment name",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Start a deployment at subscription scope",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "The location to store the deployment metadata",
+          "isRequired": true,
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "confirm-with-what-if"
+            }
+          ],
+          "description": "Instruct the command to run deployment What-If before executing the deployment. It then prompts you to acknowledge resource changes before it continues",
+          "name": [
+            "--confirm-with-what-if",
+            "-c"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "handle-extended-json-format"
+            }
+          ],
+          "description": "Option '--handle-extended-json-format/-j' has been deprecated and will be removed in a future release. Support to handle extended template content including multiline and comments in deployment",
+          "name": [
+            "--handle-extended-json-format",
+            "-j"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The deployment name",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "description": "The option to disable the prompt of missing parameters for ARM template. When the value is true, the prompt requiring users to provide missing parameter will be ignored. The default value is false",
+          "name": "--no-prompt"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "parameters"
+            }
+          ],
+          "description": "Supply deployment parameter values",
+          "name": [
+            "--parameters",
+            "-p"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "proceed-if-no-change"
+            }
+          ],
+          "description": "Instruct the command to execute the deployment if the What-If result contains no resource changes. Applicable when --confirm-with-what-if is set",
+          "name": "--proceed-if-no-change"
+        },
+        {
+          "args": [
+            {
+              "name": "query-string"
+            }
+          ],
+          "description": "The query string (a SAS token) to be used with the template-uri in the case of linked templates",
+          "name": [
+            "--query-string",
+            "-q"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "template-file"
+            }
+          ],
+          "description": "The path to the template file or Bicep file",
+          "name": [
+            "--template-file",
+            "-f"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "template-spec"
+            }
+          ],
+          "description": "The template spec resource id",
+          "name": [
+            "--template-spec",
+            "-s"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "template-uri"
+            }
+          ],
+          "description": "The URI to the template file",
+          "name": [
+            "--template-uri",
+            "-u"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "what-if"
+            }
+          ],
+          "description": "Instruct the command to run deployment What-If",
+          "name": [
+            "--what-if",
+            "-w"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "what-if-exclude-change-types",
+              "suggestions": [
+                "Create",
+                "Delete",
+                "Deploy",
+                "Ignore",
+                "Modify",
+                "NoChange",
+                "Unsupported"
+              ]
+            }
+          ],
+          "description": "Space-separated list of resource change types to be excluded from What-If results. Applicable when --confirm-with-what-if is set",
+          "name": [
+            "--what-if-exclude-change-types",
+            "-x"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "what-if-result-format",
+              "suggestions": [
+                "FullResourcePayloads",
+                "ResourceIdOnly"
+              ]
+            }
+          ],
+          "description": "The format of What-If results. Applicable when --confirm-with-what-if is set",
+          "name": [
+            "--what-if-result-format",
+            "-r"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Delete a deployment at subscription scope",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The deployment name",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        }
+      ]
+    },
+    {
+      "description": "Export the template used for a deployment",
+      "name": "export",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The deployment name",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List deployments at subscription scope",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "filter"
+            }
+          ],
+          "description": "Filter expression using OData notation. You can use --filter \"provisioningState eq '{state}'\" to filter provisioningState. To get more information, please visit https://docs.microsoft.com/rest/api/resources/deployments/listatsubscriptionscope#uri-parameters",
+          "name": "--filter"
+        }
+      ]
+    },
+    {
+      "description": "Show a deployment at subscription scope",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The deployment name",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Validate whether a template is valid at subscription scope",
+      "name": "validate",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "The location to store the deployment metadata",
+          "isRequired": true,
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "handle-extended-json-format"
+            }
+          ],
+          "description": "Option '--handle-extended-json-format/-j' has been deprecated and will be removed in a future release. Support to handle extended template content including multiline and comments in deployment",
+          "name": [
+            "--handle-extended-json-format",
+            "-j"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The deployment name",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "description": "The option to disable the prompt of missing parameters for ARM template. When the value is true, the prompt requiring users to provide missing parameter will be ignored. The default value is false",
+          "name": "--no-prompt"
+        },
+        {
+          "args": [
+            {
+              "name": "parameters"
+            }
+          ],
+          "description": "Supply deployment parameter values",
+          "name": [
+            "--parameters",
+            "-p"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "query-string"
+            }
+          ],
+          "description": "The query string (a SAS token) to be used with the template-uri in the case of linked templates",
+          "name": [
+            "--query-string",
+            "-q"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "template-file"
+            }
+          ],
+          "description": "The path to the template file or Bicep file",
+          "name": [
+            "--template-file",
+            "-f"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "template-spec"
+            }
+          ],
+          "description": "The template spec resource id",
+          "name": [
+            "--template-spec",
+            "-s"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "template-uri"
+            }
+          ],
+          "description": "The URI to the template file",
+          "name": [
+            "--template-uri",
+            "-u"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Place the CLI in a waiting state until a deployment condition is met",
+      "name": "wait",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The deployment name",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+          "name": "--created"
+        },
+        {
+          "args": [
+            {
+              "name": "custom"
+            }
+          ],
+          "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+          "name": "--custom"
+        },
+        {
+          "description": "Wait until deleted",
+          "name": "--deleted"
+        },
+        {
+          "description": "Wait until the resource exists",
+          "name": "--exists"
+        },
+        {
+          "args": [
+            {
+              "name": "interval"
+            }
+          ],
+          "description": "Polling interval in seconds",
+          "name": "--interval"
+        },
+        {
+          "args": [
+            {
+              "name": "timeout"
+            }
+          ],
+          "description": "Maximum wait in seconds",
+          "name": "--timeout"
+        },
+        {
+          "description": "Wait until updated with provisioningState at 'Succeeded'",
+          "name": "--updated"
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Resource Manager template deployment at resource group",
+      "name": "group",
+      "subcommands": [
+        {
+          "description": "Cancel a deployment at resource group",
+          "name": "cancel",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Start a deployment at resource group",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group to create deployment at",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "aux-subs"
+                }
+              ],
+              "description": "Option '--aux-subs' has been deprecated and will be removed in a future release. Use '--aux-tenants' instead. Auxiliary subscriptions which will be used during deployment across tenants",
+              "name": "--aux-subs"
+            },
+            {
+              "args": [
+                {
+                  "name": "aux-tenants"
+                }
+              ],
+              "description": "Auxiliary tenants which will be used during deployment across tenants",
+              "name": "--aux-tenants"
+            },
+            {
+              "args": [
+                {
+                  "name": "confirm-with-what-if"
+                }
+              ],
+              "description": "Instruct the command to run deployment What-If before executing the deployment. It then prompts you to acknowledge resource changes before it continues",
+              "name": [
+                "--confirm-with-what-if",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "handle-extended-json-format"
+                }
+              ],
+              "description": "Option '--handle-extended-json-format/-j' has been deprecated and will be removed in a future release. Support to handle extended template content including multiline and comments in deployment",
+              "name": [
+                "--handle-extended-json-format",
+                "-j"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "mode",
+                  "suggestions": [
+                    "Complete",
+                    "Incremental"
+                  ]
+                }
+              ],
+              "description": "The deployment mode",
+              "name": "--mode"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "The option to disable the prompt of missing parameters for ARM template. When the value is true, the prompt requiring users to provide missing parameter will be ignored. The default value is false",
+              "name": "--no-prompt"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Supply deployment parameter values",
+              "name": [
+                "--parameters",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "proceed-if-no-change"
+                }
+              ],
+              "description": "Instruct the command to execute the deployment if the What-If result contains no resource changes. Applicable when --confirm-with-what-if is set",
+              "name": "--proceed-if-no-change"
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string"
+                }
+              ],
+              "description": "The query string (a SAS token) to be used with the template-uri in the case of linked templates",
+              "name": [
+                "--query-string",
+                "-q"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "rollback-on-error"
+                }
+              ],
+              "description": "The name of a deployment to roll back to on error, or use as a flag to roll back to the last successful deployment",
+              "name": "--rollback-on-error"
+            },
+            {
+              "args": [
+                {
+                  "name": "template-file"
+                }
+              ],
+              "description": "The path to the template file or Bicep file",
+              "name": [
+                "--template-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-spec"
+                }
+              ],
+              "description": "The template spec resource id",
+              "name": [
+                "--template-spec",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-uri"
+                }
+              ],
+              "description": "The URI to the template file",
+              "name": [
+                "--template-uri",
+                "-u"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "what-if"
+                }
+              ],
+              "description": "Instruct the command to run deployment What-If",
+              "name": [
+                "--what-if",
+                "-w"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "what-if-exclude-change-types",
+                  "suggestions": [
+                    "Create",
+                    "Delete",
+                    "Deploy",
+                    "Ignore",
+                    "Modify",
+                    "NoChange",
+                    "Unsupported"
+                  ]
+                }
+              ],
+              "description": "Space-separated list of resource change types to be excluded from What-If results. Applicable when --confirm-with-what-if is set",
+              "name": [
+                "--what-if-exclude-change-types",
+                "-x"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "what-if-result-format",
+                  "suggestions": [
+                    "FullResourcePayloads",
+                    "ResourceIdOnly"
+                  ]
+                }
+              ],
+              "description": "The format of What-If results. Applicable when --confirm-with-what-if is set",
+              "name": [
+                "--what-if-result-format",
+                "-r"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete a deployment at resource group",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            }
+          ]
+        },
+        {
+          "description": "Export the template used for a deployment",
+          "name": "export",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List deployments at resource group",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "Filter expression using OData notation. You can use --filter \"provisioningState eq '{state}'\" to filter provisioningState. To get more information, please visit https://docs.microsoft.com/rest/api/resources/deployments/listatsubscriptionscope#uri-parameters",
+              "name": "--filter"
+            }
+          ]
+        },
+        {
+          "description": "Show a deployment at resource group",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Validate whether a template is valid at resource group",
+          "name": "validate",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group to create deployment at",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "handle-extended-json-format"
+                }
+              ],
+              "description": "Option '--handle-extended-json-format/-j' has been deprecated and will be removed in a future release. Support to handle extended template content including multiline and comments in deployment",
+              "name": [
+                "--handle-extended-json-format",
+                "-j"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "mode",
+                  "suggestions": [
+                    "Complete",
+                    "Incremental"
+                  ]
+                }
+              ],
+              "description": "The deployment mode",
+              "name": "--mode"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "The option to disable the prompt of missing parameters for ARM template. When the value is true, the prompt requiring users to provide missing parameter will be ignored. The default value is false",
+              "name": "--no-prompt"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Supply deployment parameter values",
+              "name": [
+                "--parameters",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string"
+                }
+              ],
+              "description": "The query string (a SAS token) to be used with the template-uri in the case of linked templates",
+              "name": [
+                "--query-string",
+                "-q"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "rollback-on-error"
+                }
+              ],
+              "description": "The name of a deployment to roll back to on error, or use as a flag to roll back to the last successful deployment",
+              "name": "--rollback-on-error"
+            },
+            {
+              "args": [
+                {
+                  "name": "template-file"
+                }
+              ],
+              "description": "The path to the template file or Bicep file",
+              "name": [
+                "--template-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-spec"
+                }
+              ],
+              "description": "The template spec resource id",
+              "name": [
+                "--template-spec",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-uri"
+                }
+              ],
+              "description": "The URI to the template file",
+              "name": [
+                "--template-uri",
+                "-u"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a deployment condition is met",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        },
+        {
+          "description": "Execute a deployment What-If operation at resource group scope",
+          "name": "what-if",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "The resource group to execute deployment What-If operation at",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "aux-tenants"
+                }
+              ],
+              "description": "Auxiliary tenants which will be used during deployment across tenants",
+              "name": "--aux-tenants"
+            },
+            {
+              "args": [
+                {
+                  "name": "exclude-change-types",
+                  "suggestions": [
+                    "Create",
+                    "Delete",
+                    "Deploy",
+                    "Ignore",
+                    "Modify",
+                    "NoChange",
+                    "Unsupported"
+                  ]
+                }
+              ],
+              "description": "Space-separated list of resource change types to be excluded from What-If results",
+              "name": [
+                "--exclude-change-types",
+                "-x"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "mode",
+                  "suggestions": [
+                    "Complete",
+                    "Incremental"
+                  ]
+                }
+              ],
+              "description": "The deployment mode",
+              "name": "--mode"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "no-pretty-print"
+                }
+              ],
+              "description": "Disable pretty-print for What-If results. When set, the output format type will be used",
+              "name": "--no-pretty-print"
+            },
+            {
+              "description": "The option to disable the prompt of missing parameters for ARM template. When the value is true, the prompt requiring users to provide missing parameter will be ignored. The default value is false",
+              "name": "--no-prompt"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Supply deployment parameter values",
+              "name": [
+                "--parameters",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string"
+                }
+              ],
+              "description": "The query string (a SAS token) to be used with the template-uri in the case of linked templates",
+              "name": [
+                "--query-string",
+                "-q"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "result-format",
+                  "suggestions": [
+                    "FullResourcePayloads",
+                    "ResourceIdOnly"
+                  ]
+                }
+              ],
+              "description": "The format of What-If results",
+              "name": [
+                "--result-format",
+                "-r"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-file"
+                }
+              ],
+              "description": "The path to the template file or Bicep file",
+              "name": [
+                "--template-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-spec"
+                }
+              ],
+              "description": "The template spec resource id",
+              "name": [
+                "--template-spec",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-uri"
+                }
+              ],
+              "description": "The URI to the template file",
+              "name": [
+                "--template-uri",
+                "-u"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Resource Manager template deployment at management group",
+      "name": "mg",
+      "subcommands": [
+        {
+          "description": "Cancel a deployment at management group",
+          "name": "cancel",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "management-group-id"
+                }
+              ],
+              "description": "The management group id",
+              "isRequired": true,
+              "name": [
+                "--management-group-id",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Start a deployment at management group",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The location to store the deployment metadata",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group-id"
+                }
+              ],
+              "description": "The management group id to create deployment at",
+              "isRequired": true,
+              "name": [
+                "--management-group-id",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "confirm-with-what-if"
+                }
+              ],
+              "description": "Instruct the command to run deployment What-If before executing the deployment. It then prompts you to acknowledge resource changes before it continues",
+              "name": [
+                "--confirm-with-what-if",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "handle-extended-json-format"
+                }
+              ],
+              "description": "Option '--handle-extended-json-format/-j' has been deprecated and will be removed in a future release. Support to handle extended template content including multiline and comments in deployment",
+              "name": [
+                "--handle-extended-json-format",
+                "-j"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "mode",
+                  "suggestions": [
+                    "Complete",
+                    "Incremental"
+                  ]
+                }
+              ],
+              "description": "The mode that is used to deploy resources. This value can be either Incremental or Complete. In Incremental mode, resources are deployed without deleting existing resources that are not included in the template. In Complete mode, resources are deployed and existing resources in the resource group that are not included in the template are deleted. Be careful when using Complete mode as you may unintentionally delete resources",
+              "name": "--mode"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "The option to disable the prompt of missing parameters for ARM template. When the value is true, the prompt requiring users to provide missing parameter will be ignored. The default value is false",
+              "name": "--no-prompt"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Supply deployment parameter values",
+              "name": [
+                "--parameters",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "proceed-if-no-change"
+                }
+              ],
+              "description": "Instruct the command to execute the deployment if the What-If result contains no resource changes. Applicable when --confirm-with-what-if is set",
+              "name": "--proceed-if-no-change"
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string"
+                }
+              ],
+              "description": "The query string (a SAS token) to be used with the template-uri in the case of linked templates",
+              "name": [
+                "--query-string",
+                "-q"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-file"
+                }
+              ],
+              "description": "The path to the template file or Bicep file",
+              "name": [
+                "--template-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-spec"
+                }
+              ],
+              "description": "The template spec resource id",
+              "name": [
+                "--template-spec",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-uri"
+                }
+              ],
+              "description": "The URI to the template file",
+              "name": [
+                "--template-uri",
+                "-u"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "what-if"
+                }
+              ],
+              "description": "Instruct the command to run deployment What-If",
+              "name": [
+                "--what-if",
+                "-w"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "what-if-exclude-change-types",
+                  "suggestions": [
+                    "Create",
+                    "Delete",
+                    "Deploy",
+                    "Ignore",
+                    "Modify",
+                    "NoChange",
+                    "Unsupported"
+                  ]
+                }
+              ],
+              "description": "Space-separated list of resource change types to be excluded from What-If results. Applicable when --confirm-with-what-if is set",
+              "name": [
+                "--what-if-exclude-change-types",
+                "-x"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "what-if-result-format",
+                  "suggestions": [
+                    "FullResourcePayloads",
+                    "ResourceIdOnly"
+                  ]
+                }
+              ],
+              "description": "The format of What-If results. Applicable when --confirm-with-what-if is set",
+              "name": [
+                "--what-if-result-format",
+                "-r"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete a deployment at management group",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "management-group-id"
+                }
+              ],
+              "description": "The management group id",
+              "isRequired": true,
+              "name": [
+                "--management-group-id",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            }
+          ]
+        },
+        {
+          "description": "Export the template used for a deployment",
+          "name": "export",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "management-group-id"
+                }
+              ],
+              "description": "The management group id",
+              "isRequired": true,
+              "name": [
+                "--management-group-id",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List deployments at management group",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "management-group-id"
+                }
+              ],
+              "description": "The management group id",
+              "isRequired": true,
+              "name": [
+                "--management-group-id",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "Filter expression using OData notation. You can use --filter \"provisioningState eq '{state}'\" to filter provisioningState. To get more information, please visit https://docs.microsoft.com/rest/api/resources/deployments/listatsubscriptionscope#uri-parameters",
+              "name": "--filter"
+            }
+          ]
+        },
+        {
+          "description": "Show a deployment at management group",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "management-group-id"
+                }
+              ],
+              "description": "The management group id",
+              "isRequired": true,
+              "name": [
+                "--management-group-id",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Validate whether a template is valid at management group",
+          "name": "validate",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The location to store the deployment metadata",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group-id"
+                }
+              ],
+              "description": "The management group id to create deployment at",
+              "isRequired": true,
+              "name": [
+                "--management-group-id",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "handle-extended-json-format"
+                }
+              ],
+              "description": "Option '--handle-extended-json-format/-j' has been deprecated and will be removed in a future release. Support to handle extended template content including multiline and comments in deployment",
+              "name": [
+                "--handle-extended-json-format",
+                "-j"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "The option to disable the prompt of missing parameters for ARM template. When the value is true, the prompt requiring users to provide missing parameter will be ignored. The default value is false",
+              "name": "--no-prompt"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Supply deployment parameter values",
+              "name": [
+                "--parameters",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string"
+                }
+              ],
+              "description": "The query string (a SAS token) to be used with the template-uri in the case of linked templates",
+              "name": [
+                "--query-string",
+                "-q"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-file"
+                }
+              ],
+              "description": "The path to the template file or Bicep file",
+              "name": [
+                "--template-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-spec"
+                }
+              ],
+              "description": "The template spec resource id",
+              "name": [
+                "--template-spec",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-uri"
+                }
+              ],
+              "description": "The URI to the template file",
+              "name": [
+                "--template-uri",
+                "-u"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a deployment condition is met",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "management-group-id"
+                }
+              ],
+              "description": "The management group id",
+              "isRequired": true,
+              "name": [
+                "--management-group-id",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        },
+        {
+          "description": "Execute a deployment What-If operation at management group scope",
+          "name": "what-if",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The location to store the deployment metadata",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "management-group-id"
+                }
+              ],
+              "description": "The management group id to create deployment at",
+              "isRequired": true,
+              "name": [
+                "--management-group-id",
+                "-m"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "exclude-change-types",
+                  "suggestions": [
+                    "Create",
+                    "Delete",
+                    "Deploy",
+                    "Ignore",
+                    "Modify",
+                    "NoChange",
+                    "Unsupported"
+                  ]
+                }
+              ],
+              "description": "Space-separated list of resource change types to be excluded from What-If results",
+              "name": [
+                "--exclude-change-types",
+                "-x"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "no-pretty-print"
+                }
+              ],
+              "description": "Disable pretty-print for What-If results. When set, the output format type will be used",
+              "name": "--no-pretty-print"
+            },
+            {
+              "description": "The option to disable the prompt of missing parameters for ARM template. When the value is true, the prompt requiring users to provide missing parameter will be ignored. The default value is false",
+              "name": "--no-prompt"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Supply deployment parameter values",
+              "name": [
+                "--parameters",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string"
+                }
+              ],
+              "description": "The query string (a SAS token) to be used with the template-uri in the case of linked templates",
+              "name": [
+                "--query-string",
+                "-q"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "result-format",
+                  "suggestions": [
+                    "FullResourcePayloads",
+                    "ResourceIdOnly"
+                  ]
+                }
+              ],
+              "description": "The format of What-If results",
+              "name": [
+                "--result-format",
+                "-r"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-file"
+                }
+              ],
+              "description": "The path to the template file or Bicep file",
+              "name": [
+                "--template-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-spec"
+                }
+              ],
+              "description": "The template spec resource id",
+              "name": [
+                "--template-spec",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-uri"
+                }
+              ],
+              "description": "The URI to the template file",
+              "name": [
+                "--template-uri",
+                "-u"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage deployment operations at subscription scope",
+      "name": "operation",
+      "subcommands": [
+        {
+          "description": "List deployment operations at subscription scope",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show a deployment operation at subscription scope",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "operation-ids"
+                }
+              ],
+              "description": "A list of operation ids to show",
+              "isRequired": true,
+              "name": "--operation-ids"
+            }
+          ]
+        },
+        {
+          "description": "Manage deployment operations at resource group",
+          "name": "group",
+          "subcommands": [
+            {
+              "description": "List deployment operations at resource group",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The deployment name",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Show a deployment operation at resource group",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The deployment name",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "operation-ids"
+                    }
+                  ],
+                  "description": "A list of operation ids to show",
+                  "isRequired": true,
+                  "name": "--operation-ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage deployment operations at management group",
+          "name": "mg",
+          "subcommands": [
+            {
+              "description": "List deployment operations at management group",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "management-group-id"
+                    }
+                  ],
+                  "description": "The management group id",
+                  "isRequired": true,
+                  "name": [
+                    "--management-group-id",
+                    "-m"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The deployment name",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Show a deployment operation at management group",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "management-group-id"
+                    }
+                  ],
+                  "description": "The management group id",
+                  "isRequired": true,
+                  "name": [
+                    "--management-group-id",
+                    "-m"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The deployment name",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "operation-ids"
+                    }
+                  ],
+                  "description": "A list of operation ids to show",
+                  "isRequired": true,
+                  "name": "--operation-ids"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage deployment operations at subscription scope",
+          "name": "sub",
+          "subcommands": [
+            {
+              "description": "List deployment operations at subscription scope",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The deployment name",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Show a deployment operation at subscription scope",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The deployment name",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "operation-ids"
+                    }
+                  ],
+                  "description": "A list of operation ids to show",
+                  "isRequired": true,
+                  "name": "--operation-ids"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage deployment operations at tenant scope",
+          "name": "tenant",
+          "subcommands": [
+            {
+              "description": "List deployment operations at tenant scope",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The deployment name",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Show a deployment operation at tenant scope",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The deployment name",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "operation-ids"
+                    }
+                  ],
+                  "description": "A list of operation ids to show",
+                  "isRequired": true,
+                  "name": "--operation-ids"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Resource Manager template deployment at subscription scope",
+      "name": "sub",
+      "subcommands": [
+        {
+          "description": "Cancel a deployment at subscription scope",
+          "name": "cancel",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Start a deployment at subscription scope",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The location to store the deployment metadata",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "confirm-with-what-if"
+                }
+              ],
+              "description": "Instruct the command to run deployment What-If before executing the deployment. It then prompts you to acknowledge resource changes before it continues",
+              "name": [
+                "--confirm-with-what-if",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "handle-extended-json-format"
+                }
+              ],
+              "description": "Option '--handle-extended-json-format/-j' has been deprecated and will be removed in a future release. Support to handle extended template content including multiline and comments in deployment",
+              "name": [
+                "--handle-extended-json-format",
+                "-j"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "The option to disable the prompt of missing parameters for ARM template. When the value is true, the prompt requiring users to provide missing parameter will be ignored. The default value is false",
+              "name": "--no-prompt"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Supply deployment parameter values",
+              "name": [
+                "--parameters",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "proceed-if-no-change"
+                }
+              ],
+              "description": "Instruct the command to execute the deployment if the What-If result contains no resource changes. Applicable when --confirm-with-what-if is set",
+              "name": "--proceed-if-no-change"
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string"
+                }
+              ],
+              "description": "The query string (a SAS token) to be used with the template-uri in the case of linked templates",
+              "name": [
+                "--query-string",
+                "-q"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-file"
+                }
+              ],
+              "description": "The path to the template file or Bicep file",
+              "name": [
+                "--template-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-spec"
+                }
+              ],
+              "description": "The template spec resource id",
+              "name": [
+                "--template-spec",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-uri"
+                }
+              ],
+              "description": "The URI to the template file",
+              "name": [
+                "--template-uri",
+                "-u"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "what-if"
+                }
+              ],
+              "description": "Instruct the command to run deployment What-If",
+              "name": [
+                "--what-if",
+                "-w"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "what-if-exclude-change-types",
+                  "suggestions": [
+                    "Create",
+                    "Delete",
+                    "Deploy",
+                    "Ignore",
+                    "Modify",
+                    "NoChange",
+                    "Unsupported"
+                  ]
+                }
+              ],
+              "description": "Space-separated list of resource change types to be excluded from What-If results. Applicable when --confirm-with-what-if is set",
+              "name": [
+                "--what-if-exclude-change-types",
+                "-x"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "what-if-result-format",
+                  "suggestions": [
+                    "FullResourcePayloads",
+                    "ResourceIdOnly"
+                  ]
+                }
+              ],
+              "description": "The format of What-If results. Applicable when --confirm-with-what-if is set",
+              "name": [
+                "--what-if-result-format",
+                "-r"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete a deployment at subscription scope",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            }
+          ]
+        },
+        {
+          "description": "Export the template used for a deployment",
+          "name": "export",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List deployments at subscription scope",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "Filter expression using OData notation. You can use --filter \"provisioningState eq '{state}'\" to filter provisioningState. To get more information, please visit https://docs.microsoft.com/rest/api/resources/deployments/listatsubscriptionscope#uri-parameters",
+              "name": "--filter"
+            }
+          ]
+        },
+        {
+          "description": "Show a deployment at subscription scope",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Validate whether a template is valid at subscription scope",
+          "name": "validate",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The location to store the deployment metadata",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "handle-extended-json-format"
+                }
+              ],
+              "description": "Option '--handle-extended-json-format/-j' has been deprecated and will be removed in a future release. Support to handle extended template content including multiline and comments in deployment",
+              "name": [
+                "--handle-extended-json-format",
+                "-j"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "The option to disable the prompt of missing parameters for ARM template. When the value is true, the prompt requiring users to provide missing parameter will be ignored. The default value is false",
+              "name": "--no-prompt"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Supply deployment parameter values",
+              "name": [
+                "--parameters",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string"
+                }
+              ],
+              "description": "The query string (a SAS token) to be used with the template-uri in the case of linked templates",
+              "name": [
+                "--query-string",
+                "-q"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-file"
+                }
+              ],
+              "description": "The path to the template file or Bicep file",
+              "name": [
+                "--template-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-spec"
+                }
+              ],
+              "description": "The template spec resource id",
+              "name": [
+                "--template-spec",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-uri"
+                }
+              ],
+              "description": "The URI to the template file",
+              "name": [
+                "--template-uri",
+                "-u"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a deployment condition is met",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        },
+        {
+          "description": "Execute a deployment What-If operation at subscription scope",
+          "name": "what-if",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The location to store the deployment What-If operation metadata",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "exclude-change-types",
+                  "suggestions": [
+                    "Create",
+                    "Delete",
+                    "Deploy",
+                    "Ignore",
+                    "Modify",
+                    "NoChange",
+                    "Unsupported"
+                  ]
+                }
+              ],
+              "description": "Space-separated list of resource change types to be excluded from What-If results",
+              "name": [
+                "--exclude-change-types",
+                "-x"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "no-pretty-print"
+                }
+              ],
+              "description": "Disable pretty-print for What-If results. When set, the output format type will be used",
+              "name": "--no-pretty-print"
+            },
+            {
+              "description": "The option to disable the prompt of missing parameters for ARM template. When the value is true, the prompt requiring users to provide missing parameter will be ignored. The default value is false",
+              "name": "--no-prompt"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Supply deployment parameter values",
+              "name": [
+                "--parameters",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string"
+                }
+              ],
+              "description": "The query string (a SAS token) to be used with the template-uri in the case of linked templates",
+              "name": [
+                "--query-string",
+                "-q"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "result-format",
+                  "suggestions": [
+                    "FullResourcePayloads",
+                    "ResourceIdOnly"
+                  ]
+                }
+              ],
+              "description": "The format of What-If results",
+              "name": [
+                "--result-format",
+                "-r"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-file"
+                }
+              ],
+              "description": "The path to the template file or Bicep file",
+              "name": [
+                "--template-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-spec"
+                }
+              ],
+              "description": "The template spec resource id",
+              "name": [
+                "--template-spec",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-uri"
+                }
+              ],
+              "description": "The URI to the template file",
+              "name": [
+                "--template-uri",
+                "-u"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Resource Manager template deployment at tenant scope",
+      "name": "tenant",
+      "subcommands": [
+        {
+          "description": "Cancel a deployment at tenant scope",
+          "name": "cancel",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Start a deployment at tenant scope",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The location to store the deployment metadata",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "confirm-with-what-if"
+                }
+              ],
+              "description": "Instruct the command to run deployment What-If before executing the deployment. It then prompts you to acknowledge resource changes before it continues",
+              "name": [
+                "--confirm-with-what-if",
+                "-c"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "handle-extended-json-format"
+                }
+              ],
+              "description": "Option '--handle-extended-json-format/-j' has been deprecated and will be removed in a future release. Support to handle extended template content including multiline and comments in deployment",
+              "name": [
+                "--handle-extended-json-format",
+                "-j"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "The option to disable the prompt of missing parameters for ARM template. When the value is true, the prompt requiring users to provide missing parameter will be ignored. The default value is false",
+              "name": "--no-prompt"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Supply deployment parameter values",
+              "name": [
+                "--parameters",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "proceed-if-no-change"
+                }
+              ],
+              "description": "Instruct the command to execute the deployment if the What-If result contains no resource changes. Applicable when --confirm-with-what-if is set",
+              "name": "--proceed-if-no-change"
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string"
+                }
+              ],
+              "description": "The query string (a SAS token) to be used with the template-uri in the case of linked templates",
+              "name": [
+                "--query-string",
+                "-q"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-file"
+                }
+              ],
+              "description": "The path to the template file or Bicep file",
+              "name": [
+                "--template-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-spec"
+                }
+              ],
+              "description": "The template spec resource id",
+              "name": [
+                "--template-spec",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-uri"
+                }
+              ],
+              "description": "The URI to the template file",
+              "name": [
+                "--template-uri",
+                "-u"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "what-if"
+                }
+              ],
+              "description": "Instruct the command to run deployment What-If",
+              "name": [
+                "--what-if",
+                "-w"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "what-if-exclude-change-types",
+                  "suggestions": [
+                    "Create",
+                    "Delete",
+                    "Deploy",
+                    "Ignore",
+                    "Modify",
+                    "NoChange",
+                    "Unsupported"
+                  ]
+                }
+              ],
+              "description": "Space-separated list of resource change types to be excluded from What-If results. Applicable when --confirm-with-what-if is set",
+              "name": [
+                "--what-if-exclude-change-types",
+                "-x"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "what-if-result-format",
+                  "suggestions": [
+                    "FullResourcePayloads",
+                    "ResourceIdOnly"
+                  ]
+                }
+              ],
+              "description": "The format of What-If results. Applicable when --confirm-with-what-if is set",
+              "name": [
+                "--what-if-result-format",
+                "-r"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete a deployment at tenant scope",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            }
+          ]
+        },
+        {
+          "description": "Export the template used for a deployment",
+          "name": "export",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List deployments at tenant scope",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "filter"
+                }
+              ],
+              "description": "Filter expression using OData notation. You can use --filter \"provisioningState eq '{state}'\" to filter provisioningState. To get more information, please visit https://docs.microsoft.com/rest/api/resources/deployments/listatsubscriptionscope#uri-parameters",
+              "name": "--filter"
+            }
+          ]
+        },
+        {
+          "description": "Show a deployment at tenant scope",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Validate whether a template is valid at tenant scope",
+          "name": "validate",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The location to store the deployment metadata",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "handle-extended-json-format"
+                }
+              ],
+              "description": "Option '--handle-extended-json-format/-j' has been deprecated and will be removed in a future release. Support to handle extended template content including multiline and comments in deployment",
+              "name": [
+                "--handle-extended-json-format",
+                "-j"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "The option to disable the prompt of missing parameters for ARM template. When the value is true, the prompt requiring users to provide missing parameter will be ignored. The default value is false",
+              "name": "--no-prompt"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Supply deployment parameter values",
+              "name": [
+                "--parameters",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string"
+                }
+              ],
+              "description": "The query string (a SAS token) to be used with the template-uri in the case of linked templates",
+              "name": [
+                "--query-string",
+                "-q"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-file"
+                }
+              ],
+              "description": "The path to the template file or Bicep file",
+              "name": [
+                "--template-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-spec"
+                }
+              ],
+              "description": "The template spec resource id",
+              "name": [
+                "--template-spec",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-uri"
+                }
+              ],
+              "description": "The URI to the template file",
+              "name": [
+                "--template-uri",
+                "-u"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until a deployment condition is met",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+              "name": "--created"
+            },
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until deleted",
+              "name": "--deleted"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            },
+            {
+              "description": "Wait until updated with provisioningState at 'Succeeded'",
+              "name": "--updated"
+            }
+          ]
+        },
+        {
+          "description": "Execute a deployment What-If operation at tenant scope",
+          "name": "what-if",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The location to store the deployment What-If operation metadata",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "exclude-change-types",
+                  "suggestions": [
+                    "Create",
+                    "Delete",
+                    "Deploy",
+                    "Ignore",
+                    "Modify",
+                    "NoChange",
+                    "Unsupported"
+                  ]
+                }
+              ],
+              "description": "Space-separated list of resource change types to be excluded from What-If results",
+              "name": [
+                "--exclude-change-types",
+                "-x"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The deployment name",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "no-pretty-print"
+                }
+              ],
+              "description": "Disable pretty-print for What-If results. When set, the output format type will be used",
+              "name": "--no-pretty-print"
+            },
+            {
+              "description": "The option to disable the prompt of missing parameters for ARM template. When the value is true, the prompt requiring users to provide missing parameter will be ignored. The default value is false",
+              "name": "--no-prompt"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Supply deployment parameter values",
+              "name": [
+                "--parameters",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "query-string"
+                }
+              ],
+              "description": "The query string (a SAS token) to be used with the template-uri in the case of linked templates",
+              "name": [
+                "--query-string",
+                "-q"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "result-format",
+                  "suggestions": [
+                    "FullResourcePayloads",
+                    "ResourceIdOnly"
+                  ]
+                }
+              ],
+              "description": "The format of What-If results",
+              "name": [
+                "--result-format",
+                "-r"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-file"
+                }
+              ],
+              "description": "The path to the template file or Bicep file",
+              "name": [
+                "--template-file",
+                "-f"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-spec"
+                }
+              ],
+              "description": "The template spec resource id",
+              "name": [
+                "--template-spec",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "template-uri"
+                }
+              ],
+              "description": "The URI to the template file",
+              "name": [
+                "--template-uri",
+                "-u"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

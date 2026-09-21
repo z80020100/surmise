@@ -1,0 +1,142 @@
+{
+  "args": [
+    {
+      "isVariadic": true,
+      "name": "inputfile",
+      "template": "filepaths"
+    }
+  ],
+  "description": "Character set conversion",
+  "name": "iconv",
+  "options": [
+    {
+      "description": "Show help for iconv",
+      "name": "--help"
+    },
+    {
+      "description": "Output version information and exit",
+      "name": "--version"
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "bash",
+                "-c",
+                "iconv -l | command tr ' ' '\\n' | sort"
+              ]
+            }
+          ],
+          "name": "encoding"
+        }
+      ],
+      "description": "Specifies the encoding of the input",
+      "exclusiveOn": [
+        "-l",
+        "--list"
+      ],
+      "name": [
+        "-f",
+        "--from-code"
+      ]
+    },
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "bash",
+                "-c",
+                "iconv -l | command tr ' ' '\\n' | sort"
+              ]
+            }
+          ],
+          "name": "encoding"
+        }
+      ],
+      "description": "Specifies the encoding of the output",
+      "exclusiveOn": [
+        "-l",
+        "--list"
+      ],
+      "name": [
+        "-t",
+        "--to-code"
+      ]
+    },
+    {
+      "description": "Discard unconvertible characters",
+      "exclusiveOn": [
+        "-l",
+        "--list"
+      ],
+      "name": "-c"
+    },
+    {
+      "description": "List the supported encodings",
+      "exclusiveOn": [
+        "-f",
+        "--from-code",
+        "-t",
+        "--to-code",
+        "--unicode-subst",
+        "--byte-subst",
+        "--widechar-subst"
+      ],
+      "name": [
+        "-l",
+        "--list"
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "The formatstring must be a format string in the same format as for the printf command",
+          "name": "FORMATSTRING"
+        }
+      ],
+      "description": "Substitution for unconvertible Unicode characters",
+      "exclusiveOn": [
+        "-l",
+        "--list"
+      ],
+      "name": "--unicode-subst",
+      "requiresSeparator": true
+    },
+    {
+      "args": [
+        {
+          "description": "The formatstring must be a format string in the same format as for the printf command",
+          "name": "FORMATSTRING"
+        }
+      ],
+      "description": "Substitution for unconvertible bytes",
+      "exclusiveOn": [
+        "-l",
+        "--list"
+      ],
+      "name": "--byte-subst",
+      "requiresSeparator": true
+    },
+    {
+      "args": [
+        {
+          "description": "The formatstring must be a format string in the same format as for the printf command",
+          "name": "FORMATSTRING"
+        }
+      ],
+      "description": "Substitution for unconvertible wide characters",
+      "exclusiveOn": [
+        "-l",
+        "--list"
+      ],
+      "name": "--widechar-subst",
+      "requiresSeparator": true
+    }
+  ]
+}

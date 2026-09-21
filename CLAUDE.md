@@ -307,6 +307,8 @@ make check                  # the gate: fmt-check, clippy, test, then shell
 make install                # cargo install --locked --path .
 make uninstall              # cargo uninstall surmise
 make clean                  # cargo clean
+make specs CORPUS=<path>    # regenerate specs/ from a spec corpus
+make specs-check            # fmt and clippy for tools/spec-convert
 ```
 
 `make check` is the gate and the pre-commit hook runs it. CI calls the same
@@ -318,6 +320,60 @@ hook therefore does not promise a green CI run.
 CI runs the same gate on macOS and on Linux. A failure on one does not cancel
 the other, because which platform failed is the answer a matrix exists to give.
 No other platform is built and no other platform is checked.
+
+## Completion spec data
+
+`specs/` holds a completion specification for each of 727 commands: their
+subcommands, their options, their arguments and the description of every one of
+those. It is 1481 JSON files plus an index and it is committed. Nothing
+downloads it, nothing generates it during a build and it needs no network. The
+binary does not read it yet. This section says what the directory is rather
+than what surmise does with it.
+
+The point of committing it is that surmise then outlives whatever published it.
+The corpus these files came from has had no release since May 2025 and a tool
+that fetches its data at install time is a tool that stops working the day that
+package goes away.
+
+`tools/spec-convert` is what produced the directory. A specification is
+published as a JavaScript module whose value is built by running code, so the
+tool runs each one once, keeps every field that is data and drops every field
+that is a function. Its engine is `boa_engine`, which is pure Rust, so
+regenerating the data asks for cargo and nothing else. A whole corpus takes
+about a minute across the machine's cores.
+
+That crate sits outside this package on purpose. Its manifest carries an empty
+`[workspace]` table and that is what stops cargo searching upward for one, so
+`cargo build` here never sees it and `cargo install` never sees its
+dependencies. `make check` does not build it either. `make specs-check` is its
+gate and it is separate because the converter runs a few times a year and its
+dependency tree is four times the size of this package's.
+
+The output is deterministic. Object keys are sorted and array order is the
+specification's own, so the same corpus gives the same bytes and a regeneration
+diffs to exactly what changed upstream. The files are pretty printed for that
+same reason. The cost is 123 MB in the working tree. The cost that matters is
+7.9 MB in `.git` and a third of a second added to what the pre-commit hook
+checks out.
+
+A file is named for what reaches it. `specs/git.json` is the command `git`, and
+a `loadSpec` of `aws/s3` inside another file is `specs/aws/s3.json`. A command
+whose specification lives in a directory keeps its own part in `index.json`
+inside it. `specs/index.json` at the top lists the commands a person can type,
+every name the corpus resolves, the six whose specification is a function of
+the installed tool's version, and the corpus version this data was read from.
+
+An argument whose suggestions only code could have produced carries
+`"dyn": true` and `specs/dynamic.txt` lists all 4854 of them with the reason.
+That is 2.1 % of 235 174 arguments and the other 97.9 % need nothing but the
+data. Every one of 50 784 subcommands and 282 837 options converted whole. A
+`dyn` argument is one a native reader has to answer, which is what the Git
+branch and file readers already do, and the data usually still says what to run:
+`git switch` keeps its `git branch --sort=-committerdate` and loses only the
+code that parsed the output.
+
+`specs/LICENSE` and `THIRD_PARTY.md` carry the attribution. The descriptions are
+the upstream's own text and the licence travels with them.
 
 ## Repository conventions
 

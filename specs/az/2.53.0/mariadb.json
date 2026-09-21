@@ -1,0 +1,2818 @@
+{
+  "description": "Manage Azure Database for MariaDB servers",
+  "name": "mariadb",
+  "subcommands": [
+    {
+      "description": "Manage MariaDB databases on a server",
+      "name": "db",
+      "subcommands": [
+        {
+          "description": "Create a MariaDB database",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the database",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "server-name"
+                }
+              ],
+              "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+              "isRequired": true,
+              "name": [
+                "--server-name",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "charset"
+                }
+              ],
+              "description": "The charset of the database",
+              "name": "--charset"
+            },
+            {
+              "args": [
+                {
+                  "name": "collation"
+                }
+              ],
+              "description": "The collation of the database",
+              "name": "--collation"
+            }
+          ]
+        },
+        {
+          "description": "Delete a database",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the database",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "server-name"
+                }
+              ],
+              "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+              "name": [
+                "--server-name",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List the databases for a server",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "server-name"
+                }
+              ],
+              "description": "Name of the Server",
+              "isRequired": true,
+              "name": [
+                "--server-name",
+                "-s"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show the details of a database",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the database",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "server-name"
+                }
+              ],
+              "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+              "name": [
+                "--server-name",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage MariaDB servers",
+      "name": "server",
+      "subcommands": [
+        {
+          "description": "Create a server",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "admin-password"
+                }
+              ],
+              "description": "The password of the administrator. Minimum 8 characters and maximum 128 characters. Password must contain characters from three of the following categories: English uppercase letters, English lowercase letters, numbers, and non-alphanumeric characters",
+              "name": [
+                "--admin-password",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "admin-user"
+                }
+              ],
+              "description": "Administrator username for the server. Once set, it cannot be changed",
+              "name": [
+                "--admin-user",
+                "-u"
+              ]
+            },
+            {
+              "description": "Generate and assign an Azure Active Directory Identity for this server for use with key management services like Azure KeyVault",
+              "name": "--assign-identity"
+            },
+            {
+              "args": [
+                {
+                  "name": "auto-grow",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Enable or disable autogrow of the storage. Default value is Enabled",
+              "name": "--auto-grow"
+            },
+            {
+              "args": [
+                {
+                  "name": "backup-retention"
+                }
+              ],
+              "description": "The number of days a backup is retained. Range of 7 to 35 days. Default is 7 days",
+              "name": "--backup-retention"
+            },
+            {
+              "args": [
+                {
+                  "name": "geo-redundant-backup",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Enable or disable geo-redundant backups. Default value is Disabled. Not supported in Basic pricing tier",
+              "name": "--geo-redundant-backup"
+            },
+            {
+              "args": [
+                {
+                  "name": "infrastructure-encryption",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Add an optional second layer of encryption for data using new encryption algorithm. Default value is Disabled",
+              "name": [
+                "--infrastructure-encryption",
+                "-i"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "minimal-tls-version",
+                  "suggestions": [
+                    "TLS1_0",
+                    "TLS1_1",
+                    "TLS1_2",
+                    "TLSEnforcementDisabled"
+                  ]
+                }
+              ],
+              "description": "Set the minimal TLS version for connections to server when SSL is enabled. Default is TLSEnforcementDisabled",
+              "name": "--minimal-tls-version"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "public-network-access"
+                }
+              ],
+              "description": "Enable or disable public network access to server. When disabled, only connections made through Private Links can reach this server. Allowed values are : Enabled, Disabled, all, 0.0.0.0, , . Default is Enabled",
+              "name": [
+                "--public-network-access",
+                "--public"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "sku-name"
+                }
+              ],
+              "description": "The name of the sku. Follows the convention {pricing tier}{compute generation}{vCores} in shorthand. Examples: B_Gen5_1, GP_Gen5_4, MO_Gen5_16",
+              "name": "--sku-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ssl-enforcement",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Enable or disable ssl enforcement for connections to server. Default is Enabled",
+              "name": "--ssl-enforcement"
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-size"
+                }
+              ],
+              "description": "The storage capacity of the server (unit is megabytes). Minimum 5120 and increases in 1024 increments. Default is 5120",
+              "name": "--storage-size"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            },
+            {
+              "args": [
+                {
+                  "name": "version"
+                }
+              ],
+              "description": "Server major version",
+              "name": "--version"
+            }
+          ]
+        },
+        {
+          "description": "Delete a server",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Geo-restore a server from backup",
+          "name": "georestore",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "source-server"
+                }
+              ],
+              "description": "The name or ID of the source server to restore from",
+              "isRequired": true,
+              "name": [
+                "--source-server",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "backup-retention"
+                }
+              ],
+              "description": "The number of days a backup is retained. Range of 7 to 35 days. Default is 7 days",
+              "name": "--backup-retention"
+            },
+            {
+              "args": [
+                {
+                  "name": "geo-redundant-backup"
+                }
+              ],
+              "description": "Enable or disable geo-redundant backups. Default value is Disabled. Not supported in Basic pricing tier",
+              "name": "--geo-redundant-backup"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "sku-name"
+                }
+              ],
+              "description": "The name of the sku. Defaults to sku of the source server. Follows the convention {pricing tier}{compute generation}{vCores} in shorthand. Examples: B_Gen5_1, GP_Gen5_4, MO_Gen5_16",
+              "name": "--sku-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "List available servers",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List available sku's in the given region",
+          "name": "list-skus",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "The name of the location",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Restart a server",
+          "name": "restart",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Restore a server from backup",
+          "name": "restore",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "restore-point-in-time"
+                }
+              ],
+              "description": "The point in time in UTC to restore from (ISO8601 format), e.g., 2017-04-26T02:10:00+08:00",
+              "isRequired": true,
+              "name": [
+                "--restore-point-in-time",
+                "--pitr-time"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "source-server"
+                }
+              ],
+              "description": "The name or resource ID of the source server to restore from",
+              "isRequired": true,
+              "name": [
+                "--source-server",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Get the details of a server",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Show the connection strings for a MariaDB server database",
+          "name": "show-connection-string",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "admin-password"
+                }
+              ],
+              "description": "The login password of the administrator",
+              "name": [
+                "--admin-password",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "admin-user"
+                }
+              ],
+              "description": "The login username of the administrator",
+              "name": [
+                "--admin-user",
+                "-u"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "database-name"
+                }
+              ],
+              "description": "The name of a database",
+              "name": [
+                "--database-name",
+                "-d"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "server-name"
+                }
+              ],
+              "description": "Name of the server",
+              "name": [
+                "--server-name",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Start a stopped server",
+          "name": "start",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Stop a running server",
+          "name": "stop",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Update a server",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "add"
+                }
+              ],
+              "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+              "name": "--add"
+            },
+            {
+              "args": [
+                {
+                  "name": "admin-password"
+                }
+              ],
+              "description": "The password of the administrator. Minimum 8 characters and maximum 128 characters. Password must contain characters from three of the following categories: English uppercase letters, English lowercase letters, numbers, and non-alphanumeric characters",
+              "name": [
+                "--admin-password",
+                "-p"
+              ]
+            },
+            {
+              "description": "Generate and assign an Azure Active Directory Identity for this server for use with key management services like Azure KeyVault",
+              "name": "--assign-identity"
+            },
+            {
+              "args": [
+                {
+                  "name": "auto-grow",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Enable or disable autogrow of the storage. Default value is Enabled",
+              "name": "--auto-grow"
+            },
+            {
+              "args": [
+                {
+                  "name": "backup-retention"
+                }
+              ],
+              "description": "The number of days a backup is retained. Range of 7 to 35 days. Default is 7 days",
+              "name": "--backup-retention"
+            },
+            {
+              "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+              "name": "--force-string"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "minimal-tls-version",
+                  "suggestions": [
+                    "TLS1_0",
+                    "TLS1_1",
+                    "TLS1_2",
+                    "TLSEnforcementDisabled"
+                  ]
+                }
+              ],
+              "description": "Set the minimal TLS version for connections to server when SSL is enabled. Default is TLSEnforcementDisabled",
+              "name": "--minimal-tls-version"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "public-network-access"
+                }
+              ],
+              "description": "Enable or disable public network access to server. When disabled, only connections made through Private Links can reach this server. Allowed values are : Enabled, Disabled, all, 0.0.0.0, , . Default is Enabled",
+              "name": [
+                "--public-network-access",
+                "--public"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "remove"
+                }
+              ],
+              "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+              "name": "--remove"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "set"
+                }
+              ],
+              "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+              "name": "--set"
+            },
+            {
+              "args": [
+                {
+                  "name": "sku-name"
+                }
+              ],
+              "description": "The name of the sku. Follows the convention {pricing tier}{compute generation}{vCores} in shorthand. Examples: B_Gen5_1, GP_Gen5_4, MO_Gen5_16",
+              "name": "--sku-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "ssl-enforcement",
+                  "suggestions": [
+                    "Disabled",
+                    "Enabled"
+                  ]
+                }
+              ],
+              "description": "Enable or disable ssl enforcement for connections to server. Default is Enabled",
+              "name": "--ssl-enforcement"
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-size"
+                }
+              ],
+              "description": "The storage capacity of the server (unit is megabytes). Minimum 5120 and increases in 1024 increments. Default is 5120",
+              "name": "--storage-size"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Wait for server to satisfy certain conditions",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "custom"
+                }
+              ],
+              "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+              "name": "--custom"
+            },
+            {
+              "description": "Wait until the resource exists",
+              "name": "--exists"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "interval"
+                }
+              ],
+              "description": "Polling interval in seconds",
+              "name": "--interval"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout"
+                }
+              ],
+              "description": "Maximum wait in seconds",
+              "name": "--timeout"
+            }
+          ]
+        },
+        {
+          "description": "Manage configuration values for a server",
+          "name": "configuration",
+          "subcommands": [
+            {
+              "description": "List the configuration values for a server",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Update the configuration of a server",
+              "name": "set",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the configuration",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "value"
+                    }
+                  ],
+                  "description": "Value of the configuration. If not provided, configuration value will be set to default",
+                  "name": "--value"
+                }
+              ]
+            },
+            {
+              "description": "Get the configuration for a server.\"",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the server configuration",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage firewall rules for a server",
+          "name": "firewall-rule",
+          "subcommands": [
+            {
+              "description": "Create a new firewall rule for a server",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "end-ip-address"
+                    }
+                  ],
+                  "description": "The end IP address of the firewall rule. Must be IPv4 format. Use value '0.0.0.0' to represent all Azure-internal IP addresses",
+                  "isRequired": true,
+                  "name": "--end-ip-address"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the firewall rule. The firewall rule name cannot be empty. The firewall rule name can only contain 0-9, a-z, A-Z, '-' and '_'. Additionally, the name of the firewall rule must be at least 3 characters and no more than 128 characters in length",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "isRequired": true,
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "start-ip-address"
+                    }
+                  ],
+                  "description": "The start IP address of the firewall rule. Must be IPv4 format. Use value '0.0.0.0' to represent all Azure-internal IP addresses",
+                  "isRequired": true,
+                  "name": "--start-ip-address"
+                }
+              ]
+            },
+            {
+              "description": "Delete a firewall rule",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the firewall rule. The firewall rule name cannot be empty. The firewall rule name can only contain 0-9, a-z, A-Z, '-' and '_'. Additionally, the name of the firewall rule must be at least 3 characters and no more than 128 characters in length",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List all firewall rules for a server",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Get the details of a firewall rule",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the firewall rule. The firewall rule name cannot be empty. The firewall rule name can only contain 0-9, a-z, A-Z, '-' and '_'. Additionally, the name of the firewall rule must be at least 3 characters and no more than 128 characters in length",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Update a firewall rule",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "add"
+                    }
+                  ],
+                  "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+                  "name": "--add"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "end-ip-address"
+                    }
+                  ],
+                  "description": "The end IP address of the firewall rule. Must be IPv4 format. Use value '0.0.0.0' to represent all Azure-internal IP addresses",
+                  "name": "--end-ip-address"
+                },
+                {
+                  "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+                  "name": "--force-string"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the firewall rule. The firewall rule name cannot be empty. The firewall rule name can only contain 0-9, a-z, A-Z, '-' and '_'. Additionally, the name of the firewall rule must be at least 3 characters and no more than 128 characters in length",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "remove"
+                    }
+                  ],
+                  "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+                  "name": "--remove"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "set"
+                    }
+                  ],
+                  "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+                  "name": "--set"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "start-ip-address"
+                    }
+                  ],
+                  "description": "The start IP address of the firewall rule. Must be IPv4 format. Use value '0.0.0.0' to represent all Azure-internal IP addresses",
+                  "name": "--start-ip-address"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage MariaDB server private endpoint connections",
+          "name": "private-endpoint-connection",
+          "subcommands": [
+            {
+              "description": "Approve the specified private endpoint connection associated with a MariaDB server",
+              "name": "approve",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "description"
+                    }
+                  ],
+                  "description": "Comments for approve operation",
+                  "name": "--description"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "The ID of the private endpoint connection associated with the Server. If specified --server-name/-s and --name/-n, this should be omitted",
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the private endpoint connection associated with the Server. Required if --id is not specified",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "The resource group name of specified server",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the Server. Required if --id is not specified",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Delete the specified private endpoint connection associated with a MariaDB server",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "The ID of the private endpoint connection associated with the Server. If specified --server-name/-s and --name/-n, this should be omitted",
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the private endpoint connection associated with the Server. Required if --id is not specified",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "The resource group name of specified server",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the Server. Required if --id is not specified",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Reject the specified private endpoint connection associated with a MariaDB server",
+              "name": "reject",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "description"
+                    }
+                  ],
+                  "description": "Comments for reject operation",
+                  "name": "--description"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "The ID of the private endpoint connection associated with the Server. If specified --server-name/-s and --name/-n, this should be omitted",
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the private endpoint connection associated with the Server. Required if --id is not specified",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "The resource group name of specified server",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the Server. Required if --id is not specified",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Show details of a private endpoint connection associated with a MariaDB server",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "id"
+                    }
+                  ],
+                  "description": "The ID of the private endpoint connection associated with the Server. If specified --server-name/-s and --name/-n, this should be omitted",
+                  "name": "--id"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the private endpoint connection associated with the Server. Required if --id is not specified",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "The resource group name of specified server",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the Server. Required if --id is not specified",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage MariaDB server private link resources",
+          "name": "private-link-resource",
+          "subcommands": [
+            {
+              "description": "List the private link resources supported for a MariaDB server",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the Server",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage read replicas",
+          "name": "replica",
+          "subcommands": [
+            {
+              "description": "Create a read replica for a server",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "source-server"
+                    }
+                  ],
+                  "description": "The name or resource ID of the master server to the create replica for",
+                  "isRequired": true,
+                  "name": [
+                    "--source-server",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "location"
+                    }
+                  ],
+                  "description": "Location. Values from: az account list-locations. If not provided, the create replica will be in the same location as the master server",
+                  "name": [
+                    "--location",
+                    "-l"
+                  ]
+                },
+                {
+                  "description": "Do not wait for the long-running operation to finish",
+                  "name": "--no-wait"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "sku-name"
+                    }
+                  ],
+                  "description": "The name of the sku. Follows the convention {pricing tier}{compute generation}{vCores} in shorthand. Examples: B_Gen5_1, GP_Gen5_4, MO_Gen5_16",
+                  "name": "--sku-name"
+                }
+              ]
+            },
+            {
+              "description": "List all read replicas for a given server",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the master server",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Stop replication to a read replica and make it a read/write server",
+              "name": "stop",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                },
+                {
+                  "description": "Do not prompt for confirmation",
+                  "name": [
+                    "--yes",
+                    "-y"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Manage a server's virtual network rules",
+          "name": "vnet-rule",
+          "subcommands": [
+            {
+              "description": "Create a virtual network rule to allows access to a MariaDB server",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the vnet rule",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "isRequired": true,
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subnet"
+                    }
+                  ],
+                  "description": "Name or ID of the subnet that allows access to an Azure Postgres Server. If subnet name is provided, --vnet-name must be provided",
+                  "isRequired": true,
+                  "name": "--subnet"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ignore-missing-endpoint",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Create vnet rule before virtual network has vnet service endpoint enabled",
+                  "name": [
+                    "--ignore-missing-endpoint",
+                    "-i"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "vnet-name"
+                    }
+                  ],
+                  "description": "The virtual network name",
+                  "name": "--vnet-name"
+                }
+              ]
+            },
+            {
+              "description": "Deletes the virtual network rule with the given name",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the vnet rule",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Gets a list of virtual network rules in a server",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Gets a virtual network rule",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the vnet rule",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "Update a virtual network rule",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "subnet"
+                    }
+                  ],
+                  "description": "Name or ID of the subnet that allows access to an Azure Postgres Server. If subnet name is provided, --vnet-name must be provided",
+                  "isRequired": true,
+                  "name": "--subnet"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "add"
+                    }
+                  ],
+                  "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+                  "name": "--add"
+                },
+                {
+                  "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+                  "name": "--force-string"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ignore-missing-endpoint",
+                      "suggestions": [
+                        "false",
+                        "true"
+                      ]
+                    }
+                  ],
+                  "description": "Create vnet rule before virtual network has vnet service endpoint enabled",
+                  "name": [
+                    "--ignore-missing-endpoint",
+                    "-i"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "The name of the vnet rule",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "remove"
+                    }
+                  ],
+                  "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+                  "name": "--remove"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "server-name"
+                    }
+                  ],
+                  "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+                  "name": [
+                    "--server-name",
+                    "-s"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "set"
+                    }
+                  ],
+                  "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+                  "name": "--set"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "vnet-name"
+                    }
+                  ],
+                  "description": "The virtual network name",
+                  "name": "--vnet-name"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage server logs",
+      "name": "server-logs",
+      "subcommands": [
+        {
+          "description": "Download log files",
+          "name": "download",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Space-separated list of log filenames on the server to download",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "server-name"
+                }
+              ],
+              "description": "Name of the server. The name can contain only lowercase letters, numbers, and the hyphen (-) character. Minimum 3 characters and maximum 63 characters",
+              "name": [
+                "--server-name",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "List log files for a server",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "server-name"
+                }
+              ],
+              "description": "Name of the Server",
+              "isRequired": true,
+              "name": [
+                "--server-name",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "file-last-written"
+                }
+              ],
+              "description": "Integer in hours to indicate file last modify time, default value is 72",
+              "name": "--file-last-written"
+            },
+            {
+              "args": [
+                {
+                  "name": "filename-contains"
+                }
+              ],
+              "description": "The pattern that file name should match",
+              "name": "--filename-contains"
+            },
+            {
+              "args": [
+                {
+                  "name": "max-file-size"
+                }
+              ],
+              "description": "The file size limitation to filter files",
+              "name": "--max-file-size"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

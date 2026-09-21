@@ -1,0 +1,2728 @@
+{
+  "description": "Commands to manage Azure Grafana instanced.\n\n\t\tFor optimized experience, not all data plane Apis, documented at https://grafana.com/docs/grafana/latest/http_api/, are exposed. On coverage gap, please reach out to ad4g@microsoft.com",
+  "name": "grafana",
+  "subcommands": [
+    {
+      "description": "Commands to manage api keys",
+      "name": "api-key",
+      "subcommands": [
+        {
+          "description": "Create a new api key",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "key"
+                }
+              ],
+              "description": "Api key name",
+              "isRequired": true,
+              "name": "--key"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "role",
+                  "suggestions": [
+                    "Admin",
+                    "Editor",
+                    "Viewer"
+                  ]
+                }
+              ],
+              "description": "Grafana role name",
+              "name": [
+                "--role",
+                "-r"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "time-to-live"
+                }
+              ],
+              "description": "The API key life duration. For example, 1d if your key is going to last fr one day. Supported units are: s,m,h,d,w,M,y",
+              "name": "--time-to-live"
+            }
+          ]
+        },
+        {
+          "description": "Delete an api key",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "key"
+                }
+              ],
+              "description": "Id or name that identify an api-key to delete",
+              "isRequired": true,
+              "name": "--key"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List existing api keys",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Backup an Azure Managed Grafana instance's content to an achive",
+      "name": "backup",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Azure Managed Grafana",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "components",
+              "suggestions": [
+                "annotations",
+                "dashboards",
+                "datasources",
+                "folders",
+                "snapshots"
+              ]
+            }
+          ],
+          "description": "Grafana artifact types to backup",
+          "name": [
+            "--components",
+            "-c"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "directory"
+            }
+          ],
+          "description": "Directory to backup Grafana artifacts",
+          "name": [
+            "--directory",
+            "-d"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "folders-to-exclude"
+            }
+          ],
+          "description": "Folders to exclude in backup or sync",
+          "name": [
+            "--folders-to-exclude",
+            "-e"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "folders-to-include"
+            }
+          ],
+          "description": "Folders to include in backup or sync",
+          "name": [
+            "--folders-to-include",
+            "-i"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Create a Azure Managed Grafana instance",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Azure Managed Grafana",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "principal-ids"
+            }
+          ],
+          "description": "Space-separated Azure AD object ids for users, groups, etc to be made as Grafana Admins. Once provided, CLI won't make the current logon user as Grafana Admin",
+          "name": "--principal-ids"
+        },
+        {
+          "args": [
+            {
+              "name": "principal-types",
+              "suggestions": [
+                "Group",
+                "ServicePrincipal",
+                "User"
+              ]
+            }
+          ],
+          "description": "Space-separated Azure AD principal types to pair with --principal-ids",
+          "name": "--principal-types"
+        },
+        {
+          "description": "Do not create role assignments for managed identity and the current login user",
+          "name": "--skip-role-assignments"
+        },
+        {
+          "description": "Do not enable system assigned identity",
+          "name": [
+            "--skip-system-assigned-identity",
+            "-s"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "zone-redundancy",
+              "suggestions": [
+                "Disabled",
+                "Enabled"
+              ]
+            }
+          ],
+          "description": "Indicates whether or not zone redundancy should be enabled. Default: Disabled",
+          "name": "--zone-redundancy"
+        }
+      ]
+    },
+    {
+      "description": "Delete a Azure Managed Grafana instance",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Azure Managed Grafana",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List Azure Managed Grafana instances",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Restore an Azure Managed Grafana instance from an achive",
+      "name": "restore",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "archive-file"
+            }
+          ],
+          "description": "Archive to restore Grafana artifacts from",
+          "isRequired": true,
+          "name": [
+            "--archive-file",
+            "-a"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Azure Managed Grafana",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "components",
+              "suggestions": [
+                "annotations",
+                "dashboards",
+                "datasources",
+                "folders",
+                "snapshots"
+              ]
+            }
+          ],
+          "description": "Grafana artifact types to backup",
+          "name": [
+            "--components",
+            "-c"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "remap-data-sources",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "During restoration, update dashboards to reference data sources defined at the destination workspace through name matching",
+          "name": [
+            "--remap-data-sources",
+            "-r"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Show details of a Azure Managed Grafana instance",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Azure Managed Grafana",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Update a Azure Managed Grafana instance",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the Azure Managed Grafana",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "service-account",
+              "suggestions": [
+                "Disabled",
+                "Enabled"
+              ]
+            }
+          ],
+          "description": "If enabled, you will be able to configur Grafana api keys and service accounts",
+          "name": [
+            "--service-account",
+            "--api-key"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "deterministic-outbound-ip",
+              "suggestions": [
+                "Disabled",
+                "Enabled"
+              ]
+            }
+          ],
+          "description": "If enabled, the Grafana workspace will have fixed egress IPs you can use them in the firewall of datasources",
+          "name": [
+            "--deterministic-outbound-ip",
+            "-i"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "from-address"
+            }
+          ],
+          "description": "Address used when sending out emails",
+          "name": "--from-address"
+        },
+        {
+          "args": [
+            {
+              "name": "from-name"
+            }
+          ],
+          "description": "Name to be used when sending out emails",
+          "name": "--from-name"
+        },
+        {
+          "args": [
+            {
+              "name": "host"
+            }
+          ],
+          "description": "Smtp server url(port included)",
+          "name": "--host"
+        },
+        {
+          "args": [
+            {
+              "name": "password"
+            }
+          ],
+          "description": "Smtp server user password",
+          "name": "--password"
+        },
+        {
+          "args": [
+            {
+              "name": "public-network-access",
+              "suggestions": [
+                "Disabled",
+                "Enabled"
+              ]
+            }
+          ],
+          "description": "Allow public network access",
+          "name": [
+            "--public-network-access",
+            "-p"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "skip-verify",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Skip verifying SSL for SMTP server",
+          "name": "--skip-verify"
+        },
+        {
+          "args": [
+            {
+              "name": "smtp",
+              "suggestions": [
+                "Disabled",
+                "Enabled"
+              ]
+            }
+          ],
+          "description": "Allow Grafana to send email",
+          "name": "--smtp"
+        },
+        {
+          "args": [
+            {
+              "name": "start-tls-policy",
+              "suggestions": [
+                "MandatoryStartTLS",
+                "NoStartTLS",
+                "OpportunisticStartTLS"
+              ]
+            }
+          ],
+          "description": "TLS policy",
+          "name": "--start-tls-policy"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "user"
+            }
+          ],
+          "description": "Smtp server user name",
+          "name": "--user"
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage dashboards of an instance",
+      "name": "dashboard",
+      "subcommands": [
+        {
+          "description": "Create a new dashboard",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "definition"
+                }
+              ],
+              "description": "The complete dashboard model in json string, a path or url to a file with such content",
+              "isRequired": true,
+              "name": "--definition"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "folder"
+                }
+              ],
+              "description": "Id, uid, title which can identify a folder. CLI will search in the order of id, uid, and title, till finds a match",
+              "name": "--folder"
+            },
+            {
+              "args": [
+                {
+                  "name": "overwrite",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Overwrite a dashboard with same uid",
+              "name": "--overwrite"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "title"
+                }
+              ],
+              "description": "Title of a dashboard",
+              "name": "--title"
+            }
+          ]
+        },
+        {
+          "description": "Delete a dashboard",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dashboard"
+                }
+              ],
+              "description": "Dashboard uid",
+              "isRequired": true,
+              "name": "--dashboard"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Import a dashboard",
+          "name": "import",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "definition"
+                }
+              ],
+              "description": "The complete dashboard model in json string, Grafana gallery id, a path or url to a file with such content",
+              "isRequired": true,
+              "name": "--definition"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "folder"
+                }
+              ],
+              "description": "Id, uid, title which can identify a folder. CLI will search in the order of id, uid, and title, till finds a match",
+              "name": "--folder"
+            },
+            {
+              "args": [
+                {
+                  "name": "overwrite",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Overwrite a dashboard with same uid",
+              "name": "--overwrite"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List all dashboards of an instance",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show the detail of a dashboard",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "dashboard"
+                }
+              ],
+              "description": "Dashboard uid",
+              "isRequired": true,
+              "name": "--dashboard"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Sync Azure Managed Grafana dashboards from one instance to another instance. Note, dashboards with \"provisioned\" state will be skipped due to being read-only",
+          "name": "sync",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "destination"
+                }
+              ],
+              "description": "Resource id of the destination workspace",
+              "isRequired": true,
+              "name": [
+                "--destination",
+                "-d"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "source"
+                }
+              ],
+              "description": "Resource id of the source workspace",
+              "isRequired": true,
+              "name": [
+                "--source",
+                "-s"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "dashboards-to-exclude"
+                }
+              ],
+              "description": "Space separated titles of dashboards to exclude in sync. Pair with --folders-to-exclude for folders specific",
+              "name": "--dashboards-to-exclude"
+            },
+            {
+              "args": [
+                {
+                  "name": "dashboards-to-include"
+                }
+              ],
+              "description": "Space separated titles of dashboards to include in sync. Pair with --folders-to-include for folders specific",
+              "name": "--dashboards-to-include"
+            },
+            {
+              "args": [
+                {
+                  "name": "dry-run",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Preview changes w/o committing",
+              "name": "--dry-run"
+            },
+            {
+              "args": [
+                {
+                  "name": "folders-to-exclude"
+                }
+              ],
+              "description": "Folders to exclude in backup or sync",
+              "name": [
+                "--folders-to-exclude",
+                "-e"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "folders-to-include"
+                }
+              ],
+              "description": "Folders to include in backup or sync",
+              "name": [
+                "--folders-to-include",
+                "-i"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update a dashboard",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "definition"
+                }
+              ],
+              "description": "The complete dashboard model in json string, a path or url to a file with such content",
+              "isRequired": true,
+              "name": "--definition"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "folder"
+                }
+              ],
+              "description": "Id, uid, title which can identify a folder. CLI will search in the order of id, uid, and title, till finds a match",
+              "name": "--folder"
+            },
+            {
+              "args": [
+                {
+                  "name": "overwrite",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Overwrite a dashboard with same uid",
+              "name": "--overwrite"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage data sources of an instance",
+      "name": "data-source",
+      "subcommands": [
+        {
+          "description": "Create a data source",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "definition"
+                }
+              ],
+              "description": "Json string with data source definition, or a path to a file with such content",
+              "isRequired": true,
+              "name": "--definition"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete a data source",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "data-source"
+                }
+              ],
+              "description": "Name, id, uid which can identify a data source. CLI will search in the order of name, id, and uid, till finds a match",
+              "isRequired": true,
+              "name": "--data-source"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List all data sources of an instance",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Query a data source having backend implementation",
+          "name": "query",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "data-source"
+                }
+              ],
+              "description": "Name, id, uid which can identify a data source. CLI will search in the order of name, id, and uid, till finds a match",
+              "isRequired": true,
+              "name": "--data-source"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "conditions"
+                }
+              ],
+              "description": "Space-separated condition in a format of <name>=<value>",
+              "name": "--conditions"
+            },
+            {
+              "args": [
+                {
+                  "name": "from"
+                }
+              ],
+              "description": "Start time in iso 8601, e.g. '2022-01-02T16:15:00'. Default: 1 hour early",
+              "name": "--from"
+            },
+            {
+              "args": [
+                {
+                  "name": "internal-ms"
+                }
+              ],
+              "description": "The time interval in milliseconds of time series. Default: 1000",
+              "name": "--internal-ms"
+            },
+            {
+              "args": [
+                {
+                  "name": "max-data-points"
+                }
+              ],
+              "description": "Maximum amount of data points that dashboard panel can render. Default: 1000",
+              "name": "--max-data-points"
+            },
+            {
+              "args": [
+                {
+                  "name": "query-format"
+                }
+              ],
+              "description": "Format of the resule, e.g. table, time_series",
+              "name": "--query-format"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "to"
+                }
+              ],
+              "description": "End time in iso 8601, e.g. '2022-01-02T17:15:00'. Default: current time",
+              "name": "--to"
+            }
+          ]
+        },
+        {
+          "description": "Get details of a data source",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "data-source"
+                }
+              ],
+              "description": "Name, id, uid which can identify a data source. CLI will search in the order of name, id, and uid, till finds a match",
+              "isRequired": true,
+              "name": "--data-source"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update a data source",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "data-source"
+                }
+              ],
+              "description": "Name, id, uid which can identify a data source. CLI will search in the order of name, id, and uid, till finds a match",
+              "isRequired": true,
+              "name": "--data-source"
+            },
+            {
+              "args": [
+                {
+                  "name": "definition"
+                }
+              ],
+              "description": "Json string with data source definition, or a path to a file with such content",
+              "isRequired": true,
+              "name": "--definition"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage folders of an instance",
+      "name": "folder",
+      "subcommands": [
+        {
+          "description": "Create a new folder",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "title"
+                }
+              ],
+              "description": "Title of the folder",
+              "isRequired": true,
+              "name": "--title"
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete a folder",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "folder"
+                }
+              ],
+              "description": "Id, uid, title which can identify a folder. CLI will search in the order of id, uid, and title, till finds a match",
+              "isRequired": true,
+              "name": "--folder"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List all folders of an instance",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show the details of a folder",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "folder"
+                }
+              ],
+              "description": "Id, uid, title which can identify a folder. CLI will search in the order of id, uid, and title, till finds a match",
+              "isRequired": true,
+              "name": "--folder"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update a folder",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "folder"
+                }
+              ],
+              "description": "Id, uid, title which can identify a folder. CLI will search in the order of id, uid, and title, till finds a match",
+              "isRequired": true,
+              "name": "--folder"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "title"
+                }
+              ],
+              "description": "Title of the folder",
+              "isRequired": true,
+              "name": "--title"
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage notification channels of an instance.\n\n\t\tAs part of legacy alerting, this command group will be deprecated in a future release",
+      "name": "notification-channel",
+      "subcommands": [
+        {
+          "description": "Create a notification channel",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "definition"
+                }
+              ],
+              "description": "Json string with notification channel definition, or a path to a file with such content",
+              "isRequired": true,
+              "name": "--definition"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete a notification channel",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "notification-channel"
+                }
+              ],
+              "description": "Id, uid which can identify a data source. CLI will search in the order of id, and uid, till finds a match",
+              "isRequired": true,
+              "name": "--notification-channel"
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List all notification channels of an instance",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "description": "List notification channels in short format",
+              "name": "--short"
+            }
+          ]
+        },
+        {
+          "description": "Get details of a notification channel",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "notification-channel"
+                }
+              ],
+              "description": "Id, uid which can identify a data source. CLI will search in the order of id, and uid, till finds a match",
+              "isRequired": true,
+              "name": "--notification-channel"
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Tests a notification channels",
+          "name": "test",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "notification-channel"
+                }
+              ],
+              "description": "Id, uid which can identify a data source. CLI will search in the order of id, and uid, till finds a match",
+              "isRequired": true,
+              "name": "--notification-channel"
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update a notification channel",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "definition"
+                }
+              ],
+              "description": "Json string with notification channel definition, or a path to a file with such content",
+              "isRequired": true,
+              "name": "--definition"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "notification-channel"
+                }
+              ],
+              "description": "Id, uid which can identify a data source. CLI will search in the order of id, and uid, till finds a match",
+              "isRequired": true,
+              "name": "--notification-channel"
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage service accounts",
+      "name": "service-account",
+      "subcommands": [
+        {
+          "description": "Create a new service account",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-account"
+                }
+              ],
+              "description": "Service account name",
+              "isRequired": true,
+              "name": "--service-account"
+            },
+            {
+              "args": [
+                {
+                  "name": "is-disabled",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Disable the service account. default: false",
+              "name": "--is-disabled"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "role",
+                  "suggestions": [
+                    "Admin",
+                    "Editor",
+                    "Viewer"
+                  ]
+                }
+              ],
+              "description": "Grafana role name",
+              "name": [
+                "--role",
+                "-r"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Delete a service account",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-account"
+                }
+              ],
+              "description": "Id or name which can identify a service account",
+              "isRequired": true,
+              "name": "--service-account"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List existing service accounts",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show details of a service account",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-account"
+                }
+              ],
+              "description": "Id or name which can identify a service account",
+              "isRequired": true,
+              "name": "--service-account"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Update a service account",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "service-account"
+                }
+              ],
+              "description": "Id or name which can identify a service account",
+              "isRequired": true,
+              "name": "--service-account"
+            },
+            {
+              "args": [
+                {
+                  "name": "is-disabled",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Disable the service account. default: false",
+              "name": "--is-disabled"
+            },
+            {
+              "args": [
+                {
+                  "name": "new-name"
+                }
+              ],
+              "description": "New name of the service account",
+              "name": "--new-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "role",
+                  "suggestions": [
+                    "Admin",
+                    "Editor",
+                    "Viewer"
+                  ]
+                }
+              ],
+              "description": "Grafana role name",
+              "name": [
+                "--role",
+                "-r"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Commands to manage service account tokens",
+          "name": "token",
+          "subcommands": [
+            {
+              "description": "Create a new service account token",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the Azure Managed Grafana",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-account"
+                    }
+                  ],
+                  "description": "Id or name which can identify a service account",
+                  "isRequired": true,
+                  "name": "--service-account"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "token"
+                    }
+                  ],
+                  "description": "Name of the new service account token",
+                  "isRequired": true,
+                  "name": "--token"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "time-to-live"
+                    }
+                  ],
+                  "description": "The life duration. For example, 1d if your key is going to last fr one day. Supported units are: s,m,h,d,w,M,y",
+                  "name": "--time-to-live"
+                }
+              ]
+            },
+            {
+              "description": "Delete a service account token",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the Azure Managed Grafana",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-account"
+                    }
+                  ],
+                  "description": "Id or name which can identify a service account",
+                  "isRequired": true,
+                  "name": "--service-account"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "token"
+                    }
+                  ],
+                  "description": "Id or name which can identify a service account token",
+                  "isRequired": true,
+                  "name": "--token"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "List existing service account tokens",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the Azure Managed Grafana",
+                  "isRequired": true,
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "service-account"
+                    }
+                  ],
+                  "description": "Id or name which can identify a service account",
+                  "isRequired": true,
+                  "name": "--service-account"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Commands to manage users of an instance",
+      "name": "user",
+      "subcommands": [
+        {
+          "description": "Show details of current user",
+          "name": "actual-user",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List users",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Show detail of a user",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the Azure Managed Grafana",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "user"
+                }
+              ],
+              "description": "User login name or email",
+              "isRequired": true,
+              "name": "--user"
+            },
+            {
+              "args": [
+                {
+                  "name": "api-key"
+                }
+              ],
+              "description": "Api key or service account token, a randomly generated string used to interact with Grafana endpoint; if missing, CLI will use logon user's credentials",
+              "name": [
+                "--api-key",
+                "--token",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1278 @@
+{
+  "description": "Manage Azure Quantum Workspaces and submit jobs to Azure Quantum Providers",
+  "name": "quantum",
+  "subcommands": [
+    {
+      "args": [
+        {
+          "description": "List of arguments expected by the Q# operation specified as --name=value after --",
+          "isOptional": true,
+          "name": "<PROGRAM_ARGS>"
+        }
+      ],
+      "description": "Submit a job to run on Azure Quantum, and waits for the result",
+      "name": "execute",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "isRequired": true,
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "target-id"
+            }
+          ],
+          "description": "Execution engine for quantum computing jobs. When a workspace is configured with a set of providers, they each enable one or more targets. You can configure the default target using az quantum target set",
+          "isRequired": true,
+          "name": [
+            "--target-id",
+            "-t"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "workspace-name"
+            }
+          ],
+          "description": "Name of the Quantum Workspace. You can configure the default workspace using az quantum workspace set",
+          "isRequired": true,
+          "name": [
+            "--workspace-name",
+            "-w"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "entry-point"
+            }
+          ],
+          "description": "The entry point for the QIR program or circuit. Required for QIR. Ignored on Q# jobs",
+          "name": "--entry-point"
+        },
+        {
+          "args": [
+            {
+              "name": "job-input-file"
+            }
+          ],
+          "description": "The location of the input file to submit. Required for QIR, QIO, and pass-through jobs. Ignored on Q# jobs",
+          "name": "--job-input-file"
+        },
+        {
+          "args": [
+            {
+              "name": "job-input-format"
+            }
+          ],
+          "description": "The format of the file to submit. Omit this parameter on Q# jobs",
+          "name": "--job-input-format"
+        },
+        {
+          "args": [
+            {
+              "name": "job-name"
+            }
+          ],
+          "description": "A friendly name to give to this run of the program",
+          "name": "--job-name"
+        },
+        {
+          "args": [
+            {
+              "name": "job-output-format"
+            }
+          ],
+          "description": "The expected job output format. Ignored on Q# jobs",
+          "name": "--job-output-format"
+        },
+        {
+          "args": [
+            {
+              "name": "job-params"
+            }
+          ],
+          "description": "Job parameters passed to the target as a list of key=value pairs, json string, or @{file} with json content",
+          "name": "--job-params"
+        },
+        {
+          "description": "If specified, the Q# program is not built before submitting",
+          "name": "--no-build"
+        },
+        {
+          "args": [
+            {
+              "name": "project"
+            }
+          ],
+          "description": "The location of the Q# project to submit. Defaults to current folder",
+          "name": "--project"
+        },
+        {
+          "args": [
+            {
+              "name": "shots"
+            }
+          ],
+          "description": "The number of times to run the Q# program on the given target",
+          "name": "--shots"
+        },
+        {
+          "args": [
+            {
+              "name": "storage"
+            }
+          ],
+          "description": "If specified, the ConnectionString of an Azure Storage is used to store job data and results",
+          "name": "--storage"
+        },
+        {
+          "args": [
+            {
+              "name": "target-capability"
+            }
+          ],
+          "description": "Target-capability parameter passed to the compiler",
+          "name": "--target-capability"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "List of arguments expected by the Q# operation specified as --name=value after --",
+          "isOptional": true,
+          "name": "<PROGRAM_ARGS>"
+        }
+      ],
+      "description": "Equivalent to az quantum execute",
+      "name": "run",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+          "isRequired": true,
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "target-id"
+            }
+          ],
+          "description": "Execution engine for quantum computing jobs. When a workspace is configured with a set of providers, they each enable one or more targets. You can configure the default target using az quantum target set",
+          "isRequired": true,
+          "name": [
+            "--target-id",
+            "-t"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "workspace-name"
+            }
+          ],
+          "description": "Name of the Quantum Workspace. You can configure the default workspace using az quantum workspace set",
+          "isRequired": true,
+          "name": [
+            "--workspace-name",
+            "-w"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "entry-point"
+            }
+          ],
+          "description": "The entry point for the QIR program or circuit. Required for QIR. Ignored on Q# jobs",
+          "name": "--entry-point"
+        },
+        {
+          "args": [
+            {
+              "name": "job-input-file"
+            }
+          ],
+          "description": "The location of the input file to submit. Required for QIR, QIO, and pass-through jobs. Ignored on Q# jobs",
+          "name": "--job-input-file"
+        },
+        {
+          "args": [
+            {
+              "name": "job-input-format"
+            }
+          ],
+          "description": "The format of the file to submit. Omit this parameter on Q# jobs",
+          "name": "--job-input-format"
+        },
+        {
+          "args": [
+            {
+              "name": "job-name"
+            }
+          ],
+          "description": "A friendly name to give to this run of the program",
+          "name": "--job-name"
+        },
+        {
+          "args": [
+            {
+              "name": "job-output-format"
+            }
+          ],
+          "description": "The expected job output format. Ignored on Q# jobs",
+          "name": "--job-output-format"
+        },
+        {
+          "args": [
+            {
+              "name": "job-params"
+            }
+          ],
+          "description": "Job parameters passed to the target as a list of key=value pairs, json string, or @{file} with json content",
+          "name": "--job-params"
+        },
+        {
+          "description": "If specified, the Q# program is not built before submitting",
+          "name": "--no-build"
+        },
+        {
+          "args": [
+            {
+              "name": "project"
+            }
+          ],
+          "description": "The location of the Q# project to submit. Defaults to current folder",
+          "name": "--project"
+        },
+        {
+          "args": [
+            {
+              "name": "shots"
+            }
+          ],
+          "description": "The number of times to run the Q# program on the given target",
+          "name": "--shots"
+        },
+        {
+          "args": [
+            {
+              "name": "storage"
+            }
+          ],
+          "description": "If specified, the ConnectionString of an Azure Storage is used to store job data and results",
+          "name": "--storage"
+        },
+        {
+          "args": [
+            {
+              "name": "target-capability"
+            }
+          ],
+          "description": "Target-capability parameter passed to the compiler",
+          "name": "--target-capability"
+        }
+      ]
+    },
+    {
+      "description": "Manage jobs for Azure Quantum",
+      "name": "job",
+      "subcommands": [
+        {
+          "description": "Request to cancel a job on Azure Quantum if it hasn't completed",
+          "name": "cancel",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "job-id"
+                }
+              ],
+              "description": "Job unique identifier in GUID format",
+              "isRequired": true,
+              "name": [
+                "--job-id",
+                "-j"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace-name"
+                }
+              ],
+              "description": "Name of the Quantum Workspace. You can configure the default workspace using az quantum workspace set",
+              "isRequired": true,
+              "name": [
+                "--workspace-name",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the list of jobs in a Quantum Workspace",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace-name"
+                }
+              ],
+              "description": "Name of the Quantum Workspace. You can configure the default workspace using az quantum workspace set",
+              "isRequired": true,
+              "name": [
+                "--workspace-name",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the results of running a Q# job",
+          "name": "output",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "job-id"
+                }
+              ],
+              "description": "Job unique identifier in GUID format",
+              "isRequired": true,
+              "name": [
+                "--job-id",
+                "-j"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace-name"
+                }
+              ],
+              "description": "Name of the Quantum Workspace. You can configure the default workspace using az quantum workspace set",
+              "isRequired": true,
+              "name": [
+                "--workspace-name",
+                "-w"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "item"
+                }
+              ],
+              "description": "The item index in a batching job",
+              "name": "--item"
+            }
+          ]
+        },
+        {
+          "description": "Get the job's status and details",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "job-id"
+                }
+              ],
+              "description": "Job unique identifier in GUID format",
+              "isRequired": true,
+              "name": [
+                "--job-id",
+                "-j"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace-name"
+                }
+              ],
+              "description": "Name of the Quantum Workspace. You can configure the default workspace using az quantum workspace set",
+              "isRequired": true,
+              "name": [
+                "--workspace-name",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "List of arguments expected by the Q# operation specified as --name=value after --",
+              "isOptional": true,
+              "name": "<PROGRAM_ARGS>"
+            }
+          ],
+          "description": "Submit a program or circuit to run on Azure Quantum",
+          "name": "submit",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "target-id"
+                }
+              ],
+              "description": "Execution engine for quantum computing jobs. When a workspace is configured with a set of providers, they each enable one or more targets. You can configure the default target using az quantum target set",
+              "isRequired": true,
+              "name": [
+                "--target-id",
+                "-t"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace-name"
+                }
+              ],
+              "description": "Name of the Quantum Workspace. You can configure the default workspace using az quantum workspace set",
+              "isRequired": true,
+              "name": [
+                "--workspace-name",
+                "-w"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "entry-point"
+                }
+              ],
+              "description": "The entry point for the QIR program or circuit. Required for QIR. Ignored on Q# jobs",
+              "name": "--entry-point"
+            },
+            {
+              "args": [
+                {
+                  "name": "job-input-file"
+                }
+              ],
+              "description": "The location of the input file to submit. Required for QIR, QIO, and pass-through jobs. Ignored on Q# jobs",
+              "name": "--job-input-file"
+            },
+            {
+              "args": [
+                {
+                  "name": "job-input-format"
+                }
+              ],
+              "description": "The format of the file to submit. Omit this parameter on Q# jobs",
+              "name": "--job-input-format"
+            },
+            {
+              "args": [
+                {
+                  "name": "job-name"
+                }
+              ],
+              "description": "A friendly name to give to this run of the program",
+              "name": "--job-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "job-output-format"
+                }
+              ],
+              "description": "The expected job output format. Ignored on Q# jobs",
+              "name": "--job-output-format"
+            },
+            {
+              "args": [
+                {
+                  "name": "job-params"
+                }
+              ],
+              "description": "Job parameters passed to the target as a list of key=value pairs, json string, or @{file} with json content",
+              "name": "--job-params"
+            },
+            {
+              "description": "If specified, the Q# program is not built before submitting",
+              "name": "--no-build"
+            },
+            {
+              "args": [
+                {
+                  "name": "project"
+                }
+              ],
+              "description": "The location of the Q# project to submit. Defaults to current folder",
+              "name": "--project"
+            },
+            {
+              "args": [
+                {
+                  "name": "shots"
+                }
+              ],
+              "description": "The number of times to run the Q# program on the given target",
+              "name": "--shots"
+            },
+            {
+              "args": [
+                {
+                  "name": "storage"
+                }
+              ],
+              "description": "If specified, the ConnectionString of an Azure Storage is used to store job data and results",
+              "name": "--storage"
+            },
+            {
+              "args": [
+                {
+                  "name": "target-capability"
+                }
+              ],
+              "description": "Target-capability parameter passed to the compiler",
+              "name": "--target-capability"
+            }
+          ]
+        },
+        {
+          "description": "Place the CLI in a waiting state until the job finishes running",
+          "name": "wait",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "job-id"
+                }
+              ],
+              "description": "Job unique identifier in GUID format",
+              "isRequired": true,
+              "name": [
+                "--job-id",
+                "-j"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace-name"
+                }
+              ],
+              "description": "Name of the Quantum Workspace. You can configure the default workspace using az quantum workspace set",
+              "isRequired": true,
+              "name": [
+                "--workspace-name",
+                "-w"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "max-poll-wait-secs"
+                }
+              ],
+              "description": "Poll time in seconds to query Azure Quantum for results of the corresponding job",
+              "name": "--max-poll-wait-secs"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage provider offerings for Azure Quantum",
+      "name": "offerings",
+      "subcommands": [
+        {
+          "description": "Accept the terms of a provider and SKU combination to enable it for workspace creation",
+          "name": "accept-terms",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "provider-id"
+                }
+              ],
+              "description": "Identifier of an Azure Quantum provider",
+              "isRequired": true,
+              "name": [
+                "--provider-id",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "sku"
+                }
+              ],
+              "description": "Identify a plan or SKU offered by an Azure Quantum provider",
+              "isRequired": true,
+              "name": [
+                "--sku",
+                "-k"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the list of all provider offerings available on the given location",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "description": "If specified, only the plans flagged \"autoAdd\" are displayed",
+              "name": "--autoadd-only"
+            }
+          ]
+        },
+        {
+          "description": "Show the terms of a provider and SKU combination including license URL and acceptance status",
+          "name": "show-terms",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "provider-id"
+                }
+              ],
+              "description": "Identifier of an Azure Quantum provider",
+              "isRequired": true,
+              "name": [
+                "--provider-id",
+                "-p"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "sku"
+                }
+              ],
+              "description": "Identify a plan or SKU offered by an Azure Quantum provider",
+              "isRequired": true,
+              "name": [
+                "--sku",
+                "-k"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage targets for Azure Quantum workspaces",
+      "name": "target",
+      "subcommands": [
+        {
+          "description": "Clear the default target-id",
+          "name": "clear"
+        },
+        {
+          "description": "Get the list of providers and their targets in an Azure Quantum workspace",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace-name"
+                }
+              ],
+              "description": "Name of the Quantum Workspace. You can configure the default workspace using az quantum workspace set",
+              "isRequired": true,
+              "name": [
+                "--workspace-name",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Select the default target to use when submitting jobs to Azure Quantum",
+          "name": "set",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "target-id"
+                }
+              ],
+              "description": "Execution engine for quantum computing jobs. When a workspace is configured with a set of providers, they each enable one or more targets. You can configure the default target using az quantum target set",
+              "isRequired": true,
+              "name": [
+                "--target-id",
+                "-t"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the Target ID of the current default target to use when submitting jobs to Azure Quantum",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "target-id"
+                }
+              ],
+              "description": "Execution engine for quantum computing jobs. When a workspace is configured with a set of providers, they each enable one or more targets. You can configure the default target using az quantum target set",
+              "name": [
+                "--target-id",
+                "-t"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage Azure Quantum workspaces",
+      "name": "workspace",
+      "subcommands": [
+        {
+          "description": "Clear the default Azure Quantum workspace",
+          "name": "clear"
+        },
+        {
+          "description": "Create a new Azure Quantum workspace",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "storage-account"
+                }
+              ],
+              "description": "Name of the storage account to be used by a quantum workspace",
+              "isRequired": true,
+              "name": [
+                "--storage-account",
+                "-a"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace-name"
+                }
+              ],
+              "description": "Name of the Quantum Workspace. You can configure the default workspace using az quantum workspace set",
+              "isRequired": true,
+              "name": [
+                "--workspace-name",
+                "-w"
+              ]
+            },
+            {
+              "description": "If specified, provider terms are accepted without an interactive Y/N prompt",
+              "name": "--auto-accept"
+            },
+            {
+              "args": [
+                {
+                  "name": "provider-sku-list"
+                }
+              ],
+              "description": "Comma separated list of Provider/SKU pairs. Separate the Provider and SKU with a slash. Enclose the entire list in quotes. Values from az quantum offerings list -l <location> -o table",
+              "name": [
+                "--provider-sku-list",
+                "-r"
+              ]
+            },
+            {
+              "description": "If specified, the plans that offer free credits will not automatically be added",
+              "name": "--skip-autoadd"
+            },
+            {
+              "description": "Skip the role assignment step for the quantum workspace in the storage account",
+              "name": "--skip-role-assignment"
+            }
+          ]
+        },
+        {
+          "description": "Delete the given (or current) Azure Quantum workspace",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace-name"
+                }
+              ],
+              "description": "Name of the Quantum Workspace. You can configure the default workspace using az quantum workspace set",
+              "isRequired": true,
+              "name": [
+                "--workspace-name",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the list of Azure Quantum workspaces available",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "tag"
+                }
+              ],
+              "description": "Show only quantum workspaces that have associated the specified tag",
+              "name": "--tag"
+            }
+          ]
+        },
+        {
+          "description": "List the quotas for the given (or current) Azure Quantum workspace",
+          "name": "quotas",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace-name"
+                }
+              ],
+              "description": "Name of the Quantum Workspace. You can configure the default workspace using az quantum workspace set",
+              "isRequired": true,
+              "name": [
+                "--workspace-name",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Select a default Azure Quantum workspace for future commands",
+          "name": "set",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace-name"
+                }
+              ],
+              "description": "Name of the Quantum Workspace. You can configure the default workspace using az quantum workspace set",
+              "isRequired": true,
+              "name": [
+                "--workspace-name",
+                "-w"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the details of the given (or current) Azure Quantum workspace",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "workspace-name"
+                }
+              ],
+              "description": "Name of the Quantum Workspace. You can configure the default workspace using az quantum workspace set",
+              "name": [
+                "--workspace-name",
+                "-w"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

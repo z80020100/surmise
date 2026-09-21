@@ -1,0 +1,5362 @@
+{
+  "description": "Manage groupings of virtual machines in an Azure Virtual Machine Scale Set (VMSS)",
+  "name": "vmss",
+  "subcommands": [
+    {
+      "description": "Manage applications for VM scale set",
+      "name": "application",
+      "subcommands": [
+        {
+          "description": "List applications for VMSS",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Set applications for VMSS",
+          "name": "set",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "app-version-ids"
+                }
+              ],
+              "description": "Space-separated application version ids to set to VM",
+              "isRequired": true,
+              "name": "--app-version-ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "app-config-overrides"
+                }
+              ],
+              "description": "Space-separated application configuration overrides for each application version ids. It should have the same number of items as the application version ids. Null is available for a application which does not have a configuration override",
+              "name": "--app-config-overrides"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Whether to set order index at each gallery application. If specified, the first app version id gets specified an order = 1, then the next one 2, and so on. This parameter is meant to be used when the VMApplications specified by app version ids must be installed in a particular order; the lowest order is installed first",
+              "name": "--order-applications"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "treat-deployment-as-failure"
+                }
+              ],
+              "description": "Space-separated list of true or false corresponding to the application version ids. If set to true, failure to install or update gallery application version operation will fail this operation",
+              "name": "--treat-deployment-as-failure"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Create an Azure Virtual Machine Scale Set",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Name of the virtual machine scale set",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "accelerated-networking",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable accelerated networking. Unless specified, CLI will enable it based on machine image and size",
+          "name": "--accelerated-networking"
+        },
+        {
+          "args": [
+            {
+              "name": "accept-term"
+            }
+          ],
+          "description": "Accept the license agreement and privacy statement",
+          "name": "--accept-term"
+        },
+        {
+          "args": [
+            {
+              "name": "admin-password"
+            }
+          ],
+          "description": "Password for the VM if authentication type is 'Password'",
+          "name": "--admin-password"
+        },
+        {
+          "args": [
+            {
+              "name": "admin-username"
+            }
+          ],
+          "description": "Username for the VM. Default value is current username of OS. If the default value is system reserved, then default value will be set to azureuser. Please refer to https://docs.microsoft.com/rest/api/compute/virtualmachines/createorupdate#osprofile to get a full list of reserved values",
+          "name": "--admin-username"
+        },
+        {
+          "args": [
+            {
+              "name": "app-gateway"
+            }
+          ],
+          "description": "Name to use when creating a new application gateway (default) or referencing an existing one. Can also reference an existing application gateway by ID or specify \"\" for none",
+          "name": "--app-gateway"
+        },
+        {
+          "args": [
+            {
+              "name": "app-gateway-capacity"
+            }
+          ],
+          "description": "The number of instances to use when creating a new application gateway",
+          "name": "--app-gateway-capacity"
+        },
+        {
+          "args": [
+            {
+              "name": "app-gateway-sku"
+            }
+          ],
+          "description": "SKU when creating a new application gateway",
+          "name": "--app-gateway-sku"
+        },
+        {
+          "args": [
+            {
+              "name": "app-gateway-subnet-address-prefix"
+            }
+          ],
+          "description": "The subnet IP address prefix to use when creating a new application gateway in CIDR format",
+          "name": "--app-gateway-subnet-address-prefix"
+        },
+        {
+          "args": [
+            {
+              "name": "asgs"
+            }
+          ],
+          "description": "Space-separated list of existing application security groups to associate with the VM",
+          "name": "--asgs"
+        },
+        {
+          "args": [
+            {
+              "name": "assign-identity"
+            }
+          ],
+          "description": "Accept system or user assigned identities separated by spaces. Use '[system]' to refer system assigned identity, or a resource id to refer user assigned identity. Check out help for more examples",
+          "name": "--assign-identity"
+        },
+        {
+          "args": [
+            {
+              "name": "authentication-type",
+              "suggestions": [
+                "all",
+                "password",
+                "ssh"
+              ]
+            }
+          ],
+          "description": "Type of authentication to use with the VM. Defaults to password for Windows and SSH public key for Linux. \"all\" enables both ssh and password authentication",
+          "name": "--authentication-type"
+        },
+        {
+          "args": [
+            {
+              "name": "automatic-repairs-action",
+              "suggestions": [
+                "Reimage",
+                "Replace",
+                "Restart"
+              ]
+            }
+          ],
+          "description": "Type of repair action that will be used for repairing unhealthy virtual machines in the scale set",
+          "name": "--automatic-repairs-action"
+        },
+        {
+          "args": [
+            {
+              "name": "automatic-repairs-grace-period"
+            }
+          ],
+          "description": "The amount of time (in minutes, between 30 and 90) for which automatic repairs are suspended due to a state change on VM",
+          "name": "--automatic-repairs-grace-period"
+        },
+        {
+          "args": [
+            {
+              "name": "backend-pool-name"
+            }
+          ],
+          "description": "Name to use for the backend pool when creating a new load balancer or application gateway",
+          "name": "--backend-pool-name"
+        },
+        {
+          "args": [
+            {
+              "name": "backend-port"
+            }
+          ],
+          "description": "When creating a new load balancer, backend port to open with NAT rules (Defaults to 22 on Linux and 3389 on Windows). When creating an application gateway, the backend port to use for the backend HTTP settings",
+          "name": "--backend-port"
+        },
+        {
+          "args": [
+            {
+              "name": "capacity-reservation-group"
+            }
+          ],
+          "description": "The ID or name of the capacity reservation group that is used to allocate. Pass in \"None\" to disassociate the capacity reservation group. Please note that if you want to delete a VM/VMSS that has been associated with capacity reservation group, you need to disassociate the capacity reservation group first",
+          "name": [
+            "--capacity-reservation-group",
+            "--crg"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "computer-name-prefix"
+            }
+          ],
+          "description": "Computer name prefix for all of the virtual machines in the scale set. Computer name prefixes must be 1 to 15 characters long",
+          "name": "--computer-name-prefix"
+        },
+        {
+          "args": [
+            {
+              "name": "custom-data"
+            }
+          ],
+          "description": "Custom init script file or text (cloud-init, cloud-config, etc..)",
+          "name": "--custom-data"
+        },
+        {
+          "args": [
+            {
+              "name": "data-disk-caching"
+            }
+          ],
+          "description": "Storage caching type for data disk(s), including 'None', 'ReadOnly', 'ReadWrite', etc. Use a singular value to apply on all disks, or use <lun>=<vaule1> <lun>=<value2> to configure individual disk",
+          "name": "--data-disk-caching"
+        },
+        {
+          "args": [
+            {
+              "name": "data-disk-delete-option",
+              "suggestions": [
+                "Delete",
+                "Detach"
+              ]
+            }
+          ],
+          "description": "Specify whether data disk should be deleted or detached upon VMSS Flex deletion (This feature is only for VMSS with flexible orchestration mode)",
+          "name": "--data-disk-delete-option"
+        },
+        {
+          "args": [
+            {
+              "name": "data-disk-encryption-sets"
+            }
+          ],
+          "description": "Names or IDs (space delimited) of disk encryption sets for data disks",
+          "name": "--data-disk-encryption-sets"
+        },
+        {
+          "args": [
+            {
+              "name": "data-disk-iops"
+            }
+          ],
+          "description": "Specify the Read-Write IOPS (space delimited) for the managed disk. Should be used only when StorageAccountType is UltraSSD_LRS. If not specified, a default value would be assigned based on diskSizeGB",
+          "name": "--data-disk-iops"
+        },
+        {
+          "args": [
+            {
+              "name": "data-disk-mbps"
+            }
+          ],
+          "description": "Specify the bandwidth in MB per second (space delimited) for the managed disk. Should be used only when StorageAccountType is UltraSSD_LRS. If not specified, a default value would be assigned based on diskSizeGB",
+          "name": "--data-disk-mbps"
+        },
+        {
+          "args": [
+            {
+              "name": "data-disk-sizes-gb"
+            }
+          ],
+          "description": "Space-separated empty managed data disk sizes in GB to create",
+          "name": "--data-disk-sizes-gb"
+        },
+        {
+          "description": "Disable the default behavior of installing guest attestation extension and enabling System Assigned Identity for Trusted Launch enabled VMs and VMSS",
+          "name": "--disable-integrity-monitoring"
+        },
+        {
+          "description": "Disable auto upgrade of guest attestation extension for Trusted Launch enabled VMs and VMSS",
+          "name": "--disable-integrity-monitoring-autoupgrade"
+        },
+        {
+          "args": [
+            {
+              "name": "disable-overprovision"
+            }
+          ],
+          "description": "Overprovision option (see https://azure.microsoft.com/documentation/articles/virtual-machine-scale-sets-overview/ for details)",
+          "name": "--disable-overprovision"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-controller-type",
+              "suggestions": [
+                "NVMe",
+                "SCSI"
+              ]
+            }
+          ],
+          "description": "Specify the disk controller type configured for the VM or VMSS",
+          "name": "--disk-controller-type"
+        },
+        {
+          "args": [
+            {
+              "name": "dns-servers"
+            }
+          ],
+          "description": "Space-separated IP addresses of DNS servers, e.g. 10.0.0.5 10.0.0.6",
+          "name": "--dns-servers"
+        },
+        {
+          "args": [
+            {
+              "name": "edge-zone"
+            }
+          ],
+          "description": "The name of edge zone",
+          "name": "--edge-zone"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-agent",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Indicate whether virtual machine agent should be provisioned on the virtual machine. When this property is not specified, default behavior is to set it to true. This will ensure that VM Agent is installed on the VM so that extensions can be added to the VM later",
+          "name": "--enable-agent"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-auto-update",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Indicate whether Automatic Updates is enabled for the Windows virtual machine",
+          "name": "--enable-auto-update"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-cross-zone-upgrade",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Set this Boolean property will allow VMSS to ignore AZ boundaries when constructing upgrade batches, and only consider Update Domain and maxBatchInstancePercent to determine the batch size",
+          "name": "--enable-cross-zone-upgrade"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-hibernation",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "The flag that enable or disable hibernation capability on the VMSS",
+          "name": "--enable-hibernation"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-osimage-notification",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Specify whether the OS Image Scheduled event is enabled or disabled",
+          "name": "--enable-osimage-notification"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-secure-boot",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable secure boot",
+          "name": "--enable-secure-boot"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-spot-restore",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable the Spot-Try-Restore feature where evicted VMSS SPOT instances will be tried to be restored opportunistically based on capacity availability and pricing constraints",
+          "name": "--enable-spot-restore"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-vtpm",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable vTPM",
+          "name": "--enable-vtpm"
+        },
+        {
+          "args": [
+            {
+              "name": "encryption-at-host",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable Host Encryption for the VM or VMSS. This will enable the encryption for all the disks including Resource/Temp disk at host itself",
+          "name": "--encryption-at-host"
+        },
+        {
+          "args": [
+            {
+              "name": "ephemeral-os-disk",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Allows you to create an OS disk directly on the host node, providing local disk performance and faster VM/VMSS reimage time",
+          "name": "--ephemeral-os-disk"
+        },
+        {
+          "args": [
+            {
+              "name": "ephemeral-os-disk-placement",
+              "suggestions": [
+                "CacheDisk",
+                "ResourceDisk"
+              ]
+            }
+          ],
+          "description": "Only applicable when used with --ephemeral-os-disk. Allows you to choose the Ephemeral OS disk provisioning location",
+          "name": [
+            "--ephemeral-os-disk-placement",
+            "--ephemeral-placement"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "eviction-policy",
+              "suggestions": [
+                "Deallocate",
+                "Delete"
+              ]
+            }
+          ],
+          "description": "The eviction policy for virtual machines in a Spot priority scale set. Default eviction policy is Deallocate for a Spot priority scale set",
+          "name": "--eviction-policy"
+        },
+        {
+          "description": "Generate SSH public and private key files if missing. The keys will be stored in the ~/.ssh directory",
+          "name": "--generate-ssh-keys"
+        },
+        {
+          "args": [
+            {
+              "name": "health-probe"
+            }
+          ],
+          "description": "Probe name from the existing load balancer, mainly used for rolling upgrade or automatic repairs",
+          "name": "--health-probe"
+        },
+        {
+          "args": [
+            {
+              "name": "host-group"
+            }
+          ],
+          "description": "Name or ID of dedicated host group that the virtual machine scale set resides in",
+          "name": "--host-group"
+        },
+        {
+          "args": [
+            {
+              "name": "image"
+            }
+          ],
+          "description": "The name of the operating system image as a URN alias, URN, custom image name or ID, or VHD blob URI. In addition, it also supports shared gallery image. Please use the image alias including the version of the distribution you want to use. For example: please use Debian11 instead of Debian.' This parameter is required unless using --attach-os-disk. Valid URN format: \"Publisher:Offer:Sku:Version\". For more information, see https://docs.microsoft.com/azure/virtual-machines/linux/cli-ps-findimage. value from: az sig image-version show-shared, az vm image list, az vm image show",
+          "name": "--image"
+        },
+        {
+          "args": [
+            {
+              "name": "instance-count"
+            }
+          ],
+          "description": "Number of VMs in the scale set",
+          "name": "--instance-count"
+        },
+        {
+          "args": [
+            {
+              "name": "load-balancer"
+            }
+          ],
+          "description": "Name to use when creating a new load balancer (default) or referencing an existing one. Can also reference an existing load balancer by ID or specify \"\" for none",
+          "name": [
+            "--load-balancer",
+            "--lb"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "lb-nat-rule-name"
+            }
+          ],
+          "description": "Name to use for the NAT rule v2 when creating a new load balancer. (NAT rule V2 is used to replace NAT pool)",
+          "name": [
+            "--lb-nat-rule-name",
+            "--nat-rule-name"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "lb-sku",
+              "suggestions": [
+                "Basic",
+                "Gateway",
+                "Standard"
+              ]
+            }
+          ],
+          "description": "Sku of the Load Balancer to create. Default to 'Standard' when single placement group is turned off; otherwise, default to 'Basic'. The public IP is supported to be created on edge zone only when it is 'Standard'",
+          "name": "--lb-sku"
+        },
+        {
+          "args": [
+            {
+              "name": "license-type",
+              "suggestions": [
+                "None",
+                "RHEL_BASE",
+                "RHEL_BASESAPAPPS",
+                "RHEL_BASESAPHA",
+                "RHEL_BYOS",
+                "RHEL_ELS_6",
+                "RHEL_EUS",
+                "RHEL_SAPAPPS",
+                "RHEL_SAPHA",
+                "SLES",
+                "SLES_BYOS",
+                "SLES_HPC",
+                "SLES_SAP",
+                "SLES_STANDARD",
+                "UBUNTU",
+                "UBUNTU_PRO",
+                "Windows_Client",
+                "Windows_Server"
+              ]
+            }
+          ],
+          "description": "Specifies that the Windows image or disk was licensed on-premises. To enable Azure Hybrid Benefit for Windows Server, use 'Windows_Server'. To enable Multi-tenant Hosting Rights for Windows 10, use 'Windows_Client'. For more information see the Azure Windows VM online docs",
+          "name": "--license-type"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location in which to create VM and related resources. If default location is not configured, will default to the resource group's location",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "max-batch-instance-percent"
+            }
+          ],
+          "description": "The maximum percent of total virtual machine instances that will be upgraded simultaneously by the rolling upgrade in one batch. Default: 20%",
+          "name": "--max-batch-instance-percent"
+        },
+        {
+          "args": [
+            {
+              "name": "max-price"
+            }
+          ],
+          "description": "The maximum price (in US Dollars) you are willing to pay for a Spot VM/VMSS. -1 indicates that the Spot VM/VMSS should not be evicted for price reasons",
+          "name": "--max-price"
+        },
+        {
+          "args": [
+            {
+              "name": "max-surge",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Specify it to create new virtual machines to upgrade the scale set, rather than updating the existing virtual machines",
+          "name": "--max-surge"
+        },
+        {
+          "args": [
+            {
+              "name": "max-unhealthy-instance-percent"
+            }
+          ],
+          "description": "The maximum percentage of the total virtual machine instances in the scale set that can be simultaneously unhealthy. Default: 20%",
+          "name": "--max-unhealthy-instance-percent"
+        },
+        {
+          "args": [
+            {
+              "name": "max-unhealthy-upgraded-instance-percent"
+            }
+          ],
+          "description": "The maximum percentage of upgraded virtual machine instances that can be found to be in an unhealthy state. Default: 20%",
+          "name": "--max-unhealthy-upgraded-instance-percent"
+        },
+        {
+          "args": [
+            {
+              "name": "network-api-version"
+            }
+          ],
+          "description": "Specify the Microsoft.Network API version used when creating networking resources in the Network Interface Configurations for Virtual Machine Scale Set with orchestration mode 'Flexible'. Default value is 2020-11-01",
+          "name": "--network-api-version"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "nsg"
+            }
+          ],
+          "description": "Name or ID of an existing Network Security Group",
+          "name": "--nsg"
+        },
+        {
+          "args": [
+            {
+              "name": "orchestration-mode",
+              "suggestions": [
+                "Flexible",
+                "Uniform"
+              ]
+            }
+          ],
+          "description": "Choose how virtual machines are managed by the scale set. In Uniform mode, you define a virtual machine model and Azure will generate identical instances based on that model. In Flexible mode, you manually create and add a virtual machine of any configuration to the scale set or generate identical instances based on virtual machine model defined for the scale set",
+          "name": "--orchestration-mode"
+        },
+        {
+          "args": [
+            {
+              "name": "os-disk-caching",
+              "suggestions": [
+                "None",
+                "ReadOnly",
+                "ReadWrite"
+              ]
+            }
+          ],
+          "description": "Storage caching type for the VM OS disk. Default: ReadWrite",
+          "name": "--os-disk-caching"
+        },
+        {
+          "args": [
+            {
+              "name": "os-disk-delete-option",
+              "suggestions": [
+                "Delete",
+                "Detach"
+              ]
+            }
+          ],
+          "description": "Specify whether OS disk should be deleted or detached upon VMSS Flex deletion (This feature is only for VMSS with flexible orchestration mode)",
+          "name": "--os-disk-delete-option"
+        },
+        {
+          "args": [
+            {
+              "name": "os-disk-encryption-set"
+            }
+          ],
+          "description": "Name or ID of disk encryption set for OS disk",
+          "name": "--os-disk-encryption-set"
+        },
+        {
+          "args": [
+            {
+              "name": "os-disk-name"
+            }
+          ],
+          "description": "The name of the new VM OS disk",
+          "name": "--os-disk-name"
+        },
+        {
+          "args": [
+            {
+              "name": "os-disk-secure-vm-disk-encryption-set"
+            }
+          ],
+          "description": "Specify the customer managed disk encryption set resource ID or name for the managed disk that is used for customer managed key encrypted Confidential VM OS disk and VM guest blob",
+          "name": "--os-disk-secure-vm-disk-encryption-set"
+        },
+        {
+          "args": [
+            {
+              "name": "os-disk-security-encryption-type",
+              "suggestions": [
+                "DiskWithVMGuestState",
+                "VMGuestStateOnly"
+              ]
+            }
+          ],
+          "description": "Specify the encryption type of the OS managed disk",
+          "name": "--os-disk-security-encryption-type"
+        },
+        {
+          "args": [
+            {
+              "name": "os-disk-size-gb"
+            }
+          ],
+          "description": "OS disk size in GB to create",
+          "name": "--os-disk-size-gb"
+        },
+        {
+          "args": [
+            {
+              "name": "os-type",
+              "suggestions": [
+                "linux",
+                "windows"
+              ]
+            }
+          ],
+          "description": "Type of OS installed on a custom VHD. Do not use when specifying an URN or URN alias",
+          "name": "--os-type"
+        },
+        {
+          "args": [
+            {
+              "name": "patch-mode",
+              "suggestions": [
+                "AutomaticByOS",
+                "AutomaticByPlatform",
+                "ImageDefault",
+                "Manual"
+              ]
+            }
+          ],
+          "description": "Mode of in-guest patching to IaaS virtual machine. Allowed values for Windows VM: AutomaticByOS, AutomaticByPlatform, Manual. Allowed values for Linux VM: AutomaticByPlatform, ImageDefault. Manual - You control the application of patches to a virtual machine. You do this by applying patches manually inside the VM. In this mode, automatic updates are disabled; the paramater --enable-auto-update must be false. AutomaticByOS - The virtual machine will automatically be updated by the OS. The parameter --enable-auto-update must be true. AutomaticByPlatform - the virtual machine will automatically updated by the OS. ImageDefault - The virtual machine's default patching configuration is used. The parameter --enable-agent and --enable-auto-update must be true",
+          "name": "--patch-mode"
+        },
+        {
+          "args": [
+            {
+              "name": "pause-time-between-batches"
+            }
+          ],
+          "description": "The wait time between completing the update for all virtual machines in one batch and starting the next batch. Default: 0 seconds",
+          "name": "--pause-time-between-batches"
+        },
+        {
+          "args": [
+            {
+              "name": "plan-name"
+            }
+          ],
+          "description": "Plan name",
+          "name": "--plan-name"
+        },
+        {
+          "args": [
+            {
+              "name": "plan-product"
+            }
+          ],
+          "description": "Plan product",
+          "name": "--plan-product"
+        },
+        {
+          "args": [
+            {
+              "name": "plan-promotion-code"
+            }
+          ],
+          "description": "Plan promotion code",
+          "name": "--plan-promotion-code"
+        },
+        {
+          "args": [
+            {
+              "name": "plan-publisher"
+            }
+          ],
+          "description": "Plan publisher",
+          "name": "--plan-publisher"
+        },
+        {
+          "args": [
+            {
+              "name": "platform-fault-domain-count"
+            }
+          ],
+          "description": "Fault Domain count for each placement group in the availability zone",
+          "name": "--platform-fault-domain-count"
+        },
+        {
+          "args": [
+            {
+              "name": "ppg"
+            }
+          ],
+          "description": "The name or ID of the proximity placement group the VMSS should be associated with",
+          "name": "--ppg"
+        },
+        {
+          "args": [
+            {
+              "name": "prioritize-unhealthy-instances",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Set this Boolean property will lead to all unhealthy instances in a scale set getting upgraded before any healthy instances",
+          "name": "--prioritize-unhealthy-instances"
+        },
+        {
+          "args": [
+            {
+              "name": "priority",
+              "suggestions": [
+                "Low",
+                "Regular",
+                "Spot"
+              ]
+            }
+          ],
+          "description": "Priority. Use 'Spot' to run short-lived workloads in a cost-effective way. 'Low' enum will be deprecated in the future. Please use 'Spot' to deploy Azure spot VM and/or VMSS. Default to Regular",
+          "name": "--priority"
+        },
+        {
+          "args": [
+            {
+              "name": "public-ip-address"
+            }
+          ],
+          "description": "Name of the public IP address when creating one (default) or referencing an existing one. Can also reference an existing public IP by ID or specify \"\" for None ('\"\"' in Azure CLI using PowerShell or --% operator). For Azure CLI using powershell core edition 7.3.4, specify or \"\" (--public-ip-address or --public-ip-address \"\")",
+          "name": "--public-ip-address"
+        },
+        {
+          "args": [
+            {
+              "name": "public-ip-address-allocation",
+              "suggestions": [
+                "dynamic",
+                "static"
+              ]
+            }
+          ],
+          "description": "",
+          "name": "--public-ip-address-allocation"
+        },
+        {
+          "args": [
+            {
+              "name": "public-ip-address-dns-name"
+            }
+          ],
+          "description": "Globally unique DNS name for a newly created public IP",
+          "name": "--public-ip-address-dns-name"
+        },
+        {
+          "description": "Each VM instance will have a public ip. For security, you can use '--nsg' to apply appropriate rules",
+          "name": "--public-ip-per-vm"
+        },
+        {
+          "args": [
+            {
+              "name": "regular-priority-count"
+            }
+          ],
+          "description": "The base number of regular priority VMs that will be created in this scale set as it scales out. Must be greater than 0",
+          "name": "--regular-priority-count"
+        },
+        {
+          "args": [
+            {
+              "name": "regular-priority-percentage"
+            }
+          ],
+          "description": "The percentage of VM instances, after the base regular priority count has been reached, that are expected to use regular priority. Must be between 0 and 100",
+          "name": "--regular-priority-percentage"
+        },
+        {
+          "args": [
+            {
+              "name": "role"
+            }
+          ],
+          "description": "Role name or id the system assigned identity will have",
+          "name": "--role"
+        },
+        {
+          "args": [
+            {
+              "name": "scale-in-policy",
+              "suggestions": [
+                "Default",
+                "NewestVM",
+                "OldestVM"
+              ]
+            }
+          ],
+          "description": "Specify the scale-in policy (space delimited) that decides which virtual machines are chosen for removal when a Virtual Machine Scale Set is scaled-in",
+          "name": "--scale-in-policy"
+        },
+        {
+          "args": [
+            {
+              "name": "scope"
+            }
+          ],
+          "description": "Scope that the system assigned identity can access",
+          "name": "--scope"
+        },
+        {
+          "args": [
+            {
+              "name": "secrets"
+            }
+          ],
+          "description": "One or many Key Vault secrets as JSON strings or files via @{path} containing [{ \"sourceVault\": { \"id\": \"value\" }, \"vaultCertificates\": [{ \"certificateUrl\": \"value\", \"certificateStore\": \"cert store name (only on windows)\"}] }]",
+          "name": "--secrets"
+        },
+        {
+          "args": [
+            {
+              "name": "security-type",
+              "suggestions": [
+                "ConfidentialVM",
+                "Standard",
+                "TrustedLaunch"
+              ]
+            }
+          ],
+          "description": "Specify the security type of the virtual machine",
+          "name": "--security-type"
+        },
+        {
+          "args": [
+            {
+              "name": "single-placement-group",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Limit the scale set to a single placement group. See https://docs.microsoft.com/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-placement-groups for details",
+          "name": "--single-placement-group"
+        },
+        {
+          "args": [
+            {
+              "name": "specialized",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Indicate whether the source image is specialized",
+          "name": "--specialized"
+        },
+        {
+          "args": [
+            {
+              "name": "spot-restore-timeout"
+            }
+          ],
+          "description": "Timeout value expressed as an ISO 8601 time duration after which the platform will not try to restore the VMSS SPOT instances",
+          "name": "--spot-restore-timeout"
+        },
+        {
+          "args": [
+            {
+              "name": "ssh-dest-key-path"
+            }
+          ],
+          "description": "Destination file path on the VM for the SSH key. If the file already exists, the specified key(s) are appended to the file. Destination path for SSH public keys is currently limited to its default value \"/home/username/.ssh/authorized_keys\" due to a known issue in Linux provisioning agent",
+          "name": "--ssh-dest-key-path"
+        },
+        {
+          "args": [
+            {
+              "name": "ssh-key-values"
+            }
+          ],
+          "description": "Space-separated list of SSH public keys or public key file paths",
+          "name": "--ssh-key-values"
+        },
+        {
+          "args": [
+            {
+              "name": "storage-container-name"
+            }
+          ],
+          "description": "Only applicable when used with --use-unmanaged-disk. Name of the storage container for the VM OS disk. Default: vhds",
+          "name": "--storage-container-name"
+        },
+        {
+          "args": [
+            {
+              "name": "storage-sku"
+            }
+          ],
+          "description": "The SKU of the storage account with which to persist VM. Use a singular sku that would be applied across all disks, or specify individual disks. Usage: [--storage-sku SKU | --storage-sku ID=SKU ID=SKU ID=SKU...], where each ID is \"os\" or a 0-indexed lun. Allowed values: Standard_LRS, Premium_LRS, StandardSSD_LRS, UltraSSD_LRS, Premium_ZRS, StandardSSD_ZRS, PremiumV2_LRS",
+          "name": "--storage-sku"
+        },
+        {
+          "args": [
+            {
+              "name": "subnet"
+            }
+          ],
+          "description": "The name of the subnet when creating a new VNet or referencing an existing one. Can also reference an existing subnet by ID. If both vnet-name and subnet are omitted, an appropriate VNet and subnet will be selected automatically, or a new one will be created",
+          "name": "--subnet"
+        },
+        {
+          "args": [
+            {
+              "name": "subnet-address-prefix"
+            }
+          ],
+          "description": "The subnet IP address prefix to use when creating a new VNet in CIDR format",
+          "name": "--subnet-address-prefix"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "terminate-notification-time"
+            }
+          ],
+          "description": "Length of time (in minutes, between 5 and 15) a notification to be sent to the VM on the instance metadata server till the VM gets deleted",
+          "name": "--terminate-notification-time"
+        },
+        {
+          "args": [
+            {
+              "name": "ultra-ssd-enabled",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enables or disables the capability to have 1 or more managed data disks with UltraSSD_LRS storage account",
+          "name": "--ultra-ssd-enabled"
+        },
+        {
+          "args": [
+            {
+              "name": "upgrade-policy-mode",
+              "suggestions": [
+                "Automatic",
+                "Manual",
+                "Rolling"
+              ]
+            }
+          ],
+          "description": "",
+          "name": "--upgrade-policy-mode"
+        },
+        {
+          "description": "Do not use managed disk to persist VM",
+          "name": "--use-unmanaged-disk"
+        },
+        {
+          "args": [
+            {
+              "name": "user-data"
+            }
+          ],
+          "description": "UserData for the virtual machines in the scale set. It can be passed in as file or string",
+          "name": "--user-data"
+        },
+        {
+          "args": [
+            {
+              "name": "v-cpus-available"
+            }
+          ],
+          "description": "Specify the number of vCPUs available",
+          "name": "--v-cpus-available"
+        },
+        {
+          "args": [
+            {
+              "name": "v-cpus-per-core"
+            }
+          ],
+          "description": "Specify the ratio of vCPU to physical core. Setting this property to 1 also means that hyper-threading is disabled",
+          "name": "--v-cpus-per-core"
+        },
+        {
+          "description": "Generate and validate the ARM template without creating any resources",
+          "name": "--validate"
+        },
+        {
+          "args": [
+            {
+              "name": "vm-domain-name"
+            }
+          ],
+          "description": "Domain name of VM instances, once configured, the FQDN is vm<vm-index>.<vm-domain-name>.<..rest..>",
+          "name": "--vm-domain-name"
+        },
+        {
+          "args": [
+            {
+              "name": "vm-sku"
+            }
+          ],
+          "description": "Size of VMs in the scale set. Default to \"Standard_DS1_v2\". See https://azure.microsoft.com/pricing/details/virtual-machines/ for size info",
+          "name": "--vm-sku"
+        },
+        {
+          "args": [
+            {
+              "name": "vnet-address-prefix"
+            }
+          ],
+          "description": "The IP address prefix to use when creating a new VNet in CIDR format",
+          "name": "--vnet-address-prefix"
+        },
+        {
+          "args": [
+            {
+              "name": "vnet-name"
+            }
+          ],
+          "description": "Name of the virtual network when creating a new one or referencing an existing one",
+          "name": "--vnet-name"
+        },
+        {
+          "args": [
+            {
+              "name": "zones",
+              "suggestions": [
+                "1",
+                "2",
+                "3"
+              ]
+            }
+          ],
+          "description": "Space-separated list of availability zones into which to provision the resource",
+          "name": [
+            "--zones",
+            "-z"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Deallocate VMs within a VMSS",
+      "name": "deallocate",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "hibernate",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Hibernate a virtual machine from the VM scale set. Available for VMSS with Flexible OrchestrationMode only",
+          "name": "--hibernate"
+        },
+        {
+          "args": [
+            {
+              "name": "instance-ids"
+            }
+          ],
+          "description": "Space-separated list of IDs (ex: 1 2 3 ...) or * for all instances. If not provided, the action will be applied on the scaleset itself",
+          "name": "--instance-ids"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        }
+      ]
+    },
+    {
+      "description": "Delete a VM scale set",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "force-deletion",
+              "suggestions": [
+                "0",
+                "1",
+                "f",
+                "false",
+                "n",
+                "no",
+                "t",
+                "true",
+                "y",
+                "yes"
+              ]
+            }
+          ],
+          "description": "Optional parameter to force delete a VM scale set. (Feature in Preview)",
+          "name": "--force-deletion"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "vm-scale-set-name"
+            }
+          ],
+          "description": "The name of the VM scale set",
+          "name": [
+            "--vm-scale-set-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "no-wait",
+              "suggestions": [
+                "0",
+                "1",
+                "f",
+                "false",
+                "n",
+                "no",
+                "t",
+                "true",
+                "y",
+                "yes"
+              ]
+            }
+          ],
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Delete VMs within a VMSS",
+      "name": "delete-instances",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "instance-ids"
+            }
+          ],
+          "description": "Space-separated list of IDs (ex: 1 2 3 ...) or * for all instances",
+          "isRequired": true,
+          "name": "--instance-ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        }
+      ]
+    },
+    {
+      "description": "View an instance of a VMSS",
+      "name": "get-instance-view",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "instance-id"
+            }
+          ],
+          "description": "A VM instance ID or \"*\" to list instance view for all VMs in a scale set",
+          "name": "--instance-id"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "List the OS upgrades on a VM scale set instance",
+      "name": "get-os-upgrade-history",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "vm-scale-set-name"
+            }
+          ],
+          "description": "The name of the VM scale set",
+          "isRequired": true,
+          "name": [
+            "--vm-scale-set-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "max-items"
+            }
+          ],
+          "description": "Total number of items to return in the command's output. If the total number of items available is more than the value specified, a token is provided in the command's output. To resume pagination, provide the token value in --next-token argument of a subsequent command",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "next-token"
+            }
+          ],
+          "description": "Token to specify where to start paginating. This is the token value from a previously truncated response",
+          "name": "--next-token"
+        }
+      ]
+    },
+    {
+      "description": "List all VM scale sets under a resource group",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "max-items"
+            }
+          ],
+          "description": "Total number of items to return in the command's output. If the total number of items available is more than the value specified, a token is provided in the command's output. To resume pagination, provide the token value in --next-token argument of a subsequent command",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "next-token"
+            }
+          ],
+          "description": "Token to specify where to start paginating. This is the token value from a previously truncated response",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Get the IP address and port number used to connect to individual VM instances within a set",
+      "name": "list-instance-connection-info",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "List public IP addresses of VM instances within a set",
+      "name": "list-instance-public-ips",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "List all virtual machines in a VM scale sets",
+      "name": "list-instances",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "virtual-machine-scale-set-name"
+            }
+          ],
+          "description": "The name of the VM scale set",
+          "isRequired": true,
+          "name": [
+            "--virtual-machine-scale-set-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "expand"
+            }
+          ],
+          "description": "The expand expression to apply to the operation. Allowed values are 'instanceView'",
+          "name": "--expand"
+        },
+        {
+          "args": [
+            {
+              "name": "filter"
+            }
+          ],
+          "description": "The filter to apply to the operation. Allowed values are 'startswith(instanceView/statuses/code, 'PowerState') eq true', 'properties/latestModelApplied eq true', 'properties/latestModelApplied eq false'",
+          "name": "--filter"
+        },
+        {
+          "args": [
+            {
+              "name": "max-items"
+            }
+          ],
+          "description": "Total number of items to return in the command's output. If the total number of items available is more than the value specified, a token is provided in the command's output. To resume pagination, provide the token value in --next-token argument of a subsequent command",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "next-token"
+            }
+          ],
+          "description": "Token to specify where to start paginating. This is the token value from a previously truncated response",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "select"
+            }
+          ],
+          "description": "The list parameters. Allowed values are 'instanceView', 'instanceView/statuses'",
+          "name": "--select"
+        }
+      ]
+    },
+    {
+      "description": "List SKUs available for your VM scale set, including the minimum and maximum VM instances allowed for each SKU",
+      "name": "list-skus",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "vm-scale-set-name"
+            }
+          ],
+          "description": "The name of the VM scale set",
+          "isRequired": true,
+          "name": [
+            "--vm-scale-set-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "max-items"
+            }
+          ],
+          "description": "Total number of items to return in the command's output. If the total number of items available is more than the value specified, a token is provided in the command's output. To resume pagination, provide the token value in --next-token argument of a subsequent command",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "next-token"
+            }
+          ],
+          "description": "Token to specify where to start paginating. This is the token value from a previously truncated response",
+          "name": "--next-token"
+        }
+      ]
+    },
+    {
+      "description": "Perform maintenance on one or more virtual machines in a VM scale set. Operation on instances which are not eligible for perform maintenance will be failed. Please refer to best practices for more details: https://docs.microsoft.com/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-maintenance-notifications",
+      "name": "perform-maintenance",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "instance-ids"
+            }
+          ],
+          "description": "The virtual machine scale set instance ids. Omitting the virtual machine scale set instance ids will result in the operation being performed on all virtual machines in the virtual machine scale set. Support shorthand-syntax, json-file and yaml-file. Try \"??\" to show more",
+          "name": "--instance-ids"
+        },
+        {
+          "args": [
+            {
+              "name": "vm-scale-set-name"
+            }
+          ],
+          "description": "The name of the VM scale set",
+          "name": [
+            "--vm-scale-set-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "no-wait",
+              "suggestions": [
+                "0",
+                "1",
+                "f",
+                "false",
+                "n",
+                "no",
+                "t",
+                "true",
+                "y",
+                "yes"
+              ]
+            }
+          ],
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Reimage VMs within a VMSS",
+      "name": "reimage",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "instance-ids"
+            }
+          ],
+          "description": "Space-separated list of VM instance ID. If missing, reimage all instances",
+          "name": "--instance-ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Restart VMs within a VMSS",
+      "name": "restart",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "instance-ids"
+            }
+          ],
+          "description": "Space-separated list of IDs (ex: 1 2 3 ...) or * for all instances. If not provided, the action will be applied on the scaleset itself",
+          "name": "--instance-ids"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        }
+      ]
+    },
+    {
+      "description": "Change the number of VMs within a VMSS",
+      "name": "scale",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "new-capacity"
+            }
+          ],
+          "description": "Number of VMs in the VMSS",
+          "isRequired": true,
+          "name": "--new-capacity"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Change ServiceState property for a given service within a VMSS",
+      "name": "set-orchestration-service-state",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "action",
+              "suggestions": [
+                "Resume",
+                "Suspend"
+              ]
+            }
+          ],
+          "description": "The action to be performed",
+          "isRequired": true,
+          "name": "--action"
+        },
+        {
+          "args": [
+            {
+              "name": "service-name",
+              "suggestions": [
+                "AutomaticRepairs",
+                "DummyOrchestrationServiceName"
+              ]
+            }
+          ],
+          "description": "The name of the orchestration service",
+          "isRequired": true,
+          "name": "--service-name"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Get details on VMs within a VMSS",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Include the user data properties in the query result",
+          "name": [
+            "--include-user-data",
+            "-u"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "instance-id"
+            }
+          ],
+          "description": "VM instance ID. If missing, show the VMSS",
+          "name": "--instance-id"
+        }
+      ]
+    },
+    {
+      "description": "Simulate the eviction of a Spot virtual machine in a VM scale set",
+      "name": "simulate-eviction",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "instance-id"
+            }
+          ],
+          "description": "The instance ID of the virtual machine",
+          "name": "--instance-id"
+        },
+        {
+          "args": [
+            {
+              "name": "vm-scale-set-name"
+            }
+          ],
+          "description": "The name of the VM scale set",
+          "name": [
+            "--vm-scale-set-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Start VMs within a VMSS",
+      "name": "start",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "instance-ids"
+            }
+          ],
+          "description": "Space-separated list of IDs (ex: 1 2 3 ...) or * for all instances. If not provided, the action will be applied on the scaleset itself",
+          "name": "--instance-ids"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        }
+      ]
+    },
+    {
+      "description": "Power off (stop) VMs within a VMSS",
+      "name": "stop",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "instance-ids"
+            }
+          ],
+          "description": "Space-separated list of IDs (ex: 1 2 3 ...) or * for all instances. If not provided, the action will be applied on the scaleset itself",
+          "name": "--instance-ids"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "description": "Skip shutdown and power-off immediately",
+          "name": "--skip-shutdown"
+        }
+      ]
+    },
+    {
+      "description": "Update a VMSS. Run 'az vmss update-instances' command to roll out the changes to VMs if you have not configured upgrade policy",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "add"
+            }
+          ],
+          "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+          "name": "--add"
+        },
+        {
+          "args": [
+            {
+              "name": "automatic-repairs-action",
+              "suggestions": [
+                "Reimage",
+                "Replace",
+                "Restart"
+              ]
+            }
+          ],
+          "description": "Type of repair action that will be used for repairing unhealthy virtual machines in the scale set",
+          "name": "--automatic-repairs-action"
+        },
+        {
+          "args": [
+            {
+              "name": "automatic-repairs-grace-period"
+            }
+          ],
+          "description": "The amount of time (in minutes, between 30 and 90) for which automatic repairs are suspended due to a state change on VM",
+          "name": "--automatic-repairs-grace-period"
+        },
+        {
+          "args": [
+            {
+              "name": "capacity-reservation-group"
+            }
+          ],
+          "description": "The ID or name of the capacity reservation group that is used to allocate. Pass in \"None\" to disassociate the capacity reservation group. Please note that if you want to delete a VM/VMSS that has been associated with capacity reservation group, you need to disassociate the capacity reservation group first",
+          "name": [
+            "--capacity-reservation-group",
+            "--crg"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "custom-data"
+            }
+          ],
+          "description": "Custom init script file or text (cloud-init, cloud-config, etc..)",
+          "name": "--custom-data"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-controller-type",
+              "suggestions": [
+                "NVMe",
+                "SCSI"
+              ]
+            }
+          ],
+          "description": "Specify the disk controller type configured for the VM or VMSS",
+          "name": "--disk-controller-type"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-automatic-repairs",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable automatic repairs",
+          "name": "--enable-automatic-repairs"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-cross-zone-upgrade",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Set this Boolean property will allow VMSS to ignore AZ boundaries when constructing upgrade batches, and only consider Update Domain and maxBatchInstancePercent to determine the batch size",
+          "name": "--enable-cross-zone-upgrade"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-hibernation",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "The flag that enable or disable hibernation capability on the VMSS",
+          "name": "--enable-hibernation"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-osimage-notification",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Specify whether the OS Image Scheduled event is enabled or disabled",
+          "name": "--enable-osimage-notification"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-secure-boot",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable secure boot",
+          "name": "--enable-secure-boot"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-spot-restore",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable the Spot-Try-Restore feature where evicted VMSS SPOT instances will be tried to be restored opportunistically based on capacity availability and pricing constraints",
+          "name": "--enable-spot-restore"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-terminate-notification",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable terminate notification",
+          "name": "--enable-terminate-notification"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-vtpm",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable vTPM",
+          "name": "--enable-vtpm"
+        },
+        {
+          "args": [
+            {
+              "name": "ephemeral-os-disk-placement",
+              "suggestions": [
+                "CacheDisk",
+                "ResourceDisk"
+              ]
+            }
+          ],
+          "description": "Only applicable when used with --vm-sku. Allows you to choose the Ephemeral OS disk provisioning location",
+          "name": [
+            "--ephemeral-os-disk-placement",
+            "--ephemeral-placement"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "force-deletion"
+            }
+          ],
+          "description": "This property allow you to specify if virtual machines chosen for removal have to be force deleted when a virtual machine scale set is being scaled-in",
+          "name": "--force-deletion"
+        },
+        {
+          "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+          "name": "--force-string"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "instance-id"
+            }
+          ],
+          "description": "Update the VM instance with this ID. If missing, Update the VMSS",
+          "name": "--instance-id"
+        },
+        {
+          "args": [
+            {
+              "name": "license-type",
+              "suggestions": [
+                "None",
+                "RHEL_BASE",
+                "RHEL_BASESAPAPPS",
+                "RHEL_BASESAPHA",
+                "RHEL_BYOS",
+                "RHEL_ELS_6",
+                "RHEL_EUS",
+                "RHEL_SAPAPPS",
+                "RHEL_SAPHA",
+                "SLES",
+                "SLES_BYOS",
+                "SLES_HPC",
+                "SLES_SAP",
+                "SLES_STANDARD",
+                "UBUNTU",
+                "UBUNTU_PRO",
+                "Windows_Client",
+                "Windows_Server"
+              ]
+            }
+          ],
+          "description": "Specifies that the Windows image or disk was licensed on-premises. To enable Azure Hybrid Benefit for Windows Server, use 'Windows_Server'. To enable Multi-tenant Hosting Rights for Windows 10, use 'Windows_Client'. For more information see the Azure Windows VM online docs",
+          "name": "--license-type"
+        },
+        {
+          "args": [
+            {
+              "name": "max-batch-instance-percent"
+            }
+          ],
+          "description": "The maximum percent of total virtual machine instances that will be upgraded simultaneously by the rolling upgrade in one batch. Default: 20%",
+          "name": "--max-batch-instance-percent"
+        },
+        {
+          "args": [
+            {
+              "name": "max-price"
+            }
+          ],
+          "description": "The maximum price (in US Dollars) you are willing to pay for a Spot VM/VMSS. -1 indicates that the Spot VM/VMSS should not be evicted for price reasons",
+          "name": "--max-price"
+        },
+        {
+          "args": [
+            {
+              "name": "max-unhealthy-instance-percent"
+            }
+          ],
+          "description": "The maximum percentage of the total virtual machine instances in the scale set that can be simultaneously unhealthy. Default: 20%",
+          "name": "--max-unhealthy-instance-percent"
+        },
+        {
+          "args": [
+            {
+              "name": "max-unhealthy-upgraded-instance-percent"
+            }
+          ],
+          "description": "The maximum percentage of upgraded virtual machine instances that can be found to be in an unhealthy state. Default: 20%",
+          "name": "--max-unhealthy-upgraded-instance-percent"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "pause-time-between-batches"
+            }
+          ],
+          "description": "The wait time between completing the update for all virtual machines in one batch and starting the next batch. Default: 0 seconds",
+          "name": "--pause-time-between-batches"
+        },
+        {
+          "args": [
+            {
+              "name": "ppg"
+            }
+          ],
+          "description": "The name or ID of the proximity placement group the VMSS should be associated with",
+          "name": "--ppg"
+        },
+        {
+          "args": [
+            {
+              "name": "prioritize-unhealthy-instances",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Set this Boolean property will lead to all unhealthy instances in a scale set getting upgraded before any healthy instances",
+          "name": "--prioritize-unhealthy-instances"
+        },
+        {
+          "args": [
+            {
+              "name": "priority",
+              "suggestions": [
+                "Low",
+                "Regular",
+                "Spot"
+              ]
+            }
+          ],
+          "description": "Priority. Use 'Spot' to run short-lived workloads in a cost-effective way. 'Low' enum will be deprecated in the future. Please use 'Spot' to deploy Azure spot VM and/or VMSS. Default to Regular",
+          "name": "--priority"
+        },
+        {
+          "args": [
+            {
+              "name": "protect-from-scale-in",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Protect the VM instance from scale-in operations",
+          "name": "--protect-from-scale-in"
+        },
+        {
+          "args": [
+            {
+              "name": "protect-from-scale-set-actions",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Protect the VM instance from scale set actions (including scale-in)",
+          "name": "--protect-from-scale-set-actions"
+        },
+        {
+          "args": [
+            {
+              "name": "regular-priority-count"
+            }
+          ],
+          "description": "The base number of regular priority VMs that will be created in this scale set as it scales out. Must be greater than 0",
+          "name": "--regular-priority-count"
+        },
+        {
+          "args": [
+            {
+              "name": "regular-priority-percentage"
+            }
+          ],
+          "description": "The percentage of VM instances, after the base regular priority count has been reached, that are expected to use regular priority. Must be between 0 and 100",
+          "name": "--regular-priority-percentage"
+        },
+        {
+          "args": [
+            {
+              "name": "remove"
+            }
+          ],
+          "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+          "name": "--remove"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "scale-in-policy",
+              "suggestions": [
+                "Default",
+                "NewestVM",
+                "OldestVM"
+              ]
+            }
+          ],
+          "description": "Specify the scale-in policy (space delimited) that decides which virtual machines are chosen for removal when a Virtual Machine Scale Set is scaled-in",
+          "name": "--scale-in-policy"
+        },
+        {
+          "args": [
+            {
+              "name": "security-type",
+              "suggestions": [
+                "TrustedLaunch"
+              ]
+            }
+          ],
+          "description": "Specify the security type of the virtual machine scale set",
+          "name": "--security-type"
+        },
+        {
+          "args": [
+            {
+              "name": "set"
+            }
+          ],
+          "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+          "name": "--set"
+        },
+        {
+          "args": [
+            {
+              "name": "spot-restore-timeout"
+            }
+          ],
+          "description": "Timeout value expressed as an ISO 8601 time duration after which the platform will not try to restore the VMSS SPOT instances",
+          "name": "--spot-restore-timeout"
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "args": [
+            {
+              "name": "terminate-notification-time"
+            }
+          ],
+          "description": "Length of time (in minutes, between 5 and 15) a notification to be sent to the VM on the instance metadata server till the VM gets deleted",
+          "name": "--terminate-notification-time"
+        },
+        {
+          "args": [
+            {
+              "name": "ultra-ssd-enabled",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enables or disables the capability to have 1 or more managed data disks with UltraSSD_LRS storage account",
+          "name": "--ultra-ssd-enabled"
+        },
+        {
+          "args": [
+            {
+              "name": "user-data"
+            }
+          ],
+          "description": "UserData for the virtual machines in the scale set. It can be passed in as file or string. If empty string is passed in, the existing value will be deleted",
+          "name": "--user-data"
+        },
+        {
+          "args": [
+            {
+              "name": "v-cpus-available"
+            }
+          ],
+          "description": "Specify the number of vCPUs available",
+          "name": "--v-cpus-available"
+        },
+        {
+          "args": [
+            {
+              "name": "v-cpus-per-core"
+            }
+          ],
+          "description": "Specify the ratio of vCPU to physical core. Setting this property to 1 also means that hyper-threading is disabled",
+          "name": "--v-cpus-per-core"
+        },
+        {
+          "args": [
+            {
+              "name": "vm-sku"
+            }
+          ],
+          "description": "The new size of the virtual machine instances in the scale set. Default to \"Standard_DS1_v2\". See https://azure.microsoft.com/pricing/details/virtual-machines/ for size info",
+          "name": "--vm-sku"
+        }
+      ]
+    },
+    {
+      "description": "Upgrade VMs within a VMSS",
+      "name": "update-instances",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "instance-ids"
+            }
+          ],
+          "description": "Space-separated list of IDs (ex: 1 2 3 ...) or * for all instances",
+          "isRequired": true,
+          "name": "--instance-ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        }
+      ]
+    },
+    {
+      "description": "Place the CLI in a waiting state until a condition of a scale set is met",
+      "name": "wait",
+      "options": [
+        {
+          "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+          "name": "--created"
+        },
+        {
+          "args": [
+            {
+              "name": "custom"
+            }
+          ],
+          "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+          "name": "--custom"
+        },
+        {
+          "description": "Wait until deleted",
+          "name": "--deleted"
+        },
+        {
+          "description": "Wait until the resource exists",
+          "name": "--exists"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "instance-id"
+            }
+          ],
+          "description": "Wait on the VM instance with this ID. If missing, Wait on the VMSS",
+          "name": "--instance-id"
+        },
+        {
+          "args": [
+            {
+              "name": "interval"
+            }
+          ],
+          "description": "Polling interval in seconds",
+          "name": "--interval"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "args": [
+            {
+              "name": "timeout"
+            }
+          ],
+          "description": "Maximum wait in seconds",
+          "name": "--timeout"
+        },
+        {
+          "description": "Wait until updated with provisioningState at 'Succeeded'",
+          "name": "--updated"
+        }
+      ]
+    },
+    {
+      "description": "Configure the Azure Virtual Machine Scale Set diagnostics extension",
+      "name": "diagnostics",
+      "subcommands": [
+        {
+          "description": "Show the default config file which defines data to be collected",
+          "name": "get-default-config",
+          "options": [
+            {
+              "description": "For Windows VMs",
+              "name": "--is-windows-os"
+            }
+          ]
+        },
+        {
+          "description": "Enable diagnostics on a VMSS",
+          "name": "set",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "settings"
+                }
+              ],
+              "description": "Json string or a file path, which defines data to be collected",
+              "isRequired": true,
+              "name": "--settings"
+            },
+            {
+              "args": [
+                {
+                  "name": "vmss-name"
+                }
+              ],
+              "description": "Scale set name",
+              "isRequired": true,
+              "name": "--vmss-name"
+            },
+            {
+              "description": "Option '--no-auto-upgrade' has been deprecated and will be removed in a future release. Use '--no-auto-upgrade-minor-version' instead. If set, the extension service will not automatically pick or upgrade to the latest minor version, even if the extension is redeployed",
+              "name": "--no-auto-upgrade"
+            },
+            {
+              "description": "If set, the extension service will not automatically pick or upgrade to the latest minor version, even if the extension is redeployed",
+              "name": "--no-auto-upgrade-minor-version"
+            },
+            {
+              "args": [
+                {
+                  "name": "protected-settings"
+                }
+              ],
+              "description": "Json string or a file path containing private configurations such as storage account keys, etc",
+              "name": "--protected-settings"
+            },
+            {
+              "args": [
+                {
+                  "name": "version"
+                }
+              ],
+              "description": "Version of the diagnostics extension. Will use the latest if not specfied",
+              "name": "--version"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage data disks of a VMSS",
+      "name": "disk",
+      "subcommands": [
+        {
+          "description": "Attach managed data disks to a scale set or its instances",
+          "name": "attach",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "caching",
+                  "suggestions": [
+                    "None",
+                    "ReadOnly",
+                    "ReadWrite"
+                  ]
+                }
+              ],
+              "description": "Disk caching policy",
+              "name": "--caching"
+            },
+            {
+              "args": [
+                {
+                  "name": "disk"
+                }
+              ],
+              "description": "Existing disk name or ID to attach or detach from VM instances",
+              "name": "--disk"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "instance-id"
+                }
+              ],
+              "description": "Scale set VM instance id",
+              "name": "--instance-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "lun"
+                }
+              ],
+              "description": "0-based logical unit number (LUN). Max value depends on the Virtual Machine instance size",
+              "name": "--lun"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "size-gb"
+                }
+              ],
+              "description": "Size in GB. Max size: 4095 GB (certain preview disks can be larger)",
+              "name": [
+                "--size-gb",
+                "-z"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "sku",
+                  "suggestions": [
+                    "PremiumV2_LRS",
+                    "Premium_LRS",
+                    "Premium_ZRS",
+                    "StandardSSD_LRS",
+                    "StandardSSD_ZRS",
+                    "Standard_LRS",
+                    "UltraSSD_LRS"
+                  ]
+                }
+              ],
+              "description": "Underlying storage SKU",
+              "name": "--sku"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "vmss-name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "name": "--vmss-name"
+            }
+          ]
+        },
+        {
+          "description": "Detach managed data disks from a scale set or its instances",
+          "name": "detach",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "lun"
+                }
+              ],
+              "description": "0-based logical unit number (LUN). Max value depends on the Virtual Machine instance size",
+              "isRequired": true,
+              "name": "--lun"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "instance-id"
+                }
+              ],
+              "description": "Scale set VM instance id",
+              "name": "--instance-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "vmss-name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "name": "--vmss-name"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage encryption of VMSS.\n\n\t\tFor more information, see: ttps://docs.microsoft.com/azure/security/fundamentals/azure-disk-encryption-vms-vmss",
+      "name": "encryption",
+      "subcommands": [
+        {
+          "description": "Disable the encryption on a VMSS with managed disks",
+          "name": "disable",
+          "options": [
+            {
+              "description": "Continue by ignoring client side validation errors",
+              "name": "--force"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "volume-type",
+                  "suggestions": [
+                    "ALL",
+                    "DATA",
+                    "OS"
+                  ]
+                }
+              ],
+              "description": "Type of volume that the encryption operation is performed on",
+              "name": "--volume-type"
+            }
+          ]
+        },
+        {
+          "description": "Encrypt a VMSS with managed disks",
+          "name": "enable",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "disk-encryption-keyvault"
+                }
+              ],
+              "description": "Name or ID of the key vault where the generated encryption key will be placed",
+              "isRequired": true,
+              "name": "--disk-encryption-keyvault"
+            },
+            {
+              "description": "Continue by ignoring client side validation errors",
+              "name": "--force"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-encryption-algorithm"
+                }
+              ],
+              "description": "",
+              "name": "--key-encryption-algorithm"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-encryption-key"
+                }
+              ],
+              "description": "Key vault key name or URL used to encrypt the disk encryption key",
+              "name": "--key-encryption-key"
+            },
+            {
+              "args": [
+                {
+                  "name": "key-encryption-keyvault"
+                }
+              ],
+              "description": "Name or ID of the key vault containing the key encryption key used to encrypt the disk encryption key. If missing, CLI will use --disk-encryption-keyvault",
+              "name": "--key-encryption-keyvault"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "volume-type",
+                  "suggestions": [
+                    "ALL",
+                    "DATA",
+                    "OS"
+                  ]
+                }
+              ],
+              "description": "Type of volume that the encryption operation is performed on",
+              "name": "--volume-type"
+            }
+          ]
+        },
+        {
+          "description": "Show encryption status",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage extensions on a VM scale set",
+      "name": "extension",
+      "subcommands": [
+        {
+          "description": "Delete an extension from a VMSS",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the extension",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "vmss-name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "isRequired": true,
+              "name": "--vmss-name"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            }
+          ]
+        },
+        {
+          "description": "List extensions associated with a VMSS",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "vmss-name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "isRequired": true,
+              "name": "--vmss-name"
+            }
+          ]
+        },
+        {
+          "description": "Add an extension to a VMSS or update an existing extension",
+          "name": "set",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the extension. value from: az vm extension image list",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "publisher"
+                }
+              ],
+              "description": "The name of the extension publisher",
+              "isRequired": true,
+              "name": "--publisher"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "vmss-name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "isRequired": true,
+              "name": "--vmss-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "enable-auto-upgrade",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Indicate the extension should be automatically upgraded by the platform if there is a newer version of the extension available",
+              "name": "--enable-auto-upgrade"
+            },
+            {
+              "args": [
+                {
+                  "name": "extension-instance-name"
+                }
+              ],
+              "description": "Name of extension instance, which can be customized. Default: name of the extension",
+              "name": "--extension-instance-name"
+            },
+            {
+              "description": "Force to update even if the extension configuration has not changed",
+              "name": "--force-update"
+            },
+            {
+              "description": "Option '--no-auto-upgrade' has been deprecated and will be removed in a future release. Use '--no-auto-upgrade-minor-version' instead. If set, the extension service will not automatically pick or upgrade to the latest minor version, even if the extension is redeployed",
+              "name": "--no-auto-upgrade"
+            },
+            {
+              "description": "If set, the extension service will not automatically pick or upgrade to the latest minor version, even if the extension is redeployed",
+              "name": "--no-auto-upgrade-minor-version"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "protected-settings"
+                }
+              ],
+              "description": "Protected settings in JSON format for sensitive information like credentials. A JSON file path is also accepted",
+              "name": "--protected-settings"
+            },
+            {
+              "args": [
+                {
+                  "name": "provision-after-extensions"
+                }
+              ],
+              "description": "Space-separated list of extension names after which this extension should be provisioned. These extensions must already be set on the vm",
+              "name": "--provision-after-extensions"
+            },
+            {
+              "args": [
+                {
+                  "name": "settings"
+                }
+              ],
+              "description": "Extension settings in JSON format. A JSON file path is also accepted",
+              "name": "--settings"
+            },
+            {
+              "args": [
+                {
+                  "name": "version"
+                }
+              ],
+              "description": "The version of the extension. To pin extension version to this value, please specify --no-auto-upgrade-minor-version",
+              "name": "--version"
+            }
+          ]
+        },
+        {
+          "description": "Show details on a VMSS extension",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Name of the extension",
+              "isRequired": true,
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "vmss-name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "isRequired": true,
+              "name": "--vmss-name"
+            }
+          ]
+        },
+        {
+          "description": "Upgrade all extensions for all VMSS instances to the latest version",
+          "name": "upgrade",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Find the available VM extensions for a subscription and region",
+          "name": "image",
+          "subcommands": [
+            {
+              "description": "List the information on available extensions",
+              "name": "list",
+              "options": [
+                {
+                  "description": "Show the latest version only",
+                  "name": "--latest"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "location"
+                    }
+                  ],
+                  "description": "Image location",
+                  "name": [
+                    "--location",
+                    "-l"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Image name",
+                  "name": [
+                    "--name",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "publisher"
+                    }
+                  ],
+                  "description": "Image publisher name",
+                  "name": [
+                    "--publisher",
+                    "-p"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "version"
+                    }
+                  ],
+                  "description": "Extension version",
+                  "name": "--version"
+                }
+              ]
+            },
+            {
+              "description": "List virtual machine extension image types",
+              "name": "list-names",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "location"
+                    }
+                  ],
+                  "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+                  "name": [
+                    "--location",
+                    "-l"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "publisher-name"
+                    }
+                  ],
+                  "description": "Image publisher name",
+                  "name": [
+                    "--publisher-name",
+                    "--publisher",
+                    "-p"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                }
+              ]
+            },
+            {
+              "description": "List virtual machine extension image versions",
+              "name": "list-versions",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "filter"
+                    }
+                  ],
+                  "description": "The filter to apply on the operation. Default value is None",
+                  "name": "--filter"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "location"
+                    }
+                  ],
+                  "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+                  "name": [
+                    "--location",
+                    "-l"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the extension",
+                  "name": [
+                    "--name",
+                    "--type",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "orderby"
+                    }
+                  ],
+                  "description": "The $orderby odata query option",
+                  "name": "--orderby"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "publisher-name"
+                    }
+                  ],
+                  "description": "Image publisher name",
+                  "name": [
+                    "--publisher-name",
+                    "--publisher",
+                    "-p"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "top"
+                    }
+                  ],
+                  "description": "The $top odata query option",
+                  "name": "--top"
+                }
+              ]
+            },
+            {
+              "description": "Get a virtual machine extension image",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "ids"
+                    }
+                  ],
+                  "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+                  "name": "--ids"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "location"
+                    }
+                  ],
+                  "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+                  "name": [
+                    "--location",
+                    "-l"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "name"
+                    }
+                  ],
+                  "description": "Name of the extension",
+                  "name": [
+                    "--name",
+                    "--type",
+                    "-n"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "publisher-name"
+                    }
+                  ],
+                  "description": "Image publisher name",
+                  "name": [
+                    "--publisher-name",
+                    "--publisher",
+                    "-p"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "subscription"
+                    }
+                  ],
+                  "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+                  "name": "--subscription"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "version"
+                    }
+                  ],
+                  "description": "Extension version",
+                  "name": "--version"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage service identities of a VM scaleset",
+      "name": "identity",
+      "subcommands": [
+        {
+          "description": "Enable managed service identity on a VMSS",
+          "name": "assign",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "identities"
+                }
+              ],
+              "description": "Space-separated identities to assign. Use '[system]' to refer to the system assigned identity. Default: '[system]'",
+              "name": "--identities"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "role"
+                }
+              ],
+              "description": "Role name or id the system assigned identity will have. Please note that the default value \"Contributor\" will be removed in the breaking change release of the fall, so please specify \"--role\" and \"--scope\" at the same time when assigning a role to the managed identity",
+              "name": "--role"
+            },
+            {
+              "args": [
+                {
+                  "name": "scope"
+                }
+              ],
+              "description": "Scope that the system assigned identity can access",
+              "name": "--scope"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Remove user assigned identities from a VM scaleset",
+          "name": "remove",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "identities"
+                }
+              ],
+              "description": "Space-separated identities to remove. Use '[system]' to refer to the system assigned identity. Default: '[system]'",
+              "name": "--identities"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Display VM scaleset's managed identity info",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "The name of the Virtual Machine. You can configure the default using az configure --defaults vm=<name>",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage network interfaces of a VMSS",
+      "name": "nic",
+      "subcommands": [
+        {
+          "description": "Get all network interfaces in a virtual machine scale set",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "virtual-machine-scale-set-name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "isRequired": true,
+              "name": [
+                "--virtual-machine-scale-set-name",
+                "--vmss-name"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get information about all network interfaces in a virtual machine in a virtual machine scale set",
+          "name": "list-vm-nics",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "virtualmachine-index"
+                }
+              ],
+              "description": "The virtual machine index",
+              "isRequired": true,
+              "name": [
+                "--virtualmachine-index",
+                "--instance-id"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "virtual-machine-scale-set-name"
+                }
+              ],
+              "description": "Scale set name",
+              "isRequired": true,
+              "name": [
+                "--virtual-machine-scale-set-name",
+                "--vmss-name"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Get the specified network interface in a virtual machine scale set",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "expand"
+                }
+              ],
+              "description": "Expands referenced resources. Default value is None",
+              "name": "--expand"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "virtualmachine-index"
+                }
+              ],
+              "description": "The virtual machine index",
+              "name": [
+                "--virtualmachine-index",
+                "--instance-id"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "network-interface-name"
+                }
+              ],
+              "description": "The network interface (NIC)",
+              "name": [
+                "--network-interface-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "virtual-machine-scale-set-name"
+                }
+              ],
+              "description": "Scale set name",
+              "name": [
+                "--virtual-machine-scale-set-name",
+                "--vmss-name"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage rolling upgrades",
+      "name": "rolling-upgrade",
+      "subcommands": [
+        {
+          "description": "Cancel the current virtual machine scale set rolling upgrade",
+          "name": "cancel",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "virtual-machine-scale-set-name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "name": [
+                "--virtual-machine-scale-set-name",
+                "--vm-scale-set-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Get the status of the latest virtual machine scale set rolling upgrade",
+          "name": "get-latest",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "virtual-machine-scale-set-name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "name": [
+                "--virtual-machine-scale-set-name",
+                "--vm-scale-set-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "Start a rolling upgrade to move all virtual machine scale set instances to the latest available Platform Image OS version. Instances which are already running the latest available OS version are not affected",
+          "name": "start",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "virtual-machine-scale-set-name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "name": [
+                "--virtual-machine-scale-set-name",
+                "--vm-scale-set-name",
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "no-wait",
+                  "suggestions": [
+                    "0",
+                    "1",
+                    "f",
+                    "false",
+                    "n",
+                    "no",
+                    "t",
+                    "true",
+                    "y",
+                    "yes"
+                  ]
+                }
+              ],
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Manage run commands on a Virtual Machine Scale Set.\n\n\t\tFor more information, see https://docs.microsoft.com/azure/virtual-machines/windows/run-command or https://docs.microsoft.com/azure/virtual-machines/linux/run-command",
+      "name": "run-command",
+      "subcommands": [
+        {
+          "description": "The operation to Create the VMSS VM run command",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "instance-id"
+                }
+              ],
+              "description": "The instance ID of the virtual machine",
+              "isRequired": true,
+              "name": "--instance-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "run-command-name"
+                }
+              ],
+              "description": "The name of the virtual machine run command",
+              "isRequired": true,
+              "name": [
+                "--run-command-name",
+                "--name"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "vmss-name"
+                }
+              ],
+              "description": "The name of the VM scale set",
+              "isRequired": true,
+              "name": "--vmss-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "async-execution",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Optional. If set to true, provisioning will complete as soon as the script starts and will not wait for script to complete",
+              "name": "--async-execution"
+            },
+            {
+              "args": [
+                {
+                  "name": "command-id"
+                }
+              ],
+              "description": "Specify a commandId of predefined built-in script",
+              "name": "--command-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "error-blob-uri"
+                }
+              ],
+              "description": "Uri (without SAS) to an append blob where the script error stream will be uploaded",
+              "name": "--error-blob-uri"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "output-blob-uri"
+                }
+              ],
+              "description": "Uri (without SAS) to an append blob where the script output will be uploaded",
+              "name": "--output-blob-uri"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "The parameters used by the script",
+              "name": "--parameters"
+            },
+            {
+              "args": [
+                {
+                  "name": "protected-parameters"
+                }
+              ],
+              "description": "The parameters used by the script",
+              "name": "--protected-parameters"
+            },
+            {
+              "args": [
+                {
+                  "name": "run-as-password"
+                }
+              ],
+              "description": "Password if needed for using run-as-user parameter. It will be encrypted and not logged",
+              "name": "--run-as-password"
+            },
+            {
+              "args": [
+                {
+                  "name": "run-as-user"
+                }
+              ],
+              "description": "By default script process runs under system/root user. Specify custom user to host the process",
+              "name": "--run-as-user"
+            },
+            {
+              "args": [
+                {
+                  "name": "script"
+                }
+              ],
+              "description": "Specify the script content to be executed on the VM",
+              "name": "--script"
+            },
+            {
+              "args": [
+                {
+                  "name": "script-uri"
+                }
+              ],
+              "description": "Specify the script download location",
+              "name": "--script-uri"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout-in-seconds"
+                }
+              ],
+              "description": "The timeout in seconds to execute the run command",
+              "name": "--timeout-in-seconds"
+            }
+          ]
+        },
+        {
+          "description": "The operation to delete the run command",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "run-command-name"
+                }
+              ],
+              "description": "The name of the virtual machine run command",
+              "isRequired": true,
+              "name": [
+                "--run-command-name",
+                "--name"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "instance-id"
+                }
+              ],
+              "description": "The instance ID of the virtual machine",
+              "name": "--instance-id"
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "vmss-name"
+                }
+              ],
+              "description": "The name of the VM scale set",
+              "name": "--vmss-name"
+            },
+            {
+              "description": "Do not prompt for confirmation",
+              "name": [
+                "--yes",
+                "-y"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Execute a specific run command on a Virtual Machine Scale Set instance",
+          "name": "invoke",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "command-id"
+                }
+              ],
+              "description": "The command id. value from: az vmss run-command list",
+              "isRequired": true,
+              "name": "--command-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "instance-id"
+                }
+              ],
+              "description": "Scale set VM instance id",
+              "name": "--instance-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Scale set name. You can configure the default using az configure --defaults vmss=<name>",
+              "name": [
+                "--name",
+                "-n"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "Space-separated parameters in the format of '[name=]value'",
+              "name": "--parameters"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "scripts"
+                }
+              ],
+              "description": "Space-separated script lines. Use @{file} to load script from a file",
+              "name": "--scripts"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            }
+          ]
+        },
+        {
+          "description": "The operation to get all run commands of an instance in Virtual Machine Scaleset",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "instance-id"
+                }
+              ],
+              "description": "The instance ID of the virtual machine",
+              "isRequired": true,
+              "name": "--instance-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "vmss-name"
+                }
+              ],
+              "description": "The name of the VM scale set",
+              "isRequired": true,
+              "name": "--vmss-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "expand"
+                }
+              ],
+              "description": "The expand expression to apply on the operation",
+              "name": "--expand"
+            }
+          ]
+        },
+        {
+          "description": "The operation to get the VMSS run command",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "run-command-name"
+                }
+              ],
+              "description": "The name of the virtual machine run command",
+              "isRequired": true,
+              "name": [
+                "--run-command-name",
+                "--name"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "instance-id"
+                }
+              ],
+              "description": "The instance ID of the virtual machine",
+              "name": "--instance-id"
+            },
+            {
+              "description": "The instance view of a run command",
+              "name": "--instance-view"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "vmss-name"
+                }
+              ],
+              "description": "The name of the VM scale set",
+              "name": "--vmss-name"
+            }
+          ]
+        },
+        {
+          "description": "The operation to update the VMSS run command",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "run-command-name"
+                }
+              ],
+              "description": "The name of the virtual machine run command",
+              "isRequired": true,
+              "name": [
+                "--run-command-name",
+                "--name"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "async-execution",
+                  "suggestions": [
+                    "false",
+                    "true"
+                  ]
+                }
+              ],
+              "description": "Optional. If set to true, provisioning will complete as soon as the script starts and will not wait for script to complete",
+              "name": "--async-execution"
+            },
+            {
+              "args": [
+                {
+                  "name": "command-id"
+                }
+              ],
+              "description": "Specify a commandId of predefined built-in script",
+              "name": "--command-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "error-blob-uri"
+                }
+              ],
+              "description": "Uri (without SAS) to an append blob where the script error stream will be uploaded",
+              "name": "--error-blob-uri"
+            },
+            {
+              "args": [
+                {
+                  "name": "ids"
+                }
+              ],
+              "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+              "name": "--ids"
+            },
+            {
+              "args": [
+                {
+                  "name": "instance-id"
+                }
+              ],
+              "description": "The instance ID of the virtual machine",
+              "name": "--instance-id"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "description": "Do not wait for the long-running operation to finish",
+              "name": "--no-wait"
+            },
+            {
+              "args": [
+                {
+                  "name": "output-blob-uri"
+                }
+              ],
+              "description": "Uri (without SAS) to an append blob where the script output will be uploaded",
+              "name": "--output-blob-uri"
+            },
+            {
+              "args": [
+                {
+                  "name": "parameters"
+                }
+              ],
+              "description": "The parameters used by the script",
+              "name": "--parameters"
+            },
+            {
+              "args": [
+                {
+                  "name": "protected-parameters"
+                }
+              ],
+              "description": "The parameters used by the script",
+              "name": "--protected-parameters"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "run-as-password"
+                }
+              ],
+              "description": "Password if needed for using run-as-user parameter. It will be encrypted and not logged",
+              "name": "--run-as-password"
+            },
+            {
+              "args": [
+                {
+                  "name": "run-as-user"
+                }
+              ],
+              "description": "By default script process runs under system/root user. Specify custom user to host the process",
+              "name": "--run-as-user"
+            },
+            {
+              "args": [
+                {
+                  "name": "script"
+                }
+              ],
+              "description": "Specify the script content to be executed on the VM",
+              "name": "--script"
+            },
+            {
+              "args": [
+                {
+                  "name": "script-uri"
+                }
+              ],
+              "description": "Specify the script download location",
+              "name": "--script-uri"
+            },
+            {
+              "args": [
+                {
+                  "name": "subscription"
+                }
+              ],
+              "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+              "name": "--subscription"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            },
+            {
+              "args": [
+                {
+                  "name": "timeout-in-seconds"
+                }
+              ],
+              "description": "The timeout in seconds to execute the run command",
+              "name": "--timeout-in-seconds"
+            },
+            {
+              "args": [
+                {
+                  "name": "vmss-name"
+                }
+              ],
+              "description": "The name of the VM scale set",
+              "name": "--vmss-name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

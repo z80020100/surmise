@@ -1,0 +1,1128 @@
+{
+  "description": "Manage Azure Managed Disks.\n\n\t\tAzure Virtual Machines use disks as a place to store an operating system, applications, and data. All Azure virtual machines have at least two disks: An operating system disk, and a temporary disk. The operating system disk is created from an image, and both the operating system disk and the image are actually virtual hard disks (VHDs) stored in an Azure storage account. Virtual machines also can have one or more data disks, that are also stored as VHDs.\nAzure Unmanaged Data Disks have a maximum size of 4095 GB. To use disks larger than 4095 GB use Azure Managed Disks",
+  "name": "disk",
+  "subcommands": [
+    {
+      "description": "Create a managed disk",
+      "name": "create",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the managed disk",
+          "isRequired": true,
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "isRequired": true,
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "accelerated-network",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Customers can set on Managed Disks or Snapshots to enable the accelerated networking if the OS disk image support",
+          "name": "--accelerated-network"
+        },
+        {
+          "args": [
+            {
+              "name": "architecture",
+              "suggestions": [
+                "Arm64",
+                "x64"
+              ]
+            }
+          ],
+          "description": "CPU architecture",
+          "name": "--architecture"
+        },
+        {
+          "args": [
+            {
+              "name": "data-access-auth-mode",
+              "suggestions": [
+                "AzureActiveDirectory",
+                "None"
+              ]
+            }
+          ],
+          "description": "Specify the auth mode when exporting or uploading to a disk or snapshot",
+          "name": "--data-access-auth-mode"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-access"
+            }
+          ],
+          "description": "Name or ID of the disk access resource for using private endpoints on disks",
+          "name": "--disk-access"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-encryption-set"
+            }
+          ],
+          "description": "Name or ID of disk encryption set that is used to encrypt the disk",
+          "name": "--disk-encryption-set"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-iops-read-only"
+            }
+          ],
+          "description": "The total number of IOPS that will be allowed across all VMs mounting the shared disk as ReadOnly. One operation can transfer between 4k and 256k bytes",
+          "name": "--disk-iops-read-only"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-iops-read-write"
+            }
+          ],
+          "description": "The number of IOPS allowed for this disk. Only settable for UltraSSD disks. One operation can transfer between 4k and 256k bytes",
+          "name": "--disk-iops-read-write"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-mbps-read-only"
+            }
+          ],
+          "description": "The total throughput (MBps) that will be allowed across all VMs mounting the shared disk as ReadOnly. MBps means millions of bytes per second - MB here uses the ISO notation, of powers of 10",
+          "name": "--disk-mbps-read-only"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-mbps-read-write"
+            }
+          ],
+          "description": "The bandwidth allowed for this disk. Only settable for UltraSSD disks. MBps means millions of bytes per second with ISO notation of powers of 10",
+          "name": "--disk-mbps-read-write"
+        },
+        {
+          "args": [
+            {
+              "name": "edge-zone"
+            }
+          ],
+          "description": "The name of edge zone",
+          "name": "--edge-zone"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-bursting",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable on-demand bursting beyond the provisioned performance target of the disk. On-demand bursting is disabled by default, and it does not apply to Ultra disks",
+          "name": "--enable-bursting"
+        },
+        {
+          "args": [
+            {
+              "name": "encryption-type",
+              "suggestions": [
+                "EncryptionAtRestWithCustomerKey",
+                "EncryptionAtRestWithPlatformAndCustomerKeys",
+                "EncryptionAtRestWithPlatformKey"
+              ]
+            }
+          ],
+          "description": "Encryption type. EncryptionAtRestWithPlatformKey: Disk is encrypted with XStore managed key at rest. It is the default encryption type. EncryptionAtRestWithCustomerKey: Disk is encrypted with Customer managed key at rest",
+          "name": "--encryption-type"
+        },
+        {
+          "args": [
+            {
+              "name": "gallery-image-reference"
+            }
+          ],
+          "description": "ID of the Compute, Shared or Community Gallery image version from which to create a disk. For details about valid format, please refer to the help sample",
+          "name": "--gallery-image-reference"
+        },
+        {
+          "args": [
+            {
+              "name": "gallery-image-reference-lun"
+            }
+          ],
+          "description": "If the disk is created from an image's data disk, this is an index that indicates which of the data disks in the image to use. For OS disks, this field is null",
+          "name": "--gallery-image-reference-lun"
+        },
+        {
+          "args": [
+            {
+              "name": "hyper-v-generation",
+              "suggestions": [
+                "V1",
+                "V2"
+              ]
+            }
+          ],
+          "description": "The hypervisor generation of the Virtual Machine. Applicable to OS disks only",
+          "name": "--hyper-v-generation"
+        },
+        {
+          "args": [
+            {
+              "name": "image-reference"
+            }
+          ],
+          "description": "ID or URN (publisher:offer:sku:version) of the image from which to create a disk",
+          "name": "--image-reference"
+        },
+        {
+          "args": [
+            {
+              "name": "image-reference-lun"
+            }
+          ],
+          "description": "If the disk is created from an image's data disk, this is an index that indicates which of the data disks in the image to use. For OS disks, this field is null",
+          "name": "--image-reference-lun"
+        },
+        {
+          "args": [
+            {
+              "name": "location"
+            }
+          ],
+          "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>. If location is not specified and no default location specified, location will be automatically set as same as the resource group",
+          "name": [
+            "--location",
+            "-l"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "logical-sector-size"
+            }
+          ],
+          "description": "Logical sector size in bytes for Ultra disks. Supported values are 512 ad 4096. 4096 is the default",
+          "name": "--logical-sector-size"
+        },
+        {
+          "args": [
+            {
+              "name": "max-shares"
+            }
+          ],
+          "description": "The maximum number of VMs that can attach to the disk at the same time. Value greater than one indicates a disk that can be mounted on multiple VMs at the same time",
+          "name": "--max-shares"
+        },
+        {
+          "args": [
+            {
+              "name": "network-access-policy",
+              "suggestions": [
+                "AllowAll",
+                "AllowPrivate",
+                "DenyAll"
+              ]
+            }
+          ],
+          "description": "Policy for accessing the disk via network",
+          "name": "--network-access-policy"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "os-type",
+              "suggestions": [
+                "Linux",
+                "Windows"
+              ]
+            }
+          ],
+          "description": "The Operating System type of the Disk",
+          "name": "--os-type"
+        },
+        {
+          "args": [
+            {
+              "name": "performance-plus",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Set this flag to true to get a boost on the performance target of the disk deployed. This flag can only be set on disk creation time and cannot be disabled after enabled",
+          "name": "--performance-plus"
+        },
+        {
+          "args": [
+            {
+              "name": "public-network-access",
+              "suggestions": [
+                "Disabled",
+                "Enabled"
+              ]
+            }
+          ],
+          "description": "Customers can set on Managed Disks or Snapshots to control the export policy on the disk",
+          "name": "--public-network-access"
+        },
+        {
+          "args": [
+            {
+              "name": "secure-vm-disk-encryption-set"
+            }
+          ],
+          "description": "Name or ID of disk encryption set created with ConfidentialVmEncryptedWithCustomerKey encryption type",
+          "name": "--secure-vm-disk-encryption-set"
+        },
+        {
+          "args": [
+            {
+              "name": "security-data-uri"
+            }
+          ],
+          "description": "Please specify the blob URI of VHD to be imported into VM guest state",
+          "name": "--security-data-uri"
+        },
+        {
+          "args": [
+            {
+              "name": "security-type",
+              "suggestions": [
+                "ConfidentialVM_DiskEncryptedWithCustomerKey",
+                "ConfidentialVM_DiskEncryptedWithPlatformKey",
+                "ConfidentialVM_VMGuestStateOnlyEncryptedWithPlatformKey",
+                "Standard",
+                "TrustedLaunch"
+              ]
+            }
+          ],
+          "description": "The security type of the VM. Applicable for OS disks only",
+          "name": "--security-type"
+        },
+        {
+          "args": [
+            {
+              "name": "size-gb"
+            }
+          ],
+          "description": "Size in GB. Max size: 4095 GB (certain preview disks can be larger)",
+          "name": [
+            "--size-gb",
+            "-z"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "sku",
+              "suggestions": [
+                "PremiumV2_LRS",
+                "Premium_LRS",
+                "Premium_ZRS",
+                "StandardSSD_LRS",
+                "StandardSSD_ZRS",
+                "Standard_LRS",
+                "UltraSSD_LRS"
+              ]
+            }
+          ],
+          "description": "Underlying storage SKU",
+          "name": "--sku"
+        },
+        {
+          "args": [
+            {
+              "name": "source"
+            }
+          ],
+          "description": "Source to create the disk/snapshot from, including unmanaged blob uri, managed disk id or name, or snapshot id or name",
+          "name": "--source"
+        },
+        {
+          "args": [
+            {
+              "name": "source-storage-account-id"
+            }
+          ],
+          "description": "Used when source blob is in a different subscription",
+          "name": "--source-storage-account-id"
+        },
+        {
+          "args": [
+            {
+              "name": "support-hibernation",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Indicate the OS on a disk supports hibernation",
+          "name": "--support-hibernation"
+        },
+        {
+          "args": [
+            {
+              "name": "tags"
+            }
+          ],
+          "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+          "name": "--tags"
+        },
+        {
+          "args": [
+            {
+              "name": "tier"
+            }
+          ],
+          "description": "Performance tier of the disk (e.g, P4, S10) as described here: https://azure.microsoft.com/pricing/details/managed-disks/. Does not apply to Ultra disks",
+          "name": "--tier"
+        },
+        {
+          "args": [
+            {
+              "name": "upload-size-bytes"
+            }
+          ],
+          "description": "The size (in bytes) of the contents of the upload including the VHD footer. Min value: 20972032. Max value: 35183298347520. This parameter is required if --upload-type is specified",
+          "name": "--upload-size-bytes"
+        },
+        {
+          "args": [
+            {
+              "name": "upload-type",
+              "suggestions": [
+                "Upload",
+                "UploadWithSecurityData"
+              ]
+            }
+          ],
+          "description": "Create the disk for upload scenario. 'Upload' is for Standard disk only upload. 'UploadWithSecurityData' is for OS Disk upload along with VM Guest State. Please note the 'UploadWithSecurityData' is not valid for data disk upload, it only to be used for OS Disk upload at present",
+          "name": "--upload-type"
+        },
+        {
+          "args": [
+            {
+              "name": "zone",
+              "suggestions": [
+                "1",
+                "2",
+                "3"
+              ]
+            }
+          ],
+          "description": "Availability zone into which to provision the resource",
+          "name": "--zone"
+        }
+      ]
+    },
+    {
+      "description": "Delete a managed disk",
+      "name": "delete",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "disk-name"
+            }
+          ],
+          "description": "The name of the managed disk that is being created. The name can't be changed after the disk is created. Supported characters for the name are a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters",
+          "name": [
+            "--disk-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "no-wait",
+              "suggestions": [
+                "0",
+                "1",
+                "f",
+                "false",
+                "n",
+                "no",
+                "t",
+                "true",
+                "y",
+                "yes"
+              ]
+            }
+          ],
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "description": "Do not prompt for confirmation",
+          "name": [
+            "--yes",
+            "-y"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Grant a resource access to a managed disk",
+      "name": "grant-access",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "duration-in-seconds"
+            }
+          ],
+          "description": "Time duration in seconds until the SAS access expires",
+          "isRequired": true,
+          "name": "--duration-in-seconds"
+        },
+        {
+          "args": [
+            {
+              "name": "access-level",
+              "suggestions": [
+                "Read",
+                "Write"
+              ]
+            }
+          ],
+          "description": "Access level",
+          "name": "--access-level"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the managed disk",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "secure-vm-guest-state-sas"
+            }
+          ],
+          "description": "Get SAS on managed disk with VM guest state. It will be used by default when the create option of disk is 'secureOSUpload'",
+          "name": [
+            "--secure-vm-guest-state-sas",
+            "-s"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "List managed disks",
+      "name": "list",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "max-items"
+            }
+          ],
+          "description": "Total number of items to return in the command's output. If the total number of items available is more than the value specified, a token is provided in the command's output. To resume pagination, provide the token value in --next-token argument of a subsequent command",
+          "name": "--max-items"
+        },
+        {
+          "args": [
+            {
+              "name": "next-token"
+            }
+          ],
+          "description": "Token to specify where to start paginating. This is the token value from a previously truncated response",
+          "name": "--next-token"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Revoke a resource's read access to a managed disk",
+      "name": "revoke-access",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "disk-name"
+            }
+          ],
+          "description": "The name of the managed disk that is being created. The name can't be changed after the disk is created. Supported characters for the name are a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters",
+          "name": [
+            "--disk-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "no-wait",
+              "suggestions": [
+                "0",
+                "1",
+                "f",
+                "false",
+                "n",
+                "no",
+                "t",
+                "true",
+                "y",
+                "yes"
+              ]
+            }
+          ],
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Get information about a disk",
+      "name": "show",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "disk-name"
+            }
+          ],
+          "description": "The name of the managed disk that is being created. The name can't be changed after the disk is created. Supported characters for the name are a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters",
+          "name": [
+            "--disk-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Update a managed disk",
+      "name": "update",
+      "options": [
+        {
+          "args": [
+            {
+              "name": "accelerated-network",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Customers can set on Managed Disks or Snapshots to enable the accelerated networking if the OS disk image support",
+          "name": "--accelerated-network"
+        },
+        {
+          "args": [
+            {
+              "name": "add"
+            }
+          ],
+          "description": "Add an object to a list of objects by specifying a path and key value pairs. Example: --add property.listProperty <key=value, string or JSON string>",
+          "name": "--add"
+        },
+        {
+          "args": [
+            {
+              "name": "architecture",
+              "suggestions": [
+                "Arm64",
+                "x64"
+              ]
+            }
+          ],
+          "description": "CPU architecture",
+          "name": "--architecture"
+        },
+        {
+          "args": [
+            {
+              "name": "data-access-auth-mode",
+              "suggestions": [
+                "AzureActiveDirectory",
+                "None"
+              ]
+            }
+          ],
+          "description": "Specify the auth mode when exporting or uploading to a disk or snapshot",
+          "name": "--data-access-auth-mode"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-access"
+            }
+          ],
+          "description": "Name or ID of the disk access resource for using private endpoints on disks",
+          "name": "--disk-access"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-encryption-set"
+            }
+          ],
+          "description": "Name or ID of disk encryption set that is used to encrypt the disk",
+          "name": "--disk-encryption-set"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-iops-read-only"
+            }
+          ],
+          "description": "The total number of IOPS that will be allowed across all VMs mounting the shared disk as ReadOnly. One operation can transfer between 4k and 256k bytes",
+          "name": "--disk-iops-read-only"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-iops-read-write"
+            }
+          ],
+          "description": "The number of IOPS allowed for this disk. Only settable for UltraSSD disks. One operation can transfer between 4k and 256k bytes",
+          "name": "--disk-iops-read-write"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-mbps-read-only"
+            }
+          ],
+          "description": "The total throughput (MBps) that will be allowed across all VMs mounting the shared disk as ReadOnly. MBps means millions of bytes per second - MB here uses the ISO notation, of powers of 10",
+          "name": "--disk-mbps-read-only"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-mbps-read-write"
+            }
+          ],
+          "description": "The bandwidth allowed for this disk. Only settable for UltraSSD disks. MBps means millions of bytes per second with ISO notation of powers of 10",
+          "name": "--disk-mbps-read-write"
+        },
+        {
+          "args": [
+            {
+              "name": "enable-bursting",
+              "suggestions": [
+                "false",
+                "true"
+              ]
+            }
+          ],
+          "description": "Enable on-demand bursting beyond the provisioned performance target of the disk. On-demand bursting is disabled by default, and it does not apply to Ultra disks",
+          "name": "--enable-bursting"
+        },
+        {
+          "args": [
+            {
+              "name": "encryption-type",
+              "suggestions": [
+                "EncryptionAtRestWithCustomerKey",
+                "EncryptionAtRestWithPlatformAndCustomerKeys",
+                "EncryptionAtRestWithPlatformKey"
+              ]
+            }
+          ],
+          "description": "Encryption type. EncryptionAtRestWithPlatformKey: Disk is encrypted with XStore managed key at rest. It is the default encryption type. EncryptionAtRestWithCustomerKey: Disk is encrypted with Customer managed key at rest",
+          "name": "--encryption-type"
+        },
+        {
+          "description": "When using 'set' or 'add', preserve string literals instead of attempting to convert to JSON",
+          "name": "--force-string"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "max-shares"
+            }
+          ],
+          "description": "The maximum number of VMs that can attach to the disk at the same time. Value greater than one indicates a disk that can be mounted on multiple VMs at the same time",
+          "name": "--max-shares"
+        },
+        {
+          "args": [
+            {
+              "name": "name"
+            }
+          ],
+          "description": "The name of the managed disk",
+          "name": [
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "network-access-policy",
+              "suggestions": [
+                "AllowAll",
+                "AllowPrivate",
+                "DenyAll"
+              ]
+            }
+          ],
+          "description": "Policy for accessing the disk via network",
+          "name": "--network-access-policy"
+        },
+        {
+          "description": "Do not wait for the long-running operation to finish",
+          "name": "--no-wait"
+        },
+        {
+          "args": [
+            {
+              "name": "public-network-access",
+              "suggestions": [
+                "Disabled",
+                "Enabled"
+              ]
+            }
+          ],
+          "description": "Customers can set on Managed Disks or Snapshots to control the export policy on the disk",
+          "name": "--public-network-access"
+        },
+        {
+          "args": [
+            {
+              "name": "remove"
+            }
+          ],
+          "description": "Remove a property or an element from a list. Example: --remove property.list OR --remove propertyToRemove",
+          "name": "--remove"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "set"
+            }
+          ],
+          "description": "Update an object by specifying a property path and value to set. Example: --set property1.property2=",
+          "name": "--set"
+        },
+        {
+          "args": [
+            {
+              "name": "size-gb"
+            }
+          ],
+          "description": "Size in GB. Max size: 4095 GB (certain preview disks can be larger)",
+          "name": [
+            "--size-gb",
+            "-z"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "sku",
+              "suggestions": [
+                "PremiumV2_LRS",
+                "Premium_LRS",
+                "Premium_ZRS",
+                "StandardSSD_LRS",
+                "StandardSSD_ZRS",
+                "Standard_LRS",
+                "UltraSSD_LRS"
+              ]
+            }
+          ],
+          "description": "Underlying storage SKU",
+          "name": "--sku"
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        }
+      ]
+    },
+    {
+      "description": "Place the CLI in a waiting state until a condition is met",
+      "name": "wait",
+      "options": [
+        {
+          "description": "Wait until created with 'provisioningState' at 'Succeeded'",
+          "name": "--created"
+        },
+        {
+          "args": [
+            {
+              "name": "custom"
+            }
+          ],
+          "description": "Wait until the condition satisfies a custom JMESPath query. E.g. provisioningState!='InProgress', instanceView.statuses[?code=='PowerState/running']",
+          "name": "--custom"
+        },
+        {
+          "description": "Wait until deleted",
+          "name": "--deleted"
+        },
+        {
+          "args": [
+            {
+              "name": "disk-name"
+            }
+          ],
+          "description": "The name of the managed disk that is being created. The name can't be changed after the disk is created. Supported characters for the name are a-z, A-Z, 0-9, _ and -. The maximum name length is 80 characters",
+          "name": [
+            "--disk-name",
+            "--name",
+            "-n"
+          ]
+        },
+        {
+          "description": "Wait until the resource exists",
+          "name": "--exists"
+        },
+        {
+          "args": [
+            {
+              "name": "ids"
+            }
+          ],
+          "description": "One or more resource IDs (space-delimited). It should be a complete resource ID containing all information of 'Resource Id' arguments. You should provide either --ids or other 'Resource Id' arguments",
+          "name": "--ids"
+        },
+        {
+          "args": [
+            {
+              "name": "interval"
+            }
+          ],
+          "description": "Polling interval in seconds",
+          "name": "--interval"
+        },
+        {
+          "args": [
+            {
+              "name": "resource-group"
+            }
+          ],
+          "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+          "name": [
+            "--resource-group",
+            "-g"
+          ]
+        },
+        {
+          "args": [
+            {
+              "name": "subscription"
+            }
+          ],
+          "description": "Name or ID of subscription. You can configure the default subscription using az account set -s NAME_OR_ID",
+          "name": "--subscription"
+        },
+        {
+          "args": [
+            {
+              "name": "timeout"
+            }
+          ],
+          "description": "Maximum wait in seconds",
+          "name": "--timeout"
+        },
+        {
+          "description": "Wait until updated with provisioningState at 'Succeeded'",
+          "name": "--updated"
+        }
+      ]
+    }
+  ]
+}

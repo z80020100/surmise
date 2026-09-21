@@ -1,0 +1,1398 @@
+{
+  "description": "Manage peering",
+  "name": "peering",
+  "subcommands": [
+    {
+      "description": "Peering asn",
+      "name": "asn",
+      "subcommands": [
+        {
+          "description": "Creates a new peer ASN or updates an existing peer ASN with the specified name under the given subscription",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peer-asn-name"
+                }
+              ],
+              "description": "The peer ASN name",
+              "isRequired": true,
+              "name": "--peer-asn-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "peer-asn"
+                }
+              ],
+              "description": "The Autonomous System Number (ASN) of the peer",
+              "name": "--peer-asn"
+            },
+            {
+              "args": [
+                {
+                  "name": "peer-contact-detail"
+                }
+              ],
+              "description": "The contact details of the peer. Expect value: KEY1=VALUE1 KEY2=VALUE2 ... , available KEYs are: role, email, phone",
+              "name": "--peer-contact-detail"
+            },
+            {
+              "args": [
+                {
+                  "name": "peer-name"
+                }
+              ],
+              "description": "The name of the peer",
+              "name": "--peer-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "validation-state",
+                  "suggestions": [
+                    "Approved",
+                    "Failed",
+                    "None",
+                    "Pending"
+                  ]
+                }
+              ],
+              "description": "The validation state of the ASN associated with the peer",
+              "name": "--validation-state"
+            }
+          ]
+        },
+        {
+          "description": "Deletes an existing peer ASN with the specified name under the given subscription",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peer-asn-name"
+                }
+              ],
+              "description": "The peer ASN name",
+              "isRequired": true,
+              "name": "--peer-asn-name"
+            }
+          ]
+        },
+        {
+          "description": "Lists all of the peer ASNs under the given subscription",
+          "name": "list"
+        },
+        {
+          "description": "Gets the peer ASN with the specified name under the given subscription",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peer-asn-name"
+                }
+              ],
+              "description": "The peer ASN name",
+              "isRequired": true,
+              "name": "--peer-asn-name"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Peering legacy",
+      "name": "legacy",
+      "subcommands": [
+        {
+          "description": "Lists all of the legacy peerings under the given subscription matching the specified kind and location",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "kind",
+                  "suggestions": [
+                    "Direct",
+                    "Exchange"
+                  ]
+                }
+              ],
+              "description": "The kind of the peering",
+              "isRequired": true,
+              "name": "--kind"
+            },
+            {
+              "args": [
+                {
+                  "name": "peering-location"
+                }
+              ],
+              "description": "The location of the peering",
+              "isRequired": true,
+              "name": "--peering-location"
+            },
+            {
+              "args": [
+                {
+                  "name": "asn"
+                }
+              ],
+              "description": "The ASN number associated with a legacy peering",
+              "name": "--asn"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Peering location",
+      "name": "location",
+      "subcommands": [
+        {
+          "description": "Lists all of the available peering locations for the specified kind of peering",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "kind",
+                  "suggestions": [
+                    "Direct",
+                    "Exchange"
+                  ]
+                }
+              ],
+              "description": "The kind of the peering",
+              "isRequired": true,
+              "name": "--kind"
+            },
+            {
+              "args": [
+                {
+                  "name": "direct-peering-type",
+                  "suggestions": [
+                    "Cdn",
+                    "Edge",
+                    "Internal",
+                    "Ix",
+                    "IxRs",
+                    "Transit"
+                  ]
+                }
+              ],
+              "description": "The type of direct peering",
+              "name": "--direct-peering-type"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Peering peering",
+      "name": "peering",
+      "subcommands": [
+        {
+          "description": "Creates a new peering or updates an existing peering with the specified name under the given subscription and resource group",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "kind",
+                  "suggestions": [
+                    "Direct",
+                    "Exchange"
+                  ]
+                }
+              ],
+              "description": "The kind of the peering",
+              "isRequired": true,
+              "name": "--kind"
+            },
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "sku"
+                }
+              ],
+              "description": "The SKU that defines the tier and kind of the peering. Expect value: KEY1=VALUE1 KEY2=VALUE2 ... , available KEYs are: name, tier, family, size",
+              "isRequired": true,
+              "name": "--sku"
+            },
+            {
+              "args": [
+                {
+                  "name": "direct"
+                }
+              ],
+              "description": "The properties that define a direct peering. Expected value: json-string/@json-file",
+              "name": "--direct"
+            },
+            {
+              "args": [
+                {
+                  "name": "exchange"
+                }
+              ],
+              "description": "The properties that define an exchange peering. Expected value: json-string/@json-file",
+              "name": "--exchange"
+            },
+            {
+              "args": [
+                {
+                  "name": "peering-location"
+                }
+              ],
+              "description": "The location of the peering",
+              "name": "--peering-location"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Deletes an existing peering with the specified name under the given subscription and resource group",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists all of the peerings under the given subscription",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets an existing peering with the specified name under the given subscription and resource group",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Updates tags for a peering with the specified name under the given subscription and resource group",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Peering received-route",
+      "name": "received-route",
+      "subcommands": [
+        {
+          "description": "Lists the prefixes received over the specified peering under the given subscription and resource group",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "as-path"
+                }
+              ],
+              "description": "The optional AS path that can be used to filter the routes",
+              "name": "--as-path"
+            },
+            {
+              "args": [
+                {
+                  "name": "origin-as-validation-state"
+                }
+              ],
+              "description": "The optional origin AS validation state that can be used to filter the routes",
+              "name": "--origin-as-validation-state"
+            },
+            {
+              "args": [
+                {
+                  "name": "prefix"
+                }
+              ],
+              "description": "The optional prefix that can be used to filter the routes",
+              "name": "--prefix"
+            },
+            {
+              "args": [
+                {
+                  "name": "rpki-validation-state"
+                }
+              ],
+              "description": "The optional RPKI validation state that can be used to filter the routes",
+              "name": "--rpki-validation-state"
+            },
+            {
+              "args": [
+                {
+                  "name": "skip-token"
+                }
+              ],
+              "description": "The optional page continuation token that is used in the event of paginated result",
+              "name": "--skip-token"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Peering registered-asn",
+      "name": "registered-asn",
+      "subcommands": [
+        {
+          "description": "Creates a new registered ASN with the specified name under the given subscription, resource group and peering",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "registered-asn-name"
+                }
+              ],
+              "description": "The name of the ASN",
+              "isRequired": true,
+              "name": "--registered-asn-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "asn"
+                }
+              ],
+              "description": "The customer's ASN from which traffic originates",
+              "name": "--asn"
+            }
+          ]
+        },
+        {
+          "description": "Deletes an existing registered ASN with the specified name under the given subscription, resource group and peering",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "registered-asn-name"
+                }
+              ],
+              "description": "The name of the registered ASN",
+              "isRequired": true,
+              "name": "--registered-asn-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists all registered ASNs under the given subscription, resource group and peering",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets an existing registered ASN with the specified name under the given subscription, resource group and peering",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "registered-asn-name"
+                }
+              ],
+              "description": "The name of the registered ASN",
+              "isRequired": true,
+              "name": "--registered-asn-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Creates a new registered ASN with the specified name under the given subscription, resource group and peering",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "registered-asn-name"
+                }
+              ],
+              "description": "The name of the ASN",
+              "isRequired": true,
+              "name": "--registered-asn-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "asn"
+                }
+              ],
+              "description": "The customer's ASN from which traffic originates",
+              "name": "--asn"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Peering registered-prefix",
+      "name": "registered-prefix",
+      "subcommands": [
+        {
+          "description": "Creates a new registered prefix with the specified name under the given subscription, resource group and peering",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "registered-prefix-name"
+                }
+              ],
+              "description": "The name of the registered prefix",
+              "isRequired": true,
+              "name": "--registered-prefix-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "prefix"
+                }
+              ],
+              "description": "The customer's prefix from which traffic originates",
+              "name": "--prefix"
+            }
+          ]
+        },
+        {
+          "description": "Deletes an existing registered prefix with the specified name under the given subscription, resource group and peering",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "registered-prefix-name"
+                }
+              ],
+              "description": "The name of the registered prefix",
+              "isRequired": true,
+              "name": "--registered-prefix-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists all registered prefixes under the given subscription, resource group and peering",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets an existing registered prefix with the specified name under the given subscription, resource group and peering",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "registered-prefix-name"
+                }
+              ],
+              "description": "The name of the registered prefix",
+              "isRequired": true,
+              "name": "--registered-prefix-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Creates a new registered prefix with the specified name under the given subscription, resource group and peering",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "registered-prefix-name"
+                }
+              ],
+              "description": "The name of the registered prefix",
+              "isRequired": true,
+              "name": "--registered-prefix-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "prefix"
+                }
+              ],
+              "description": "The customer's prefix from which traffic originates",
+              "name": "--prefix"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Peering service",
+      "name": "service",
+      "subcommands": [
+        {
+          "description": "Creates a new peering service or updates an existing peering with the specified name under the given subscription and resource group",
+          "name": "create",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "location"
+                }
+              ],
+              "description": "Location. Values from: az account list-locations. You can configure the default location using az configure --defaults location=<location>",
+              "isRequired": true,
+              "name": [
+                "--location",
+                "-l"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "peering-service-name"
+                }
+              ],
+              "description": "The name of the peering service",
+              "isRequired": true,
+              "name": "--peering-service-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "peering-service-location"
+                }
+              ],
+              "description": "The PeeringServiceLocation of the Customer",
+              "name": "--peering-service-location"
+            },
+            {
+              "args": [
+                {
+                  "name": "peering-service-provider"
+                }
+              ],
+              "description": "The MAPS Provider Name",
+              "name": "--peering-service-provider"
+            },
+            {
+              "args": [
+                {
+                  "name": "sku"
+                }
+              ],
+              "description": "The SKU that defines the type of the peering service. Expect value: name=xx",
+              "name": "--sku"
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Deletes an existing peering service with the specified name under the given subscription and resource group",
+          "name": "delete",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-service-name"
+                }
+              ],
+              "description": "The name of the peering service",
+              "isRequired": true,
+              "name": "--peering-service-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Lists all of the peerings under the given subscription",
+          "name": "list",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Gets an existing peering service with the specified name under the given subscription and resource group",
+          "name": "show",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-service-name"
+                }
+              ],
+              "description": "The name of the peering",
+              "isRequired": true,
+              "name": "--peering-service-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Updates tags for a peering service with the specified name under the given subscription and resource group",
+          "name": "update",
+          "options": [
+            {
+              "args": [
+                {
+                  "name": "peering-service-name"
+                }
+              ],
+              "description": "The name of the peering service",
+              "isRequired": true,
+              "name": "--peering-service-name"
+            },
+            {
+              "args": [
+                {
+                  "name": "resource-group"
+                }
+              ],
+              "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+              "isRequired": true,
+              "name": [
+                "--resource-group",
+                "-g"
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "tags"
+                }
+              ],
+              "description": "Space-separated tags: key[=value] [key[=value] ...]. Use \"\" to clear existing tags",
+              "name": "--tags"
+            }
+          ]
+        },
+        {
+          "description": "Peering service country",
+          "name": "country",
+          "subcommands": [
+            {
+              "description": "Lists all of the available countries for peering service",
+              "name": "list"
+            }
+          ]
+        },
+        {
+          "description": "Peering service location",
+          "name": "location",
+          "subcommands": [
+            {
+              "description": "Lists all of the available locations for peering service",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "country"
+                    }
+                  ],
+                  "description": "The country of interest, in which the locations are to be present",
+                  "name": "--country"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Peering service prefix",
+          "name": "prefix",
+          "subcommands": [
+            {
+              "description": "Creates a new prefix with the specified name under the given subscription, resource group and peering service",
+              "name": "create",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "peering-service-name"
+                    }
+                  ],
+                  "description": "The name of the peering service",
+                  "isRequired": true,
+                  "name": "--peering-service-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "prefix-name"
+                    }
+                  ],
+                  "description": "The name of the prefix",
+                  "isRequired": true,
+                  "name": "--prefix-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "peering-service-prefix-key"
+                    }
+                  ],
+                  "description": "The peering service prefix key",
+                  "name": "--peering-service-prefix-key"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "prefix"
+                    }
+                  ],
+                  "description": "The prefix from which your traffic originates",
+                  "name": "--prefix"
+                }
+              ]
+            },
+            {
+              "description": "Deletes an existing prefix with the specified name under the given subscription, resource group and peering service",
+              "name": "delete",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "peering-service-name"
+                    }
+                  ],
+                  "description": "The name of the peering service",
+                  "isRequired": true,
+                  "name": "--peering-service-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "prefix-name"
+                    }
+                  ],
+                  "description": "The name of the prefix",
+                  "isRequired": true,
+                  "name": "--prefix-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                }
+              ]
+            },
+            {
+              "description": "Lists all prefixes under the given subscription, resource group and peering service",
+              "name": "list",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "peering-service-name"
+                    }
+                  ],
+                  "description": "The name of the peering service",
+                  "isRequired": true,
+                  "name": "--peering-service-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "expand"
+                    }
+                  ],
+                  "description": "The properties to be expanded",
+                  "name": "--expand"
+                }
+              ]
+            },
+            {
+              "description": "Gets an existing prefix with the specified name under the given subscription, resource group and peering service",
+              "name": "show",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "peering-service-name"
+                    }
+                  ],
+                  "description": "The name of the peering service",
+                  "isRequired": true,
+                  "name": "--peering-service-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "prefix-name"
+                    }
+                  ],
+                  "description": "The name of the prefix",
+                  "isRequired": true,
+                  "name": "--prefix-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "expand"
+                    }
+                  ],
+                  "description": "The properties to be expanded",
+                  "name": "--expand"
+                }
+              ]
+            },
+            {
+              "description": "Creates a new prefix with the specified name under the given subscription, resource group and peering service",
+              "name": "update",
+              "options": [
+                {
+                  "args": [
+                    {
+                      "name": "peering-service-name"
+                    }
+                  ],
+                  "description": "The name of the peering service",
+                  "isRequired": true,
+                  "name": "--peering-service-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "prefix-name"
+                    }
+                  ],
+                  "description": "The name of the prefix",
+                  "isRequired": true,
+                  "name": "--prefix-name"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "resource-group"
+                    }
+                  ],
+                  "description": "Name of resource group. You can configure the default group using az configure --defaults group=<name>",
+                  "isRequired": true,
+                  "name": [
+                    "--resource-group",
+                    "-g"
+                  ]
+                },
+                {
+                  "args": [
+                    {
+                      "name": "peering-service-prefix-key"
+                    }
+                  ],
+                  "description": "The peering service prefix key",
+                  "name": "--peering-service-prefix-key"
+                },
+                {
+                  "args": [
+                    {
+                      "name": "prefix"
+                    }
+                  ],
+                  "description": "The prefix from which your traffic originates",
+                  "name": "--prefix"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "description": "Peering service provider",
+          "name": "provider",
+          "subcommands": [
+            {
+              "description": "Lists all of the available peering service locations for the specified kind of peering",
+              "name": "list"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

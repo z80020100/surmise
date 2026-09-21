@@ -1,0 +1,271 @@
+{
+  "description": "Deal with your elm.json",
+  "name": "elm-json",
+  "options": [
+    {
+      "description": "Prints help information",
+      "name": [
+        "--help",
+        "-h"
+      ]
+    },
+    {
+      "description": "Enable offline mode, which means no HTTP traffic will happen",
+      "name": "--offline"
+    },
+    {
+      "description": "Prints version information",
+      "name": [
+        "--version",
+        "-V"
+      ]
+    },
+    {
+      "description": "Sets the level of verbosity",
+      "name": [
+        "--verbose",
+        "-v"
+      ]
+    }
+  ],
+  "subcommands": [
+    {
+      "args": [
+        {
+          "name": "subcommand",
+          "template": "help"
+        }
+      ],
+      "description": "Prints help information or the help of the given subcommand(s)",
+      "name": "help"
+    },
+    {
+      "args": [
+        {
+          "debounce": true,
+          "description": "Package to install, e.g. elm/core or elm/core@1.0.2 or elm/core@1",
+          "dyn": true,
+          "generators": [
+            {
+              "cache": {
+                "ttl": 259200000
+              },
+              "script": [
+                "curl",
+                "-sH",
+                "accept-encoding: gzip",
+                "--compressed",
+                "https://package.elm-lang.org/search.json"
+              ]
+            }
+          ],
+          "name": "PACKAGE"
+        },
+        {
+          "description": "The elm.json file to upgrade [default: elm.json]",
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "isOptional": true,
+          "name": "-- INPUT"
+        }
+      ],
+      "description": "Install a package",
+      "name": "install",
+      "options": [
+        {
+          "description": "Prints help information",
+          "name": [
+            "--help",
+            "-h"
+          ]
+        },
+        {
+          "description": "Install as a test-dependency",
+          "name": "--test"
+        },
+        {
+          "description": "Prints version information",
+          "name": [
+            "--version",
+            "-V"
+          ]
+        },
+        {
+          "description": "Answer \"yes\" to all questions",
+          "name": "--yes"
+        }
+      ]
+    },
+    {
+      "description": "Create a new elm.json file",
+      "name": "new",
+      "options": [
+        {
+          "description": "Prints help information",
+          "name": [
+            "--help",
+            "-h"
+          ]
+        },
+        {
+          "description": "Prints version information",
+          "name": [
+            "--version",
+            "-V"
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "debounce": true,
+          "description": "Limit output to show path to some (indirect) dependency",
+          "dyn": true,
+          "generators": [
+            {
+              "cache": {
+                "ttl": 259200000
+              },
+              "script": [
+                "curl",
+                "-sH",
+                "accept-encoding: gzip",
+                "--compressed",
+                "https://package.elm-lang.org/search.json"
+              ]
+            }
+          ],
+          "name": "PACKAGE"
+        },
+        {
+          "description": "The elm.json file to solve [default: elm.json]",
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "isOptional": true,
+          "name": "-- INPUT"
+        }
+      ],
+      "description": "List entire dependency graph as a tree",
+      "name": "tree",
+      "options": [
+        {
+          "description": "Prints help information",
+          "name": [
+            "--help",
+            "-h"
+          ]
+        },
+        {
+          "description": "Promote test-dependencies to top-level dependencies",
+          "name": "--test"
+        },
+        {
+          "description": "Prints version information",
+          "name": [
+            "--version",
+            "-V"
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "debounce": true,
+          "description": "Package to uninstall, e.g. elm/html",
+          "dyn": true,
+          "generators": [
+            {
+              "cache": {
+                "ttl": 259200000
+              },
+              "script": [
+                "curl",
+                "-sH",
+                "accept-encoding: gzip",
+                "--compressed",
+                "https://package.elm-lang.org/search.json"
+              ]
+            }
+          ],
+          "name": "PACKAGE"
+        },
+        {
+          "description": "The elm.json file to upgrade [default: elm.json]",
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "isOptional": true,
+          "name": "-- INPUT"
+        }
+      ],
+      "description": "Uninstall a package",
+      "name": "uninstall",
+      "options": [
+        {
+          "description": "Prints help information",
+          "name": [
+            "--help",
+            "-h"
+          ]
+        },
+        {
+          "description": "Prints version information",
+          "name": [
+            "--version",
+            "-V"
+          ]
+        },
+        {
+          "description": "Answer \"yes\" to all questions",
+          "name": "--yes"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "The elm.json file to upgrade [default: elm.json]",
+          "dyn": true,
+          "generators": [
+            {}
+          ],
+          "isOptional": true,
+          "name": "INPUT"
+        }
+      ],
+      "description": "Bring your dependencies up to date",
+      "name": "upgrade",
+      "options": [
+        {
+          "description": "Prints help information",
+          "name": [
+            "--help",
+            "-h"
+          ]
+        },
+        {
+          "description": "Allow major versions bumps",
+          "name": "--unsafe"
+        },
+        {
+          "description": "Prints version information",
+          "name": [
+            "--version",
+            "-V"
+          ]
+        },
+        {
+          "description": "Answer \"yes\" to all questions",
+          "name": "--yes"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "args": [
+    {
+      "dyn": true,
+      "generators": [
+        {
+          "script": [
+            "envchain",
+            "--list"
+          ]
+        }
+      ],
+      "name": "NAMESPACE"
+    },
+    {
+      "isCommand": true,
+      "name": "CMD"
+    }
+  ],
+  "description": "Set environment variables with macOS keychain or D-Bus secret service",
+  "name": "envchain",
+  "subcommands": [
+    {
+      "args": [
+        {
+          "dyn": true,
+          "generators": [
+            {
+              "script": [
+                "envchain",
+                "--list"
+              ]
+            }
+          ],
+          "name": "NAMESPACE"
+        },
+        {
+          "isVariadic": true,
+          "name": "ENV"
+        }
+      ],
+      "description": "Add keychain item of environment variable +ENV+ for namespace +NAMESPACE+",
+      "icon": "fig://icon?type=option",
+      "name": [
+        "-s",
+        "--set"
+      ],
+      "options": [
+        {
+          "description": "Do not echo user input",
+          "name": [
+            "-n",
+            "--noecho"
+          ]
+        },
+        {
+          "description": "Always ask for keychain passphrase",
+          "exclusiveOn": [
+            "--no-require-passphrase"
+          ],
+          "name": [
+            "-p",
+            "--require-passphrase"
+          ]
+        },
+        {
+          "description": "Do not ask for keychain passphrase",
+          "exclusiveOn": [
+            "--require-passphrase"
+          ],
+          "name": [
+            "-P",
+            "--no-require-passphrase"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "List namespaces that have been created",
+      "icon": "fig://icon?type=option",
+      "name": [
+        "-l",
+        "--list"
+      ]
+    }
+  ]
+}
