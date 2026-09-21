@@ -7,8 +7,9 @@
 //! the cursor breaks the moment a paint scrolls the screen. A cursor-position
 //! query hangs on a terminal that does not answer.
 
-use crate::candidates::{CURRENT_BRANCH, Candidate, FOLDER, Kind};
+use crate::candidates::{Candidate, Kind};
 use crate::fuzzy;
+use crate::icons::{self, Set};
 use crate::line::Line;
 use std::io::{self, Write};
 use std::ops::Range;
@@ -68,75 +69,6 @@ const EDGE_FG: &str = "\x1b[38;5;244m";
 const WHOLE_WORD_BADGE: &str = "^O";
 const UNDER: &str = "\x1b[4m";
 const UNDER_OFF: &str = "\x1b[24m";
-/// The glyph on a directory row and on the row that goes up. The six below
-/// are the others. Each one is plain text and a terminal draws it in whatever
-/// colour ANSI sets. The colour emoji these replace drew from the font's own
-/// colour table instead and ignored the foreground the code set under them.
-///
-/// Every one is one cell wide. None of them is a character whose East Asian
-/// width is ambiguous, because a terminal set for CJK draws such a character
-/// two cells wide where `cells` reads the table and calls it one. That rules
-/// out the box-drawing and mathematical shapes an editor reaches for first.
-/// `ICONS` still measures the widest of them, for a later glyph that is not
-/// one cell.
-const ICON: &str = "▸";
-/// The home shortcut is a directory like any other and wears the same colour.
-/// The shape is what says which one it is.
-const HOME_ICON: &str = "~";
-/// The row that runs the line rather than growing it. An ordinary character,
-/// because the row names an action rather than a thing.
-const RUN_ICON: &str = "\u{21b5}";
-/// A Git subcommand row.
-const CMD_ICON: &str = "$";
-/// A Git branch row.
-const BRANCH_ICON: &str = "|";
-/// The branch the repository is on. A shape of its own on a row that is a
-/// branch row like any other, because the name beside it says nothing about
-/// where the repository already stands.
-const CURRENT_BRANCH_ICON: &str = "*";
-/// A file row, and a path row where the path is not a directory.
-const FILE_ICON: &str = "=";
-/// A Git option row.
-const OPTION_ICON: &str = "-";
-/// Every glyph a row can carry. `menu_rows` measures the widest of them for
-/// the column the names start in and each row pads its own glyph out to it.
-/// A glyph missing from here draws its row a cell short of the rest.
-const ICONS: [&str; 8] = [
-    ICON,
-    HOME_ICON,
-    RUN_ICON,
-    CMD_ICON,
-    BRANCH_ICON,
-    CURRENT_BRANCH_ICON,
-    FILE_ICON,
-    OPTION_ICON,
-];
-const ICON_FG: &str = "\x1b[38;5;75m";
-/// The glyph on the row that runs the line. A colour apart from the folder
-/// blue is what marks that row out now that it carries no name.
-const RUN_ICON_FG: &str = "\x1b[38;5;167m";
-/// The glyph on a Git subcommand row. A magenta of its own. The folder blue
-/// says a directory and the red above says an action. A subcommand is
-/// neither and it carries a name where the action row does not.
-const CMD_ICON_FG: &str = "\x1b[38;5;169m";
-/// The glyph on a Git branch row, worn by the branch itself and by the
-/// current branch's own shape alike: the name beside either says nothing
-/// about where the repository stands and the colour is not what would.
-const BRANCH_ICON_FG: &str = "\x1b[38;5;114m";
-/// The glyph on a file row, and on a path row where the path is not a
-/// directory.
-const FILE_ICON_FG: &str = "\x1b[38;5;180m";
-/// The glyph on a Git option row.
-const OPTION_ICON_FG: &str = "\x1b[38;5;221m";
-/// The six glyphs above on the highlighted row. That row has a ground of its
-/// own and every colour above is too close to it to read. A lighter tint of
-/// the same hue clears it and still says which sort of row this is.
-const ICON_FG_CHOSEN: &str = "\x1b[38;5;153m";
-const RUN_ICON_FG_CHOSEN: &str = "\x1b[38;5;217m";
-const CMD_ICON_FG_CHOSEN: &str = "\x1b[38;5;218m";
-const BRANCH_ICON_FG_CHOSEN: &str = "\x1b[38;5;157m";
-const FILE_ICON_FG_CHOSEN: &str = "\x1b[38;5;223m";
-const OPTION_ICON_FG_CHOSEN: &str = "\x1b[38;5;229m";
 /// Cells inside the panel's own two edge spaces. It is fixed rather than
 /// measured from what the panel holds. Every panel is therefore the same
 /// width and a name keeps the column the eye last found it in. A terminal
@@ -214,6 +146,9 @@ pub struct Menu<'a> {
     /// spared rather than the one [`FOOT_ROWS`] allows it. `menu_in`
     /// opens a menu with it off and the picker's own key is what sets it.
     whole_word: bool,
+    /// Which glyphs the rows wear. `menu_in` opens a menu on the default set
+    /// and the config is what names another.
+    icons: Set,
 }
 
 /// Build the menu for a candidate list and size it to the terminal. `None`
@@ -227,9 +162,11 @@ pub fn menu<'a>(
     typed: &'a str,
     reach: usize,
     whole_word: bool,
+    icons: Set,
 ) -> Option<Menu<'a>> {
     let mut m = menu_in(items, selected, height(), typed, reach)?;
     m.whole_word = whole_word;
+    m.icons = icons;
     Some(m)
 }
 
@@ -253,6 +190,7 @@ fn menu_in<'a>(
             .min(items.len())
             .min(height.saturating_sub(RESERVED_ROWS).max(1)),
         whole_word: false,
+        icons: Set::default(),
     })
 }
 
@@ -446,26 +384,6 @@ fn window_start(top: usize, selected: usize, rows: usize, total: usize) -> usize
         .min(total - rows)
 }
 
-/// The glyph in front of a row and the colour it wears, on the highlighted row
-/// or off it.
-fn glyph(k: Kind, chosen: bool) -> (&'static str, &'static str) {
-    // Every variant is named rather than swept into a catch-all. A new one
-    // then fails the build here the way it does in `tab_grows` below. What a
-    // kind looks like is one row of this table rather than two matches on the
-    // same key. Two matches could disagree about a kind and the build would
-    // not say so.
-    let (icon, fg, fg_chosen) = match k {
-        Kind::Command => (CMD_ICON, CMD_ICON_FG, CMD_ICON_FG_CHOSEN),
-        Kind::Branch => (BRANCH_ICON, BRANCH_ICON_FG, BRANCH_ICON_FG_CHOSEN),
-        Kind::File | Kind::Path => (FILE_ICON, FILE_ICON_FG, FILE_ICON_FG_CHOSEN),
-        Kind::Option => (OPTION_ICON, OPTION_ICON_FG, OPTION_ICON_FG_CHOSEN),
-        Kind::Run => (RUN_ICON, RUN_ICON_FG, RUN_ICON_FG_CHOSEN),
-        Kind::Special => (HOME_ICON, ICON_FG, ICON_FG_CHOSEN),
-        Kind::Dir | Kind::Parent => (ICON, ICON_FG, ICON_FG_CHOSEN),
-    };
-    (icon, if chosen { fg_chosen } else { fg })
-}
-
 /// Whether Tab would grow this row's name. `common` reads the menu the same
 /// way and the underline therefore covers what the key would take.
 /// `highlighted` is the kind the highlight sits on, because that is what says
@@ -534,7 +452,7 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
     // width above and slides left of the cursor when the right edge is nearer
     // than that.
     let indent = col.saturating_sub(1).min(w.saturating_sub(inner + 2));
-    let icon_w = ICONS.into_iter().map(cells).max().unwrap_or(0) + 1;
+    let icon_w = icons::widest(m.icons) + 1;
     // A terminal too narrow for the icon and a name gets no panel at all.
     let Some(text_w) = inner.checked_sub(icon_w) else {
         return Vec::new();
@@ -631,17 +549,7 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
             hint.push_str(&arg);
         }
         let name = format!("{marked_name}{hint}{}", " ".repeat(room));
-        let icon_kind = if matches!(c.kind, Kind::File | Kind::Path) && c.label == FOLDER {
-            Kind::Dir
-        } else {
-            c.kind
-        };
-        let (icon, icon_fg) = glyph(icon_kind, chosen);
-        let icon = if c.kind == Kind::Branch && c.label == CURRENT_BRANCH {
-            CURRENT_BRANCH_ICON
-        } else {
-            icon
-        };
+        let (icon, icon_fg) = icons::of(m.icons, c, chosen);
         let icon_pad = " ".repeat(icon_w - cells(icon));
         format!("{pad}{ground} {icon_fg}{icon}{icon_pad}{name_fg}{name} {RESET}")
     }));
@@ -886,7 +794,6 @@ mod tests {
     use super::*;
     use crate::candidates::{DEFAULT_PRIORITY, folder, run_row};
     use std::borrow::Cow;
-    use std::collections::HashSet;
 
     fn dir(display: &str) -> Candidate {
         folder(display.to_string(), display.to_string(), 0)
@@ -1904,7 +1811,8 @@ mod tests {
         let rows = menu_rows(&m, 80, 1, 0);
         let row = &rows[1];
         assert!(row.contains("[31mbranch"), "{row:?}");
-        let ours: usize = [PANEL_CHOSEN, NAME_CHOSEN, CMD_ICON_FG_CHOSEN, DIM, RESET]
+        let cmd_fg = icons::of(m.icons, &items[0], true).1;
+        let ours: usize = [PANEL_CHOSEN, NAME_CHOSEN, cmd_fg, DIM, RESET]
             .iter()
             .map(|s| s.matches('\x1b').count())
             .sum();
@@ -1920,86 +1828,12 @@ mod tests {
         assert!(row.contains("[31mred"), "{row:?}");
         // The only escapes left are the ones this module wrote itself: the
         // ground, the glyph's colour, the name's and the reset.
-        let ours: usize = [PANEL_CHOSEN, NAME_CHOSEN, ICON_FG_CHOSEN, RESET]
+        let dir_fg = icons::of(m.icons, &items[0], true).1;
+        let ours: usize = [PANEL_CHOSEN, NAME_CHOSEN, dir_fg, RESET]
             .iter()
             .map(|s| s.matches('\x1b').count())
             .sum();
         assert_eq!(row.matches('\x1b').count(), ours, "{row:?}");
-    }
-
-    #[test]
-    fn the_row_that_runs_the_line_is_told_apart_by_its_glyph() {
-        // The row carries no name and the glyph is therefore the only thing
-        // left to tell it apart from a directory. That holds on the
-        // highlighted row as well. White there would read as a directory and
-        // would take the row's sort with it.
-        for chosen in [false, true] {
-            let (dir_icon, dir_fg) = glyph(Kind::Dir, chosen);
-            let (run_icon, run_fg) = glyph(Kind::Run, chosen);
-            assert_eq!(glyph(Kind::Parent, chosen), (dir_icon, dir_fg));
-            assert_ne!(run_icon, dir_icon);
-            assert_ne!(run_fg, dir_fg);
-        }
-    }
-
-    #[test]
-    fn the_home_shortcut_is_told_apart_by_its_glyph() {
-        // The shortcut reaches a directory and the icon therefore wears the
-        // directory's own colour. The shape is what says which directory it
-        // is. A colour there would say the row is another sort of thing.
-        for chosen in [false, true] {
-            let (icon, fg) = glyph(Kind::Special, chosen);
-            assert_eq!(fg, glyph(Kind::Dir, chosen).1);
-            assert_ne!(icon, glyph(Kind::Dir, chosen).0);
-        }
-    }
-
-    #[test]
-    fn a_subcommand_row_is_told_apart_by_its_glyph() {
-        // A subcommand and a directory both carry a name. The glyph is what
-        // says which sort of row it is and its colour therefore has to differ
-        // from the folder blue and from the action row's red alike.
-        for chosen in [false, true] {
-            let (icon, fg) = glyph(Kind::Command, chosen);
-            assert_ne!(icon, glyph(Kind::Dir, chosen).0);
-            assert_ne!(icon, glyph(Kind::Run, chosen).0);
-            assert_ne!(fg, glyph(Kind::Dir, chosen).1);
-            assert_ne!(fg, glyph(Kind::Run, chosen).1);
-        }
-    }
-
-    #[test]
-    fn every_glyph_is_one_cell_wide() {
-        // `icon_w` measures rather than assumes, so a wider glyph would
-        // still draw straight. What it would take is a cell off every name,
-        // and `tests/pty/pick.rs` reads a drawn row by stripping one
-        // character. This is the decision both of those rest on.
-        for icon in ICONS {
-            assert_eq!(cells(icon), 1, "{icon:?}");
-        }
-    }
-
-    #[test]
-    fn no_two_kinds_share_both_a_glyph_and_a_colour() {
-        // `Path` draws as a `File` does and `Parent` draws as a `Dir` does.
-        // Every other kind has to differ from every other in the glyph or the
-        // colour or both, or `glyph` stops being a map from a kind to a look
-        // of its own. `Special` wears a `Dir`'s colour and is in here for the
-        // shape, which is all it has to tell the two apart by.
-        for chosen in [false, true] {
-            let mut seen = HashSet::new();
-            for k in [
-                Kind::Run,
-                Kind::Command,
-                Kind::Branch,
-                Kind::File,
-                Kind::Option,
-                Kind::Dir,
-                Kind::Special,
-            ] {
-                assert!(seen.insert(glyph(k, chosen)), "{k:?} chosen={chosen}");
-            }
-        }
     }
 
     #[test]
@@ -2009,8 +1843,9 @@ mod tests {
         let row = menu_rows(&m, 80, 1, 0)[1].clone();
         // The glyph carries its own colour and the name names the ground's
         // bright one again behind it.
-        assert_ne!(ICON_FG_CHOSEN, NAME_CHOSEN);
-        let want = format!("{ICON_FG_CHOSEN}{ICON} {NAME_CHOSEN}");
+        let (icon, icon_fg) = icons::of(m.icons, &items[0], true);
+        assert_ne!(icon_fg, NAME_CHOSEN);
+        let want = format!("{icon_fg}{icon} {NAME_CHOSEN}");
         assert!(row.contains(&want), "{row:?}");
     }
 
@@ -2020,13 +1855,20 @@ mod tests {
         let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
         let rows = menu_rows(&m, 80, 1, 0);
         let row = &rows[1];
-        assert!(row.contains(RUN_ICON), "{row:?}");
+        assert!(
+            row.contains(icons::of(m.icons, &items[0], true).0),
+            "{row:?}"
+        );
         // `insert` is the only text this row could have drawn.
         assert!(!row.contains("work"), "{row:?}");
     }
 
     #[test]
     fn mixed_glyph_widths_keep_the_panel_aligned() {
+        // Both sets, because `icon_w` is measured from the set the menu
+        // carries. A set whose glyphs are wider than the other's would move
+        // the column the names start in, and the text set alone would not
+        // say so.
         let kinds = [
             Kind::Run,
             Kind::Dir,
@@ -2038,17 +1880,24 @@ mod tests {
             Kind::Option,
             Kind::Path,
         ];
-        for width in [24, 80] {
-            for kind in kinds {
-                let mut item = dir("alpha/");
-                item.kind = kind;
-                let items = vec![item];
-                let m = menu_in(&items, 0, 24, "", 0).expect("a menu");
-                let rows = menu_rows(&m, width, 1, 0);
-                let row = &rows[1];
-                let name_at = row.find("alpha/").expect("the name");
-                assert_eq!(cells_of_row(&row[..name_at]), 3);
-                assert_eq!(cells_of_row(&rows[1]), cells_of_row(&rows[2]));
+        for set in [Set::Text, Set::Nerd] {
+            for width in [24, 80] {
+                for kind in kinds {
+                    let mut item = dir("alpha/");
+                    item.kind = kind;
+                    let items = vec![item];
+                    let mut m = menu_in(&items, 0, 24, "", 0).expect("a menu");
+                    m.icons = set;
+                    let rows = menu_rows(&m, width, 1, 0);
+                    let row = &rows[1];
+                    let name_at = row.find("alpha/").expect("the name");
+                    // The literal rather than `widest` again: the column is
+                    // what `widest` decides and a test that asked it would
+                    // agree with a wrong answer. Three is the panel's own
+                    // space, one cell of glyph and one of padding.
+                    assert_eq!(cells_of_row(&row[..name_at]), 3);
+                    assert_eq!(cells_of_row(&rows[1]), cells_of_row(&rows[2]));
+                }
             }
         }
     }

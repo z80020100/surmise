@@ -27,9 +27,13 @@ use std::path::{Path, PathBuf};
 pub(crate) const SCAN_LIMIT: usize = 400;
 /// How many rows the menu will ever be asked to hold.
 pub const MAX_RESULTS: usize = 60;
-/// What a row that adds a folder says it is. `ui` reads it to give such a row
-/// the folder glyph where the kind alone says only that Git named the row.
+/// What a row that adds a folder says it is. `icons` reads it to give such a
+/// row the folder glyph where the kind alone says only that Git named the row.
 pub(crate) const FOLDER: &str = "folder";
+/// What a row that adds a file says it is. `icons` reads it the same way, to
+/// tell a path on disk from a flat value a reader of surmise's own wrote. A
+/// make target and an SSH host are `Path` rows too and neither is a file.
+pub(crate) const FILE: &str = "file";
 /// What a branch row that names the branch the repository is on says it is.
 /// `ui` reads it for the glyph, because the kind alone says only that the row
 /// is a branch.

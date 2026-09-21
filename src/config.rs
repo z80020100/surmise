@@ -7,8 +7,10 @@
 //! `warning` for a later `doctor` command instead, and runs with defaults
 //! meanwhile. An unknown key is a warning of the same kind rather than an
 //! error, because a file written for a later surmise should still work with
-//! this one.
+//! this one. So is a value a key does not know, and that key keeps its
+//! default while the rest of the file stands.
 
+use crate::icons::Set;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -26,6 +28,10 @@ pub struct Config {
     /// Directories laid out like `specs/` and holding the same JSON,
     /// searched in order before the compiled-in data.
     pub spec_dirs: Vec<PathBuf>,
+    /// Which glyphs the menu draws in front of a name. `"nerd"` is a person
+    /// saying their terminal has a font that carries them and `icons` is
+    /// where that answer is spent.
+    pub icons: Set,
     /// What went wrong reading the file, if anything did. Nothing here
     /// prints it; a later `doctor` command is what a person sees this
     /// through.
@@ -38,6 +44,7 @@ impl Default for Config {
             enabled: true,
             disabled_commands: Vec::new(),
             spec_dirs: Vec::new(),
+            icons: Set::default(),
             warning: None,
         }
     }
@@ -53,6 +60,7 @@ struct Schema {
     enabled: Option<bool>,
     disabled_commands: Option<Vec<String>>,
     spec_dirs: Option<Vec<PathBuf>>,
+    icons: Option<String>,
     #[serde(flatten)]
     extra: BTreeMap<String, toml::Value>,
 }
@@ -78,18 +86,35 @@ impl Config {
     fn parse(text: &str) -> Config {
         match toml::from_str::<Schema>(text) {
             Ok(schema) => {
-                let mut config = Config {
-                    enabled: schema.enabled.unwrap_or(true),
-                    disabled_commands: schema.disabled_commands.unwrap_or_default(),
-                    spec_dirs: schema.spec_dirs.unwrap_or_default(),
-                    warning: None,
-                };
+                // Every complaint the file earns, rather than the first of
+                // them. A person who names an unknown key and misspells a
+                // value has two things to fix and a `doctor` that reported
+                // one would send them back for the other.
+                let mut warnings: Vec<String> = Vec::new();
                 if !schema.extra.is_empty() {
                     let mut keys: Vec<&str> = schema.extra.keys().map(String::as_str).collect();
                     keys.sort_unstable();
-                    config.warning = Some(format!("unknown config key(s): {}", keys.join(", ")));
+                    warnings.push(format!("unknown config key(s): {}", keys.join(", ")));
                 }
-                config
+                // A value this build does not know keeps the default rather
+                // than turning the whole file away. The rest of the file is
+                // still what the person meant.
+                let icons = match schema.icons.as_deref() {
+                    None => Set::default(),
+                    Some("text") => Set::Text,
+                    Some("nerd") => Set::Nerd,
+                    Some(other) => {
+                        warnings.push(format!("icons is not \"text\" or \"nerd\": {other:?}"));
+                        Set::default()
+                    }
+                };
+                Config {
+                    enabled: schema.enabled.unwrap_or(true),
+                    disabled_commands: schema.disabled_commands.unwrap_or_default(),
+                    spec_dirs: schema.spec_dirs.unwrap_or_default(),
+                    icons,
+                    warning: (!warnings.is_empty()).then(|| warnings.join("; ")),
+                }
             }
             Err(e) => Config {
                 warning: Some(format!("config file did not parse: {e}")),
@@ -128,14 +153,15 @@ mod tests {
     }
 
     #[test]
-    fn each_of_the_three_keys_parses_from_a_real_file() {
+    fn each_of_the_four_keys_parses_from_a_real_file() {
         let f = Fixture::new(&[]);
         let path = f.path().join("config.toml");
         std::fs::write(
             &path,
             "enabled = false\n\
              disabled_commands = [\"ls\", \"cd\"]\n\
-             spec_dirs = [\"/opt/specs\", \"/home/demo/specs\"]\n",
+             spec_dirs = [\"/opt/specs\", \"/home/demo/specs\"]\n\
+             icons = \"nerd\"\n",
         )
         .unwrap();
         let config = Config::load_from(&path);
@@ -148,7 +174,35 @@ mod tests {
                 PathBuf::from("/home/demo/specs")
             ]
         );
+        assert_eq!(config.icons, Set::Nerd);
         assert_eq!(config.warning, None);
+    }
+
+    #[test]
+    fn the_glyph_set_is_the_text_one_unless_the_file_names_the_other() {
+        assert_eq!(Config::parse("").icons, Set::Text);
+        assert_eq!(Config::parse("icons = \"text\"").icons, Set::Text);
+        assert_eq!(Config::parse("icons = \"nerd\"").icons, Set::Nerd);
+    }
+
+    #[test]
+    fn a_glyph_set_this_build_does_not_know_is_a_warning_and_nothing_more() {
+        // The rest of the file is still what the person meant.
+        let config = Config::parse("enabled = false\nicons = \"emoji\"\n");
+        assert!(!config.enabled);
+        assert_eq!(config.icons, Set::Text);
+        assert_eq!(
+            config.warning,
+            Some("icons is not \"text\" or \"nerd\": \"emoji\"".to_string())
+        );
+    }
+
+    #[test]
+    fn a_file_that_earns_two_complaints_keeps_both() {
+        let config = Config::parse("verbose_names = false\nicons = \"emoji\"\n");
+        let warning = config.warning.expect("a warning");
+        assert!(warning.contains("verbose_names"), "{warning:?}");
+        assert!(warning.contains("emoji"), "{warning:?}");
     }
 
     #[test]
@@ -170,6 +224,7 @@ mod tests {
             Config::default().disabled_commands
         );
         assert_eq!(config.spec_dirs, Config::default().spec_dirs);
+        assert_eq!(config.icons, Config::default().icons);
         assert!(config.warning.is_some());
     }
 

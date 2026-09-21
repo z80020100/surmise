@@ -24,6 +24,17 @@ const RUN_ICON: char = '\u{21b5}';
 /// The glyph on a Git subcommand row.
 const CMD_ICON: char = '$';
 
+/// The glyph on a file row in the text set.
+const FILE_ICON: char = '=';
+
+/// Three glyphs from the set `icons = "nerd"` asks for: a folder, a `.rs`
+/// file and a `.md` file. They are named here rather than imported, the same
+/// way the five above are, because what this file checks is the screen a
+/// person looks at rather than the table that wrote it.
+const NF_DIR: char = '\u{f07b}';
+const NF_RUST: char = '\u{e7a8}';
+const NF_MARKDOWN: char = '\u{e73e}';
+
 /// How long a run gets to draw and how long it gets to exit. Both are far past
 /// what the work takes and neither is a measurement.
 const WAIT: Duration = Duration::from_secs(5);
@@ -60,6 +71,15 @@ fn surmise(home: &Path, line: &str, cols: u16, rows: u16) -> Term {
     cmd.env("PATH", crate::term::path());
     cmd.cwd(home);
     Term::new(cmd, cols, rows)
+}
+
+/// Write `text` as the config the picker reads. The harness gives the child a
+/// `HOME` of its own and clears `XDG_CONFIG_HOME`, so this is the path
+/// `config::path` resolves to.
+fn config(home: &Path, text: &str) {
+    let dir = home.join(".config").join("surmise");
+    std::fs::create_dir_all(&dir).expect("a config directory");
+    std::fs::write(dir.join("config.toml"), text).expect("a config file");
 }
 
 /// The picker over `line` on a terminal wide enough for anything.
@@ -102,7 +122,7 @@ fn name_rows(t: &Term) -> Vec<String> {
 /// shortcut's own name is `~`, the same character its glyph now is, and a
 /// blind replace would strip the name along with the glyph that precedes it.
 /// One character is what a glyph measures and `every_glyph_is_one_cell_wide`
-/// in `src/ui.rs` is what keeps that true.
+/// in `src/icons.rs` is what keeps that true.
 fn names(t: &Term) -> Vec<String> {
     name_rows(t)
         .iter()
@@ -294,6 +314,58 @@ fn a_bare_cd_puts_a_folder_glyph_on_every_row() {
         1,
         "{rows:?}"
     );
+}
+
+/// The drawn row holding `name`. `ls ` answers with the folders and files of
+/// one directory and then with its own options, so a test that reads a glyph
+/// off a named row says which row it read.
+fn row_holding(rows: &[String], name: &str) -> String {
+    rows.iter()
+        .find(|text| text.contains(name))
+        .unwrap_or_else(|| panic!("no row for {name}: {rows:?}"))
+        .clone()
+}
+
+#[test]
+fn a_config_that_asks_for_the_nerd_set_draws_it() {
+    // Three rows out of one menu: a folder, a file whose extension the table
+    // answers for and a second such file. The shapes differ from each other
+    // and none of them is the shape the same line draws without the config.
+    let f = Fixture::new(&["assets/inner", "build.rs*", "notes.md*"]);
+    config(f.path(), "icons = \"nerd\"\n");
+    let t = opened(f.path(), "ls ");
+    let rows = name_rows(&t);
+    assert!(row_holding(&rows, "assets/").contains(NF_DIR), "{rows:?}");
+    assert!(row_holding(&rows, "build.rs").contains(NF_RUST), "{rows:?}");
+    assert!(
+        row_holding(&rows, "notes.md").contains(NF_MARKDOWN),
+        "{rows:?}"
+    );
+    // The text set's own folder shape is gone with it.
+    for text in &rows {
+        assert!(!text.contains(ICON), "{text:?}");
+    }
+}
+
+#[test]
+fn the_text_set_is_what_the_same_line_draws_with_no_config_at_all() {
+    // The test above is what the config buys. Every other test in this file
+    // reads the text set and would fail on a default that had moved, but none
+    // of them says that is the default rather than an accident of the
+    // machine's own home. This is also the one place that says a file row and
+    // a folder row differ without the nerd set's own tables.
+    let f = Fixture::new(&["assets/inner", "build.rs*"]);
+    let t = opened(f.path(), "ls ");
+    let rows = name_rows(&t);
+    assert!(row_holding(&rows, "assets/").contains(ICON), "{rows:?}");
+    assert!(
+        row_holding(&rows, "build.rs").contains(FILE_ICON),
+        "{rows:?}"
+    );
+    for text in &rows {
+        assert!(!text.contains(NF_DIR), "{text:?}");
+        assert!(!text.contains(NF_RUST), "{text:?}");
+    }
 }
 
 #[test]

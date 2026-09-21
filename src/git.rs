@@ -1,8 +1,8 @@
 //! Git subcommand, branch and file completion from the installed Git.
 
 use crate::candidates::{
-    CURRENT_BRANCH, Candidate, DEFAULT_PRIORITY, FOLDER, Kind, Query, SCAN_LIMIT, Scan, UsedAfter,
-    rank,
+    CURRENT_BRANCH, Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, Query, SCAN_LIMIT, Scan,
+    UsedAfter, rank,
 };
 use crate::fuzzy;
 use crate::histfile;
@@ -849,7 +849,7 @@ impl Completions {
                             } else {
                                 name.clone()
                             };
-                            row(&arg, &name, "file", Kind::File)
+                            row(&arg, &name, FILE, Kind::File)
                         }),
                 );
             }
@@ -971,7 +971,7 @@ impl Completions {
             Kind::File => (
                 self.files
                     .get_or_insert_with(|| read_files(cwd).unwrap_or_default()),
-                "file",
+                FILE,
             ),
             Kind::Branch => (
                 &mut self

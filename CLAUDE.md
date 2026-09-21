@@ -101,6 +101,19 @@ the last of them separates the list from the word below it. Each name has
 one character in front of it that says what sort of row it is, in a shape
 and a colour of that sort's own. Every one of those
 characters is one a terminal draws as plain text in the colour it is given.
+`icons = "nerd"` in the configuration swaps that set for one a patched font
+draws instead. A file row then reads its own name: 76 extensions and 16 whole
+names such as `Makefile` and `.gitignore` reach 33 shapes of their own, under
+one of five colours for code, for data, for a document, for an image or a
+sound, and for an archive. The shape says which file it is and the colour
+says what sort of file that is. A name neither table answers for keeps the
+plain file shape and the colour it already wore. So does every row that names
+something other than a file. The set moves the shapes and leaves the palette
+where the eye last found it. Nothing detects such a font and the set
+is therefore a person's to turn on. A terminal without one draws a box in
+place of every shape. A terminal set for CJK widths draws each one two cells
+wide where surmise's own table calls it one and slides every name a column
+right.
 At the bottom of the screen the terminal
 scrolls to make the room rather than the menu moving above the line. What is
 above the line is the shell's own output and surmise cannot read it back to
@@ -742,9 +755,12 @@ write to a person's terminal outside the menu. It becomes a warning instead,
 kept for a later `doctor` command to report, and the picker runs with
 defaults meanwhile. An unknown key is a warning of the same kind rather than
 an error, because a file carrying a key from a later surmise should still
-work with this one.
+work with this one. A value one of the keys below does not know is a warning
+of that kind too and that key keeps its default. Every complaint one file
+earns is kept rather than the first of them, because a person sent back twice
+for one file has been told half of what the reader already knew.
 
-Three keys have a reader today.
+Four keys have a reader today.
 
 - `enabled` turns the picker off. `pick::run` checks it before it opens the
   terminal, so `false` answers every key with `PASS` and the shell's own
@@ -757,9 +773,15 @@ Three keys have a reader today.
   and a stale public one can be overridden the same way. A name coming off
   the shell line is refused before it reaches the filesystem if it holds a
   `..` component or is itself an absolute path.
+- `icons` names the glyph set. `"text"` is the default and `"nerd"` is the
+  one a patched font draws. "Use" above says what that changes and why
+  nothing guesses at the answer. `pick::run` reads it beside `enabled` and
+  hands it to `ui::menu`, so the key costs the run nothing it was not
+  already paying.
 
 `spec_menu` is the menu that calls `spec_store::get_configured`, once per
-command name it asks for, so all three keys now reach what a person sees:
+command name it asks for, so three of the four keys now reach what a person
+sees:
 `enabled` through `pick::run`, the entry point every keystroke goes through,
 and `disabled_commands` and `spec_dirs` through the spec that menu completes
 from.
