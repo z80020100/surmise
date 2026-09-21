@@ -73,7 +73,9 @@ fn opened(home: &Path, line: &str) -> Term {
 }
 
 /// Whether `row` carries a candidate name. The line under the list is what
-/// ends it and a blank row is no name either.
+/// ends it and a blank row is no name either. The top edge answers true as
+/// well now that the position in the list is let into it. Both readers below
+/// skip that row before they ask.
 fn is_name(row: &Panel) -> bool {
     row.text.trim().chars().any(|c| c != '─')
 }
@@ -109,9 +111,14 @@ fn names(t: &Term) -> Vec<String> {
         .collect()
 }
 
-/// The panel's last row. It carries the label and the position in the list.
+/// The panel's last row. It carries the word under the list.
 fn footer(t: &Term) -> String {
     t.panel().last().expect("a footer").text.clone()
+}
+
+/// The panel's top edge. It carries the position in the list.
+fn edge(t: &Term) -> String {
+    t.panel().first().expect("a top edge").text.clone()
 }
 
 /// The whole screen as one string. The picker's own line is in there.
@@ -214,10 +221,10 @@ fn the_menu_holds_still_to_its_edge_and_follows_the_highlight_past_it() {
     t.send(&"\x1b[B".repeat(5));
     t.pump(SETTLE);
     // The names alone cannot say the presses landed. The window has not moved
-    // and nothing here reads which row the highlight is on. The footer's own
-    // count is what says it and the claim rests on both halves.
+    // and nothing here reads which row the highlight is on. The count on the
+    // panel's top edge is what says it and the claim rests on both halves.
     assert_eq!(names(&t), head, "{:?}", t.lines());
-    assert!(footer(&t).contains("6/11"), "{:?}", t.lines());
+    assert!(edge(&t).contains("6/11"), "{:?}", t.lines());
     // One more and the window follows it by a single row.
     t.send("\x1b[B");
     t.pump(SETTLE);
@@ -227,7 +234,7 @@ fn the_menu_holds_still_to_its_edge_and_follows_the_highlight_past_it() {
         "{:?}",
         t.lines()
     );
-    assert!(footer(&t).contains("7/11"), "{:?}", t.lines());
+    assert!(edge(&t).contains("7/11"), "{:?}", t.lines());
     // Four more take the highlight to the end of the list and the window
     // with it. Up from there lands on a row the window already holds and the
     // window therefore holds still. A window read off the highlight alone
@@ -236,11 +243,11 @@ fn the_menu_holds_still_to_its_edge_and_follows_the_highlight_past_it() {
     t.pump(SETTLE);
     let tail = ["d6/", "d7/", "d8/", "d9/", "../", "~"];
     assert_eq!(names(&t), tail, "{:?}", t.lines());
-    assert!(footer(&t).contains("11/11"), "{:?}", t.lines());
+    assert!(edge(&t).contains("11/11"), "{:?}", t.lines());
     t.send("\x1b[A");
     t.pump(SETTLE);
     assert_eq!(names(&t), tail, "{:?}", t.lines());
-    assert!(footer(&t).contains("10/11"), "{:?}", t.lines());
+    assert!(edge(&t).contains("10/11"), "{:?}", t.lines());
 }
 
 #[test]
@@ -379,7 +386,7 @@ fn the_menu_makes_its_own_room_at_the_bottom_of_the_screen() {
     t.pump(SETTLE);
     // Every row the menu asked for is on the screen.
     assert_eq!(names(&t).len(), 6);
-    assert!(footer(&t).contains("1/8"), "{:?}", footer(&t));
+    assert!(edge(&t).contains("1/8"), "{:?}", edge(&t));
     assert_eq!(intact(&t.panel(), 40), Ok(()));
     // The line the menu answers for scrolled with it and the shell's own
     // prompt is still in front of it.

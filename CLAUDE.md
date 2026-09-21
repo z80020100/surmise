@@ -63,9 +63,10 @@ menu is one width whatever it holds. Near the right edge it keeps that width
 and gives the alignment up. A terminal too narrow for that width is the one
 thing that shrinks it. Six rows show at a time and a shorter list or a
 shorter terminal shows fewer. A line above the first of them closes the
-panel and a line under the last of them separates the list from the word
-below it. Each name has one character in front of it that says what sort of
-row it is, in a shape and a colour of that sort's own. Every one of those
+panel and carries the position in the list at its right end. A line under
+the last of them separates the list from the word below it. Each name has
+one character in front of it that says what sort of row it is, in a shape
+and a colour of that sort's own. Every one of those
 characters is one a terminal draws as plain text in the colour it is given.
 At the bottom of the screen the terminal
 scrolls to make the room rather than the menu moving above the line. What is
@@ -76,9 +77,9 @@ that. Up on the first name and Down on the last wrap to the other end of the
 list and the menu follows in one step.
 
 A selected name that does not fit its row also appears below the separator.
-The name wraps within the panel's width and the label and count remain below
-it. The wrapped name carries no marks and no underline. The row in the list
-is what says how the name got in and what Tab would take. A short terminal
+The name wraps within the panel's width and the label remains below it. The
+wrapped name carries no marks and no underline. The row in the list is what
+says how the name got in and what Tab would take. A short terminal
 limits the extra rows and an ellipsis marks any text that still does not fit.
 Without spare rows the menu shows only the list and its label.
 
@@ -283,9 +284,11 @@ carry no name, shows none.
 Those descriptions are the upstream's own sentences rather than labels
 written for this panel. Half of them are longer than the panel is wide: of
 the 38 the committed `git` specification carries, 18 are cut short at the
-footer's edge and only 16 are short enough to leave room for the position
-counter beside them. `plans/phase-4-ui-keys.md` is where the footer becomes
-a strip that wraps instead.
+footer's edge. The position counter used to take its own cells off the end
+of that word and 22 of the 38 left it none. It sits on the panel's top edge
+now and the word under the list has the panel's whole width whatever it
+holds. `plans/phase-4-ui-keys.md` is where the footer becomes a strip that
+wraps instead.
 
 Enter accepts the highlighted subcommand and adds a space. Right does the same
 when the name starts with what you typed. Tab accepts the shared prefix or a
