@@ -67,13 +67,21 @@ _surmise_redraw() {
 surmise-complete() {
   emulate -L zsh
   local from_space=$1 result ret
+  # RBUFFER and the alias table go on stdin as one record: RBUFFER first,
+  # then a name and a value for every alias, each ended with a NUL. A value
+  # can hold a space, a newline or a quote and a NUL is the one byte none of
+  # them carry, so it is the only separator that cannot read part of one
+  # field as another. `[@]` keeps a value with a space in it one field rather
+  # than letting the shell split it apart before `print` ever sees it.
+  local -a record
+  record=("$RBUFFER" "${(kv)aliases[@]}")
   # Paint the pending change first. surmise asks the terminal where the cursor
   # is. zsh does not redraw until the widget returns and the answer would
   # otherwise be one keystroke behind.
   zle -R
   # $TTY names the real terminal device. surmise needs that name, because a
   # descriptor opened from /dev/tty cannot be polled on macOS.
-  result=$(SURMISE_TTY=$TTY command $SURMISE_BIN --pick "$LBUFFER" </dev/null)
+  result=$(SURMISE_TTY=$TTY command $SURMISE_BIN --pick "$LBUFFER" < <(print -rN -- "${record[@]}"))
   ret=$?
   case $ret in
     0) LBUFFER=$result; _surmise_redraw ;;

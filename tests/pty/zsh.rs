@@ -980,3 +980,44 @@ fn tab_asks_surmise_about_a_line_already_typed() {
     t.pump(SETTLE);
     assert!(line(&t).starts_with("❯ cd wo"), "{:?}", t.lines());
 }
+
+#[test]
+fn tab_inside_a_word_reaches_the_shells_own_completion() {
+    // The space key still wraps `cd work` itself into the menu, so the space
+    // trigger is given back to the shell here and Tab is the only way in.
+    // Stepping the cursor back into `work` then leaves a real `RBUFFER`
+    // behind it. surmise reads that off stdin now and answers `PASS` before
+    // it ever looks at `cd wo`, exactly as it would for a finished word.
+    let f = home(
+        "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
+        "bindkey ' ' $_surmise_space",
+    );
+    let mut t = ready(f.path());
+    typed(&mut t, "cd work");
+    typed(&mut t, "\x1b[D\x1b[D");
+    typed(&mut t, "\t");
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+    assert_eq!(line(&t).trim(), "❯ cd woSAMPLErk", "{:?}", t.lines());
+}
+
+#[test]
+fn an_alias_reaches_the_picker_without_changing_what_it_answers() {
+    // Nothing reads the alias map yet. The claim here is only that carrying
+    // it on stdin does not break a picker that already works.
+    let f = home("alias ll='ls -la'", "");
+    let t = opened(f.path());
+    assert!(line(&t).starts_with("❯ cd"), "{:?}", t.lines());
+    assert_eq!(t.panel()[0].row, 1, "{:?}", t.lines());
+}
+
+#[test]
+fn a_large_alias_table_does_not_hang_the_prompt() {
+    // A value with spaces in it is what would break a splitting that read the
+    // alias table apart on whitespace instead of on the NUL the record uses.
+    let f = home(
+        "for i in {1..1000}; do alias sample$i=\"value $i with spaces\"; done",
+        "",
+    );
+    let t = opened(f.path());
+    assert!(line(&t).starts_with("❯ cd"), "{:?}", t.lines());
+}

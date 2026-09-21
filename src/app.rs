@@ -9,6 +9,7 @@ use crate::fuzzy::{shared_bytes, starts_with_folded};
 use crate::history::History;
 use crate::line::Line;
 use crate::shellword;
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 pub struct App {
@@ -18,6 +19,13 @@ pub struct App {
     pub dismissed: bool,
     /// The directory the candidates are drawn from.
     pub cwd: PathBuf,
+    /// What sat to the right of the cursor when the widget opened, from the
+    /// v2 stdin record. `pick::run` already answers `PASS` before an `App`
+    /// exists when this starts mid-word; nothing here reads it yet.
+    pub rbuffer: String,
+    /// The shell's alias table, name to value, from the same record.
+    /// `shellparse` is the reader this is waiting for.
+    pub aliases: HashMap<String, String>,
     history: History,
     scan: Scan,
     git: crate::git::Completions,
@@ -100,6 +108,8 @@ impl App {
             selected: 0,
             dismissed: false,
             cwd,
+            rbuffer: String::new(),
+            aliases: HashMap::new(),
             history: History::default(),
             scan: Scan::default(),
             git: crate::git::Completions::default(),
