@@ -16,9 +16,21 @@ fmt-check:
 clippy:
 	cargo clippy --locked --all-targets
 
+# The Git environment goes before the tests run. A fixture-backed test spawns
+# Git for the temporary repository in front of it, and the code under test
+# inherits whatever the shell holds. `GIT_DIR` and its companions send that
+# Git somewhere else entirely. git sets them for every hook it runs, and in
+# the main worktree `GIT_DIR` is the relative `.git`, which resolves to
+# nothing from a fixture's own directory and does no harm. In a linked
+# worktree it is absolute and the fixture tests then read this repository
+# rather than the fixture. A gate that reads the wrong repository is not a
+# gate.
 .PHONY: test
 test:
-	cargo test --locked
+	env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE -u GIT_COMMON_DIR \
+	    -u GIT_OBJECT_DIRECTORY -u GIT_ALTERNATE_OBJECT_DIRECTORIES \
+	    -u GIT_NAMESPACE -u GIT_PREFIX \
+	  cargo test --locked
 
 # The shell gate. The POSIX scripts get shellcheck and shfmt. The zsh widgets
 # get a syntax check alone, because neither tool has a zsh dialect. A missing

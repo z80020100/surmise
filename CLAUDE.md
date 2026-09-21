@@ -470,6 +470,18 @@ The file and branch readers are reached through `App` rather than called
 directly and the fixture is what moves the budget for them. The installed
 binary keeps the prompt's own.
 
+The fixture cannot speak for the Git the code under test runs. `Fixture::git`
+clears the environment for its own calls and the readers in `src/git.rs` spawn
+Git with whatever the shell holds, which is what an installed surmise should
+do. `GIT_DIR` and its companions then send that Git to another repository
+altogether and every fixture-backed test reads the wrong one. git sets them
+for every hook it runs, so this arrives through the gate itself rather than
+through anything a person typed. In the main worktree `GIT_DIR` is the
+relative `.git` and resolves to nothing from a fixture's own directory. In a
+linked worktree it is absolute and the tests read this repository. The `test`
+target therefore takes those variables out before cargo runs, which covers a
+commit from a worktree, a CI job and a shell that exports one of them.
+
 `rust-toolchain.toml` pins the toolchain for the same reason. A floating stable
 plus `-Dwarnings` means a new lint can turn CI red with no change to the code.
 Bump the pin deliberately and answer the new lints in the same commit. Note that
