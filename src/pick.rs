@@ -42,10 +42,16 @@ fn anchor_col(cursor_col: usize, seed: &str, width: usize) -> Option<usize> {
     (start + MIN_ROOM < width).then_some(start)
 }
 
-/// The state for `seed`. `None` when surmise has nothing to offer and the key
+/// The state for `seed`, with `aliases` in place before the first candidate
+/// list is built. `App::over` cannot be used here: it calls `refresh` on
+/// construction and an alias set afterward would answer a menu already
+/// drawn without it. `None` when surmise has nothing to offer and the key
 /// therefore belongs to the shell.
-fn seeded(seed: &str, cwd: &Path) -> Option<App> {
-    let app = App::over(cwd, seed);
+fn seeded(seed: &str, cwd: &Path, aliases: HashMap<String, String>) -> Option<App> {
+    let mut app = App::new(cwd.to_path_buf());
+    app.aliases = aliases;
+    app.line.insert(seed);
+    app.refresh();
     (!app.items.is_empty()).then_some(app)
 }
 
@@ -58,9 +64,10 @@ struct Input {
 
 /// Stdin as the v2 record, or the empty record when there was none to read.
 ///
-/// `run` reads this once, ahead of `App::over`, and answers `PASS` on it
-/// alone when the cursor sits mid-word. Otherwise its fields land on the
-/// `App` once one exists.
+/// `run` reads this once, ahead of `seeded`, and answers `PASS` on it alone
+/// when the cursor sits mid-word. Otherwise its fields land on the `App`
+/// `seeded` builds, the aliases before that build's own first refresh and
+/// the rest once one exists.
 fn read_input() -> io::Result<Input> {
     // A terminal on stdin means nobody piped a record in. Reading it would
     // wait on a key that never comes, and a hand run of `surmise --pick` puts
@@ -141,11 +148,10 @@ pub fn run(seed: &str) -> io::Result<u8> {
         return Ok(PASS);
     };
     // Nothing to offer. Give the key back without touching the terminal.
-    let Some(mut app) = seeded(seed, &cwd) else {
+    let Some(mut app) = seeded(seed, &cwd, input.aliases) else {
         return Ok(PASS);
     };
     app.rbuffer = input.rbuffer;
-    app.aliases = input.aliases;
     if !app.completes_git() {
         app = app.with_history(crate::history::History::load(&cwd));
     }
@@ -299,13 +305,26 @@ mod tests {
         // `filepaths` template; `zzz` is what still matches nothing there,
         // in the fixture or among `ls`'s own options.
         let f = Fixture::new(&["work"]);
-        assert!(seeded("ls zzz", f.path()).is_none());
+        assert!(seeded("ls zzz", f.path(), HashMap::new()).is_none());
+    }
+
+    #[test]
+    fn the_alias_map_is_in_place_before_the_first_refresh_reads_it() {
+        // `App::over` would call `refresh` before `aliases` was ever set,
+        // the bug this build fixes: an alias resolved only afterward leaves
+        // the first screen with nothing behind it. `d ` has no specification
+        // of its own, so items here can only have come from `docker`'s.
+        let f = Fixture::new(&[]);
+        let mut aliases = HashMap::new();
+        aliases.insert("d".to_string(), "docker".to_string());
+        let app = seeded("d ", f.path(), aliases).expect("the alias reaches the first refresh");
+        assert!(!app.items.is_empty());
     }
 
     #[test]
     fn a_cd_with_nothing_to_offer_is_left_to_the_shell() {
         let f = Fixture::new(&["work"]);
-        assert!(seeded("cd zzz", f.path()).is_none());
+        assert!(seeded("cd zzz", f.path(), HashMap::new()).is_none());
     }
 
     #[test]
@@ -313,14 +332,14 @@ mod tests {
         // The space says the word is done. Nothing here would grow it and the
         // key therefore belongs to whatever the shell completes next.
         let f = Fixture::new(&["work"]);
-        assert!(seeded("cd work ", f.path()).is_none());
-        assert!(seeded("cd wo ", f.path()).is_none());
+        assert!(seeded("cd work ", f.path(), HashMap::new()).is_none());
+        assert!(seeded("cd wo ", f.path(), HashMap::new()).is_none());
     }
 
     #[test]
     fn a_cd_opens_on_the_line_the_shell_handed_over() {
         let f = Fixture::new(&["work", "other"]);
-        let app = seeded("cd wo", f.path()).expect("a picker");
+        let app = seeded("cd wo", f.path(), HashMap::new()).expect("a picker");
         assert_eq!(app.line.text(), "cd wo");
         assert!(app.line.at_end());
         assert!(app.menu_open());
@@ -330,7 +349,7 @@ mod tests {
     #[test]
     fn a_bare_cd_has_something_to_offer() {
         let f = Fixture::new(&["work"]);
-        assert!(seeded("cd ", f.path()).is_some());
+        assert!(seeded("cd ", f.path(), HashMap::new()).is_some());
     }
 
     #[test]
@@ -339,7 +358,7 @@ mod tests {
         // and the shell would otherwise never see this line at all.
         let f = Fixture::new(&["work"]);
         assert!(
-            seeded("cd work/", f.path())
+            seeded("cd work/", f.path(), HashMap::new())
                 .expect("a picker")
                 .runs_the_line()
         );

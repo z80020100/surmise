@@ -937,8 +937,12 @@ fn clearing_the_line_closes_the_menu_and_leaves_the_shell_working() {
     closed(&mut t);
     assert_eq!(line(&t), "❯", "{:?}", t.lines());
     // The line typed must not itself hold what the answer is checked for.
-    // `echo back` would put `back` on the screen whether it ran or not.
-    t.send("echo $((6*7))\r");
+    // `print back` would put `back` on the screen whether it ran or not.
+    //
+    // `print` rather than `echo`: `echo` has a specification and a bare
+    // `echo ` therefore opens a menu of its own that would eat the digits
+    // typed after it.
+    t.send("print $((6*7))\r");
     assert!(
         t.wait_line("42", WAIT),
         "the shell never ran it: {:?}",
@@ -948,32 +952,123 @@ fn clearing_the_line_closes_the_menu_and_leaves_the_shell_working() {
 
 #[test]
 fn a_space_that_is_not_a_bare_cd_only_inserts_a_space() {
+    // `zzzz` rather than `echo`: no committed specification names it, so
+    // none of its spaces reach the picker at all.
     let f = home("", "");
     let mut t = ready(f.path());
-    typed(&mut t, "echo hello world");
+    typed(&mut t, "zzzz hello world");
     assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
-    assert_eq!(line(&t), "❯ echo hello world", "{:?}", t.lines());
+    assert_eq!(line(&t), "❯ zzzz hello world", "{:?}", t.lines());
 }
 
 #[test]
 fn a_cd_behind_another_command_does_not_open_the_menu() {
     let f = home("", "");
     let mut t = ready(f.path());
-    typed(&mut t, "echo x && cd ");
+    typed(&mut t, "zzzz x && cd ");
     assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
-    assert_eq!(line(&t), "❯ echo x && cd", "{:?}", t.lines());
+    assert_eq!(line(&t), "❯ zzzz x && cd", "{:?}", t.lines());
+}
+
+#[test]
+fn typing_a_bare_docker_opens_the_menu() {
+    // `docker` has no menu of its own the way `cd` and `git` do. Tab was
+    // its only way in; a bare space now reaches it too, because `docker`
+    // is one of the names `surmise specs names` prints.
+    let f = home("", "");
+    let mut t = ready(f.path());
+    t.send("docker ");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+}
+
+#[test]
+fn docker_container_also_opens_the_menu_on_its_own_space() {
+    // The trigger reads the line's first word, not the word the space
+    // ends. A second word ending in a space opens the menu exactly as the
+    // first one does.
+    let f = home("", "");
+    let mut t = ready(f.path());
+    t.send("docker container ");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+}
+
+#[test]
+fn an_alias_opens_the_specification_driven_git_menu() {
+    // `g ` reaches the specification's own rows for `git`, not
+    // `crate::git::parse`'s: that reader matches a literal `git` and never
+    // an alias for it. The rows are real, sourced from git's own spec, and
+    // the footer names one of them.
+    let f = home("alias g=git", "");
+    let mut t = ready(f.path());
+    t.send("g ");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    let shown = t.lines().join("\n");
+    assert!(shown.contains("--bare"), "{:?}", t.lines());
+    assert!(
+        shown.contains("Treat the repository as a bare reposito"),
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
+fn a_multi_word_alias_opens_on_its_own_first_word_alone() {
+    // Only the alias value's own first word decides whether the trigger
+    // fires at all; `git help` still opens on `gh `, the same rows a plain
+    // `alias g=git` does.
+    let f = home("alias gh='git help'", "");
+    let mut t = ready(f.path());
+    t.send("gh ");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    assert!(t.lines().join("\n").contains("--bare"), "{:?}", t.lines());
+}
+
+#[test]
+fn giving_the_space_key_back_leaves_docker_plain_too() {
+    // `bindkey ' ' $_surmise_space` is what CLAUDE.md names for keeping
+    // the Tab route while handing the space key itself back. The docker
+    // trigger is no exception: once the key is given back, a bare
+    // `docker ` is plain text again and only Tab still reaches the menu.
+    let f = home("", "bindkey ' ' $_surmise_space");
+    let mut t = ready(f.path());
+    typed(&mut t, "docker ");
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+    assert_eq!(line(&t), "❯ docker", "{:?}", t.lines());
+}
+
+#[test]
+fn the_specs_array_answers_a_second_trigger_in_the_same_session() {
+    // Filled once, on the first trigger of the session, and read rather
+    // than rebuilt on every later one. `cd`'s own bare space is the first
+    // trigger here and `docker`'s is the second, off the array that fill
+    // left behind.
+    let f = home("", "");
+    let mut t = opened(f.path());
+    t.send("\x03");
+    closed(&mut t);
+    // Ctrl-C gives back the seed it cancelled out of, not an empty line.
+    // Ctrl-U clears that before the second trigger types over it.
+    typed(&mut t, "\x15");
+    t.send("docker ");
+    assert!(
+        t.wait_panel(WAIT),
+        "no menu on the second trigger: {:?}",
+        t.lines()
+    );
 }
 
 #[test]
 fn tab_on_a_line_surmise_passes_on_reaches_the_shells_own_completion() {
+    // `zzzz` rather than `ls`: `ls` has a specification and the space this
+    // line types before the filename would open its own menu first.
     let f = home("", "");
     let mut t = ready(f.path());
-    typed(&mut t, "ls .zsh");
+    typed(&mut t, "zzzz .zsh");
     typed(&mut t, "\t");
     // `.zshrc` is the only name in the fixture that starts that way and zsh
     // completes it outright. `compinit` leaves a `.zcompdump` beside it and
     // that one starts `.zc`. surmise answered PASS and gave the key back.
-    assert!(line(&t).starts_with("❯ ls .zshrc"), "{:?}", t.lines());
+    assert!(line(&t).starts_with("❯ zzzz .zshrc"), "{:?}", t.lines());
 }
 
 #[test]
@@ -1028,8 +1123,10 @@ fn tab_inside_a_word_reaches_the_shells_own_completion() {
 
 #[test]
 fn an_alias_reaches_the_picker_without_changing_what_it_answers() {
-    // Nothing reads the alias map yet. The claim here is only that carrying
-    // it on stdin does not break a picker that already works.
+    // `ll` names nothing on this line. `cd`'s own reader matches the
+    // literal word anyway, so the claim here is only that carrying an
+    // alias table on stdin does not disturb a picker it has nothing to say
+    // to.
     let f = home("alias ll='ls -la'", "");
     let t = opened(f.path());
     assert!(line(&t).starts_with("❯ cd"), "{:?}", t.lines());

@@ -10,7 +10,7 @@ use std::ffi::OsString;
 use std::io::{self, Write};
 use std::path::Path;
 use std::process::ExitCode;
-use surmise::{config, pick, ui};
+use surmise::{config, pick, spec_store, ui};
 
 const USAGE: &str = "\
 surmise — complete cd directories, Git subcommands, and any command with a
@@ -20,6 +20,7 @@ committed specification.
   surmise --pick LINE             the picker that widget calls, result on stdout
   surmise --record SOURCE TARGET  record a successful directory change
   surmise settings path           the config path, whether it exists yet or not
+  surmise specs names             every command with a specification, one per line
 ";
 
 /// The zsh widget, compiled in. `cargo install` places a binary and has no
@@ -35,6 +36,8 @@ enum Mode<'a> {
     Init(&'a str),
     /// A `settings` subcommand. An empty name is no name.
     Settings(&'a str),
+    /// A `specs` subcommand. An empty name is no name.
+    Specs(&'a str),
     /// The usage.
     Help,
     /// An argument this build does not know.
@@ -63,6 +66,12 @@ fn mode(args: &[String]) -> Mode<'_> {
         Some("settings") => match args.get(2) {
             Some(extra) => Mode::Unknown(extra),
             None => Mode::Settings(args.get(1).map_or("", String::as_str)),
+        },
+        // `specs` takes the same shape as `settings`, for the same reason: a
+        // third argument is a typo rather than a second thing to do.
+        Some("specs") => match args.get(2) {
+            Some(extra) => Mode::Unknown(extra),
+            None => Mode::Specs(args.get(1).map_or("", String::as_str)),
         },
         // Without an argument there is no line to complete. The usage is the
         // whole of what this build can say on its own.
@@ -162,6 +171,26 @@ fn main() -> ExitCode {
             "no settings command named {}. path is the only one this build has.",
             ui::printable(word)
         )),
+        // One name per line: the compiled-in list plus whatever `spec_dirs`
+        // adds. `_surmise_specs` in the widget is this output, split on
+        // newlines into an associative array's keys.
+        Mode::Specs("names") => {
+            let mut out = io::stdout().lock();
+            let mut names = spec_store::commands_configured().join("\n");
+            names.push('\n');
+            match out.write_all(names.as_bytes()) {
+                Ok(()) => ExitCode::SUCCESS,
+                Err(e) => {
+                    eprintln!("surmise: cannot write the command list: {e}");
+                    ExitCode::FAILURE
+                }
+            }
+        }
+        Mode::Specs("") => refuse("specs takes a word. names is the only one this build has."),
+        Mode::Specs(word) => refuse(&format!(
+            "no specs command named {}. names is the only one this build has.",
+            ui::printable(word)
+        )),
         Mode::Help => {
             usage(io::stdout());
             ExitCode::SUCCESS
@@ -251,6 +280,28 @@ mod tests {
     #[test]
     fn settings_with_no_word_is_still_settings() {
         assert!(matches!(mode(&args(&["settings"])), Mode::Settings("")));
+    }
+
+    #[test]
+    fn specs_names_parses_as_its_own_mode() {
+        assert!(matches!(
+            mode(&args(&["specs", "names"])),
+            Mode::Specs("names")
+        ));
+    }
+
+    #[test]
+    fn an_unknown_word_after_specs_is_refused() {
+        assert!(matches!(
+            mode(&args(&["specs", "nope"])),
+            Mode::Specs("nope")
+        ));
+    }
+
+    #[test]
+    fn a_third_argument_to_specs_is_never_a_word() {
+        let a = args(&["specs", "names", "--nope"]);
+        assert!(matches!(mode(&a), Mode::Unknown("--nope")));
     }
 
     /// `include_str!` cannot say what it took. This is the claim that the
