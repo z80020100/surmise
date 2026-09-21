@@ -894,9 +894,6 @@ impl Completions {
                         if option.value == Some(Value::File) {
                             candidate.hint = vec!["<File>".to_string()];
                         }
-                        if arg.is_empty() {
-                            candidate.score -= 1000;
-                        }
                         out.push(candidate);
                     }
                 }

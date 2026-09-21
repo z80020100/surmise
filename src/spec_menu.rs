@@ -622,6 +622,69 @@ mod tests {
         assert_eq!(names(&rows), ["add", "read"]);
     }
 
+    /// One ranking pass over rows a caller hands in with the option
+    /// first. The order that comes back is therefore the sort's own rather
+    /// than the one it was given.
+    fn ranked(term: &str, rows: &[(&str, Kind)]) -> Vec<String> {
+        let mut rows: Vec<Candidate> = rows
+            .iter()
+            .filter_map(|(name, kind)| {
+                let label = match kind {
+                    Kind::Option => OPTION_LABEL,
+                    _ => SUBCOMMAND_LABEL,
+                };
+                row(term, name, Cow::Borrowed(label), Vec::new(), *kind)
+            })
+            .collect();
+        rank(&mut rows, term, None);
+        rows.into_iter().map(|c| c.display).collect()
+    }
+
+    #[test]
+    fn a_subcommand_leads_an_option_when_nothing_was_typed() {
+        // An empty term scores the two the same and the name was then the
+        // only key left. `-` sorts under every letter.
+        let rows = [("--color", Kind::Option), ("add", Kind::Command)];
+        assert_eq!(ranked("", &rows), ["add", "--color"]);
+    }
+
+    #[test]
+    fn a_typed_dash_leaves_the_subcommands_out_altogether() {
+        // A `-` is how a person asks for the options and the group order
+        // is not what answers. A name with no `-` anywhere in it is no
+        // subsequence match and never becomes a row at all.
+        let rows = [("--color", Kind::Option), ("add", Kind::Command)];
+        assert_eq!(ranked("-", &rows), ["--color"]);
+    }
+
+    #[test]
+    fn a_closer_match_leads_whatever_group_it_came_from() {
+        // `log` runs whole through `--log` from the character after its
+        // dashes and reaches `dialog` three characters in. Neither name
+        // leads with it. The score is what separates them and the group
+        // breaks nothing here.
+        let rows = [("--log", Kind::Option), ("dialog", Kind::Command)];
+        assert_eq!(ranked("log", &rows), ["--log", "dialog"]);
+    }
+
+    #[test]
+    fn a_root_offers_every_subcommand_before_its_options() {
+        // `cargo` carries 38 subcommands beside 12 options and the
+        // options used to take the whole six-row window: `--color`
+        // through `-V`.
+        let rows = complete(&mut Completions::default(), &target("cargo "));
+        let last_command = rows
+            .iter()
+            .rposition(|r| r.kind == Kind::Command)
+            .expect("a subcommand row");
+        let first_option = rows
+            .iter()
+            .position(|r| r.kind == Kind::Option)
+            .expect("an option row");
+        assert!(last_command < first_option, "{:?}", names(&rows));
+        assert_eq!(names(&rows)[0], "add", "{:?}", names(&rows));
+    }
+
     /// A `filepaths`/`folders` generator with no options of its own, the
     /// shape every real spec in the corpus uses today. `extra` adds the
     /// options a test wants on top of it.

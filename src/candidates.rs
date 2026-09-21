@@ -340,12 +340,45 @@ pub(crate) struct UsedAfter<'a> {
     pub(crate) counts: &'a histfile::Counts,
 }
 
+/// Which of a specification's three groups a row came from. A subcommand
+/// leads, a value follows and an option comes last. A subcommand is the
+/// next word the command is made of and a value is the word its argument
+/// wants. An option is neither.
+///
+/// Nothing else in the sort says it. An empty term scores every row the
+/// same and the name alone then decided. `-` sorts under every letter and
+/// a bare `cargo ` therefore led with its 12 options, leaving all 38
+/// subcommands under the fold. 323 of the 715 specifications at the top of
+/// `specs/` carry both a subcommand and an option at their root.
+///
+/// The sort reads this after the score rather than before. How well what
+/// was typed reaches a name says more than the group that name came from.
+/// Typing a `-` is how a person asks for the options.
+fn group_rank(kind: Kind) -> u8 {
+    match kind {
+        Kind::Command => 2,
+        Kind::Option => 0,
+        // A branch, a file, a folder and a value a spec lists are one
+        // group: what the argument in hand takes. `cd`'s own menu ranks
+        // its rows elsewhere and the three kinds only it makes never
+        // reach this sort.
+        Kind::Branch
+        | Kind::File
+        | Kind::Path
+        | Kind::Dir
+        | Kind::Parent
+        | Kind::Special
+        | Kind::Run => 1,
+    }
+}
+
 /// The ranking `crate::git`'s own subcommand, branch and file rows share
 /// with `crate::spec_menu`'s: a name that folds to exactly what was typed
 /// leads, a name that merely starts with it follows, a tie inside either
 /// goes to the row the shell history favours, a further tie keeps the fuzzy
-/// score's own order and a name breaks whatever is left. One `rank` rather
-/// than one copy each is what keeps the two menus from drifting apart.
+/// score's own order, the group the row came from breaks what is still
+/// level and a name breaks whatever is left. One `rank` rather than one
+/// copy each is what keeps the two menus from drifting apart.
 ///
 /// `used_after` is the history term, and `None` is what turns it off.
 /// [`crate::histfile::Counts`] holds how often a command's *second* word
@@ -381,6 +414,7 @@ pub(crate) fn rank(rows: &mut Vec<Candidate>, term: &str, used_after: Option<Use
             Reverse(tier(&c.display)),
             Reverse(used_after.map_or(0, |h| h.counts.count(h.command, typed_as(c)))),
             Reverse(c.score),
+            Reverse(group_rank(c.kind)),
             c.display.clone(),
         )
     });
