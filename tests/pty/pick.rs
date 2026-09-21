@@ -323,6 +323,15 @@ fn a_bare_docker_draws_a_menu_of_subcommands_with_their_descriptions() {
 }
 
 #[test]
+fn a_subcommand_row_shows_its_argument_hint() {
+    let f = fixture();
+    let t = opened(f.path(), "git status");
+    let rows = name_rows(&t);
+    assert!(rows[0].contains("status"), "{rows:?}");
+    assert!(rows[0].contains("[pathspec...]"), "{rows:?}");
+}
+
+#[test]
 fn tab_accepts_a_spec_subcommand_and_grows_the_line() {
     let f = fixture();
     let mut t = opened(f.path(), "docker contai");

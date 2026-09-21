@@ -227,11 +227,18 @@ fn label(description: &Option<String>, fallback: &'static str) -> Cow<'static, s
     }
 }
 
-fn row(term: &str, name: &str, label: Cow<'static, str>, kind: Kind) -> Option<Candidate> {
+fn row(
+    term: &str,
+    name: &str,
+    label: Cow<'static, str>,
+    hint: Vec<String>,
+    kind: Kind,
+) -> Option<Candidate> {
     Some(Candidate {
         display: name.to_string(),
         insert: name.to_string(),
         label,
+        hint,
         kind,
         score: fuzzy::score(term, name)?,
     })
@@ -259,6 +266,7 @@ fn build_rows(
                 term,
                 name,
                 label(&sub.description, SUBCOMMAND_LABEL),
+                spec::arg_hints(&sub.args),
                 Kind::Command,
             ));
         }
@@ -272,10 +280,21 @@ fn build_rows(
             let Some(name) = opt.name.first() else {
                 continue;
             };
+            // A space between the name and the hint is what says the
+            // value is a word of its own. An option that requires a
+            // separator takes `--name=value` instead, and the row cannot
+            // say so until the separator is part of what it inserts, which
+            // `plans/phase-3-ranking-insertion.md` is where that lands. It
+            // shows no arguments until then rather than the wrong shape.
+            let hint = match opt.requires_separator {
+                Some(_) => Vec::new(),
+                None => spec::arg_hints(&opt.args),
+            };
             rows.extend(row(
                 term,
                 name,
                 label(&opt.description, OPTION_LABEL),
+                hint,
                 Kind::Option,
             ));
         }
@@ -297,6 +316,7 @@ fn build_rows(
                 term,
                 name,
                 label(&suggestion.description, SUGGESTION_LABEL),
+                Vec::new(),
                 Kind::Path,
             ));
         }
@@ -414,6 +434,7 @@ fn path_rows(
             } else {
                 Cow::Borrowed(FILE_LABEL)
             },
+            hint: Vec::new(),
             kind: Kind::Path,
             score,
         });
@@ -448,6 +469,11 @@ fn help_rows(term: &str, enclosing: Option<&Subcommand>) -> Vec<Candidate> {
                 term,
                 name,
                 label(&sub.description, SUBCOMMAND_LABEL),
+                // The row fills `help`'s own argument with this name and
+                // stops there. What the sibling itself takes is never
+                // reached, so a hint here would promise a word the menu
+                // will not offer.
+                Vec::new(),
                 Kind::Command,
             )
         })
@@ -842,5 +868,18 @@ mod tests {
         assert!(names.contains(&"list"), "{names:?}");
         assert!(names.contains(&"install"), "{names:?}");
         assert!(names.contains(&"delete"), "{names:?}");
+    }
+
+    /// `specs/npm.json`'s `install` argument is `package`, `isOptional` and
+    /// `isVariadic` together.
+    #[test]
+    fn a_subcommand_row_carries_its_argument_hint() {
+        let mut c = Completions::default();
+        let rows = complete(&mut c, &target("npm "));
+        let install = rows
+            .iter()
+            .find(|r| r.insert == "install")
+            .expect("npm has an install subcommand");
+        assert_eq!(install.hint, vec!["[package...]"]);
     }
 }

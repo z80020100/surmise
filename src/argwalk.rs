@@ -1137,7 +1137,7 @@ mod tests {
                 name: "docker".to_string(),
                 kind: "global".to_string(),
             }],
-            ..bare_arg()
+            ..Arg::default()
         }];
         let walk = walk(&command("probe anything "), &node, |name| {
             (name == "docker").then_some(&docker)
@@ -1164,29 +1164,6 @@ mod tests {
             exclusive_on: Vec::new(),
             depends_on: Vec::new(),
             is_dangerous: None,
-            extra: serde_json::Map::new(),
-        }
-    }
-
-    fn bare_arg() -> Arg {
-        Arg {
-            name: Vec::new(),
-            suggestions: Vec::new(),
-            generators: Vec::new(),
-            dynamic: false,
-            load_spec: Vec::new(),
-            default: None,
-            description: None,
-            is_optional: None,
-            is_variadic: None,
-            options_can_break_variadic_arg: None,
-            is_command: None,
-            is_script: None,
-            is_module: None,
-            filter_strategy: None,
-            suggest_current_token: None,
-            is_dangerous: None,
-            debounce: None,
             extra: serde_json::Map::new(),
         }
     }
