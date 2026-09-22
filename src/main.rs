@@ -17,7 +17,7 @@ surmise — complete cd directories, Git subcommands, and any command with a
 committed specification.
 
   surmise init zsh                   the shell widget, for `eval \"$(surmise init zsh)\"`
-  surmise demo                       a throwaway home and an interactive zsh in it
+  surmise demo                       a clean interactive zsh on your own files
   surmise --pick LINE                the picker that widget calls, result on stdout
   surmise --record SOURCE TARGET     record a successful directory change
   surmise settings path              the config path, whether it exists yet or not

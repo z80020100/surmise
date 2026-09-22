@@ -1,25 +1,42 @@
-//! An interactive zsh in a home this command makes and takes away again.
+//! A clean interactive zsh on the real filesystem, with surmise the one
+//! thing loaded into it.
 //!
 //! `surmise demo` is how a person tries the menu before editing a `.zshrc`
 //! of their own, and how a reviewer reads a branch back at a real terminal.
-//! It points `$HOME`, `$ZDOTDIR`, the two XDG directories and `$HISTFILE` at
-//! a throwaway directory and starts zsh on it. The directory goes when that
-//! shell exits.
+//! Both of them are asking whether this works for them, so everything it
+//! reads is theirs. `$HOME` is theirs, the working directory is the one the
+//! command was run in, and the config, the directory history and the state
+//! file are the ones an installed surmise would read and write. A `settings
+//! set` typed here changes what they keep and a `cd` run here is a visit
+//! their next menu ranks by. That is the point rather than a cost: a
+//! setting that only ever reached a copy would answer nothing about the
+//! setting.
 //!
 //! **The working directory is the one the command was run in.** A menu here
 //! therefore completes on the person's own files, their own branches and the
 //! makefile beside them rather than on a repository this module made up. A
 //! line run in that shell runs where they started it.
 //!
-//! The throwaway home is what a demo cannot borrow from them. The directory
-//! history, the state file and the config go into it rather than into the
-//! ones they keep. The SSH configuration and the history file are fixtures
-//! because `$HOME` and `$HISTFILE` both move and the readers that answer
-//! from those two would have nothing to show otherwise.
+//! `$ZDOTDIR` is the one thing that moves. A person trying surmise before
+//! they install it has no `eval "$(surmise init zsh)"` line in a `.zshrc` of
+//! their own and writing one into it is the one thing a demo may not do, so
+//! the demo writes a `.zshrc` of its own under a throwaway directory and
+//! sends the shell at it. `-d` drops the machine's own `/etc` files beside
+//! that. What is loaded in that shell is therefore surmise and nothing
+//! else, which is what leaves a menu that misbehaves nowhere to hide.
 //!
-//! It is not a sandbox and nothing here claims to be one. The filesystem
-//! around that home is the real one. What moves is where surmise, zsh and
-//! Git look for the files a person keeps.
+//! `$HISTFILE` is the one thing read and never written. `SAVEHIST=0` in that
+//! `.zshrc` is what keeps the demo's own lines out of the file, because a
+//! line typed in a demo is worth nothing to the ranking afterwards.
+//!
+//! Which file that is, is a guess. zsh exports no `HISTFILE` and the
+//! `.zshrc` naming it is the one this shell does not read, so the startup
+//! file falls back to `~/.zsh_history` and says so where nothing is there.
+//! Reading a person's own `.zshrc` for the name would load everything else
+//! in it as well, which is the one thing a clean shell is for not doing.
+//!
+//! It is not a sandbox and nothing here claims to be one. The filesystem is
+//! the real one and so is everything surmise writes to it.
 
 use std::fs::DirBuilder;
 use std::io::ErrorKind;
@@ -36,32 +53,8 @@ use std::process::Command;
 /// shell` checks the bytes that run rather than a template of them.
 const RC: &str = include_str!("../shell/demo.zsh");
 
-/// The hosts the demo SSH configuration carries. `$HOME` moves, so the
-/// person's own configuration cannot be read from the demo and this is what
-/// `ssh ` answers from instead. Every name resolves nowhere. `.invalid` is
-/// the domain reserved for exactly that and a demo therefore cannot name a
-/// machine somebody owns.
-const SSH_HOSTS: [&str; 4] = ["build-north", "build-south", "cache-relay", "docs-mirror"];
-
-/// The history the `$HISTFILE` tie-break reads. A demo opens on the order a
-/// person's own typing would have earned rather than on the alphabet. Both
-/// shapes zsh writes are in it: `EXTENDED_HISTORY` puts a timestamp in front
-/// of the line and a plain history file is the line alone.
-const HISTORY: &str = ": 1758000001:0;git status\n\
-                       : 1758000002:0;git status\n\
-                       : 1758000003:0;cargo test\n\
-                       : 1758000004:0;git commit -m sample\n\
-                       : 1758000005:0;docker ps\n\
-                       : 1758000006:0;git status\n\
-                       : 1758000007:0;docker ps\n\
-                       git status\n\
-                       git switch feature/blue-label\n\
-                       cargo test\n\
-                       git status\n\
-                       docker compose up\n\
-                       git status\n";
-
-/// The directory the demo lives in for as long as its shell does.
+/// The directory the demo's own startup file lives in for as long as its
+/// shell does.
 struct Root(PathBuf);
 
 impl Root {
@@ -77,8 +70,8 @@ impl Root {
         for n in 0..100 {
             let path = base.join(format!("surmise-demo-{pid}-{n}"));
             // The mode `history.rs` makes its own directory with. The
-            // temporary directory is shared and what a person types in the
-            // demo reaches the database under this one.
+            // temporary directory above this one is shared and a directory
+            // a process makes for itself there is its own.
             match DirBuilder::new().mode(0o700).create(&path) {
                 Ok(()) => return Ok(Root(path)),
                 Err(e) if e.kind() == ErrorKind::AlreadyExists => continue,
@@ -86,7 +79,7 @@ impl Root {
             }
         }
         Err(format!(
-            "no free name for a demo home under {}",
+            "no free name for a demo directory under {}",
             base.display()
         ))
     }
@@ -98,77 +91,75 @@ impl Drop for Root {
     }
 }
 
-/// Where each part of a demo home went.
-struct Layout {
-    home: PathBuf,
-    zdotdir: PathBuf,
-    histfile: PathBuf,
-}
-
-/// Build the demo home and hand the terminal to a zsh inside it. This
-/// returns when that shell exits, and the home goes with the return.
+/// Write the demo's own startup file and hand the terminal to a zsh reading
+/// it. This returns when that shell exits, and the file goes with the
+/// return.
 pub fn run() -> Result<(), String> {
     // The demo is whatever binary was run rather than whatever the PATH
     // holds. A person trying a build out of a clone has no other one.
     let binary =
         std::env::current_exe().map_err(|e| format!("cannot find the running binary: {e}"))?;
     let root = Root::new()?;
-    let layout = build(&root.0)?;
-    shell(&layout, &binary)
+    let zdotdir = build(&root.0)?;
+    shell(&zdotdir, &binary)
 }
 
-/// Write the three files the demo home is.
-fn build(root: &Path) -> Result<Layout, String> {
+/// Write the demo's own `.zshrc` under `root` and answer the directory it
+/// went in.
+fn build(root: &Path) -> Result<PathBuf, String> {
     let zdotdir = root.join("zdotdir");
-    let layout = Layout {
-        home: root.join("home"),
-        histfile: zdotdir.join(".histfile"),
-        zdotdir,
-    };
-    write(&layout.zdotdir.join(".zshrc"), RC)?;
-    write(&layout.histfile, HISTORY)?;
-    write(&layout.home.join(".ssh").join("config"), &ssh_config())?;
-    // Nothing makes the XDG directories here. `history.rs` and `state.rs`
-    // each make their own with a mode of their own when they first write,
-    // and a directory made here would be the one they found instead.
-    Ok(layout)
+    write(&zdotdir.join(".zshrc"), RC)?;
+    Ok(zdotdir)
 }
 
-fn ssh_config() -> String {
-    SSH_HOSTS
-        .iter()
-        .map(|host| format!("Host {host}\n  HostName {host}.example.invalid\n  User sample\n\n"))
-        .collect()
+/// What the demo shell is given beside what it inherits.
+///
+/// Two names and no more. The config, the directory history and the state
+/// file are each resolved out of `$XDG_CONFIG_HOME`, `$XDG_DATA_HOME` and
+/// `$HOME`, so a name of the demo's own for any of those three would send
+/// surmise somewhere other than where an installed one writes. `$HOME` and
+/// `$HISTFILE` are inherited for that same reason and the readers that
+/// answer from them — the SSH hosts, the `~` row, the `$HISTFILE`
+/// tie-break — then answer out of what a person has.
+fn environment(zdotdir: &Path, binary: &Path) -> [(&'static str, PathBuf); 2] {
+    [
+        ("ZDOTDIR", zdotdir.to_path_buf()),
+        ("SURMISE_BIN", binary.to_path_buf()),
+    ]
 }
 
 /// Write `text` at `path`, making the directories above it first.
+///
+/// The mode is the one `atomic.rs` and `history.rs` each make their own
+/// directory with. The temporary directory this sits under is shared.
 fn write(path: &Path, text: &str) -> Result<(), String> {
     if let Some(parent) = path.parent() {
-        std::fs::create_dir_all(parent)
+        DirBuilder::new()
+            .recursive(true)
+            .mode(0o700)
+            .create(parent)
             .map_err(|e| format!("cannot make {}: {e}", parent.display()))?;
     }
     std::fs::write(path, text).map_err(|e| format!("cannot write {}: {e}", path.display()))
 }
 
 /// Hand the terminal to zsh and wait for it to leave.
-fn shell(layout: &Layout, binary: &Path) -> Result<(), String> {
+fn shell(zdotdir: &Path, binary: &Path) -> Result<(), String> {
     let mut cmd = Command::new("zsh");
     cmd.arg("-i");
     // `-d` drops the machine's own `/etc` startup files. `$ZDOTDIR` is then
-    // the whole of what this shell reads. Debian and Ubuntu ship an
-    // `/etc/zsh/zshrc` that calls `compinit` with no flag and on a machine
-    // whose completion directories are group writable that call asks the
-    // terminal a question ahead of the first prompt. `tests/pty/zsh.rs`
-    // passes the same flag for the same reason.
+    // the whole of what this shell reads, which is what has surmise be the
+    // one thing loaded in it. Debian and Ubuntu also ship an `/etc/zsh/zshrc`
+    // that calls `compinit` with no flag and on a machine whose completion
+    // directories are group writable that call asks the terminal a question
+    // ahead of the first prompt. `tests/pty/zsh.rs` passes the same flag for
+    // the same reason.
     cmd.arg("-d");
     // The working directory is inherited rather than set. It is the whole of
     // what a demo shows a person about their own files.
-    cmd.env("HOME", &layout.home);
-    cmd.env("ZDOTDIR", &layout.zdotdir);
-    cmd.env("XDG_DATA_HOME", layout.home.join(".local").join("share"));
-    cmd.env("XDG_CONFIG_HOME", layout.home.join(".config"));
-    cmd.env("HISTFILE", &layout.histfile);
-    cmd.env("SURMISE_BIN", binary);
+    for (name, value) in environment(zdotdir, binary) {
+        cmd.env(name, value);
+    }
     // SAFETY: `signal` with `SIG_DFL` is async-signal-safe and touches no
     // memory of ours, which is what a closure between fork and exec is
     // allowed to do. It is here because the parent ignores those two keys
@@ -193,7 +184,7 @@ fn shell(layout: &Layout, binary: &Path) -> Result<(), String> {
 ///
 /// The terminal sends both to every process in the foreground group and this
 /// one is in that group. Dying there would leave the demo shell up with no
-/// parent left to take its home away afterwards.
+/// parent left to take its startup file away afterwards.
 fn hold_the_keys() {
     // SAFETY: `signal` with `SIG_IGN` is async-signal-safe and touches no
     // memory of ours.
@@ -208,11 +199,11 @@ mod tests {
     use super::*;
     use crate::fixture::Fixture;
 
-    /// A demo home laid out under a directory of the test's own.
-    fn laid_out() -> (Fixture, Layout) {
+    /// A demo laid out under a directory of the test's own.
+    fn laid_out() -> (Fixture, PathBuf) {
         let f = Fixture::new(&[]);
-        let layout = build(f.path()).expect("a demo home");
-        (f, layout)
+        let zdotdir = build(f.path()).expect("a demo");
+        (f, zdotdir)
     }
 
     /// Every file under `dir`, at any depth.
@@ -231,8 +222,8 @@ mod tests {
     }
 
     #[test]
-    fn the_home_goes_when_the_demo_does() {
-        let path = Root::new().expect("a demo home").0.clone();
+    fn the_directory_goes_when_the_demo_does() {
+        let path = Root::new().expect("a demo directory").0.clone();
         assert!(!path.exists(), "{} stayed", path.display());
     }
 
@@ -240,38 +231,36 @@ mod tests {
     /// file the demo shell reads is the widget-installing one in `shell/`.
     #[test]
     fn the_shell_reads_the_committed_startup_file() {
-        let (_f, layout) = laid_out();
-        let rc = std::fs::read_to_string(layout.zdotdir.join(".zshrc")).expect("a zshrc");
+        let (_f, zdotdir) = laid_out();
+        let rc = std::fs::read_to_string(zdotdir.join(".zshrc")).expect("a zshrc");
         assert_eq!(rc, RC);
         assert!(RC.contains("eval \"$($SURMISE_BIN init zsh)\""));
     }
 
-    /// The demo ships in the repository and a name in it reaches anybody who
-    /// runs one. Every host here has to be a name that resolves nowhere.
+    /// The startup file is the whole of what `build` writes. Everything else
+    /// a demo touches is a file the person keeps and a second file written
+    /// here would be a copy of one of those, which is the answer this
+    /// command stopped giving. The shell that reads the file writes a
+    /// `.zcompdump` beside it and that goes with the directory.
     #[test]
-    fn no_host_in_the_ssh_configuration_is_a_real_one() {
-        let (_f, layout) = laid_out();
-        let text =
-            std::fs::read_to_string(layout.home.join(".ssh").join("config")).expect("a config");
-        for host in SSH_HOSTS {
-            assert!(text.contains(&format!("Host {host}\n")), "{text}");
-        }
-        for line in text.lines().filter(|l| l.contains("HostName")) {
-            assert!(line.ends_with(".example.invalid"), "{line}");
-        }
+    fn the_startup_file_is_the_whole_of_what_the_demo_writes() {
+        let (f, zdotdir) = laid_out();
+        assert_eq!(walk(f.path()), [zdotdir.join(".zshrc")]);
     }
 
-    /// The home is three files. A fourth would be the demo deciding
-    /// something for a person rather than lending them a shell.
+    /// The demo names the directory its own startup file is in and nothing
+    /// else. A name here for the config, the data directory or the home
+    /// would be surmise reading somewhere an installed one never would.
     #[test]
-    fn the_home_holds_three_files_and_nothing_else() {
-        let (f, layout) = laid_out();
-        let mut want = vec![
-            layout.home.join(".ssh").join("config"),
-            layout.histfile.clone(),
-            layout.zdotdir.join(".zshrc"),
-        ];
-        want.sort();
-        assert_eq!(walk(f.path()), want);
+    fn the_demo_names_no_directory_but_the_one_its_startup_file_is_in() {
+        let (_f, zdotdir) = laid_out();
+        let binary = Path::new("/usr/local/bin/surmise");
+        let env = environment(&zdotdir, binary);
+        assert_eq!(
+            env.iter().map(|(name, _)| *name).collect::<Vec<&str>>(),
+            ["ZDOTDIR", "SURMISE_BIN"]
+        );
+        assert_eq!(env[0].1, zdotdir);
+        assert_eq!(env[1].1, binary);
     }
 }
