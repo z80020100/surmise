@@ -56,22 +56,45 @@ line and the ghost text follows the line either way.
 surmise demo
 ```
 
-That starts an interactive zsh in a home the command makes for it and in the
-directory you ran it from. `$HOME`, `$ZDOTDIR`, the two XDG directories and
-`$HISTFILE` all point into that home. The directories you have visited, your
-settings and the menu's own state file therefore stay where they are and the
-demo keeps a set of its own. Leaving that shell takes the home away with it.
-Nothing is installed and your own `.zshrc` is neither read nor changed.
+That starts an interactive zsh in your own home and in the directory you ran
+it from. Nothing is installed and your own `.zshrc` is neither read nor
+changed.
 
-**The files are your own.** The menu completes on the directory you started
-in. `cd `, `git add `, `git switch ` and `make ` therefore all answer out of
-the project in front of you. A line you run in that shell runs. This is a shell
-in your own working directory with a home of its own rather than a sandbox.
+**The files are your own and so is the home.** The menu completes on the
+directory you started in, so `cd `, `git add `, `git switch ` and `make ` all
+answer out of the project in front of you, and a line you run in that shell
+runs. `$HOME` is yours as well, so `ssh ` reads the hosts you have, the `~`
+row is your own home and the `$HISTFILE` tie-break reads the history file
+the paragraph below names. This is a shell of your own rather than a sandbox.
 
-Two answers are the demo's own because the home is what moved. `ssh ` reads
-four hosts it wrote. Every one of them ends in `.example.invalid` and
-resolves nowhere. The `$HISTFILE` tie-break reads a history file it wrote. The
-ranking therefore has an order to show rather than an empty file.
+**So is everything surmise writes.** The config, the state file and the
+directory history are the ones an installed surmise reads and writes. A
+`surmise settings set` typed in the demo is therefore the setting you keep
+afterwards and a `cd` you run there is a visit the menus you open tomorrow
+rank by. That is the point rather than a cost. A setting that only ever
+reached a copy would answer nothing about the setting and trying surmise is
+the whole of what this command is for.
+
+**`$ZDOTDIR` is the one thing that moves.** Leaving that shell takes the
+directory it names away. The demo needs a `.zshrc` of its own: a person
+trying surmise before they install it has no `eval "$(surmise init zsh)"`
+line in theirs and writing one into it is the one thing a demo may not do.
+`-d` drops the machine's own `/etc` files beside that. What is loaded in
+that shell is therefore surmise and nothing else, and a menu that misbehaves
+there has nowhere to hide: no framework, no plugin and no keybinding of
+anybody else's sits in front of it.
+
+`$HISTFILE` is the one file read and never written. `SAVEHIST=0` in that
+`.zshrc` is what has zsh read the file you keep and write nothing back to
+it, so the demo leaves not a line of its own in it.
+
+Which file that is, is a guess. zsh exports no `HISTFILE` and the `.zshrc`
+naming it is the one a clean shell does not read, so the demo falls back to
+`~/.zsh_history` and its opening text says so where nothing is there. A
+person whose history lives somewhere else points the demo at it with
+`HISTFILE=... surmise demo`. Reading their own `.zshrc` for the name would
+load everything else in it as well, which is the one thing this shell is for
+not doing.
 
 `shell/demo.zsh` is the `.zshrc` it writes and the binary carries that file
 the way it carries the widget. The file holds no path of its own and reads
@@ -79,9 +102,25 @@ the way it carries the widget. The file holds no path of its own and reads
 therefore the bytes that run. The demo installs the widget through the same
 `eval "$(surmise init zsh)"` line this file gives a person.
 
-A demo that is killed rather than left leaves its home behind under the
-temporary directory. Nothing reads that directory again and the next demo
-makes one of its own.
+The opening text also offers the glyph set, to a person whose own `icons`
+does not already ask for it. Nothing can detect the font those glyphs want,
+so the demo draws the set in front of a person and names the command that
+turns it on. Boxes rather than shapes is a terminal without such a font.
+That command writes the config you keep and the line beside it names the
+`unset` that puts it back. A demo that hid a real write behind an offer
+would be worse than not offering at all. A person whose config already says
+`nerd` is told the menu below is drawing it rather than told to switch on
+what they switched on themselves, and the demo reads `surmise settings show`
+to tell the two apart.
+
+`surmise` in that shell is the binary that started the demo rather than
+whichever one the PATH holds. A person reading a branch back out of a clone
+has no installed one and the command has to be that build's.
+
+A demo that is killed rather than left leaves that directory behind under the
+temporary one, with the one file in it. It is owner-only and so is the
+per-user temporary directory above it. Nothing reads the directory again and
+the next demo makes one of its own.
 
 ## Use
 
@@ -752,6 +791,14 @@ or an absolute home directory there is no config and the defaults stand. A
 missing file also means defaults. `surmise settings path` prints the resolved
 path whether or not the file exists.
 
+`surmise settings show` prints every key this build reads with the value the
+picker would use, as TOML a person can paste back into the file. A key the
+file leaves out is named with its default anyway, because what this answers is
+what the picker will do rather than what somebody wrote down. A warning the
+file earned leads that output as a comment, and a parse error carries the line
+and the caret under it there. A file nothing could read otherwise leaves every
+value below it a default it never asked for, printed as though it had.
+
 Four commands write that file:
 
 ```sh
@@ -801,7 +848,10 @@ kept for a later `doctor` command to report, and the picker runs with
 defaults meanwhile. An unknown key is a warning of the same kind rather than
 an error, because a file carrying a key from a later surmise should still
 work with this one. A value one of the keys below does not know is a warning
-of that kind too and that key keeps its default. Every complaint one file
+of that kind too and that key keeps its default. A file that cannot be read
+at all earns one as well, because a person whose own settings are being passed
+over is owed the reason rather than a menu that quietly went back to the
+defaults. Only a file that is not there is silent. Every complaint one file
 earns is kept rather
 than the first of them, because a person sent back twice for one file has
 been told half of what the reader already knew.

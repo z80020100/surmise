@@ -35,6 +35,31 @@ pub enum Set {
     Nerd,
 }
 
+impl Set {
+    /// Every set, in the order a refusal names their words.
+    const ALL: [Set; 2] = [Set::Nerd, Set::Text];
+
+    /// The word `config.toml` names this set by. A variant added above is a
+    /// compile error here rather than a set with no name.
+    pub const fn word(self) -> &'static str {
+        match self {
+            Set::Nerd => "nerd",
+            Set::Text => "text",
+        }
+    }
+
+    /// Those words, for the schema that has to list them. `config` reads
+    /// this rather than writing the words again, so the words a file may
+    /// hold and the word a value maps back to cannot drift apart.
+    pub const WORDS: [&'static str; 2] = [Set::ALL[0].word(), Set::ALL[1].word()];
+
+    /// The set a word names. `None` is a word no set answers to and the
+    /// caller is what decides whether that refuses or warns.
+    pub fn from_word(word: &str) -> Option<Set> {
+        Set::ALL.into_iter().find(|set| set.word() == word)
+    }
+}
+
 /// The glyph on a directory row and on the row that goes up, in the text set.
 /// The seven below it are the others.
 ///
@@ -345,7 +370,29 @@ mod tests {
     use std::borrow::Cow;
     use std::collections::HashSet;
 
-    const SETS: [Set; 2] = [Set::Text, Set::Nerd];
+    #[test]
+    fn every_set_answers_to_its_own_word_and_to_no_other() {
+        assert_eq!(Set::WORDS, ["nerd", "text"]);
+        for word in Set::WORDS {
+            let set = Set::from_word(word).expect("a set");
+            assert_eq!(set.word(), word);
+        }
+        assert_eq!(Set::from_word("emoji"), None);
+        assert_eq!(Set::from_word(""), None);
+    }
+
+    /// `word` is a match and a variant added to `Set` breaks it. `ALL` is a
+    /// list and the same variant leaves it two long and quiet, which would
+    /// be a set the words never name and none of the loops below reach.
+    /// This is the second list that says so, the way `config`'s own `KEYS`
+    /// is read back against what `settings show` prints.
+    #[test]
+    fn all_names_every_set_this_build_has() {
+        assert_eq!(Set::ALL.len(), 2);
+        for set in [Set::Text, Set::Nerd] {
+            assert!(Set::ALL.contains(&set), "{set:?} is not in ALL");
+        }
+    }
 
     fn row(kind: Kind, display: &str, label: &'static str) -> Candidate {
         Candidate {
@@ -365,7 +412,7 @@ mod tests {
         // draw straight. What it would take is a cell off every name, and
         // `tests/pty/pick.rs` reads a drawn row by stripping one character.
         // This is the decision both of those rest on.
-        for set in SETS {
+        for set in Set::ALL {
             for glyph in glyphs(set) {
                 assert_eq!(cells(glyph), 1, "{set:?} {glyph:?}");
             }
@@ -379,7 +426,7 @@ mod tests {
         // colour or both, or `of` stops being a map from a kind to a look of
         // its own. `Special` wears a `Dir`'s colour and is in here for the
         // shape, which is all it has to tell the two apart by.
-        for set in SETS {
+        for set in Set::ALL {
             for chosen in [false, true] {
                 let mut seen = HashSet::new();
                 for kind in [
@@ -414,7 +461,7 @@ mod tests {
         // left to tell it apart from a directory. That holds on the
         // highlighted row as well. White there would read as a directory and
         // would take the row's sort with it.
-        for set in SETS {
+        for set in Set::ALL {
             for chosen in [false, true] {
                 let dir = of(set, &row(Kind::Dir, "alpha/", "directory"), chosen);
                 let run = of(set, &row(Kind::Run, "", "run"), chosen);
@@ -430,7 +477,7 @@ mod tests {
         // The shortcut reaches a directory and the glyph therefore wears the
         // directory's own colour. The shape is what says which directory it
         // is. A colour there would say the row is another sort of thing.
-        for set in SETS {
+        for set in Set::ALL {
             for chosen in [false, true] {
                 let home = of(set, &row(Kind::Special, "~/", "home"), chosen);
                 let dir = of(set, &row(Kind::Dir, "alpha/", "directory"), chosen);
@@ -445,7 +492,7 @@ mod tests {
         // A subcommand and a directory both carry a name. The glyph is what
         // says which sort of row it is and its colour therefore has to differ
         // from the folder blue and from the action row's red alike.
-        for set in SETS {
+        for set in Set::ALL {
             for chosen in [false, true] {
                 let cmd = of(set, &row(Kind::Command, "switch", "command"), chosen);
                 let dir = of(set, &row(Kind::Dir, "alpha/", "directory"), chosen);
@@ -460,7 +507,7 @@ mod tests {
 
     #[test]
     fn a_folder_handed_back_as_a_file_row_draws_as_a_directory() {
-        for set in SETS {
+        for set in Set::ALL {
             for kind in [Kind::File, Kind::Path] {
                 assert_eq!(
                     of(set, &row(kind, "assets/", FOLDER), false),
@@ -472,7 +519,7 @@ mod tests {
 
     #[test]
     fn the_branch_the_repository_is_on_wears_a_shape_of_its_own() {
-        for set in SETS {
+        for set in Set::ALL {
             let current = of(set, &row(Kind::Branch, "main", CURRENT_BRANCH), false);
             let other = of(set, &row(Kind::Branch, "work", "branch"), false);
             assert_ne!(current.0, other.0);
@@ -574,7 +621,7 @@ mod tests {
 
     #[test]
     fn the_widest_glyph_is_what_the_names_are_padded_out_to() {
-        for set in SETS {
+        for set in Set::ALL {
             assert_eq!(widest(set), 1);
         }
     }

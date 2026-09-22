@@ -77,18 +77,29 @@ struct Schema {
 impl Config {
     /// The effective config for this process: the file at `path()`, or
     /// defaults where there is no file, no home to place one under, or
-    /// nothing this build can parse.
+    /// nothing this build can read or parse.
     pub fn load() -> Config {
         path().map_or_else(Config::default, |p| Self::load_from(&p))
     }
 
-    /// `load`, over a path this build already resolved. A missing file means
-    /// defaults, quietly: only a file that exists and fails to parse, or
-    /// names a key this build does not know, leaves a `warning`.
+    /// `load`, over a path this build already resolved. A missing file is the
+    /// one that means defaults quietly. A file that exists and will not read,
+    /// will not parse, or names a key this build does not know leaves a
+    /// `warning` behind instead.
     fn load_from(path: &Path) -> Config {
         match std::fs::read_to_string(path) {
             Ok(text) => Self::parse(&text),
-            Err(_) => Config::default(),
+            // Only a file that is not there is the defaults standing
+            // quietly. Every other failure is a file that exists and holds
+            // settings this could not read, and a person whose own file is
+            // being passed over is owed the reason. `edit_at` below splits
+            // the two the same way and refuses rather than warns, because a
+            // write would replace what it could not read.
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Config::default(),
+            Err(e) => Config {
+                warning: Some(format!("config file could not be read: {e}")),
+                ..Config::default()
+            },
         }
     }
 
@@ -110,12 +121,13 @@ impl Config {
                 // still what the person meant.
                 let icons = match schema.icons.as_deref() {
                     None => Set::default(),
-                    Some("text") => Set::Text,
-                    Some("nerd") => Set::Nerd,
-                    Some(other) => {
-                        warnings.push(format!("icons is not \"text\" or \"nerd\": {other:?}"));
+                    Some(word) => Set::from_word(word).unwrap_or_else(|| {
+                        warnings.push(format!(
+                            "icons is not {}: {word:?}",
+                            Set::WORDS.join(" or ")
+                        ));
                         Set::default()
-                    }
+                    }),
                 };
                 Config {
                     enabled: schema.enabled.unwrap_or(true),
@@ -131,6 +143,52 @@ impl Config {
             },
         }
     }
+
+    /// This build's whole schema with the values in hand, as TOML a person
+    /// can paste back into the file.
+    ///
+    /// Every key is named whether or not the file named it. What this
+    /// answers is what the picker will do rather than what somebody wrote
+    /// down, and a default left out would be a question this was asked and
+    /// did not answer. The order is `KEYS`' own, so the one list that orders
+    /// a complaint orders this too.
+    ///
+    /// A `warning` leads the output as a comment. Every value under it is
+    /// then a default the file never asked for and printing them alone would
+    /// read as a file that did.
+    fn toml(&self) -> String {
+        let mut doc = DocumentMut::new();
+        doc["disabled_commands"] =
+            Item::Value(array_of(self.disabled_commands.iter().map(String::as_str)));
+        doc["enabled"] = Item::Value(self.enabled.into());
+        doc["icons"] = Item::Value(self.icons.word().into());
+        // A path here came out of the file and TOML is UTF-8, so there is
+        // nothing for this conversion to lose.
+        doc["spec_dirs"] = Item::Value(array_of(
+            self.spec_dirs
+                .iter()
+                .map(|dir| dir.to_string_lossy().into_owned()),
+        ));
+        match &self.warning {
+            None => doc.to_string(),
+            Some(warning) => format!("{}{doc}", commented(warning)),
+        }
+    }
+}
+
+/// Every key this build reads with the value this process would use.
+///
+/// The answer carries no newline of its own, because `main` prints every
+/// answer this module hands back with one after it.
+pub fn show() -> String {
+    Config::load().toml().trim_end().to_string()
+}
+
+/// A warning as TOML comment lines. A parse error carries the offending line
+/// and a caret under it, so this is a block rather than one line, and every
+/// line of it has to be a comment for the answer to stay TOML.
+fn commented(warning: &str) -> String {
+    warning.lines().map(|line| format!("# {line}\n")).collect()
 }
 
 /// Where the config file would be, whether or not it exists. `None` means
@@ -200,7 +258,7 @@ enum Shape {
 const KEYS: &[(&str, Shape)] = &[
     ("disabled_commands", Shape::List),
     ("enabled", Shape::Bool),
-    ("icons", Shape::Word(&["nerd", "text"])),
+    ("icons", Shape::Word(&Set::WORDS)),
     ("spec_dirs", Shape::List),
 ];
 
@@ -381,6 +439,14 @@ fn tidy(array: &mut Array) {
     array.set_trailing_comma(false);
 }
 
+/// A list as the file would hold it, spaced the way [`tidy`] spaces one an
+/// edit left behind.
+fn array_of<V: Into<Value>>(entries: impl IntoIterator<Item = V>) -> Value {
+    let mut built: Array = entries.into_iter().collect();
+    tidy(&mut built);
+    built.into()
+}
+
 /// The same for a whole list.
 fn entries(array: &Array) -> String {
     let items: Vec<String> = array.iter().map(bare).collect();
@@ -467,7 +533,7 @@ mod tests {
         assert_eq!(config.icons, Set::Text);
         assert_eq!(
             config.warning,
-            Some("icons is not \"text\" or \"nerd\": \"emoji\"".to_string())
+            Some("icons is not nerd or text: \"emoji\"".to_string())
         );
     }
 
@@ -500,6 +566,68 @@ mod tests {
         assert_eq!(config.spec_dirs, Config::default().spec_dirs);
         assert_eq!(config.icons, Config::default().icons);
         assert!(config.warning.is_some());
+    }
+
+    const DEFAULTS: &str = "\
+disabled_commands = []
+enabled = true
+icons = \"text\"
+spec_dirs = []
+";
+
+    #[test]
+    fn show_names_every_key_this_build_reads() {
+        assert_eq!(Config::default().toml(), DEFAULTS);
+        // `KEYS` and this are two lists of the same thing. A key added to
+        // one and not the other is a key a person can set and this never
+        // shows, or one this shows and nothing can set.
+        let doc: DocumentMut = DEFAULTS.parse().expect("a document");
+        let printed: Vec<&str> = doc.iter().map(|(key, _)| key).collect();
+        let known: Vec<&str> = KEYS.iter().map(|(name, _)| *name).collect();
+        assert_eq!(printed, known);
+    }
+
+    #[test]
+    fn what_show_prints_reads_back_as_the_config_it_printed() {
+        let config = Config::parse(
+            "enabled = false\n\
+             icons = \"nerd\"\n\
+             disabled_commands = [\"kubectl\", \"helm\"]\n\
+             spec_dirs = [\"/opt/specs\"]\n",
+        );
+        assert_eq!(
+            config.toml(),
+            "disabled_commands = [\"kubectl\", \"helm\"]\n\
+             enabled = false\n\
+             icons = \"nerd\"\n\
+             spec_dirs = [\"/opt/specs\"]\n"
+        );
+        assert_eq!(Config::parse(&config.toml()), config);
+    }
+
+    #[test]
+    fn a_warning_leads_what_show_prints_as_a_comment() {
+        // A file that will not parse leaves every value below a default it
+        // never asked for. Printing those alone would read as a file that
+        // did ask for them.
+        let printed = Config::parse("enabled = [this is not toml").toml();
+        assert!(
+            printed.starts_with("# config file did not parse"),
+            "{printed}"
+        );
+        assert!(printed.ends_with(DEFAULTS), "{printed}");
+        // Every line of the warning is a comment, so the answer as a whole
+        // is still TOML a person can paste back.
+        assert_eq!(Config::parse(&printed), Config::default());
+    }
+
+    #[test]
+    fn an_unknown_key_comes_back_as_one_comment_line() {
+        let printed = Config::parse("nope = 1\n").toml();
+        assert_eq!(
+            printed,
+            format!("# unknown config key(s): nope\n{DEFAULTS}")
+        );
     }
 
     /// A config file holding `text`, and the path to it.
@@ -750,6 +878,33 @@ mod tests {
         }
         // Nothing written here is a key the reader calls unknown.
         assert_eq!(Config::load_from(&path).warning, None);
+    }
+
+    #[test]
+    fn a_file_that_cannot_be_read_is_a_warning_rather_than_silence() {
+        // The reader's half of the rule below. Defaults stand either way and
+        // only a file that is not there stands them quietly, so `settings
+        // show` can say which of the two a person is looking at.
+        let f = Fixture::new(&[]);
+        let path = written(&f, "icons = \"nerd\"\n");
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o000))
+            .expect("a locked file");
+        let config = Config::load_from(&path);
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).expect("it back");
+        assert_eq!(config.icons, Set::default());
+        assert!(
+            config
+                .warning
+                .as_deref()
+                .is_some_and(|w| w.starts_with("config file could not be read")),
+            "{:?}",
+            config.warning
+        );
+        // And a file that is not there is the silent one.
+        assert_eq!(
+            Config::load_from(&f.path().join("absent.toml")),
+            Config::default()
+        );
     }
 
     #[test]
