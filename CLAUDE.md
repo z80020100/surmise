@@ -752,6 +752,14 @@ or an absolute home directory there is no config and the defaults stand. A
 missing file also means defaults. `surmise settings path` prints the resolved
 path whether or not the file exists.
 
+`surmise settings show` prints every key this build reads with the value the
+picker would use, as TOML a person can paste back into the file. A key the
+file leaves out is named with its default anyway, because what this answers is
+what the picker will do rather than what somebody wrote down. A warning the
+file earned leads that output as a comment, and a parse error carries the line
+and the caret under it there. A file nothing could read otherwise leaves every
+value below it a default it never asked for, printed as though it had.
+
 Four commands write that file:
 
 ```sh
@@ -801,7 +809,10 @@ kept for a later `doctor` command to report, and the picker runs with
 defaults meanwhile. An unknown key is a warning of the same kind rather than
 an error, because a file carrying a key from a later surmise should still
 work with this one. A value one of the keys below does not know is a warning
-of that kind too and that key keeps its default. Every complaint one file
+of that kind too and that key keeps its default. A file that cannot be read
+at all earns one as well, because a person whose own settings are being passed
+over is owed the reason rather than a menu that quietly went back to the
+defaults. Only a file that is not there is silent. Every complaint one file
 earns is kept rather
 than the first of them, because a person sent back twice for one file has
 been told half of what the reader already knew.

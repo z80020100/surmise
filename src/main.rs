@@ -21,6 +21,7 @@ committed specification.
   surmise --pick LINE                the picker that widget calls, result on stdout
   surmise --record SOURCE TARGET     record a successful directory change
   surmise settings path              the config path, whether it exists yet or not
+  surmise settings show              every key and the value the picker would use
   surmise settings set KEY VALUE     write one value into the config file
   surmise settings unset KEY         drop a key so its default stands again
   surmise settings add KEY VALUE     put one entry into a list the config holds
@@ -121,6 +122,17 @@ fn picker(seed: &str) -> ExitCode {
     ExitCode::from(pick::run(seed).unwrap_or(pick::PASS))
 }
 
+/// The words `settings` answers to, in the order `USAGE` lists them. Two
+/// refusals below name the set and a second copy of it would be one more
+/// thing to keep in step with this one.
+const VERBS: [&str; 6] = ["path", "show", "set", "unset", "add", "remove"];
+
+/// Those words as a refusal names them.
+fn verbs() -> String {
+    let [rest @ .., last] = VERBS;
+    format!("{} and {last}", rest.join(", "))
+}
+
 /// A `settings` subcommand, printed or refused. Everything it decides is in
 /// `settings_says` so a test can read the answer rather than an exit status.
 fn settings(words: &[String]) -> ExitCode {
@@ -134,8 +146,9 @@ fn settings(words: &[String]) -> ExitCode {
 }
 
 /// What a `settings` subcommand answers. `words` is everything after the word
-/// `settings` itself, so the count is this function's to check: `path` takes
-/// none, `unset` takes a key and the other three take a key and a value.
+/// `settings` itself, so the count is this function's to check: `path` and
+/// `show` take none, `unset` takes a key and the other three take a key and a
+/// value.
 ///
 /// The complaint comes back whole rather than printed here, the way
 /// `config::edit` hands one back, because one place printing them is one
@@ -150,6 +163,9 @@ fn settings_says(words: &[String]) -> Result<String, String> {
         ("path", 1) => config::path()
             .map(|path| path.display().to_string())
             .ok_or_else(|| "no home directory to place a config under".to_string()),
+        // No home to place a config under is no complaint here. The defaults
+        // are what the picker would use and they are what this answers.
+        ("show", 1) => Ok(config::show()),
         ("set", 3) => config::edit(config::Edit::Set {
             key: &words[1],
             value: &words[2],
@@ -163,18 +179,19 @@ fn settings_says(words: &[String]) -> Result<String, String> {
             value: &words[2],
         }),
         ("unset", 2) => config::edit(config::Edit::Unset { key: &words[1] }),
-        ("", _) => Err(
-            "settings takes a word. path, set, unset, add and remove are what this build has."
-                .to_string(),
-        ),
-        ("path", _) => Err("settings path takes nothing after it".to_string()),
+        ("", _) => Err(format!(
+            "settings takes a word. {} are what this build has.",
+            verbs()
+        )),
+        (verb @ ("path" | "show"), _) => Err(format!("settings {verb} takes nothing after it")),
         ("unset", _) => Err("settings unset takes a key".to_string()),
         (verb @ ("set" | "add" | "remove"), _) => {
             Err(format!("settings {verb} takes a key and a value"))
         }
         (other, _) => Err(format!(
-            "no settings command named {}. path, set, unset, add and remove are what this build has.",
-            ui::printable(other)
+            "no settings command named {}. {} are what this build has.",
+            ui::printable(other),
+            verbs()
         )),
     }
 }
@@ -380,6 +397,10 @@ mod tests {
                 &["path", "--nope"][..],
                 "settings path takes nothing after it",
             ),
+            (
+                &["show", "icons"][..],
+                "settings show takes nothing after it",
+            ),
         ] {
             assert_eq!(says(words).expect_err("a complaint"), want, "{words:?}");
         }
@@ -393,17 +414,25 @@ mod tests {
             complaint.starts_with("settings takes a word."),
             "{complaint:?}"
         );
-        let complaint = says(&["show"]).expect_err("a complaint");
+        let complaint = says(&["nope"]).expect_err("a complaint");
         assert!(
-            complaint.starts_with("no settings command named show."),
+            complaint.starts_with("no settings command named nope."),
             "{complaint:?}"
         );
-        // Both name the same five, so a person reads one list either way.
-        for complaint in [says(&[]), says(&["show"])] {
+        // Both name the same six, so a person reads one list either way.
+        for complaint in [says(&[]), says(&["nope"])] {
             let complaint = complaint.expect_err("a complaint");
             assert!(
-                complaint.ends_with("path, set, unset, add and remove are what this build has."),
+                complaint.ends_with(&format!("{} are what this build has.", verbs())),
                 "{complaint:?}"
+            );
+        }
+        assert_eq!(verbs(), "path, show, set, unset, add and remove");
+        // And every verb either names is a line in the help text.
+        for verb in VERBS {
+            assert!(
+                USAGE.contains(&format!("surmise settings {verb}")),
+                "{verb} is in a complaint and not in the usage"
             );
         }
     }
