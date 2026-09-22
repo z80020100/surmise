@@ -10,6 +10,7 @@
 
 pub mod app;
 pub mod argwalk;
+pub mod atomic;
 pub mod candidates;
 pub mod config;
 pub mod demo;
@@ -18,6 +19,7 @@ pub mod fuzzy;
 pub mod git;
 pub mod histfile;
 pub mod history;
+pub mod icons;
 pub mod keys;
 pub mod line;
 pub mod native;

@@ -16,12 +16,19 @@ const USAGE: &str = "\
 surmise — complete cd directories, Git subcommands, and any command with a
 committed specification.
 
-  surmise init zsh                the shell widget, for `eval \"$(surmise init zsh)\"`
-  surmise demo                    a throwaway home and an interactive zsh in it
-  surmise --pick LINE             the picker that widget calls, result on stdout
-  surmise --record SOURCE TARGET  record a successful directory change
-  surmise settings path           the config path, whether it exists yet or not
-  surmise specs names             every command with a specification, one per line
+  surmise init zsh                   the shell widget, for `eval \"$(surmise init zsh)\"`
+  surmise demo                       a throwaway home and an interactive zsh in it
+  surmise --pick LINE                the picker that widget calls, result on stdout
+  surmise --record SOURCE TARGET     record a successful directory change
+  surmise settings path              the config path, whether it exists yet or not
+  surmise settings set KEY VALUE     write one value into the config file
+  surmise settings unset KEY         drop a key so its default stands again
+  surmise settings add KEY VALUE     put one entry into a list the config holds
+  surmise settings remove KEY VALUE  take one entry back out of that list
+  surmise specs names                every command with a specification, one per line
+
+The keys are enabled, icons, disabled_commands and spec_dirs. A wrong key or
+a wrong value names what it takes rather than writing anything.
 ";
 
 /// The zsh widget, compiled in. `cargo install` places a binary and has no
@@ -35,8 +42,10 @@ enum Mode<'a> {
     Pick(&'a str),
     /// The widget for the named shell. An empty name is no name.
     Init(&'a str),
-    /// A `settings` subcommand. An empty name is no name.
-    Settings(&'a str),
+    /// A `settings` subcommand and whatever follows it. Unlike `init` and
+    /// `specs` this one takes more than a word, because a write names a key
+    /// and a value as well as the verb.
+    Settings(&'a [String]),
     /// A `specs` subcommand. An empty name is no name.
     Specs(&'a str),
     /// The demo shell. It takes no word of its own.
@@ -63,13 +72,10 @@ fn mode(args: &[String]) -> Mode<'_> {
             Some(extra) => Mode::Unknown(extra),
             None => Mode::Init(args.get(1).map_or("", String::as_str)),
         },
-        // `settings` names one word and nothing else, the same shape `init`
-        // takes and for the same reason: a third argument is a typo rather
-        // than a second thing to do.
-        Some("settings") => match args.get(2) {
-            Some(extra) => Mode::Unknown(extra),
-            None => Mode::Settings(args.get(1).map_or("", String::as_str)),
-        },
+        // `settings` takes its own words whole. A write names a verb, a key
+        // and a value, so the count is the subcommand's to check rather than
+        // this one's, and `settings` below is what reports a wrong one.
+        Some("settings") => Mode::Settings(&args[1..]),
         // `specs` takes the same shape as `settings`, for the same reason: a
         // third argument is a typo rather than a second thing to do.
         Some("specs") => match args.get(2) {
@@ -113,6 +119,64 @@ fn refuse(complaint: &str) -> ExitCode {
 /// would land in the middle of what it is drawing.
 fn picker(seed: &str) -> ExitCode {
     ExitCode::from(pick::run(seed).unwrap_or(pick::PASS))
+}
+
+/// A `settings` subcommand, printed or refused. Everything it decides is in
+/// `settings_says` so a test can read the answer rather than an exit status.
+fn settings(words: &[String]) -> ExitCode {
+    match settings_says(words) {
+        Ok(said) => {
+            println!("{said}");
+            ExitCode::SUCCESS
+        }
+        Err(complaint) => refuse(&complaint),
+    }
+}
+
+/// What a `settings` subcommand answers. `words` is everything after the word
+/// `settings` itself, so the count is this function's to check: `path` takes
+/// none, `unset` takes a key and the other three take a key and a value.
+///
+/// The complaint comes back whole rather than printed here, the way
+/// `config::edit` hands one back, because one place printing them is one
+/// place to get the shape of a refusal right.
+fn settings_says(words: &[String]) -> Result<String, String> {
+    let word = |i: usize| words.get(i).map_or("", String::as_str);
+    match (word(0), words.len()) {
+        // The path is answered whether or not a file is there yet. `None`
+        // means no absolute directory to place one under, which the config
+        // module already treats as "defaults stand" rather than an error;
+        // there is simply nothing to say here.
+        ("path", 1) => config::path()
+            .map(|path| path.display().to_string())
+            .ok_or_else(|| "no home directory to place a config under".to_string()),
+        ("set", 3) => config::edit(config::Edit::Set {
+            key: &words[1],
+            value: &words[2],
+        }),
+        ("add", 3) => config::edit(config::Edit::Add {
+            key: &words[1],
+            value: &words[2],
+        }),
+        ("remove", 3) => config::edit(config::Edit::Remove {
+            key: &words[1],
+            value: &words[2],
+        }),
+        ("unset", 2) => config::edit(config::Edit::Unset { key: &words[1] }),
+        ("", _) => Err(
+            "settings takes a word. path, set, unset, add and remove are what this build has."
+                .to_string(),
+        ),
+        ("path", _) => Err("settings path takes nothing after it".to_string()),
+        ("unset", _) => Err("settings unset takes a key".to_string()),
+        (verb @ ("set" | "add" | "remove"), _) => {
+            Err(format!("settings {verb} takes a key and a value"))
+        }
+        (other, _) => Err(format!(
+            "no settings command named {}. path, set, unset, add and remove are what this build has.",
+            ui::printable(other)
+        )),
+    }
 }
 
 fn main() -> ExitCode {
@@ -164,22 +228,7 @@ fn main() -> ExitCode {
             "no widget for {}. zsh is the only shell this build has.",
             ui::printable(shell)
         )),
-        // The path is printed whether or not a file is there yet. `None`
-        // means no absolute directory to place one under, which the config
-        // module already treats as "defaults stand" rather than an error;
-        // there is simply nothing to print here.
-        Mode::Settings("path") => match config::path() {
-            Some(path) => {
-                println!("{}", path.display());
-                ExitCode::SUCCESS
-            }
-            None => refuse("no home directory to place a config under"),
-        },
-        Mode::Settings("") => refuse("settings takes a word. path is the only one this build has."),
-        Mode::Settings(word) => refuse(&format!(
-            "no settings command named {}. path is the only one this build has.",
-            ui::printable(word)
-        )),
+        Mode::Settings(words) => settings(words),
         // One name per line: the compiled-in list plus whatever `spec_dirs`
         // adds. `_surmise_specs` in the widget is this output, split on
         // newlines into an associative array's keys.
@@ -282,22 +331,94 @@ mod tests {
     }
 
     #[test]
-    fn settings_takes_the_word_that_follows_it() {
-        assert!(matches!(
-            mode(&args(&["settings", "path"])),
-            Mode::Settings("path")
-        ));
-    }
-
-    #[test]
-    fn a_third_argument_to_settings_is_never_a_word() {
-        let a = args(&["settings", "path", "--nope"]);
-        assert!(matches!(mode(&a), Mode::Unknown("--nope")));
+    fn settings_takes_every_word_that_follows_it() {
+        let a = args(&["settings", "path"]);
+        let Mode::Settings(words) = mode(&a) else {
+            panic!("not a settings mode");
+        };
+        assert_eq!(words, ["path"]);
+        // A write names three. `init` and `specs` turn a third argument away
+        // and this one cannot, because a key and a value are two more words
+        // rather than a typo.
+        let a = args(&["settings", "set", "icons", "nerd"]);
+        let Mode::Settings(words) = mode(&a) else {
+            panic!("not a settings mode");
+        };
+        assert_eq!(words, ["set", "icons", "nerd"]);
     }
 
     #[test]
     fn settings_with_no_word_is_still_settings() {
-        assert!(matches!(mode(&args(&["settings"])), Mode::Settings("")));
+        let a = args(&["settings"]);
+        let Mode::Settings(words) = mode(&a) else {
+            panic!("not a settings mode");
+        };
+        assert!(words.is_empty());
+    }
+
+    #[test]
+    fn a_settings_verb_names_the_shape_it_takes() {
+        // The count is this file's to check and every wrong one says what the
+        // verb wanted rather than the whole usage over again.
+        let says = |words: &[&str]| settings_says(&args(words));
+        for (words, want) in [
+            (
+                &["set", "icons"][..],
+                "settings set takes a key and a value",
+            ),
+            (&["add"][..], "settings add takes a key and a value"),
+            (
+                &["remove", "a", "b", "c"][..],
+                "settings remove takes a key and a value",
+            ),
+            (&["unset"][..], "settings unset takes a key"),
+            (
+                &["unset", "icons", "nerd"][..],
+                "settings unset takes a key",
+            ),
+            (
+                &["path", "--nope"][..],
+                "settings path takes nothing after it",
+            ),
+        ] {
+            assert_eq!(says(words).expect_err("a complaint"), want, "{words:?}");
+        }
+    }
+
+    #[test]
+    fn a_settings_word_this_build_does_not_have_names_the_ones_it_does() {
+        let says = |words: &[&str]| settings_says(&args(words));
+        let complaint = says(&[]).expect_err("a complaint");
+        assert!(
+            complaint.starts_with("settings takes a word."),
+            "{complaint:?}"
+        );
+        let complaint = says(&["show"]).expect_err("a complaint");
+        assert!(
+            complaint.starts_with("no settings command named show."),
+            "{complaint:?}"
+        );
+        // Both name the same five, so a person reads one list either way.
+        for complaint in [says(&[]), says(&["show"])] {
+            let complaint = complaint.expect_err("a complaint");
+            assert!(
+                complaint.ends_with("path, set, unset, add and remove are what this build has."),
+                "{complaint:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn a_settings_verb_that_writes_never_reaches_the_file_over_a_bad_key() {
+        // `config` owns the writing and its own tests cover the file. This is
+        // the one claim this file can make about it: a key this build does
+        // not read is refused before any path is resolved.
+        let complaint =
+            settings_says(&args(&["set", "verbose_names", "false"])).expect_err("a complaint");
+        assert!(
+            complaint.starts_with("no config key named verbose_names."),
+            "{complaint:?}"
+        );
     }
 
     #[test]

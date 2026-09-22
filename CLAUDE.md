@@ -101,6 +101,19 @@ the last of them separates the list from the word below it. Each name has
 one character in front of it that says what sort of row it is, in a shape
 and a colour of that sort's own. Every one of those
 characters is one a terminal draws as plain text in the colour it is given.
+`icons = "nerd"` in the configuration swaps that set for one a patched font
+draws instead. A file row then reads its own name: 76 extensions and 16 whole
+names such as `Makefile` and `.gitignore` reach 33 shapes of their own, under
+one of five colours for code, for data, for a document, for an image or a
+sound, and for an archive. The shape says which file it is and the colour
+says what sort of file that is. A name neither table answers for keeps the
+plain file shape and the colour it already wore. So does every row that names
+something other than a file. The set moves the shapes and leaves the palette
+where the eye last found it. Nothing detects such a font and the set
+is therefore a person's to turn on. A terminal without one draws a box in
+place of every shape. A terminal set for CJK widths draws each one two cells
+wide where surmise's own table calls it one and slides every name a column
+right.
 At the bottom of the screen the terminal
 scrolls to make the room rather than the menu moving above the line. What is
 above the line is the shell's own output and surmise cannot read it back to
@@ -352,9 +365,11 @@ The answer outlives the menu it was given in. It is kept in
 `$XDG_DATA_HOME/surmise/state.toml`, beside the directory history and
 resolved the same way. Every later menu opens the way the key last left it.
 That file is surmise's own note to itself rather than a setting. That is why
-it is not `config.toml`: a file a person writes is not one surmise may
-rewrite. Nothing there reaches the prompt either. A file that will not
-read leaves the word on its one row and a write that will not land loses one
+it is not `config.toml`: this is written because a key was pressed and nobody
+asked for it to be kept, and `config.toml` is only ever written by a person
+naming the change themselves. "Configuration" below is where that is written
+down. Nothing here reaches the prompt either. A file that will not read
+leaves the word on its one row and a write that will not land loses one
 menu's answer.
 
 Enter accepts the highlighted subcommand and adds a space. Right does the same
@@ -737,14 +752,61 @@ or an absolute home directory there is no config and the defaults stand. A
 missing file also means defaults. `surmise settings path` prints the resolved
 path whether or not the file exists.
 
+Four commands write that file:
+
+```sh
+surmise settings set icons nerd              # one value
+surmise settings unset icons                 # drop it and let the default stand
+surmise settings add disabled_commands kubectl    # one entry of a list
+surmise settings remove disabled_commands kubectl # one entry back out
+```
+
+`set` and `unset` answer for `enabled` and `icons`. `add` and `remove` answer
+for `disabled_commands` and `spec_dirs`. Naming the wrong one of the two says
+which verb reaches that key rather than writing anything, and so does a key or
+a value this build does not read. A value the picker would silently ignore is
+the one thing a person typing a command must not be handed, because nothing
+prints a warning at the prompt.
+
+Only these four write there, and each of them is a person naming the change.
+Nothing surmise decides for itself touches this file: a menu reads it and
+leaves it where it found it. That is the whole of the difference between this
+and `state.toml` above.
+
+The file comes back with one value changed and nothing else moved. Comments,
+blank lines and the order of the keys all survive, because the writer reads a
+document rather than a value. `unset` is the one exception and it is TOML's
+own rule rather than a choice: a comment on the line above a key belongs to
+that key, so dropping the key drops that comment with it. A comment at the end
+of the key's own line survives a `set`.
+
+A write lands whole or not at all. It goes to a file beside the real one and
+is renamed over it, the way `state.toml` is written, and the file keeps the
+permissions it already had. Two things are refused rather than written. A file
+that does not parse is left exactly as it was, because a document surmise
+cannot read is one it cannot put back either. A file that cannot be read at
+all is left alone for the same reason and it is the stronger case: only a file
+that is not there starts a write from nothing, and treating an unreadable one
+as absent would replace everything in it.
+
+A `config.toml` that is a symbolic link is followed and the file it names is
+the one written. A person who keeps their settings in a dotfiles repository
+and links to them there gets that file changed and keeps the link. The
+`state.toml` write refuses a link instead, because that file is surmise's own
+and nothing should be able to point it somewhere else.
+
 A parse error never reaches the prompt, because nothing surmise does may
 write to a person's terminal outside the menu. It becomes a warning instead,
 kept for a later `doctor` command to report, and the picker runs with
 defaults meanwhile. An unknown key is a warning of the same kind rather than
 an error, because a file carrying a key from a later surmise should still
-work with this one.
+work with this one. A value one of the keys below does not know is a warning
+of that kind too and that key keeps its default. Every complaint one file
+earns is kept rather
+than the first of them, because a person sent back twice for one file has
+been told half of what the reader already knew.
 
-Three keys have a reader today.
+Four keys have a reader today.
 
 - `enabled` turns the picker off. `pick::run` checks it before it opens the
   terminal, so `false` answers every key with `PASS` and the shell's own
@@ -757,9 +819,15 @@ Three keys have a reader today.
   and a stale public one can be overridden the same way. A name coming off
   the shell line is refused before it reaches the filesystem if it holds a
   `..` component or is itself an absolute path.
+- `icons` names the glyph set. `"text"` is the default and `"nerd"` is the
+  one a patched font draws. "Use" above says what that changes and why
+  nothing guesses at the answer. `pick::run` reads it beside `enabled` and
+  hands it to `ui::menu`, so the key costs the run nothing it was not
+  already paying.
 
 `spec_menu` is the menu that calls `spec_store::get_configured`, once per
-command name it asks for, so all three keys now reach what a person sees:
+command name it asks for, so three of the four keys now reach what a person
+sees:
 `enabled` through `pick::run`, the entry point every keystroke goes through,
 and `disabled_commands` and `spec_dirs` through the spec that menu completes
 from.

@@ -6,8 +6,8 @@
 
 use crate::argwalk::{self, Walk};
 use crate::candidates::{
-    Candidate, DEFAULT_PRIORITY, FOLDER, Kind, MAX_RESULTS, Query, Scan, UsedAfter, priority_of,
-    rank, resolved_in, run_row, split,
+    Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, MAX_RESULTS, Query, Scan, UsedAfter,
+    priority_of, rank, resolved_in, run_row, split,
 };
 use crate::fuzzy;
 use crate::histfile;
@@ -93,7 +93,6 @@ pub(crate) fn parse(left: &str, tail: &str, aliases: &HashMap<String, String>) -
 const SUBCOMMAND_LABEL: &str = "command";
 const OPTION_LABEL: &str = "option";
 const SUGGESTION_LABEL: &str = "value";
-const FILE_LABEL: &str = "file";
 
 /// Loads and walks specs for one menu. `App` keeps this behind the same
 /// field for the life of a menu that `crate::git::Completions` is kept
@@ -523,7 +522,7 @@ fn path_rows(
             label: if is_dir {
                 Cow::Borrowed(FOLDER)
             } else {
-                Cow::Borrowed(FILE_LABEL)
+                Cow::Borrowed(FILE)
             },
             hint: Vec::new(),
             kind: Kind::Path,

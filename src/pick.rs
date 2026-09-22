@@ -175,10 +175,12 @@ pub fn run(seed: &str) -> io::Result<u8> {
     // back afterwards.
     let input = read_input()?;
 
-    // `enabled = false` keeps surmise out of the way entirely. Every key
-    // answers `PASS`, the same status a menu with nothing to offer already
-    // gives back, and the shell's own completion runs in its place.
-    if !crate::config::Config::load().enabled {
+    // The file is read once. `enabled = false` keeps surmise out of the way
+    // entirely: every key answers `PASS`, the same status a menu with nothing
+    // to offer already gives back, and the shell's own completion runs in its
+    // place. The glyph set below is the other thing this run takes from it.
+    let config = crate::config::Config::load();
+    if !config.enabled {
         return Ok(PASS);
     }
 
@@ -261,6 +263,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
                     &typed,
                     app.reach(),
                     app.whole_word,
+                    config.icons,
                 )
             })
             .flatten();
