@@ -181,7 +181,12 @@ impl Completions {
                 let enclosing = wants_help
                     .then(|| enclosing_node(&self.specs, &target.command, root, walk.command_index))
                     .flatten();
-                let mut rows = build_rows(&walk, enclosing, cwd, history, scan);
+                let words = &target.command.words;
+                let line: Vec<&str> = words[..words.len() - 1]
+                    .iter()
+                    .map(|w| w.inner_text.as_str())
+                    .collect();
+                let mut rows = build_rows(&walk, enclosing, &line, cwd, history, scan);
                 // Two words means the one being replaced is the command's
                 // own second, which is the only word `cmd_history` counted.
                 // A deeper subcommand, an option's value and anything past
@@ -293,11 +298,13 @@ fn row(
 }
 
 /// The rows one walk offers, unranked. `enclosing` is the node a `help`
-/// template's rows come from; every other caller passes `None`.
+/// template's rows come from; every other caller passes `None`. `line` is
+/// every word in front of the one being typed.
 /// `walk_resolving` ranks what this returns against [`Walk::search_term`].
 fn build_rows(
     walk: &Walk,
     enclosing: Option<&Subcommand>,
+    line: &[&str],
     cwd: &Path,
     history: &History,
     scan: &mut Scan,
@@ -368,13 +375,14 @@ fn build_rows(
             ));
         }
         // An argument the conversion could not keep the code for. `native`
-        // has a reader for two of them and nothing at all for the rest,
+        // has a reader for a few of them and nothing at all for the rest,
         // which keep offering no rows.
         if arg.dynamic
+            && let Some(command) = walk.root.name.first()
             && let Some(owner) = walk.node.name.first()
             && let Some(name) = arg.name.first()
         {
-            rows.extend(native::rows(owner, name, term, cwd));
+            rows.extend(native::rows(command, owner, name, term, cwd, line));
         }
     }
 
@@ -1158,6 +1166,45 @@ mod tests {
             "{:?}",
             names(&rows)
         );
+    }
+
+    /// A project whose `package.json` has two scripts, one dependency and
+    /// one workspace. Every name in it is invented.
+    fn npm_fixture() -> Fixture {
+        let f = Fixture::new(&[]);
+        std::fs::write(
+            f.path().join("package.json"),
+            r#"{"scripts": {"sample-build": "sample-tool build", "sample-test": "sample-tool test"},
+                "devDependencies": {"sample-lib": "^1.0.0"},
+                "workspaces": ["tools/sample-cli"]}"#,
+        )
+        .unwrap();
+        f
+    }
+
+    #[test]
+    fn npm_run_offers_the_scripts_ahead_of_its_options() {
+        let f = npm_fixture();
+        let rows = rows_in(f.path(), "npm run ");
+        assert_eq!(names(&rows)[..2], ["sample-build", "sample-test"]);
+        assert_eq!(rows[0].label, "sample-tool build");
+    }
+
+    #[test]
+    fn a_re_rooted_npm_line_reaches_the_same_reader() {
+        // `sudo` ends the walk in `npm`'s own specification and the table
+        // is keyed on that rather than on the word the line starts with.
+        let f = npm_fixture();
+        let rows = rows_in(f.path(), "sudo npm run sample-b");
+        assert_eq!(names(&rows).first(), Some(&"sample-build"));
+    }
+
+    #[test]
+    fn npm_uninstall_and_a_workspace_option_read_the_same_file() {
+        let f = npm_fixture();
+        assert!(names(&rows_in(f.path(), "npm rm ")).contains(&"sample-lib"));
+        let rows = rows_in(f.path(), "npm run -w ");
+        assert_eq!(names(&rows), ["tools/sample-cli"]);
     }
 
     #[test]

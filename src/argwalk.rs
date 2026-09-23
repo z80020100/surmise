@@ -121,6 +121,9 @@ pub struct Walk<'a> {
     /// The node the walk ended on. Its own `subcommands` and `options` are
     /// what a menu reads to build its rows.
     pub node: &'a Subcommand,
+    /// The specification `node` belongs to: the one the walk started on, or
+    /// the last one a re-root moved it to. `sudo npm run ` ends in `npm`'s.
+    pub root: &'a Subcommand,
     /// The argument the final word would fill, if any is pending: an
     /// option's own, or the current node's.
     pub current_arg: Option<Arg>,
@@ -144,6 +147,7 @@ pub struct Walk<'a> {
 /// Kept as one value because a re-root replaces almost all of it at once.
 struct State<'a> {
     node: &'a Subcommand,
+    root: &'a Subcommand,
     command_index: usize,
     end_of_options: bool,
     seen_non_option: bool,
@@ -163,6 +167,7 @@ impl<'a> State<'a> {
     fn new(root: &'a Subcommand) -> Self {
         let mut state = State {
             node: root,
+            root,
             command_index: 0,
             end_of_options: false,
             seen_non_option: false,
@@ -198,6 +203,7 @@ impl<'a> State<'a> {
     /// `isCommand`-shaped argument's own value asks for.
     fn reroot(&mut self, new_root: &'a Subcommand, index: usize) {
         self.node = new_root;
+        self.root = new_root;
         self.command_index = index;
         self.end_of_options = false;
         self.seen_non_option = false;
@@ -501,6 +507,7 @@ pub fn walk<'a>(
 
     Walk {
         node: state.node,
+        root: state.root,
         offers_args: current_arg.is_some(),
         current_arg,
         offers_subcommands: !state.entered_subcommand_args && !forced,
@@ -1124,6 +1131,8 @@ mod tests {
             switch.as_ref()
         ));
         assert_eq!(continues_walking_the_new_spec.command_index, 2);
+        // The node is `git`'s own `switch` and the spec it sits in is `git`.
+        assert!(std::ptr::eq(continues_walking_the_new_spec.root, &git));
     }
 
     #[test]
