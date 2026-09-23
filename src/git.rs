@@ -448,6 +448,52 @@ fn read_commands(command: &mut Command, patience: Duration) -> Option<Vec<String
     Some(names)
 }
 
+/// What the installed Git says each of its own commands is for, by name.
+/// `None` on the same terms `read_commands` answers `None` on. The rows then
+/// keep the word they already had.
+///
+/// `git help -a` is the one place Git writes those sentences down. It writes
+/// this machine's own Git rather than a corpus frozen at a release. The
+/// answer is about 12 KiB and about 10 ms, well inside the budget the name
+/// query beside it already carries.
+///
+/// It also describes Git's own guides and file formats. Those are nobody's
+/// subcommand. Nothing here decides what one is: a row looks itself up by a
+/// name `LIST_CMDS` already gave it and this table answers or does not.
+fn read_help(cwd: &Path, patience: Duration) -> Option<HashMap<String, String>> {
+    let (status, output) = read_output(
+        Command::new("git").current_dir(cwd).args(["help", "-a"]),
+        patience,
+    )?;
+    if !status.success() {
+        return None;
+    }
+    Some(output.lines().filter_map(described_command).collect())
+}
+
+/// The name and the sentence one line of that answer carries. A described
+/// command is three spaces, the name, a run of spaces and the sentence. A
+/// section heading starts at the left margin and an external command is a
+/// name with nothing beside it. Neither teaches anything and neither does a
+/// Git old enough to print no sentence at all.
+///
+/// The sentence goes under the list rather than onto the line. What is
+/// refused here is therefore what the terminal would read as something other
+/// than text. The name is held to what a subcommand row may insert, the way
+/// every other name this file reads is.
+fn described_command(line: &str) -> Option<(String, String)> {
+    let (name, description) = line.strip_prefix("   ")?.split_once("  ")?;
+    let description = description.trim();
+    if name.is_empty()
+        || !plain_name(name)
+        || description.is_empty()
+        || description.chars().any(char::is_control)
+    {
+        return None;
+    }
+    Some((name.to_string(), description.to_string()))
+}
+
 /// The child's output as text. `None` when a byte of it is not UTF-8, because
 /// a caller here reads the whole answer as one string and has no name of its
 /// own to drop.
@@ -734,6 +780,12 @@ pub(crate) struct Completions {
     /// spec that will not parse stays a miss for the rest of the menu rather
     /// than being asked for again.
     spec: Option<Option<Subcommand>>,
+    /// What the installed Git says its own commands are for, for the rows the
+    /// specification left on the fallback. An empty map is a cached miss the
+    /// way a missing spec is one. The `Option` around it is also whether the
+    /// question was asked at all: a menu the specification answered whole
+    /// leaves this `None` and spawns Git no second time.
+    help: Option<HashMap<String, String>>,
     file_modes: HashMap<FileMode, Vec<String>>,
     dirs: Scan,
     path_files: HashMap<PathBuf, Vec<String>>,
@@ -1031,8 +1083,8 @@ impl Completions {
             counts: &self.cmd_history,
         });
         rank(&mut out, arg, used_after);
-        // Git prints a name and nothing else, so the label and the hint
-        // both come from the specification instead. `rank` runs first: it
+        // The name query prints a name and nothing else, so the label and the
+        // hint both come from the specification instead. `rank` runs first: it
         // drops everything past `MAX_RESULTS` and a row nobody keeps is
         // worth neither. A word no name reached keeps the spec unread.
         if kind == Kind::Command
@@ -1047,6 +1099,21 @@ impl Completions {
                         row.label = Cow::Owned(description);
                     }
                     row.hint = spec::arg_hints(&sub.args);
+                }
+            }
+        }
+        // The installed Git describes what the corpus left bare. A row still
+        // on the fallback is the whole of what asks for it. A menu the
+        // specification answered outright spawns Git no second time. The
+        // arguments stay the specification's: a name it never carried has
+        // none to give and a sentence is not one.
+        if kind == Kind::Command && out.iter().any(|row| row.label == label) {
+            let help = self
+                .help
+                .get_or_insert_with(|| read_help(cwd, timeout()).unwrap_or_default());
+            for row in out.iter_mut().filter(|row| row.label == label) {
+                if let Some(description) = help.get(&row.insert) {
+                    row.label = Cow::Owned(description.clone());
                 }
             }
         }
@@ -1280,17 +1347,147 @@ mod tests {
     }
 
     /// The corpus is committed, so a miss here is a `disabled_commands`
-    /// naming `git` or a build whose data will not parse. Every row falls
-    /// back to the word the menu had before a specification answered for it.
+    /// naming `git` or a build whose data will not parse. The installed Git
+    /// is then the whole of what describes a row. Nothing holds that reader
+    /// off such a menu: a person whose corpus will not read is the one who
+    /// still wants the sentence. A row neither of them describes keeps the
+    /// word the menu had before either answered. A row with no entry in the
+    /// corpus has nothing to carry beside its name either way.
     #[test]
-    fn a_specification_nobody_could_read_leaves_every_row_on_the_fallback() {
+    fn a_specification_nobody_could_read_sends_every_row_to_the_installed_git() {
+        let help = HashMap::from([("add".to_string(), "Add file contents".to_string())]);
         let mut commands = Completions {
-            names: Some(vec!["add".into()]),
+            names: Some(vec!["add".into(), "not-a-real-subcommand".into()]),
             spec: Some(None),
+            help: Some(help),
             ..Default::default()
         };
         let rows = commands.candidates("", Path::new("."), Kind::Command, &[]);
+        let row = |name: &str| rows.iter().find(|r| r.insert == name).expect("a row");
+        assert_eq!(row("add").label, "Add file contents");
+        assert!(row("add").hint.is_empty(), "no spec and no arguments");
+        assert_eq!(row("not-a-real-subcommand").label, "command");
+    }
+
+    /// `git help -a` as a Git that describes its own commands prints it. A
+    /// heading sits at the left margin and an external command is a name with
+    /// nothing beside it.
+    #[test]
+    fn a_line_of_git_help_teaches_a_name_only_where_it_carries_a_sentence() {
+        let answer = concat!(
+            "See 'git help <command>' to read about a specific subcommand\n",
+            "\n",
+            "Main Porcelain Commands\n",
+            "   add                     Add file contents to the index\n",
+            "   blame                   Show what revision last changed each line\n",
+            "\n",
+            "External commands\n",
+            "   filter-repo\n",
+            "   lfs\n",
+        );
+        let read: HashMap<_, _> = answer.lines().filter_map(described_command).collect();
+        assert_eq!(read["add"], "Add file contents to the index");
+        assert_eq!(read["blame"], "Show what revision last changed each line");
+        assert_eq!(read.len(), 2);
+    }
+
+    /// A Git old enough to print no sentence prints the bare list it printed
+    /// before them. Neither a name nor a sentence the terminal would read as
+    /// something other than text is one this menu may show.
+    #[test]
+    fn a_line_with_no_sentence_of_its_own_teaches_nothing() {
+        let answer = concat!(
+            "available git commands in '/usr/lib/git-core'\n",
+            "\n",
+            "   add\n",
+            "   am\n",
+            "   sam\u{1b}[31mple   Move the cursor\n",
+            "   sample   Move\u{1b}[31m the cursor\n",
+            "  shallow   Two spaces of margin\n",
+        );
+        let read: HashMap<_, _> = answer.lines().filter_map(described_command).collect();
+        assert!(read.is_empty(), "{read:?}");
+    }
+
+    /// The committed specification answers first and the installed Git fills
+    /// what it left. `git.json` carries `blame` with its arguments and no
+    /// sentence of its own. That is the row this second reader is for.
+    #[test]
+    fn the_installed_git_describes_a_row_the_specification_left_bare() {
+        let git = spec::load("git", &[]).expect("git is a committed spec");
+        let add = git.subcommands["add"]
+            .description
+            .clone()
+            .expect("git add carries a description");
+        assert!(
+            git.subcommands["blame"].description.is_none(),
+            "git blame is the one entry with no sentence of its own"
+        );
+        let mut commands = Completions {
+            names: Some(vec![
+                "add".into(),
+                "blame".into(),
+                "an-alias".into(),
+                "not-a-real-subcommand".into(),
+            ]),
+            spec: Some(Some(git)),
+            help: Some(HashMap::from([
+                ("add".to_string(), "Never read".to_string()),
+                ("blame".to_string(), "Show who changed a line".to_string()),
+                ("an-alias".to_string(), "log --oneline".to_string()),
+            ])),
+            ..Default::default()
+        };
+        let rows = commands.candidates("", Path::new("."), Kind::Command, &[]);
+        let row = |name: &str| rows.iter().find(|r| r.insert == name).expect("a row");
+        assert_eq!(row("add").label, add.as_str());
+        assert_eq!(row("blame").label, "Show who changed a line");
+        // `blame` is an entry with its arguments and no sentence. The sentence
+        // arrives and the arguments are the ones it already had.
+        assert_eq!(row("blame").hint, vec!["<file>"]);
+        // A name the corpus has no entry for takes the sentence. It has no
+        // arguments there either and nothing stands beside its name.
+        assert_eq!(row("an-alias").label, "log --oneline");
+        assert!(row("an-alias").hint.is_empty());
+        assert_eq!(row("not-a-real-subcommand").label, "command");
+    }
+
+    /// A row still on the fallback is the whole of what asks for the second
+    /// query. A failed one leaves every row where the specification left it.
+    #[test]
+    fn only_a_row_the_specification_left_bare_asks_the_installed_git() {
+        let committed = || Some(spec::load("git", &[]).expect("a committed spec"));
+        let mut answered = Completions {
+            names: Some(vec!["add".into()]),
+            spec: Some(committed()),
+            ..Default::default()
+        };
+        answered.candidates("", Path::new("."), Kind::Command, &[]);
+        assert!(answered.help.is_none(), "nothing was left to ask about");
+        // A directory that is not there fails the query the way a missing Git
+        // would. The row keeps the word the specification left it on.
+        let mut bare = Completions {
+            names: Some(vec!["blame".into()]),
+            spec: Some(committed()),
+            ..Default::default()
+        };
+        let nowhere = Path::new("/no-such-directory-here");
+        let rows = bare.candidates("", nowhere, Kind::Command, &[]);
+        assert!(bare.help.is_some(), "the row asked");
         assert_eq!(rows[0].label, "command");
+    }
+
+    /// The sentences are the Git on this machine rather than a release the
+    /// corpus was read from. A Git old enough to print none leaves the rows
+    /// as they were and this is what says the reader reaches a Git that does.
+    #[test]
+    fn the_installed_git_answers_for_the_commands_it_ships() {
+        let read = read_help(Path::new("."), PATIENT).expect("git help -a");
+        // An empty sentence is one `described_command` already refused. A name
+        // that is here is therefore a name with something to say.
+        for name in ["add", "blame"] {
+            assert!(read.contains_key(name), "no sentence for {name}");
+        }
     }
 
     /// A file can be named after a subcommand. The kind is what keeps one
