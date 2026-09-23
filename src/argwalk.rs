@@ -575,8 +575,9 @@ fn start_pending<'a>(opt: &'a Opt) -> Option<OptionArg<'a>> {
 
 /// Whether `opt` has not yet reached its own `is_repeatable` cap, counting
 /// its occurrences in `passed` by identity rather than by name, since two
-/// entries can share every alias.
-fn is_available(opt: &Opt, passed: &[&Opt]) -> bool {
+/// entries can share every alias. A menu reads the same answer to decide
+/// whether to offer `opt` again.
+pub(crate) fn is_available(opt: &Opt, passed: &[&Opt]) -> bool {
     let mut used = 0usize;
     for other in passed {
         if std::ptr::eq(*other, opt) {

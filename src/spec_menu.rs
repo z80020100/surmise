@@ -14,7 +14,7 @@ use crate::histfile;
 use crate::history::History;
 use crate::native;
 use crate::shellparse::{self, Command};
-use crate::spec::{self, Generator, Opt, Subcommand};
+use crate::spec::{self, Generator, Subcommand};
 use serde_json::Value;
 use std::borrow::Cow;
 use std::cell::RefCell;
@@ -95,6 +95,10 @@ pub(crate) fn parse(left: &str, tail: &str, aliases: &HashMap<String, String>) -
 const SUBCOMMAND_LABEL: &str = "command";
 const OPTION_LABEL: &str = "option";
 const SUGGESTION_LABEL: &str = "value";
+
+/// What an option another one on the line depends on is worth. A higher
+/// number its own specification wrote stands.
+const WANTED_PRIORITY: u8 = 75;
 
 /// Loads and walks specs for one menu. `App` keeps this behind the same
 /// field for the life of a menu that `crate::git::Completions` is kept
@@ -323,10 +327,33 @@ fn build_rows(
     }
 
     if walk.offers_options {
+        let passed = &walk.passed_options;
+        // What the options on the line say of the others. One that names
+        // another in `exclusiveOn` rules it out. One that names another in
+        // `dependsOn` wants it until the line holds it too.
+        let excluded: HashSet<&str> = passed
+            .iter()
+            .flat_map(|opt| opt.exclusive_on.iter().map(String::as_str))
+            .collect();
+        let wanted: HashSet<&str> = passed
+            .iter()
+            .flat_map(|opt| opt.depends_on.iter().map(String::as_str))
+            .filter(|name| !passed.iter().any(|opt| opt.name.iter().any(|n| n == name)))
+            .collect();
         for opt in unique_targets(&walk.node.options) {
-            if already_passed(&walk.passed_options, opt) {
+            if !argwalk::is_available(opt, passed)
+                || opt.name.iter().any(|n| excluded.contains(n.as_str()))
+            {
                 continue;
             }
+            // A wanted option is lifted and never lowered from a number its
+            // own specification wrote higher.
+            let own = priority_of(opt.priority);
+            let priority = if opt.name.iter().any(|n| wanted.contains(n.as_str())) {
+                own.max(WANTED_PRIORITY)
+            } else {
+                own
+            };
             // A space between the name and the hint is what says the
             // value is a word of its own. An option that requires a
             // separator takes `--name=value` instead, and the row cannot
@@ -343,7 +370,7 @@ fn build_rows(
                 label(&opt.description, OPTION_LABEL),
                 hint,
                 Kind::Option,
-                priority_of(opt.priority),
+                priority,
             ));
         }
     }
@@ -615,12 +642,6 @@ fn enclosing_node<'a>(
         specs.get(name).and_then(|found| found.as_deref())
     });
     Some(walk.node)
-}
-
-fn already_passed(passed: &[&Opt], candidate: &Rc<Opt>) -> bool {
-    passed
-        .iter()
-        .any(|opt| std::ptr::eq(*opt, Rc::as_ptr(candidate)))
 }
 
 #[cfg(test)]
@@ -1267,6 +1288,52 @@ mod tests {
         let rows = complete(&mut Completions::default(), &target("npm "));
         assert_eq!(rows.len(), 70);
         assert!(names(&rows).contains(&"whoami"), "{:?}", names(&rows));
+    }
+
+    /// The option rows `line` offers, by name.
+    fn options(line: &str) -> Vec<String> {
+        complete(&mut Completions::default(), &target(line))
+            .into_iter()
+            .filter(|r| r.kind == Kind::Option)
+            .map(|r| r.display)
+            .collect()
+    }
+
+    #[test]
+    fn an_option_comes_back_until_it_reaches_its_own_cap() {
+        // `--omit` may be given three times and `token create --cidr` as
+        // often as a person likes. Both used to leave after one use.
+        assert!(options("npm install --omit dev ").contains(&"--omit".to_string()));
+        let full = options("npm install --omit dev --omit peer --omit optional ");
+        assert!(!full.contains(&"--omit".to_string()), "{full:?}");
+        let cidr = options("npm token create --cidr 10.0.0.0/8 ");
+        assert!(cidr.contains(&"--cidr".to_string()), "{cidr:?}");
+    }
+
+    #[test]
+    fn an_option_the_line_rules_out_is_not_offered() {
+        let rows = options("npm search --prefer-online ");
+        assert!(!rows.contains(&"--prefer-offline".to_string()), "{rows:?}");
+        assert!(!rows.contains(&"--offline".to_string()), "{rows:?}");
+        assert!(rows.contains(&"--json".to_string()), "{rows:?}");
+    }
+
+    #[test]
+    fn an_option_the_line_depends_on_leads_the_others() {
+        // `bw send create --hidden` needs `--text` beside it.
+        let rows = complete(
+            &mut Completions::default(),
+            &target("bw send create --hidden "),
+        );
+        let text = rows
+            .iter()
+            .find(|r| r.display == "--text")
+            .expect("--text is offered");
+        assert_eq!(text.priority, WANTED_PRIORITY);
+        assert_eq!(options("bw send create --hidden ")[0], "--text");
+        // Once it is there it is wanted no more and is simply not offered.
+        let rows = options("bw send create --hidden --text ");
+        assert!(!rows.contains(&"--text".to_string()), "{rows:?}");
     }
 
     #[test]
