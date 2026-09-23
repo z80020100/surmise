@@ -67,7 +67,8 @@ impl Kind {
 pub struct Candidate {
     pub display: String,
     pub insert: String,
-    /// What the row is or what an option does, shown under the list.
+    /// What the row is or what an option does, shown beside the list or
+    /// under it.
     ///
     /// A `Cow` rather than `&'static str`, because surmise's own rows carry a
     /// constant and a spec's row will carry a description read at run time.

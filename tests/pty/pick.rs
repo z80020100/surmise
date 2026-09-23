@@ -93,20 +93,21 @@ fn opened(home: &Path, line: &str) -> Term {
 }
 
 /// Whether `row` carries a candidate name. The line under the list is what
-/// ends it and a blank row is no name either. A rule is what a row opens
-/// with rather than what the whole of it holds: the top edge carries the
-/// position in the list and the one under the list carries the key that
-/// opens the word below. Both readers below skip the top edge rather than
-/// tell it apart.
+/// ends the names where the list has one and a blank row is no name either.
+/// A rule is what a row opens with rather than what the whole of it holds:
+/// the top edge carries the position in the list and the one under the list
+/// carries the key that opens the word below. Both readers below skip the top
+/// edge rather than tell it apart.
 fn is_name(row: &Panel) -> bool {
     let text = row.text.trim();
     !text.is_empty() && !text.starts_with('─')
 }
 
 /// The rows the list holds, drawn as they were drawn. The rule that closes
-/// the panel's top edge comes first and the rule under the list is where the
-/// names stop, so this is the one place that knows where the list begins and
-/// where it ends.
+/// the panel's top edge comes first and the first row that is not a name is
+/// where the names stop: the rule under the list, or the end of the list's
+/// own box where the word sits beside it. This is the one place that knows
+/// where the list begins and where it ends.
 fn name_rows(t: &Term) -> Vec<String> {
     t.panel()
         .iter()
@@ -149,6 +150,19 @@ fn footer(t: &Term) -> String {
         .expect("the rule under the list");
     panel[rule + 2..]
         .iter()
+        .map(|row| row.text.trim())
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// The word the key put beside the list, joined back into the sentence it
+/// is. It has a box of its own there and the first row of that box is the
+/// edge carrying the key. A row broken at a space joins back to exactly what
+/// went in.
+fn beside(t: &Term) -> String {
+    t.detail()
+        .iter()
+        .skip(1)
         .map(|row| row.text.trim())
         .collect::<Vec<_>>()
         .join(" ")
@@ -414,10 +428,11 @@ fn a_key_opens_the_whole_of_a_description_the_one_row_cut() {
     assert!(footer(&t).contains('…'), "{:?}", footer(&t));
     t.send(WHOLE_WORD);
     t.pump(SETTLE);
-    assert_eq!(footer(&t), LONG_DESCRIPTION, "{:?}", footer(&t));
+    assert_eq!(beside(&t), LONG_DESCRIPTION, "{:?}", t.lines());
     t.send(WHOLE_WORD);
     t.pump(SETTLE);
     assert!(footer(&t).contains('…'), "{:?}", footer(&t));
+    assert!(t.detail().is_empty(), "{:?}", t.lines());
 }
 
 #[test]
@@ -438,18 +453,48 @@ fn the_rule_under_the_list_names_the_key_that_opens_the_word() {
 }
 
 #[test]
+fn the_key_puts_the_word_beside_the_list_and_the_list_shows_one_name_more() {
+    let f = fixture();
+    let mut t = opened(f.path(), "docker ");
+    assert_eq!(names(&t).len(), 6, "{:?}", t.lines());
+    assert!(t.detail().is_empty(), "{:?}", t.lines());
+    t.send(WHOLE_WORD);
+    t.pump(SETTLE);
+    // The word has a box of its own beside the list. Its edge opens on the
+    // list's own row, past the list's right edge, and carries the key. The
+    // list's own edge carries the count and nothing else.
+    let panel = t.panel();
+    let detail = t.detail();
+    let rule = detail.first().expect("the word's own edge").text.trim();
+    assert!(rule.ends_with("^O ─"), "{rule:?}");
+    assert_eq!(detail[0].row, panel[0].row, "{:?}", t.lines());
+    assert!(detail[0].lo > panel[0].hi, "{:?}", t.lines());
+    assert!(!panel[0].text.contains("^O"), "{:?}", panel[0].text);
+    assert_eq!(intact(&panel, 100), Ok(()));
+    assert_eq!(intact(&detail, 100), Ok(()));
+    // The line under the list and the word's row under that are gone and
+    // the list spends one of them on a seventh name.
+    assert_eq!(names(&t).len(), 7, "{:?}", t.lines());
+    assert!(
+        beside(&t).starts_with("Attach local standard input"),
+        "{:?}",
+        beside(&t)
+    );
+}
+
+#[test]
 fn the_next_menu_opens_the_way_the_key_last_left_it() {
     let f = fixture();
     let mut t = opened(f.path(), "git revert");
     t.send(WHOLE_WORD);
     t.pump(SETTLE);
-    assert_eq!(footer(&t), LONG_DESCRIPTION, "{:?}", footer(&t));
+    assert_eq!(beside(&t), LONG_DESCRIPTION, "{:?}", t.lines());
     // The menu it was pressed in is over and the line is back with the
     // shell. The answer is not.
     t.send("\x1b");
     assert_eq!(t.status(WAIT), Some(pick::ACCEPTED));
     let mut t = opened(f.path(), "git revert");
-    assert_eq!(footer(&t), LONG_DESCRIPTION, "{:?}", footer(&t));
+    assert_eq!(beside(&t), LONG_DESCRIPTION, "{:?}", t.lines());
     t.send(WHOLE_WORD);
     t.pump(SETTLE);
     t.send("\x1b");
@@ -595,6 +640,16 @@ fn a_long_selected_name_is_readable_below_the_list() {
     t.pump(SETTLE);
     assert_eq!(detail(&t), "");
     assert!(!shown(&t).contains("beta/"));
+    assert_eq!(intact(&t.panel(), 100), Ok(()));
+}
+
+#[test]
+fn a_wide_name_leaves_the_panel_one_box() {
+    // The terminal clears the second cell of a wide character to its own
+    // ground. The row is still one run of the panel's and the name reads whole.
+    let f = Fixture::new(&["目錄"]);
+    let t = opened(f.path(), "cd ");
+    assert_eq!(names(&t)[0], "目錄/", "{:?}", t.lines());
     assert_eq!(intact(&t.panel(), 100), Ok(()));
 }
 

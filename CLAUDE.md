@@ -161,9 +161,10 @@ somewhere to go inside it and follows the highlight one row at a time past
 that. Up on the first name and Down on the last wrap to the other end of the
 list and the menu follows in one step.
 
-A selected name that does not fit its row also appears below the separator.
-The name wraps within the panel's width and the word under it remains
-below that. The
+A selected name that does not fit its row also appears below the list, under
+the line that separates the two. It keeps the list's own column in either
+layout: the row it came from is up there and the cut it took is that column's
+doing. Where the word sits under the list it remains below that. The
 wrapped name carries no marks and no underline. The row in the list is what
 says how the name got in and what Tab would take. A short terminal
 limits the extra rows and an ellipsis marks any text that still does not fit.
@@ -177,7 +178,7 @@ Without spare rows the menu shows only the list and its label.
 | Right | Take what the highlighted directory adds. At the end of the line |
 | Enter | Go into the highlighted directory or run the line |
 | Esc | Leave the menu and keep what you typed |
-| Ctrl-O | Open the whole of the word under the list |
+| Ctrl-O | Open the whole of the word, beside the list where it fits |
 | Ctrl-C and Ctrl-G | Leave and restore the line you started with |
 
 A cursor that sits inside a word narrows Tab before surmise reads anything
@@ -423,16 +424,32 @@ two letters or digits run into it. `e.g. ` and an initial therefore cut
 nothing. 66.8% of the corpus's 371 943 descriptions are wider than one row
 and 53.7% still are once the trim has run. The ellipsis is what those get.
 
-Ctrl-O opens that word to every row the terminal spared and closes it again.
-The rule above the word carries the key the way the top edge carries the
-position in the list. Both sit on an edge because that is the one place
-either costs the word nothing. An open word breaks at a space rather than
-wherever the cells run out. A word split over two rows has to be read twice
-and 37 of git's own 38 fit in two rows. Nothing is trimmed while
-it is open. The key asked for the whole of it and a clause is not that. The
-rows it opens are the ones the list and a wrapped name left. A terminal with
-none to spare leaves the word where it was. Q binds this to Ctrl-K and
-surmise keeps Ctrl-K as the shell's own kill-line.
+Ctrl-O opens the whole of that word and closes it again. The rule above the
+word carries the key the way the top edge carries the position in the list.
+Both sit on an edge because that is the one place either costs the word
+nothing. An open word breaks at a space rather than wherever the cells run
+out. A word split over two rows has to be read twice and 37 of git's own 38
+fit in two rows. Nothing is trimmed while it is open. The key asked for the
+whole of it and a clause is not that. Q binds this to Ctrl-K and surmise
+keeps Ctrl-K as the shell's own kill-line.
+
+A terminal 75 cells wide or wider opens the word beside the list, in a panel
+of its own 30 cells wide. That leaves the five cells an eighty-cell terminal
+has over for the menu to go on following the cursor in. Eighty is what a
+terminal has before anybody widens one and a pair that filled one would stand
+at the left edge there whatever the cursor was doing. Beside the list the
+word takes no row off it. The line under the list and the word's own row
+under that are gone and the list spends one of the two on a seventh name.
+The word has the rows the list spends and every row the terminal spared under
+them. Its panel has a line above it level with the list's own top edge and
+that line carries the key. Each panel is as tall as what it holds. The two
+open on one row and the shorter of them ends where its own last row does.
+
+A narrower terminal opens the word under the list instead, to every row the
+list and a wrapped name left. There is nothing between those two: the same
+sentence in a third shape is one the eye has to find again every time a
+terminal changes size. A terminal with no row to spare leaves the word on the
+rows it already had, down to the clause they show.
 
 The answer outlives the menu it was given in. It is kept in
 `$XDG_DATA_HOME/surmise/state.toml`, beside the directory history and
