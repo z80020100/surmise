@@ -350,12 +350,46 @@ matches come last. A tie inside one of those three goes to the name
 closer text match and then the alphabetical order. The menu includes
 high-level Git commands and configured alias names. It reads command names
 from the installed Git once per menu.
-It does not run aliases. Git prints a name and nothing else, so the word
-under the list comes from the command's own completion specification
+It does not run aliases. That query prints a name and nothing else, so the
+word under the list comes from the command's own completion specification
 instead: it is the highlighted subcommand's description, read once per menu
-the way every other menu reads one. A name that specification does not carry
-keeps the word `command`. A configured alias is such a name and so is a
-subcommand the corpus never had.
+the way every other menu reads one.
+
+That specification is frozen at the release `specs/` was read from and the
+installed Git is not. Git 2.50 lists 74 names here. 34 of them reach an entry
+with a sentence, `blame` reaches the one entry that carries no sentence and
+the remaining 39 reach no entry at all. 40 of the 74 rows therefore carried
+the word `command` and nothing else. What fills them is Git itself.
+`git help -a` writes a one-line summary for every command the installed Git
+ships. The menu reads that answer once, the way it reads everything else it
+needs. The sentence a row shows is therefore the Git on this machine rather
+than a corpus that stopped moving.
+
+The specification still answers first. A subcommand it describes keeps its
+own sentence and everything said below about that sentence is what it always
+was. The second query is what a row still on the fallback asks for and
+nothing else asks for it: a word whose every remaining row already reached a
+sentence spawns Git no second time. What it answers is the word under the
+list and nothing besides. The arguments beside a name stay the
+specification's. 39 of those 40 rows have no entry there to take one from and
+what they gain is therefore a sentence and nothing more.
+
+That answer describes Git's own guides and file formats as well. Those are
+nobody's subcommand. Nothing in it decides what one is. The names in the list
+are the name query's own and a row looks itself up by the name it already
+has.
+
+A name neither source answers for keeps the word `command`. `git help -a`
+writes an external command as a name with nothing beside it and that is one
+such name. A Git old enough to print no summaries at all leaves every row
+exactly where the specification left it. A configured alias is Git's own to
+describe and where a person wrote it is what decides whether Git does.
+`git help` reads no repository at all. The aliases this answer carries are
+therefore the ones written outside a repository. Each sits under a heading of
+its own with the command line it stands for beside it. That line is what the
+row then says. An alias written into one repository's own configuration is a
+row the name query still prints — that query does read the repository — and
+this answer never reaches it. Such a row keeps the word `command`.
 
 Every row also carries the arguments that still fit beside its own name,
 drawn dim from that same specification: `<name>` for a mandatory one,
@@ -369,12 +403,12 @@ shows. A name the specification does not carry, or one whose own arguments
 carry no name, shows none.
 
 Those descriptions are the upstream's own sentences rather than labels
-written for this panel. Half of them are longer than the panel is wide: of
-the 38 the committed `git` specification carries, 18 are cut short at the
-footer's edge. The position counter used to take its own cells off the end
-of that word and 22 of the 38 left it none. It sits on the panel's top edge
-now and the word under the list has the panel's whole width whatever it
-holds.
+written for this panel, and so are Git's own. Half of them are longer than
+the panel is wide: of the 38 the committed `git` specification carries, 18
+are cut short at the footer's edge. The position counter used to take its
+own cells off the end of that word and 22 of the 38 left it none. It sits
+on the panel's top edge now and the word under the list has the panel's
+whole width whatever it holds.
 
 That word takes one row unasked. Every row below the list comes out of what
 the list and a wrapped name have left and the highlighted name has first
@@ -509,12 +543,16 @@ options and filesystem candidates remain available outside a repository. An
 argument with no candidates uses shell completion.
 
 Git must be on PATH. The command query allows 250 ms and at most 64 KiB of
-output. The branch and configuration queries share a separate budget with
-the same limits. The file query has its own budget with these limits. A
-missing Git, a failed query or a query that exceeds either limit supplies no
-Git candidates. Independent filesystem and option candidates remain available.
+output. The description query has its own budget with the same limits and
+runs only where a row still carries the fallback word. The branch and
+configuration queries share a separate budget with the same limits. The file
+query has its own budget with these limits. A missing Git, a failed query or a
+query that exceeds either limit supplies no Git candidates.
+Independent filesystem and option candidates remain available.
 Errors do not print at the prompt.
 The command query uses Git's experimental `--list-cmds` interface.
+The description query is `git help -a`. Its answer here is 11 988 bytes and
+about 10 ms. A failed one leaves every row on the word it already had.
 The branch query uses `for-each-ref` and reads `refs/heads` and `refs/remotes`.
 The default file query uses `ls-files --modified --others --exclude-standard -z`.
 Options can select `--cached`, omit `--others` or omit `--exclude-standard`.
@@ -721,8 +759,9 @@ byte-level lookup the binary carries: `get(name)` decompresses one spec and
 `commands()` returns the compiled-in list of 727 names. `spec` parses what
 comes back into the shape `argwalk` walks, and "Other commands" above says
 what a menu does with one. Git's own menu is the second reader of this data
-and it takes two things from it: the description a subcommand row shows and
-the arguments beside its name.
+and it takes two things from it: the description a subcommand row shows where
+this data carries one and the arguments beside its name. "Git" above is where
+the rest of those descriptions come from.
 This section stays about the directory itself: what it holds and what
 carrying it costs.
 
@@ -884,9 +923,11 @@ from.
 
 Git's own menu is the second caller and it asks for one name only, once per
 menu, for the description a subcommand row shows and the arguments beside
-its name. `git` in `disabled_commands` therefore leaves those rows on the
-word `command` with no arguments beside them, and a `git.json` under
-`spec_dirs` is what they read instead of the committed one.
+its name. `git` in `disabled_commands` therefore leaves every row with no
+arguments beside it and on whatever `git help -a` says of it. That is the
+second source the "Git" section describes rather than a row gone blank. A
+`git.json` under `spec_dirs` is what those rows read instead of the
+committed one.
 Neither key reaches anything else that menu does: the subcommand names, the
 branches and the files all come from the installed Git either way.
 
