@@ -288,12 +288,12 @@ pub fn run(seed: &str) -> io::Result<u8> {
                     // in here is the person's work and must survive.
                     KeyCode::Esc => break ACCEPTED,
                     KeyCode::Char('c' | 'g') if ctrl => break CANCELLED,
-                    // The word under the list takes one row on its own
-                    // and a sentence longer than that loses its tail.
-                    // This opens it to every row the terminal spared and
-                    // closes it again. Q binds the same thing to Ctrl-K
-                    // and surmise keeps Ctrl-K as the shell's own
-                    // kill-line.
+                    // The word under the list takes one row on its own and
+                    // a sentence longer than that loses its tail. This
+                    // opens the whole of it and closes it again. It opens
+                    // beside the list where the terminal has room for both.
+                    // Q binds the same thing to Ctrl-K and surmise keeps
+                    // Ctrl-K as the shell's own kill-line.
                     //
                     // The answer outlives this menu. Every later one opens
                     // the way this key last left it. How the menu it was

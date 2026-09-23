@@ -22,8 +22,8 @@ use std::path::{Path, PathBuf};
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(default)]
 pub struct State {
-    /// Whether the word under the list is open to every row the terminal
-    /// spared. `false` is the one row it takes unasked.
+    /// Whether the whole of the word is open, beside the list or under it.
+    /// `false` is the one row it takes under the list unasked.
     pub whole_word: bool,
 }
 

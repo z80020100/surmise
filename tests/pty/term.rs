@@ -257,30 +257,100 @@ impl Term {
         out
     }
 
-    /// Every run of cells surmise painted, row by row.
+    /// The runs of painted cells on one screen row.
     ///
     /// surmise paints on a background of its own. Every cell it owns is
     /// therefore identifiable no matter what character is in it. Drawn borders
     /// would not be: the terminal renders a box-drawing character it has no
     /// glyph for as whatever it likes.
-    pub fn panel(&self) -> Vec<Panel> {
+    ///
+    /// A row holds two runs where the menu draws the word beside the list.
+    /// The gap between those two panels is the terminal's own ground and that
+    /// is what tells one from the other.
+    fn runs(&self, row: u16) -> Vec<Panel> {
         let screen = self.parser.screen();
-        let (rows, cols) = screen.size();
-        let painted = |row: u16, col: u16| {
+        let (_, cols) = screen.size();
+        let ground = |col: u16| {
             screen
                 .cell(row, col)
                 .is_some_and(|c| c.bgcolor() != vt100::Color::Default)
         };
+        // The terminal clears the second cell of a wide character to its own
+        // ground. That cell is still the character's and belongs to whatever
+        // the cell in front of it was painted on.
+        let painted = |col: u16| {
+            ground(col)
+                || (col > 0
+                    && ground(col - 1)
+                    && screen
+                        .cell(row, col)
+                        .is_some_and(vt100::Cell::is_wide_continuation))
+        };
+        let mut out = Vec::new();
+        let mut col = 0;
+        while col < cols {
+            if !painted(col) {
+                col += 1;
+                continue;
+            }
+            let lo = col;
+            while col < cols && painted(col) {
+                col += 1;
+            }
+            let hi = col - 1;
+            let text = (lo..=hi)
+                .filter_map(|c| screen.cell(row, c))
+                .map(vt100::Cell::contents)
+                .collect();
+            out.push(Panel { row, lo, hi, text });
+        }
+        out
+    }
+
+    /// The box that holds the list, row by row.
+    pub fn panel(&self) -> Vec<Panel> {
+        self.boxes(0)
+    }
+
+    /// The box that holds the word beside the list, row by row. Empty wherever
+    /// the word sits under the list: while the key has not opened it and on a
+    /// terminal too narrow for the pair. The list's own box is then the only
+    /// one there is.
+    pub fn detail(&self) -> Vec<Panel> {
+        self.boxes(1)
+    }
+
+    /// The column each box starts in, left to right.
+    ///
+    /// The two boxes are as tall as what they hold. The shorter one stops
+    /// while the other carries on and a row further down holds one run that
+    /// could belong to either. The first painted row is what settles it: it
+    /// carries the top edge of every box there is. The columns it names are
+    /// therefore the columns the boxes keep.
+    fn columns(&self) -> Vec<u16> {
+        let (rows, _) = self.parser.screen().size();
         (0..rows)
-            .filter_map(|row| {
-                let lo = (0..cols).find(|&col| painted(row, col))?;
-                let hi = (lo..cols).rfind(|&col| painted(row, col))?;
-                let text = (lo..=hi)
-                    .filter_map(|col| screen.cell(row, col))
-                    .map(vt100::Cell::contents)
-                    .collect();
-                Some(Panel { row, lo, hi, text })
-            })
+            .map(|row| self.runs(row))
+            .find(|runs| !runs.is_empty())
+            .map(|runs| runs.iter().map(|run| run.lo).collect())
+            .unwrap_or_default()
+    }
+
+    /// The box in the `at`th column, over the rows it reaches and no others.
+    ///
+    /// A run that opens in no box's column is a row the terminal tore, such
+    /// as the tail of a row too wide for it that wrapped onto the next one.
+    /// The list's own box takes that run. `intact` then reports the edge it
+    /// broke rather than never seeing it.
+    fn boxes(&self, at: usize) -> Vec<Panel> {
+        let columns = self.columns();
+        let Some(&lo) = columns.get(at) else {
+            return Vec::new();
+        };
+        let owns = |run: &Panel| run.lo == lo || (at == 0 && !columns.contains(&run.lo));
+        let (rows, _) = self.parser.screen().size();
+        (0..rows)
+            .filter_map(|row| self.runs(row).into_iter().find(|run| owns(run)))
             .collect()
     }
 
