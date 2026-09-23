@@ -9,7 +9,7 @@ use crate::histfile;
 use crate::spec::{self, Subcommand};
 use std::borrow::Cow;
 use std::collections::{BTreeSet, HashMap};
-use std::io::Read;
+use std::io::{ErrorKind, Read};
 use std::os::fd::OwnedFd;
 use std::os::unix::net::UnixStream;
 use std::path::{Path, PathBuf};
@@ -550,7 +550,14 @@ fn collect_output(
         // wait in force is never longer than the one `read_commands` set, so a
         // refusal here is not a reason to give up.
         let _ = reader.set_read_timeout(Some(remaining));
-        let count = reader.read(&mut buffer).ok()?;
+        let count = match reader.read(&mut buffer) {
+            Ok(count) => count,
+            // A signal ends this read with nothing read. Linux restarts no
+            // read on a socket that has a timeout and a handler that asks for
+            // one changes nothing.
+            Err(e) if e.kind() == ErrorKind::Interrupted => continue,
+            Err(_) => return None,
+        };
         if count == 0 {
             break;
         }
@@ -1200,6 +1207,39 @@ mod tests {
             Command::new("/bin/sh").args(["-c", "printf 'sample\\n'; exec 1>&-; exec sleep 0.05"]),
             PATIENT,
         );
+        assert_eq!(names, Some(vec!["sample".to_string()]));
+    }
+
+    #[test]
+    fn a_signal_in_the_middle_of_a_read_costs_the_names_nothing() {
+        // The signal lands while the read waits on a child that has written
+        // nothing yet. The handler asks for a restart and Linux gives it none.
+        extern "C" fn ignore(_: libc::c_int) {}
+        // SAFETY: the handler does nothing and is therefore async-signal-safe.
+        // The action is zeroed apart from the two fields set here and that
+        // leaves its mask empty.
+        unsafe {
+            let mut action: libc::sigaction = std::mem::zeroed();
+            action.sa_sigaction = ignore as *const () as libc::sighandler_t;
+            action.sa_flags = libc::SA_RESTART;
+            assert_eq!(
+                libc::sigaction(libc::SIGUSR1, &action, std::ptr::null_mut()),
+                0
+            );
+        }
+        // SAFETY: `pthread_self` has no preconditions.
+        let reader = unsafe { libc::pthread_self() } as usize;
+        let signaller = std::thread::spawn(move || {
+            std::thread::sleep(Duration::from_millis(50));
+            // SAFETY: the thread named is this test's own and it joins this
+            // one before it returns.
+            unsafe { libc::pthread_kill(reader as libc::pthread_t, libc::SIGUSR1) };
+        });
+        let names = read_commands(
+            Command::new("/bin/sh").args(["-c", "sleep 0.2; printf 'sample\\n'"]),
+            PATIENT,
+        );
+        signaller.join().unwrap();
         assert_eq!(names, Some(vec!["sample".to_string()]));
     }
 
