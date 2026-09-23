@@ -459,6 +459,22 @@ fn the_next_menu_opens_the_way_the_key_last_left_it() {
 }
 
 #[test]
+fn a_git_subcommand_argument_draws_the_menu_its_specification_asks_for() {
+    // `git blame ` is a line Git's own menu declines outright: the subcommand
+    // is finished and the word behind it is neither a branch nor an `add`
+    // path. The committed specification says that word is a file, and this is
+    // the screen that answers with one.
+    let f = Fixture::new(&["assets/inner", "notes.md*"]);
+    let t = opened(f.path(), "git blame ");
+    let rows = name_rows(&t);
+    assert!(
+        row_holding(&rows, "notes.md").contains(FILE_ICON),
+        "{rows:?}"
+    );
+    assert!(row_holding(&rows, "assets/").contains(ICON), "{rows:?}");
+}
+
+#[test]
 fn a_bare_docker_draws_a_menu_of_subcommands_with_their_descriptions() {
     let f = fixture();
     let t = opened(f.path(), "docker ");

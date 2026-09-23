@@ -56,6 +56,44 @@ pub struct App {
     spec_start: Option<usize>,
 }
 
+/// Which provider answers one line, and the word it read there.
+///
+/// The three are asked in this order and the first to claim the line is the
+/// one that answers it. `cd`'s own reader and Git's own each match a literal
+/// first word, so neither can ever take the other's line and the order
+/// between those two settles nothing. The order between Git's and the spec
+/// menu's is the whole of the rule. Both read a `git` line now. Git's own
+/// parser is the narrower of the two and what it declines — `git blame `,
+/// `git stash `, `git commit -`, every finished subcommand that is not
+/// `add`, `switch` or `checkout` — is what falls through to a walk of
+/// `specs/git.json`. What it claims it keeps: the subcommand word, a branch
+/// after `switch` or `checkout`, and an `add` path or option all stay with
+/// the readers that ask the installed Git itself.
+///
+/// One line therefore still has exactly one provider, and that is what
+/// `git_start` and `spec_start` record. `relist` sets one of the two and
+/// clears the other, and [`App::highlighted`] reads them back to tell a row
+/// of one provider's from a row of the other's — a question `Kind::is_git`
+/// cannot answer, because both providers name their flat rows with the same
+/// kinds.
+enum Reader {
+    Cd(candidates::Query),
+    Git(crate::git::Target),
+    Spec(crate::spec_menu::Target),
+}
+
+impl Reader {
+    /// The word this provider would replace, which is all `App::arg` wants
+    /// of it.
+    fn into_word(self) -> candidates::Query {
+        match self {
+            Reader::Cd(word) => word,
+            Reader::Git(target) => target.word,
+            Reader::Spec(target) => target.word,
+        }
+    }
+}
+
 /// Quote a candidate's insertion for the shell. A leading `~` is a deliberate
 /// expansion and stays outside the quotes. Everything after it is still a
 /// literal name that may need them.
@@ -178,6 +216,40 @@ impl App {
         self.menu_repeats = false;
     }
 
+    /// The provider that reads the line as it stands, and what it read
+    /// there. [`Reader`] is where the order between the three is written
+    /// down, and this is the one place that order is applied: `arg`,
+    /// `relist` and `highlighted` all ask this rather than trying the
+    /// parsers themselves and each settling the tie its own way.
+    fn reader(&self) -> Option<Reader> {
+        let left = self.line.left_of_cursor();
+        if let Some(word) = candidates::parse(left) {
+            return Some(Reader::Cd(word));
+        }
+        if let Some(target) = crate::git::parse(left) {
+            return Some(Reader::Git(target));
+        }
+        crate::spec_menu::parse(left, self.line.right_of_cursor(), &self.aliases).map(Reader::Spec)
+    }
+
+    /// Whether `word` is one the menu may still grow. It is not in two
+    /// places, where the word on the line is no longer the word the menu
+    /// read. The first is an argument ending in a space. That space is the
+    /// person saying the word is finished. The second is a word that carries
+    /// on to the right of the cursor: the rows come from `left_of_cursor` and
+    /// so does the range a replacement covers. Writing one in there would
+    /// leave the tail of the old word stranded behind it.
+    fn growable(&self, word: &candidates::Query) -> bool {
+        // A space inside a quote is a character of the name. Outside one it is
+        // the person saying the word is finished.
+        let quoted = word.arg.starts_with(['\'', '"']);
+        if !quoted && word.arg.ends_with(char::is_whitespace) {
+            return false;
+        }
+        let tail = self.line.right_of_cursor();
+        tail.is_empty() || tail.starts_with(char::is_whitespace)
+    }
+
     /// The rows the line as it stands asks for. It also records which
     /// provider read the line.
     ///
@@ -186,41 +258,34 @@ impl App {
     /// against and a list stored over the top of those would leave it nothing
     /// to measure.
     fn relist(&mut self) -> Vec<Candidate> {
-        // Which provider read the line. `arg` tries all three and hands back
-        // the word alone. A Git query selects commands, branches or files.
-        let mut git = crate::git::parse(self.line.left_of_cursor());
-        if let Some(target) = &mut git {
-            target.exclude_tail(self.line.right_of_cursor());
-        }
-        self.git_start = git.as_ref().map(|q| q.word.start);
-        // Tried regardless of what `git` found: `crate::spec_menu::parse`
-        // already refuses a `git` or `cd` line by name, so a real Git line
-        // never reaches here and this never races the arm below over the
-        // same line.
-        let spec = crate::spec_menu::parse(
-            self.line.left_of_cursor(),
-            self.line.right_of_cursor(),
-            &self.aliases,
-        );
-        self.spec_start = spec.as_ref().map(|t| t.word.start);
-        // `arg` rather than the parse. A word nothing here may grow is one to
-        // offer no menu for. The key then falls through to the shell's own
-        // completion instead of opening rows nothing can take.
-        match (self.arg(), git) {
-            (Some(_), Some(git)) => self.git.complete(&git, &self.cwd),
-            (Some(q), None) => match spec {
-                Some(target) => {
-                    self.spec_menu
-                        .complete(&target, &self.cwd, &self.history, &mut self.scan)
-                }
-                None => candidates::generate_in(
-                    &shellword::unquote(&q.arg),
-                    &self.cwd,
-                    &self.history,
-                    &mut self.scan,
-                ),
-            },
-            (None, _) => Vec::new(),
+        let reader = self.reader();
+        // Where the word the rows answer for begins, under the provider that
+        // read it. Never both at once: one line has one provider and
+        // `highlighted` reads these back to tell whose row it is holding.
+        (self.git_start, self.spec_start) = match &reader {
+            Some(Reader::Git(target)) => (Some(target.word.start), None),
+            Some(Reader::Spec(target)) => (None, Some(target.word.start)),
+            _ => (None, None),
+        };
+        // `growable` rather than the parse alone. A word nothing here may
+        // grow is one to offer no menu for. The key then falls through to the
+        // shell's own completion instead of opening rows nothing can take.
+        match reader {
+            Some(Reader::Git(mut target)) if self.growable(&target.word) => {
+                target.exclude_tail(self.line.right_of_cursor());
+                self.git.complete(&target, &self.cwd)
+            }
+            Some(Reader::Spec(target)) if self.growable(&target.word) => {
+                self.spec_menu
+                    .complete(&target, &self.cwd, &self.history, &mut self.scan)
+            }
+            Some(Reader::Cd(word)) if self.growable(&word) => candidates::generate_in(
+                &shellword::unquote(&word.arg),
+                &self.cwd,
+                &self.history,
+                &mut self.scan,
+            ),
+            _ => Vec::new(),
         }
     }
 
@@ -239,26 +304,35 @@ impl App {
         }
         let pick = self.items.get(self.selected)?;
         // A row from the flat, non-directory providers goes stale once the
-        // cursor no longer sits on the word it would replace. A fresh Git
-        // parse of the current line, or `git_start` left over from one that
-        // no longer parses, says this row came from Git; failing both, it
-        // came from the spec provider instead, since `crate::spec_menu::parse`
-        // refuses a `git` or `cd` line by name and the two can never both
-        // claim the same line.
+        // cursor no longer sits on the word it would replace. `Kind::is_git`
+        // is what puts a row in that group and no more than that: Git's own
+        // menu and the spec menu both draw their rows with those kinds, so
+        // which provider a row came from is `git_start` and `spec_start`'s
+        // answer rather than the kind's. `relist` sets one of the two and
+        // clears the other, and the line has to still read as that same
+        // provider's, on the same word, for the row to be worth anything.
+        //
+        // A list a caller staged by hand rather than through `relist` has
+        // neither recorded, and a fresh read of the line is the whole of the
+        // answer there.
         if pick.kind.is_git() {
-            let git = crate::git::parse(self.line.left_of_cursor());
-            let stale = if git.is_some() || self.git_start.is_some() {
-                git.is_none_or(|q| {
-                    !q.accepts(pick.kind)
-                        || self.git_start.is_some_and(|start| start != q.word.start)
-                })
-            } else {
-                crate::spec_menu::parse(
-                    self.line.left_of_cursor(),
-                    self.line.right_of_cursor(),
-                    &self.aliases,
-                )
-                .is_none_or(|t| self.spec_start.is_some_and(|start| start != t.word.start))
+            let stale = match self.reader() {
+                Some(Reader::Git(target)) => {
+                    self.spec_start.is_some()
+                        || !target.accepts(pick.kind)
+                        || self
+                            .git_start
+                            .is_some_and(|start| start != target.word.start)
+                }
+                Some(Reader::Spec(target)) => {
+                    self.git_start.is_some()
+                        || self
+                            .spec_start
+                            .is_some_and(|start| start != target.word.start)
+                }
+                // Nothing reads the line any more, or `cd`'s own reader does
+                // and it names none of these rows.
+                _ => true,
             };
             if stale {
                 return None;
@@ -267,40 +341,23 @@ impl App {
         Some(pick)
     }
 
-    /// The word the menu completes and its byte offset.
-    ///
-    /// `None` when neither provider handles the line. `None` in the two places
-    /// where the word on the line is not the word the menu read. The first is
-    /// an argument ending in a space. That space is the person saying the word
-    /// is finished. The second is a word that carries on to the right of the
-    /// cursor: the rows come from `left_of_cursor` and so does the range a
-    /// replacement covers. Writing one in there would leave the tail of the
-    /// old word stranded behind it.
+    /// The word the menu completes and its byte offset. `None` when no
+    /// provider reads the line, and `None` for a word [`App::growable`]
+    /// says the menu may no longer grow.
     fn arg(&self) -> Option<candidates::Query> {
-        let q = candidates::parse(self.line.left_of_cursor())
-            .or_else(|| crate::git::parse(self.line.left_of_cursor()).map(|git| git.word))
-            .or_else(|| {
-                crate::spec_menu::parse(
-                    self.line.left_of_cursor(),
-                    self.line.right_of_cursor(),
-                    &self.aliases,
-                )
-                .map(|target| target.word)
-            })?;
-        // A space inside a quote is a character of the name. Outside one it is
-        // the person saying the word is finished.
-        let quoted = q.arg.starts_with(['\'', '"']);
-        if !quoted && q.arg.ends_with(char::is_whitespace) {
-            return None;
-        }
-        let tail = self.line.right_of_cursor();
-        (tail.is_empty() || tail.starts_with(char::is_whitespace)).then_some(q)
+        let word = self.reader()?.into_word();
+        self.growable(&word).then_some(word)
     }
 
-    /// Whether this run is on a `git` line. `pick` asks before it loads the
-    /// directory history and again after each key. The history has nothing to
-    /// say about Git candidates and the second question is whether the run is
-    /// over.
+    /// Whether Git's own menu is what this run is on. `pick` asks before it
+    /// loads the directory history and again after each key. Git's own rows
+    /// have nothing to take from that history and the second question is
+    /// whether the run is over.
+    ///
+    /// Git's own parser rather than [`App::reader`]: a `git` line the spec
+    /// menu answers is one Git's own menu declined, and it wants the
+    /// directory history and the ending of every other spec menu. `git blame `
+    /// weighs a folder row the way `ls ` does.
     ///
     /// The whole line rather than the half in front of the cursor. The
     /// question is what the run is for rather than what the next key would
@@ -323,7 +380,7 @@ impl App {
         // `cd` idea. Git and the spec provider both hand back a flat name and
         // want the whole argument read back rather than split at a `/` that
         // may not even be there.
-        if candidates::parse(self.line.left_of_cursor()).is_some() {
+        if matches!(self.reader(), Some(Reader::Cd(_))) {
             candidates::split(&arg).1.to_string()
         } else {
             arg
@@ -834,7 +891,14 @@ mod tests {
             assert!(!a.runs_the_line());
             assert!(a.accept());
             assert!(a.line.text().ends_with("sample/topic "));
-            assert!(!a.menu_open());
+            // The branch is finished and Git's own reader has left the line
+            // with it. What the line reads as now is the walk's answer for
+            // the word behind the branch, which here is that subcommand's own
+            // options. No second branch is offered: the two readers answer one
+            // line each and this is where that shows. `pick` ends the run on
+            // this line and the next Tab is what opens it.
+            assert!(!a.items.is_empty());
+            assert!(a.items.iter().all(|c| c.kind == candidates::Kind::Option));
         }
         let mut a = branches("git switch sample/t", &["sample/topic"]);
         assert!(a.accept_common());
@@ -1664,13 +1728,138 @@ mod tests {
     }
 
     #[test]
-    fn a_finished_git_subcommand_still_falls_through_to_nothing() {
+    fn a_finished_git_subcommand_the_corpus_never_had_still_offers_nothing() {
         // `git sample ` is a finished subcommand with a trailing space, which
-        // `crate::git::parse` no longer reads as a Git line at all. The spec
-        // provider must not answer for it either, or accepting a Git
-        // subcommand would reopen on a menu of `git`'s own subcommands.
-        let a = App::over(&PathBuf::from("/no-such-directory-here"), "git sample ");
-        assert!(a.items.is_empty());
+        // `crate::git::parse` does not read as a Git line at all. The walk
+        // answers it now, where nothing did before, and comes back with
+        // nothing to show: `sample` names no subcommand of `git`'s own
+        // specification, so it is spent on `git`'s optional `alias` argument,
+        // and a node that declares subcommands offers neither them nor its
+        // own options behind such an argument. A person who accepted an
+        // alias, or a command the installed Git has and the corpus never did,
+        // is offered neither `add` to put after it nor `--bare`, and Git
+        // would refuse both.
+        let a = spec_over("git sample ");
+        assert!(
+            a.items.is_empty(),
+            "{:?}",
+            a.items
+                .iter()
+                .map(|c| c.insert.as_str())
+                .collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn a_git_subcommand_argument_the_specification_carries_opens_a_menu() {
+        // `crate::git::parse` reads no Git line here: `blame` is a finished
+        // subcommand and the word behind it is neither a branch nor an `add`
+        // path. `specs/git.json` says that word is a file and the walk is
+        // what answers it now.
+        let f = Fixture::new(&["assets", "readme*"]);
+        let a = App::over(f.path(), "git blame ");
+        let names: Vec<&str> = a.items.iter().map(|c| c.insert.as_str()).collect();
+        assert!(names.contains(&"readme"), "{names:?}");
+    }
+
+    #[test]
+    fn a_second_git_subcommand_with_a_file_argument_opens_its_menu_too() {
+        // `clean` carries `{"name": "path", "template": "filepaths"}`, which
+        // is `blame`'s own shape under another name, and neither declares a
+        // subcommand, so the rule that closed `git`'s root options reads
+        // neither of them. The two therefore answer alike for the same
+        // reason, and this is what says so rather than the shapes matching.
+        let f = Fixture::new(&["assets", "readme*"]);
+        let a = App::over(f.path(), "git clean ");
+        let names: Vec<&str> = a.items.iter().map(|c| c.insert.as_str()).collect();
+        assert!(names.contains(&"readme"), "{names:?}");
+    }
+
+    #[test]
+    fn a_git_argument_that_wants_a_folder_offers_no_file() {
+        // `git clone <repository> [directory]`. The second argument is a
+        // `folders` template and a file is no answer to it, the same as
+        // `make -C`'s own.
+        let f = Fixture::new(&["assets", "readme*"]);
+        let a = App::over(f.path(), "git clone sample ");
+        let names: Vec<&str> = a.items.iter().map(|c| c.insert.as_str()).collect();
+        assert!(names.contains(&"assets/"), "{names:?}");
+        assert!(!names.contains(&"readme"), "{names:?}");
+    }
+
+    #[test]
+    fn a_git_subcommands_own_options_reach_the_menu_with_their_descriptions() {
+        // A dash behind a finished subcommand is a line Git's own parser
+        // declines outright. The walk reads it as the start of one of
+        // `commit`'s own options and the word under the list is that
+        // option's own sentence.
+        let a = spec_over("git commit -");
+        assert!(!a.items.is_empty());
+        assert!(a.items.iter().all(|c| c.kind == candidates::Kind::Option));
+        assert!(a.items.iter().any(|c| c.label != "option"));
+    }
+
+    #[test]
+    fn a_git_subcommand_with_children_of_its_own_offers_them() {
+        let a = spec_over("git stash ");
+        let names: Vec<&str> = a.items.iter().map(|c| c.insert.as_str()).collect();
+        for name in ["push", "pop", "list", "drop"] {
+            assert!(names.contains(&name), "{names:?}");
+        }
+    }
+
+    #[test]
+    fn gits_own_readers_keep_every_line_they_already_claimed() {
+        // The walk picks up only what `crate::git::parse` declined. A branch
+        // after `switch` or `checkout` and a path after `add` are still its
+        // own, and `specs/git.json` marks both of those arguments `dyn`
+        // besides, so nothing would answer them here.
+        let f = Fixture::new(&["sample-file*"]);
+        f.init_git(&["sample-topic"]);
+        for line in ["git switch ", "git checkout "] {
+            let a = App::over(f.path(), line);
+            assert!(
+                a.items
+                    .iter()
+                    .any(|c| c.kind == candidates::Kind::Branch && c.insert == "sample-topic"),
+                "{line}"
+            );
+        }
+        let added = App::over(f.path(), "git add ");
+        assert!(
+            added
+                .items
+                .iter()
+                .any(|c| c.kind == candidates::Kind::File && c.insert == "sample-file")
+        );
+    }
+
+    #[test]
+    fn an_accepted_git_subcommand_leaves_a_line_the_walk_answers() {
+        // Where the two providers meet. Git's own menu names the subcommand
+        // and the walk answers the word behind it, so the line an acceptance
+        // leaves has a menu of files rather than none at all. `pick` ends the
+        // run on that line and the next Tab is what opens the menu.
+        let f = Fixture::new(&["readme*"]);
+        let mut a = App::over(f.path(), "git blam");
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "git blame ");
+        assert!(a.items.iter().any(|c| c.insert == "readme"));
+    }
+
+    #[test]
+    fn a_spec_row_on_a_git_line_goes_stale_when_the_cursor_leaves_its_word() {
+        // One line, two providers at two cursor positions: the rows answer
+        // for the file word and the line under the cursor now reads as Git's
+        // own subcommand word. A row of one provider's is worth nothing
+        // under the other and `spec_start` is what says so.
+        let f = Fixture::new(&["readme*"]);
+        let mut a = App::over(f.path(), "git blame read");
+        assert!(a.items.iter().any(|c| c.insert == "readme"));
+        cursor_after(&mut a, "git blame".len());
+        assert!(!a.accept());
+        assert!(!a.accept_common());
+        assert_eq!(a.line.text(), "git blame read");
     }
 
     #[test]

@@ -166,6 +166,33 @@ fn git_subcommands_return_to_editing_without_running() {
 }
 
 #[test]
+fn a_second_enter_runs_what_the_first_one_took() {
+    // The first press takes the name and hands the line back. The second
+    // runs it rather than taking the first row the walk offers behind that
+    // name: an option behind `status`, and a path behind a branch that
+    // `git checkout` would then write over.
+    for (seed, ran) in [
+        ("git stat", "GIT-RAN status"),
+        ("git checkout sample/t", "GIT-RAN checkout sample/topic"),
+    ] {
+        let f = home(
+            "git() { print -r -- GIT-RAN $@ }",
+            "bindkey ' ' $_surmise_space",
+        );
+        f.init_git(&["sample/topic"]);
+        let mut t = ready(f.path());
+        t.send(&format!("{seed}\t"));
+        assert!(t.wait_panel(WAIT), "no menu for {seed}: {:?}", t.lines());
+        t.pump(SETTLE);
+        t.send("\r");
+        closed(&mut t);
+        t.send("\r");
+        assert!(t.wait_line(ran, WAIT), "{:?}", t.lines());
+        assert!(t.lines().iter().any(|l| l.trim() == ran), "{:?}", t.lines());
+    }
+}
+
+#[test]
 fn a_frequently_typed_subcommand_leads_the_git_menu() {
     // `status` sorts after `add` alphabetically. `$HISTFILE` below says
     // `status` was typed three times and `add` once, and the menu is
@@ -248,9 +275,10 @@ fn a_whole_subcommand_gives_the_keys_back_to_the_shell() {
     // Tab and Right accept a subcommand outside the arm Enter breaks out of.
     // Only the end of the run puts the keys back and nothing on the screen
     // says which side of that the line is on. The shell's own Tab says it:
-    // surmise answers PASS on a finished word and the widget hands the key to
+    // on a word surmise answers PASS for, the widget hands the key to
     // whatever held it. surmise's own Tab on a closed menu rings the bell and
-    // leaves the line alone.
+    // leaves the line alone. `zzzz` is such a word. No option of `status`'s
+    // carries those four letters and no name beside the line does either.
     for key in ["\t", "\x1b[C"] {
         let f = home(
             "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
@@ -265,10 +293,10 @@ fn a_whole_subcommand_gives_the_keys_back_to_the_shell() {
         t.send(key);
         closed(&mut t);
         assert_eq!(line(&t).trim(), "\u{276f} git status", "{:?}", t.lines());
-        typed(&mut t, "\t");
+        typed(&mut t, "zzzz\t");
         assert_eq!(
             line(&t).trim(),
-            "\u{276f} git status SAMPLE",
+            "\u{276f} git status zzzzSAMPLE",
             "the keys never went back: {:?}",
             t.lines()
         );
@@ -321,10 +349,13 @@ fn git_branch_acceptance_returns_to_editing_for_enter_tab_and_right() {
             closed(&mut t);
             assert_eq!(line(&t).trim(), format!("❯ git {subcommand} sample/topic"));
             assert!(!t.lines().join("\n").contains("GIT-RAN"));
-            typed(&mut t, "\t");
+            // `zzzz` reaches no option of that subcommand's and no name
+            // beside the line either, so surmise answers PASS and the widget
+            // hands Tab back to whatever held it.
+            typed(&mut t, "zzzz\t");
             assert_eq!(
                 line(&t).trim(),
-                format!("❯ git {subcommand} sample/topic SAMPLE")
+                format!("❯ git {subcommand} sample/topic zzzzSAMPLE")
             );
         }
     }
@@ -580,18 +611,37 @@ fn git_add_pathspec_file_completion_reads_the_selected_file_literally() {
 }
 
 #[test]
-fn unsupported_git_add_arguments_keep_the_shells_completion() {
+fn a_git_add_argument_its_own_reader_refuses_falls_to_the_specification() {
+    // `crate::git::parse` refuses all four of these: an option it does not
+    // carry, a path with a `..` in it, an absolute path, and a name no file
+    // matches. The first three land on `add`'s own argument in the
+    // specification, whose `folders` template reads whichever directory the
+    // word names. The fourth stays empty there as well, because a folder
+    // answering to `zzzz` is one nothing here has.
     let f = home(
         "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
         "bindkey ' ' $_surmise_space",
     );
     f.init_git(&[]);
     std::fs::write(f.path().join("sample"), "sample").unwrap();
-    for arg in ["--unknown ", "../", "/", "zzzz"] {
+    for (arg, opens) in [
+        ("--unknown ", true),
+        ("work/../", true),
+        ("/", true),
+        ("zzzz", false),
+    ] {
         let mut t = ready(f.path());
-        typed(&mut t, &format!("git add {arg}\t"));
-        assert_eq!(line(&t).trim(), format!("❯ git add {arg}SAMPLE"));
-        assert!(t.panel().is_empty());
+        t.send(&format!("git add {arg}\t"));
+        if opens {
+            assert!(t.wait_panel(WAIT), "no menu for {arg:?}: {:?}", t.lines());
+            t.send("\x1b");
+            closed(&mut t);
+        } else {
+            t.pump(SETTLE);
+            assert_eq!(line(&t).trim(), format!("❯ git add {arg}SAMPLE"));
+            assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+        }
+        assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
     }
 }
 
@@ -675,24 +725,53 @@ fn git_branch_cancel_restores_the_seed_and_escape_keeps_edits() {
 }
 
 #[test]
-fn unsupported_git_arguments_still_use_shell_completion_in_a_repository() {
+fn a_git_argument_nothing_can_answer_still_uses_shell_completion() {
+    // Two shapes of nothing. The name `-c` and `-b` force is an argument the
+    // specification names and hands nothing at all to fill, which is what a
+    // branch that does not exist yet reduces to. A branch word no branch
+    // matches is the other: Git's own menu reads it and comes back empty.
     let f = home(
         "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
         "bindkey ' ' $_surmise_space",
     );
     f.init_git(&["sample/topic"]);
     let mut t = ready(f.path());
-    for seed in [
-        "git switch -c ",
-        "git checkout -- ",
-        "git switch zzzz",
-        "git checkout sample/topic ",
-        "git status ",
-        "git -C work switch ",
-    ] {
+    for seed in ["git switch -c ", "git checkout -b ", "git switch zzzz"] {
         typed(&mut t, &format!("{seed}\t"));
         assert_eq!(line(&t).trim(), format!("❯ {seed}SAMPLE"));
         assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+        typed(&mut t, "\x15");
+    }
+}
+
+#[test]
+fn a_git_argument_the_specification_carries_opens_a_menu_of_its_own() {
+    // The three lines below fell straight through to the shell before the
+    // walk of `specs/git.json` picked up what Git's own reader declines.
+    // `blame` takes a file, `stash` has children of its own, and `status`
+    // carries options behind a subcommand Git's own menu stops at.
+    let f = home("", "bindkey ' ' $_surmise_space");
+    f.init_git(&[]);
+    std::fs::write(f.path().join("sample-file"), "sample").unwrap();
+    let mut t = ready(f.path());
+    for (seed, expected) in [
+        ("git blame ", Some("sample-file")),
+        ("git stash ", Some("apply")),
+        // `status`'s own rows are its options, and a row there is named by
+        // whichever of an option's names the specification wrote first. That
+        // this menu opens at all is the claim; which name leads it is the
+        // corpus's business rather than this test's.
+        ("git status ", None),
+    ] {
+        t.send(&format!("{seed}\t"));
+        assert!(t.wait_panel(WAIT), "no menu for {seed}: {:?}", t.lines());
+        t.pump(SETTLE);
+        let rows: String = t.panel().iter().map(|row| row.text.as_str()).collect();
+        if let Some(name) = expected {
+            assert!(rows.contains(name), "{seed}: {rows:?}");
+        }
+        t.send("\x1b");
+        closed(&mut t);
         typed(&mut t, "\x15");
     }
 }
@@ -1048,13 +1127,16 @@ fn an_alias_opens_the_specification_driven_git_menu() {
 #[test]
 fn a_multi_word_alias_opens_on_its_own_first_word_alone() {
     // Only the alias value's own first word decides whether the trigger
-    // fires at all; `git help` still opens on `gh `, the same rows a plain
-    // `alias g=git` does.
-    let f = home("alias gh='git help'", "");
+    // fires at all. What the menu answers is then the whole value: `gst `
+    // walks `git stash ` and opens on `stash`'s own children rather than on
+    // anything `git`'s root has.
+    let f = home("alias gst='git stash'", "");
     let mut t = ready(f.path());
-    t.send("gh ");
+    t.send("gst ");
     assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
-    assert!(t.lines().join("\n").contains("--bare"), "{:?}", t.lines());
+    t.pump(SETTLE);
+    let rows: String = t.panel().iter().map(|row| row.text.as_str()).collect();
+    assert!(rows.contains("apply"), "{rows:?}");
 }
 
 #[test]

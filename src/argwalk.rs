@@ -68,7 +68,15 @@
 //! this way turns [`Walk::offers_subcommands`] off for the rest of this
 //! node's words (`entered_subcommand_args`), which is what keeps an
 //! optional argument from being mistaken for a place a subcommand could
-//! still appear once something has started filling it.
+//! still appear once something has started filling it. On a node that
+//! declares subcommands it turns [`Walk::offers_options`] off as well: such
+//! a node's own options belong in front of the subcommand rather than
+//! behind it — `git -C sample status`, never `git status -C sample` — so a
+//! word filling its arguments is past them too. `git`'s root is the case.
+//! Its optional `alias` argument takes whatever word is not a subcommand,
+//! and the global options left behind it are words Git itself refuses. A
+//! node with no subcommand of its own has no such line to sit behind and
+//! keeps offering its options after its arguments.
 //!
 //! **`loadSpec` re-rooting.** A node can itself be a pointer to another
 //! spec rather than one of its own (`Subcommand::load_spec`); the
@@ -256,6 +264,19 @@ impl<'a> State<'a> {
         if let Some(arg) = self.active_variadic()
             && !arg.options_can_break_variadic_arg.unwrap_or(true)
         {
+            return false;
+        }
+        // A node that declares subcommands keeps its own options in front of
+        // the subcommand rather than behind it: `git -C sample status`, never
+        // `git status -C sample`. A word filling such a node's own arguments
+        // is therefore past those options, the same way it is already past
+        // the subcommand. `git`'s own root is the case this is for. Its
+        // optional `alias` argument takes whatever word is not a subcommand,
+        // and the global options left standing behind it are words Git itself
+        // refuses. A node with no subcommand of its own has no such line to
+        // sit behind and goes on offering its options after its arguments,
+        // which is what `git add <file> -n` and `svn commit -m` both want.
+        if self.entered_subcommand_args && !self.node.subcommands.is_empty() {
             return false;
         }
         let must_precede_arguments = self
@@ -724,6 +745,31 @@ mod tests {
         assert!(walk.end_of_options);
         assert!(std::ptr::eq(walk.node, &git));
         assert!(!walk.offers_subcommands);
+    }
+
+    /// The other half of that rule. `git`'s root declares subcommands, so a
+    /// word spent on its `alias` argument is past its own options as well,
+    /// and `git sample --bare` is a line Git refuses.
+    #[test]
+    fn a_word_that_fills_the_roots_own_argument_closes_off_its_options_too() {
+        let git = spec::load("git", &[]).unwrap();
+        assert!(!git.subcommands.is_empty());
+        let walk = walk(&command("git sample "), &git, |_| None);
+        assert!(std::ptr::eq(walk.node, &git));
+        assert!(!walk.offers_subcommands);
+        assert!(!walk.offers_options);
+    }
+
+    /// The same word on a node with no subcommand of its own leaves the
+    /// options where they were. `git add <file> -n` is a line Git takes.
+    #[test]
+    fn a_filled_argument_keeps_the_options_of_a_node_with_no_subcommands() {
+        let git = spec::load("git", &[]).unwrap();
+        let add = git.subcommands.get("add").unwrap();
+        assert!(add.subcommands.is_empty());
+        let walk = walk(&command("git add file1 "), &git, |_| None);
+        assert!(std::ptr::eq(walk.node, add.as_ref()));
+        assert!(walk.offers_options);
     }
 
     #[test]
