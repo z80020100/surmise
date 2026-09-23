@@ -1091,9 +1091,8 @@ impl Completions {
         });
         rank(&mut out, arg, used_after);
         // The name query prints a name and nothing else, so the label and the
-        // hint both come from the specification instead. `rank` runs first: it
-        // drops everything past `MAX_RESULTS` and a row nobody keeps is
-        // worth neither. A word no name reached keeps the spec unread.
+        // hint both come from the specification instead. A word no name
+        // reached keeps the spec unread.
         if kind == Kind::Command
             && !out.is_empty()
             && let Some(git) = self
