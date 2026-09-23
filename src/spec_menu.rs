@@ -45,21 +45,23 @@ pub(crate) struct Target {
 /// does not start on a space is the middle of a word the cursor has not
 /// finished, the same case `App::arg` refuses for Git and `cd`.
 ///
-/// `git` and `cd` are refused by name here rather than left to fall through:
-/// their own menus sit above this one in `App::refresh`, but their own
-/// parsers are narrower than a spec's own walk and decline lines this would
-/// otherwise happily answer, such as `git sample ` — a finished subcommand
-/// with a trailing space, which `crate::git::parse` no longer reads as a Git
-/// line at all. Answering there anyway would let this provider quietly take
-/// over a line the other two are still meant to own; this is what keeps this
-/// provider to only what the first two declined.
+/// `cd` is refused by name here rather than left to fall through. Its own
+/// menu sits above this one in [`crate::app::App`] and already answers every
+/// line its reader claims, and `specs/cd.json` carries two rows, `-` and
+/// `~`, which are no answer at all to a line the directory scan is walking.
 ///
-/// The refusal reads the raw word, not what an alias expands it to.
-/// `crate::git::parse` and `cd`'s own reader each match a literal `git` or
-/// `cd` at the start of the line; neither ever claims a line that starts
-/// with an alias for one. Refusing on the expanded name would therefore
-/// hold this provider off a line nobody else is going to answer, and
-/// `alias g=git` would open on nothing at all.
+/// `git` is not refused, and that is the one asymmetry. Git's own parser is
+/// narrower than a walk of `specs/git.json` and declines whole lines that
+/// walk answers — `git blame `, `git stash `, `git commit -`. Refusing the
+/// name here would leave those to nobody. Which provider a `git` line goes
+/// to is decided in one place instead, `App::reader`, and a menu only ever
+/// reaches this one on a line Git's own parser already declined.
+///
+/// The refusal reads the raw word, not what an alias expands it to. `cd`'s
+/// own reader matches a literal `cd` at the start of the line and never
+/// claims a line that starts with an alias for it. Refusing on the expanded
+/// name would therefore hold this provider off a line nobody else is going
+/// to answer, and `alias c=cd` would open on nothing at all.
 pub(crate) fn parse(left: &str, tail: &str, aliases: &HashMap<String, String>) -> Option<Target> {
     if !tail.is_empty() && !tail.starts_with(char::is_whitespace) {
         return None;
@@ -72,8 +74,8 @@ pub(crate) fn parse(left: &str, tail: &str, aliases: &HashMap<String, String>) -
     }
     let raw = shellparse::command_at(left, left.len());
     let raw_name = raw.as_ref().and_then(|cmd| cmd.words.first());
-    // Only what Git's own menu and `cd`'s declined, never what they claim.
-    if raw_name.is_some_and(|w| w.inner_text == "git" || w.inner_text == "cd") {
+    // Only what `cd`'s own menu declined, never what it claims.
+    if raw_name.is_some_and(|w| w.inner_text == "cd") {
         return None;
     }
     let word = command.words.last()?;
@@ -614,6 +616,17 @@ mod tests {
 
     fn target(line: &str) -> Target {
         parse(line, "", &HashMap::new()).expect("a command this provider should answer for")
+    }
+
+    #[test]
+    fn a_cd_line_is_refused_by_name_here_and_a_git_line_is_not() {
+        // `cd`'s own menu answers every line its reader claims and
+        // `specs/cd.json`'s two rows are no answer to a directory name.
+        // Git's own reader is narrower than `specs/git.json` and
+        // `App::reader` is what holds this provider to the lines it
+        // declined, so nothing here has to hold it off `git` by name.
+        assert!(parse("cd ", "", &HashMap::new()).is_none());
+        assert!(parse("git blame ", "", &HashMap::new()).is_some());
     }
 
     /// A reading of `$HISTFILE` that saw `first second` `n` times and

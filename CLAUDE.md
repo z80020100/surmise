@@ -455,6 +455,15 @@ on such a word opens no menu and the shell completes it instead. Accepting a
 subcommand does not execute it. Esc keeps the edited line. Ctrl-C and Ctrl-G
 restore the line that opened the menu.
 
+What comes after a returned subcommand is the menu "Other commands" below
+describes and Tab there is what opens it. `git blame ` opens on the files
+beside the line and `git stash ` on the eleven children of its own. The
+acceptance does not open that menu itself. Enter there takes the first row,
+so the second press that runs `git status` would write `--ahead-behind` onto
+the line instead. Behind a branch it would be worse. `git checkout <branch> `
+offers the paths beside the line first, and running that line writes the
+branch's copy of a file over the one on disk.
+
 Typing `git switch ` or `git checkout ` also opens the branch menu.
 Tab opens it on a partial branch name. The menu includes local branches and
 remote branch names that Git can infer from locally stored remote refs.
@@ -468,7 +477,12 @@ other and the name on it says nothing about where the repository stands.
 Branch matching uses the whole name including every `/`. Enter accepts the
 highlighted branch. Right accepts a prefix match. Tab accepts a shared prefix
 or a single prefix match. Accepting a whole branch adds a space and returns
-the line to the shell for editing. It does not execute the command.
+the line to the shell for editing. It does not execute the command. Tab
+behind the branch opens what the subcommand's own specification asks for
+next, in the menu "Other commands" below describes: `switch`'s own options,
+and `checkout`'s beside the paths its second argument takes. No second
+branch is offered there. The branch reader answered the word it was asked
+about and the walk answers the next one.
 Esc keeps the edited line. Ctrl-C and Ctrl-G restore the line that opened the
 menu. The menu reads branches and their settings once when it first needs
 them. Branches created later appear in the next menu.
@@ -531,12 +545,20 @@ are omitted and so are names that are not UTF-8.
 
 Only the first branch argument without preceding options uses the branch
 menu. File completion accepts multiple arguments and the documented `add`
-options. Other arguments and Git global options use the shell's existing
-completion. These include other commands' options and new branch names after
-`switch -c` or `checkout -b`. File arguments with absolute paths or `..`
-components also use shell completion. Quoted branch arguments and compound
-shell commands stay with the shell. Git candidates rank by that text, and a
-subcommand row by `$HISTFILE` as well. A branch row and a file row rank by
+options. Everything else on a `git` line falls to the menu "Other commands"
+below describes, which walks `specs/git.json` rather than asking the
+installed Git anything: another subcommand's own options and arguments, a
+subcommand behind a `git` global option such as `git -C sample status `, an
+`add` argument that reader refuses such as an absolute path or one with a
+`..` in it, and a `git` that is not the first word of the line. What that
+menu finds there is the specification's own and no more. An argument the
+corpus marks `dyn` offers only what the specification itself lists for it:
+its own suggestions and the files or folders a template names. The script
+the corpus kept beside those is never run. One the specification names and
+hands nothing to fill offers nothing at all. The new branch name after
+`switch -c` or `checkout -b` is such an argument and that line still shows
+nothing. Git candidates rank by that text, and a subcommand row by
+`$HISTFILE` as well. A branch row and a file row rank by
 the text alone. Directory history does not affect any of them. Branch
 queries outside a repository leave completion to the shell. The `add`
 options and filesystem candidates remain available outside a repository. An
@@ -562,23 +584,62 @@ A Git version that does not support a query supplies no candidates for it.
 
 ## Other commands
 
-Tab opens a third menu, behind Git's own and `cd`'s, for any other command
-that has a committed specification. `docker `, `npm ` and `cargo ` reach it.
-`git` and `cd` never do, because their own menus above this one already
-answer for those names even where their own parsers decline a line, such as a
-finished `git` subcommand with a trailing space. The command name resolves
-through the shell's alias table first, so an alias for `docker` opens the
-menu under the name it expands to.
+Tab opens a third menu, behind Git's own and `cd`'s, for any command that has
+a committed specification. `docker `, `npm ` and `cargo ` reach it. `cd` never
+does, because its own menu above this one answers every line its reader
+claims and `cd.json`'s two rows are no answer at all to a directory name. The
+command name resolves through the shell's alias table first, so an alias for
+`docker` opens the menu under the name it expands to.
 
-An alias for `git` or `cd` is the one exception, and it reaches this menu
-rather than Git's own or `cd`'s: the exclusion above tests the word as
-typed, not what it expands to, because `crate::git::parse` and `cd`'s own
-reader each match only the literal word and never claim a line that starts
-with an alias for either. `alias g=git` therefore opens on `git`'s own
-specification — subcommands, options and their descriptions — but not on a
-branch name or a file name, which stay `crate::git::parse`'s alone. `alias
-c=cd` opens on `cd.json`'s own two rows, `-` and `~`, not on a real
+`git` reaches this menu for whatever Git's own leaves. That menu reads three
+things and no more: the subcommand word, a branch after `switch` or
+`checkout`, and a path or an option after `add`. Everything else on a `git`
+line fell straight through to the shell. `git blame `, `git clean `,
+`git stash ` and `git commit -` each did, while `specs/git.json` sat there
+saying that `blame` takes a file, that `stash` has children of its own and
+what every one of `commit`'s options does. Those lines walk that specification
+now. The three Git's own menu claims it keeps, because what answers them is
+the installed Git rather than a file frozen in May 2025: a branch made this
+morning is in `for-each-ref`'s output and in no corpus. `crate::app::App` is
+the one place that order is written down, as `App::reader`. Git's own parser
+reads the line first and the walk is only ever asked about a line it declined.
+
+A subcommand the corpus has no node for is what that costs, and it costs
+nothing in the end. Git's own menu offers every name the installed Git prints,
+its configured aliases among them, and the committed specification answers for
+fewer. Accepting one of the rest and typing a space walks that specification
+to a `git` with nowhere to go: the word is spent on `git`'s own optional
+`alias` argument rather than descending anywhere, and a node that declares
+subcommands offers neither them nor its own options behind such an argument.
+`git sample-alias ` therefore shows nothing at all, which is where it stood
+before any of this. Offering `add` there would put a subcommand one word too
+late and offering `--bare` would put a global option one word too late, and
+Git refuses both.
+
+That last rule belongs to the walk rather than to `git`. A command's own
+options sit in front of the subcommand rather than behind it — `git -C sample
+status`, never `git status -C sample` — so a word that has started filling a
+node's own arguments is past those options the same way it is past the
+subcommand. A node with no subcommand of its own has no such line to sit
+behind and goes on offering its options after its arguments, which is what
+`git add <file> -n` and `svn commit -m` both need. `src/argwalk.rs` is where
+that is written down.
+
+An alias for `cd` is the one exception to the refusal above, and it reaches
+this menu rather than `cd`'s own: the refusal tests the word as typed, not
+what it expands to, because `cd`'s own reader matches only the literal word
+and never claims a line that starts with an alias for it. `alias c=cd`
+therefore opens on `cd.json`'s own two rows, `-` and `~`, not on a real
 directory name, which stays the directory scan's alone.
+
+An alias for `git` reaches this menu for the whole of a line rather than for
+the part Git's own declined, and for the same reason: `crate::git::parse`
+matches the literal `git` and nothing else. `alias g=git` therefore opens on
+`git`'s own specification throughout — its subcommands, its options and their
+descriptions — and never on a branch name or a file name, which stay the
+installed Git's to answer. `git switch ` offers the branches. `g switch `
+offers `switch`'s own options and the one suggestion its argument carries,
+`-`, because that argument is one of the 4854 the corpus marks `dyn`.
 
 `spec_menu` loads the named command's specification and asks `argwalk` to
 walk the line against it. A row comes from whatever the walk says the next
@@ -631,9 +692,9 @@ Nothing writes a number for a file, a folder, a make target or an ssh
 host. `specs/git.json` and `specs/cd.json` carry none between them,
 so no row of Git's own menu or `cd`'s is worth anything but 50.
 
-Git's own menu never reaches this one and reads those same two fields
-anyway, for the rows it names itself. "Git" above is where that is written
-down.
+Git's own menu reads those same two fields for the rows it names itself,
+whatever this one goes on to answer behind them. "Git" above is where that
+is written down.
 
 A command can point the walk past its own specification at another's.
 `sudo git switch ` walks `git`'s own specification from the `git` token
@@ -679,7 +740,12 @@ own. `history` answers nothing yet; a later phase gives it a reader.
 An argument one of those two templates fills also gets `cd`'s own row that
 runs the line, at the top of the menu and under the highlight, whenever what
 is typed already names something on disk. `ls assets/`, `ls assets` and
-`ls readme` each get one. A name still being typed does not and neither does
+`ls readme` each get one, and so does `git blame readme`. Enter there runs the
+line the way it does under `ls`, which is the one place a `git` line ends in a
+command rather than back on the shell's own editor. The row belongs to the
+`filepaths` argument rather than to anything Git's own menu decided, and a
+line that menu still answers never gets one: none of the three things it reads
+is a path a `cd` would take. A name still being typed does not and neither does
 an empty argument. A `folders` argument refuses a file. That is not what it
 asked for and the menu never offered it either. A link with no target still
 counts, the same way the scan behind the rows still lists it. Nothing else
@@ -817,9 +883,9 @@ feature does both ends and neither of them reaches for a C library. The blob is
 9 105 907 bytes.
 
 The binary carries that weight now. `spec_menu` reaches
-`spec_store::get_configured` for any command besides `cd` and `git`, so a
-linker keeps the corpus rather than dropping it and a release build measures
-12 684 080 bytes.
+`spec_store::get_configured` for any command besides `cd`, so a linker keeps
+the corpus rather than dropping it and a release build measures 12 684 080
+bytes.
 
 ## Configuration
 
@@ -929,7 +995,10 @@ second source the "Git" section describes rather than a row gone blank. A
 `git.json` under `spec_dirs` is what those rows read instead of the
 committed one.
 Neither key reaches anything else that menu does: the subcommand names, the
-branches and the files all come from the installed Git either way.
+branches and the files all come from the installed Git either way. What the
+same two keys do reach is every `git` line that menu declined, since those
+walk the same specification: `git` in `disabled_commands` puts `git blame `
+and `git stash ` back to where they were before either menu answered them.
 
 `plans/phase-6-settings-cli.md` names the rest of the schema. A key with no
 reader stays out of this build, because a config key that does nothing is a

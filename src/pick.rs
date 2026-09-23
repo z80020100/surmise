@@ -205,9 +205,15 @@ pub fn run(seed: &str) -> io::Result<u8> {
     // `RBUFFER`, read above, is what would sit to its right.
     let completes_git = crate::git::parse(seed).is_some();
     let completes_spec = crate::spec_menu::parse(seed, "", &input.aliases).is_some();
-    // Git's own candidates never read the directory history and nothing
-    // but these two menus reads the command one, so each line pays for the
-    // one it will actually be ordered by and not for the other.
+    // Both are true of a line Git's own menu claims, since the spec menu
+    // reads a `git` line as well and `App::reader` is what holds it to the
+    // ones Git's own declined. The first is therefore what answers below:
+    // Git's own candidates never read the directory history, and a `git`
+    // line the walk answers wants that history the way `ls ` does. A run
+    // that opens on Git's own menu never reaches a row the walk weighs,
+    // because it ends where that menu does. Nothing but these two menus
+    // reads the command history, so each line pays for the one it will
+    // actually be ordered by and not for the other.
     let history = if completes_git {
         History::default()
     } else {
@@ -367,7 +373,13 @@ pub fn run(seed: &str) -> io::Result<u8> {
             // terminal again.
             _ => {}
         }
-        if completing_git && !app.menu_open() {
+        // A run Git's own menu answered ends where that menu does. An accepted
+        // subcommand or branch hands the next word to the walk and the run
+        // stops there rather than going on under it. Enter would take the
+        // walk's first row, and a second press that used to run `git status`
+        // or switch branches would write an option or a file onto the line
+        // instead. The next Tab is what opens the walk.
+        if completing_git && !(app.menu_open() && app.completes_git()) {
             break ACCEPTED;
         }
     };
