@@ -423,9 +423,15 @@ fn group_rank(kind: Kind) -> u8 {
 /// leads, a name that merely starts with it follows, a tie inside either
 /// goes to the row the shell history favours, a further tie keeps the fuzzy
 /// score's own order, the specification's own `priority` breaks that, the
-/// group the row came from breaks what is still level and a name breaks
-/// whatever is left. One `rank` rather than one copy each is what keeps
-/// the two menus from drifting apart.
+/// group the row came from breaks what is still level, a name leading with
+/// what was typed in the same case breaks what is left and the name itself
+/// breaks whatever remains. One `rank` rather than one copy each is what
+/// keeps the two menus from drifting apart.
+///
+/// The case sits that low on purpose. It says less about a row than any key
+/// above it and its whole job is to replace the byte order that put `-L`
+/// ahead of `-l` under `ls -l`. It reads a row's `insert` for the reason
+/// [`typed_as`] does: a path row shows a leaf and inserts the whole word.
 ///
 /// `priority` sits above the group and under the score for the reason Q
 /// puts it there. A number a specification wrote down says more than the
@@ -458,6 +464,7 @@ pub(crate) fn rank(rows: &mut [Candidate], term: &str, used_after: Option<UsedAf
             Reverse(c.score),
             Reverse(c.priority),
             Reverse(group_rank(c.kind)),
+            Reverse(c.insert.starts_with(term)),
             c.display.clone(),
         )
     });
@@ -551,14 +558,20 @@ pub(crate) fn generate_in(
         })
         .collect();
     // Exact names precede prefixes. Prefixes precede other matches. History
-    // ranks the names inside each of those. Equal weights use the score and
-    // then the name. That last key is what holds the menu still between
-    // keystrokes. `read_dir` answers in no order of its own.
+    // ranks the names inside each of those. Equal weights use the score, then
+    // a name leading with what was typed in the same case and then the name.
+    // That last key is what holds the menu still between keystrokes.
+    // `read_dir` answers in no order of its own.
     weighted.sort_by(|(a, aw), (b, bw)| {
         match_rank(base, &b.display)
             .cmp(&match_rank(base, &a.display))
             .then_with(|| bw.total_cmp(aw))
             .then_with(|| b.score.cmp(&a.score))
+            .then_with(|| {
+                b.display
+                    .starts_with(base)
+                    .cmp(&a.display.starts_with(base))
+            })
             .then_with(|| a.display.cmp(&b.display))
     });
     let mut out: Vec<_> = weighted.into_iter().map(|(c, _)| c).collect();
@@ -825,12 +838,12 @@ mod tests {
 
     #[test]
     fn an_exact_name_outranks_a_longer_one_that_ties_on_score() {
-        // `work` and `Worka` both score 112 against `Work` and the name key
-        // would then put `Worka/` first. `W` sorts below `w`. The exact rank
-        // is the only thing holding the name that was typed above the one
-        // that merely starts with it. A case-insensitive filesystem also
-        // gives `Work` a row that runs the line and the filter is what leaves
-        // that row out.
+        // `work` and `Worka` both score 112 against `Work` and only `Worka`
+        // leads with it in the same case. That would put `Worka/` first. The
+        // exact rank is the only thing holding the name that was typed above
+        // the one that merely starts with it. A case-insensitive filesystem
+        // also gives `Work` a row that runs the line and the filter is what
+        // leaves that row out.
         let f = Fixture::new(&["work", "Worka"]);
         let got = generate_in("Work", f.path());
         let dirs: Vec<&str> = got
@@ -839,6 +852,20 @@ mod tests {
             .map(|c| c.display.as_str())
             .collect();
         assert_eq!(dirs, ["work/", "Worka/"]);
+    }
+
+    #[test]
+    fn a_name_in_the_case_that_was_typed_breaks_a_tie_ahead_of_the_name() {
+        // `dist` and `Docs` score alike against either spelling. The name
+        // alone put `Docs` first because `D` sorts below `d`.
+        let f = Fixture::new(&["dist", "Docs"]);
+        for (arg, want) in [
+            ("d", ["dist/", "Docs/"]),
+            ("D", ["Docs/", "dist/"]),
+            ("./d", ["dist/", "Docs/"]),
+        ] {
+            assert_eq!(displays(&generate_in(arg, f.path())), want, "{arg:?}");
+        }
     }
 
     #[test]

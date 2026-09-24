@@ -341,6 +341,21 @@ mod tests {
     }
 
     #[test]
+    fn history_outranks_the_case_that_was_typed() {
+        // `dist` and `Docs` tie on everything else and `dist` is in the case
+        // that was typed.
+        let f = Fixture::new(&["dist", "Docs"]);
+        let db = f.path().join("history.sqlite3");
+        assert_eq!(
+            names(&History::default(), f.path(), "d"),
+            ["dist/", "Docs/"]
+        );
+        record_at(&db, f.path(), &f.path().join("Docs"), AT).unwrap();
+        let h = History::read(&db, f.path(), AT).unwrap();
+        assert_eq!(names(&h, f.path(), "d"), ["Docs/", "dist/"]);
+    }
+
+    #[test]
     fn a_menu_keeps_its_snapshot_and_origin_while_the_argument_changes() {
         let f = Fixture::new(&["alpha", "beta", "nested/alpha", "nested/beta"]);
         let db = f.path().join("history.sqlite3");

@@ -228,10 +228,12 @@ had been read at all. Whether that bell is a sound or a flash or nothing is
 the terminal's own setting rather than surmise's.
 
 Under the row that runs the line the names come in an order of their own. The
-name that is what you typed leads and the case either is in makes no
-difference. Names leading with what you typed come next and the rest follow.
-Inside each group the history of successful directory changes comes first.
-The closer text match follows and names that tie keep their alphabetical order.
+name that is what you typed leads whatever case either is in. Names leading
+with what you typed come next and the rest follow. Inside each group the
+history of successful directory changes comes first. The closer text match
+follows. A name leading with what you typed in the same case breaks a tie
+after that and the alphabetical order breaks the rest. `cd d` offers `dist/`
+ahead of `Docs/` and `cd D` offers them the other way round.
 Each source directory has preferences of its own. The menu reads those
 preferences once when it opens and keeps them while you type.
 
@@ -349,9 +351,10 @@ Typing a bare `git ` opens a subcommand menu. Tab also opens it on a partial
 subcommand such as `git stat`. Exact names lead. Prefixes follow and fuzzy
 matches come last. A tie inside one of those three goes to the name
 `$HISTFILE` says was typed after `git` more often. A further tie keeps the
-closer text match and then the alphabetical order. The menu includes
-high-level Git commands and configured alias names. It reads command names
-from the installed Git once per menu.
+closer text match, then a name leading with what you typed in the same case
+and then the alphabetical order. The menu includes high-level Git commands
+and configured alias names. It reads command names from the installed Git
+once per menu.
 It does not run aliases. That query prints a name and nothing else, so the
 word under the list comes from the command's own completion specification
 instead: it is the highlighted subcommand's description, read once per menu
@@ -665,9 +668,11 @@ word may be: a child subcommand, an option the line may still take, or one of
 an argument's own listed suggestions. A subcommand or an option that answers
 to several names shows once. Every one of those names is matched and the row
 shows and inserts the one that reaches what was typed best. `npm add` offers
-`add` that way and `npm install --save-d` offers `--save-dev`. A tie keeps
-the specification's own order and a row nothing was typed for therefore
-shows under the first of them. Each row's label is the
+`add` that way and `npm install --save-d` offers `--save-dev`. A tie goes to
+the name leading with what you typed in the same case and a tie after that
+keeps the specification's own order. A row nothing was typed for therefore
+shows under the first of its names. `grep -r` shows `-r` and `grep -R` shows
+`-R`. Each row's label is the
 spec's own description, or `"command"`, `"option"` or `"value"` for a row
 whose spec carries none. A subcommand or an option row also carries the
 arguments that still fit beside its name, drawn dim: `<name>` for a
@@ -692,10 +697,12 @@ own `priority` breaks that. The group the row came from breaks what is
 still level: the subcommands lead, the values the argument in hand takes
 follow and the options come last. A subcommand is the next word the command
 is made of and a value is the word its argument wants. An option is
-neither. The alphabetical order breaks whatever remains. Every row stays in
-the list however many there are. `npm ` has 70 subcommands and the last of
-them is as reachable as the first. Git's own menu keeps every row too. Only
-`cd`'s menu has a limit of its own.
+neither. A name leading with what you typed in the same case breaks what is
+left. `ls -l` leads with `-l` and `ls -L` with `-L`. The alphabetical order
+breaks whatever remains.
+Every row stays in the list however many there are. `npm ` has 70 subcommands
+and the last of them is as reachable as the first. Git's own menu keeps every
+row too. Only `cd`'s menu has a limit of its own.
 
 An empty argument is where that group order decides. Every row matches it
 equally well. The name alone decided before it and `-` sorts under every
