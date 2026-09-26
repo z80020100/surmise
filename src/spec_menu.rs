@@ -264,10 +264,12 @@ fn label(description: &Option<String>, fallback: &'static str) -> Cow<'static, s
 /// reaches `term` best. Every name is matched. `npm add` is `install` and
 /// `--save-d` is `-D, --save-dev`. Scoring the first name alone left both
 /// lines with no row at all. The row shows and inserts the name that won.
-/// [`rank`] reads the same two keys of it in the same order: how closely
-/// the name leads with what was typed and then the score. A tie keeps the
+/// [`rank`] reads the same three keys of it in the same order: how closely
+/// the name leads with what was typed, then the score and then whether it
+/// leads with it in the same case. A tie on all three keeps the
 /// specification's own order and a row nothing was typed for therefore
-/// shows under its first name.
+/// shows under its first name. `grep -r` shows `-r` rather than the `-R`
+/// its specification lists first.
 fn row(
     term: &str,
     names: &[String],
@@ -276,17 +278,17 @@ fn row(
     kind: Kind,
     priority: u8,
 ) -> Option<Candidate> {
-    let mut best: Option<(&str, (u8, i32))> = None;
+    let mut best: Option<(&str, (u8, i32, bool))> = None;
     for name in names {
         let Some(score) = fuzzy::score(term, name) else {
             continue;
         };
-        let key = (tier(term, name), score);
+        let key = (tier(term, name), score, name.starts_with(term));
         if best.is_none_or(|(_, won)| key > won) {
             best = Some((name, key));
         }
     }
-    let (name, (_, score)) = best?;
+    let (name, (_, score, _)) = best?;
     Some(Candidate {
         display: name.to_string(),
         insert: name.to_string(),
@@ -1262,6 +1264,39 @@ mod tests {
         assert!(names.contains(&"list"), "{names:?}");
         assert!(names.contains(&"install"), "{names:?}");
         assert!(names.contains(&"delete"), "{names:?}");
+    }
+
+    #[test]
+    fn a_name_leading_in_the_case_that_was_typed_wins_a_tie() {
+        // `ls` has `-l` and `-L` as two rows and the name alone put `-L`
+        // first. `grep` and `rm` each have `-R` and `-r` as names of one row.
+        // That row showed whichever its specification listed first.
+        for (line, first) in [
+            ("ls -l", "-l"),
+            ("ls -L", "-L"),
+            ("grep -r", "-r"),
+            ("rm -R", "-R"),
+        ] {
+            let rows = complete(&mut Completions::default(), &target(line));
+            assert_eq!(names(&rows).first(), Some(&first), "{line}");
+            assert_eq!(rows[0].insert, first, "{line}");
+        }
+        // The case comes after the score. `Sample` is the closer match to
+        // `sam` and keeps its place.
+        let rows = [
+            ("Sample", Kind::Command, DEFAULT_PRIORITY),
+            ("sample-longer", Kind::Command, DEFAULT_PRIORITY),
+        ];
+        assert_eq!(ranked("sam", &rows), ["Sample", "sample-longer"]);
+        // A path row shows its last part and inserts the whole word.
+        let f = Fixture::new(&["dist", "Docs"]);
+        for line in ["ls d", "ls ./d"] {
+            assert_eq!(
+                names(&rows_in(f.path(), line))[..2],
+                ["dist/", "Docs/"],
+                "{line}"
+            );
+        }
     }
 
     #[test]
