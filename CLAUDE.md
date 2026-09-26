@@ -661,7 +661,7 @@ offers `switch`'s own options and the one suggestion its argument carries,
 
 `spec_menu` loads the named command's specification and asks `argwalk` to
 walk the line against it. A row comes from whatever the walk says the next
-word may be: a child subcommand, an option not already on the line, or one of
+word may be: a child subcommand, an option the line may still take, or one of
 an argument's own listed suggestions. A subcommand or an option that answers
 to several names shows once. Every one of those names is matched and the row
 shows and inserts the one that reaches what was typed best. `npm add` offers
@@ -720,6 +720,16 @@ so no row of Git's own menu or `cd`'s is worth anything but 50.
 Git's own menu reads those same two fields for the rows it names itself,
 whatever this one goes on to answer behind them. "Git" above is where that
 is written down.
+
+An option comes back until the line has used it up. Most go once.
+`npm install --omit` goes three times and `npm token create --cidr` as often
+as a person likes. An option on the line can also rule others out. The
+specification says `--prefer-online` excludes `--prefer-offline` and
+`--offline` and `npm search --prefer-online ` therefore offers neither. One
+can want another as well. The specification says `bw send create --hidden`
+depends on `--text` and that line therefore leads with it. An option another
+one depends on is worth 75 until the line holds it. A specification that
+wrote a higher number for it keeps that number.
 
 A command can point the walk past its own specification at another's.
 `sudo git switch ` walks `git`'s own specification from the `git` token
