@@ -346,6 +346,21 @@ pub(crate) fn match_rank(base: &str, display: &str) -> u8 {
     }
 }
 
+/// The first key [`rank`] sorts on: a name that folds to exactly what was
+/// typed, then one that merely starts with it, then the rest. It is
+/// [`match_rank`] with one case more. A term that spells a folder row whole,
+/// slash and all, is that row's exact name.
+pub(crate) fn tier(term: &str, name: &str) -> u8 {
+    if !term.is_empty()
+        && fuzzy::starts_with_folded(name, term)
+        && fuzzy::starts_with_folded(term, name)
+    {
+        2
+    } else {
+        match_rank(term, name)
+    }
+}
+
 /// The text a row would have been typed as, which is what the reading of
 /// `$HISTFILE` counted. A row's own `insert` rather than its `display`:
 /// the two are the same word for a subcommand and an option, and a path
@@ -434,19 +449,9 @@ fn group_rank(kind: Kind) -> u8 {
 /// comparisons; `specs/aws/ec2.json`'s 448 subcommands are this corpus's
 /// worst case for it.
 pub(crate) fn rank(rows: &mut Vec<Candidate>, term: &str, used_after: Option<UsedAfter>) {
-    let tier = |name: &str| {
-        if !term.is_empty()
-            && fuzzy::starts_with_folded(name, term)
-            && fuzzy::starts_with_folded(term, name)
-        {
-            2
-        } else {
-            match_rank(term, name)
-        }
-    };
     rows.sort_by_cached_key(|c| {
         (
-            Reverse(tier(&c.display)),
+            Reverse(tier(term, &c.display)),
             Reverse(used_after.map_or(0, |h| h.counts.count(h.command, typed_as(c)))),
             Reverse(c.score),
             Reverse(c.priority),

@@ -310,12 +310,13 @@ lookup saved. A branch named for a subcommand somebody types often would
 otherwise climb a list it has no business leading.
 
 A row that answers to several names is the one thing this misses. "Other
-commands" below shows such a row once, under the first of its names, and
-this reading counted whatever was actually typed. `npm install` also
-answers to `i` and to `add`, so a person who types `npm i` teaches the pair
-`("npm", "i")` and the row on screen says `install`, which that pair never
-reaches. Sixteen of `npm`'s own subcommands answer to more than one name.
-The row is ordered as though it had never been typed.
+commands" below shows such a row once, under the first of its names when
+nothing is typed, and this reading counted whatever was actually typed.
+`npm install` also answers to `i` and to `add`, so a person who types
+`npm i` teaches the pair `("npm", "i")` and the row a bare `npm ` shows
+says `install`, which that pair never reaches. Sixteen of `npm`'s own
+subcommands answer to more than one name. On that line the row is ordered
+as though it had never been typed.
 
 A match need not lead with what you typed and Tab ignores the rows that do
 not. `cd wk` reaching `work/` is a match Enter takes. Right leaves it: that
@@ -662,7 +663,11 @@ offers `switch`'s own options and the one suggestion its argument carries,
 walk the line against it. A row comes from whatever the walk says the next
 word may be: a child subcommand, an option not already on the line, or one of
 an argument's own listed suggestions. A subcommand or an option that answers
-to several names shows once, under the first of them. Each row's label is the
+to several names shows once. Every one of those names is matched and the row
+shows and inserts the one that reaches what was typed best. `npm add` offers
+`add` that way and `npm install --save-d` offers `--save-dev`. A tie keeps
+the specification's own order and a row nothing was typed for therefore
+shows under the first of them. Each row's label is the
 spec's own description, or `"command"`, `"option"` or `"value"` for a row
 whose spec carries none. A subcommand or an option row also carries the
 arguments that still fit beside its name, drawn dim: `<name>` for a

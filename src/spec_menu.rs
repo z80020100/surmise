@@ -7,7 +7,7 @@
 use crate::argwalk::{self, Walk};
 use crate::candidates::{
     Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, MAX_RESULTS, Query, Scan, UsedAfter,
-    priority_of, rank, resolved_in, run_row, split,
+    priority_of, rank, resolved_in, run_row, split, tier,
 };
 use crate::fuzzy;
 use crate::histfile;
@@ -254,21 +254,40 @@ fn label(description: &Option<String>, fallback: &'static str) -> Cow<'static, s
     }
 }
 
+/// A row for something that answers to `names`, under the one of them that
+/// reaches `term` best. Every name is matched. `npm add` is `install` and
+/// `--save-d` is `-D, --save-dev`. Scoring the first name alone left both
+/// lines with no row at all. The row shows and inserts the name that won.
+/// [`rank`] reads the same two keys of it in the same order: how closely
+/// the name leads with what was typed and then the score. A tie keeps the
+/// specification's own order and a row nothing was typed for therefore
+/// shows under its first name.
 fn row(
     term: &str,
-    name: &str,
+    names: &[String],
     label: Cow<'static, str>,
     hint: Vec<String>,
     kind: Kind,
     priority: u8,
 ) -> Option<Candidate> {
+    let mut best: Option<(&str, (u8, i32))> = None;
+    for name in names {
+        let Some(score) = fuzzy::score(term, name) else {
+            continue;
+        };
+        let key = (tier(term, name), score);
+        if best.is_none_or(|(_, won)| key > won) {
+            best = Some((name, key));
+        }
+    }
+    let (name, (_, score)) = best?;
     Some(Candidate {
         display: name.to_string(),
         insert: name.to_string(),
         label,
         hint,
         kind,
-        score: fuzzy::score(term, name)?,
+        score,
         priority,
     })
 }
@@ -288,12 +307,9 @@ fn build_rows(
 
     if walk.offers_subcommands {
         for sub in unique_targets(&walk.node.subcommands) {
-            let Some(name) = sub.name.first() else {
-                continue;
-            };
             rows.extend(row(
                 term,
-                name,
+                &sub.name,
                 label(&sub.description, SUBCOMMAND_LABEL),
                 spec::arg_hints(&sub.args),
                 Kind::Command,
@@ -307,9 +323,6 @@ fn build_rows(
             if already_passed(&walk.passed_options, opt) {
                 continue;
             }
-            let Some(name) = opt.name.first() else {
-                continue;
-            };
             // A space between the name and the hint is what says the
             // value is a word of its own. An option that requires a
             // separator takes `--name=value` instead, and the row cannot
@@ -322,7 +335,7 @@ fn build_rows(
             };
             rows.extend(row(
                 term,
-                name,
+                &opt.name,
                 label(&opt.description, OPTION_LABEL),
                 hint,
                 Kind::Option,
@@ -335,9 +348,6 @@ fn build_rows(
         && let Some(arg) = &walk.current_arg
     {
         for suggestion in &arg.suggestions {
-            let Some(name) = suggestion.name.first() else {
-                continue;
-            };
             // A suggestion is a fixed value rather than a file Git would
             // recognise. `Kind::Path` is the nearest existing kind: it sits
             // in the same flat, non-directory group as `Command` and
@@ -345,7 +355,7 @@ fn build_rows(
             // Git pathspec.
             rows.extend(row(
                 term,
-                name,
+                &suggestion.name,
                 label(&suggestion.description, SUGGESTION_LABEL),
                 Vec::new(),
                 Kind::Path,
@@ -557,10 +567,9 @@ fn help_rows(term: &str, enclosing: Option<&Subcommand>) -> Vec<Candidate> {
     unique_targets(&node.subcommands)
         .into_iter()
         .filter_map(|sub| {
-            let name = sub.name.first()?;
             row(
                 term,
-                name,
+                &sub.name,
                 label(&sub.description, SUBCOMMAND_LABEL),
                 // The row fills `help`'s own argument with this name and
                 // stops there. What the sibling itself takes is never
@@ -694,7 +703,7 @@ mod tests {
             .filter_map(|name| {
                 row(
                     "ad",
-                    name,
+                    &[name.to_string()],
                     Cow::Borrowed(SUBCOMMAND_LABEL),
                     Vec::new(),
                     Kind::Command,
@@ -727,7 +736,7 @@ mod tests {
                 };
                 row(
                     term,
-                    name,
+                    &[name.to_string()],
                     Cow::Borrowed(label),
                     Vec::new(),
                     *kind,
@@ -1188,6 +1197,35 @@ mod tests {
         assert!(names.contains(&"list"), "{names:?}");
         assert!(names.contains(&"install"), "{names:?}");
         assert!(names.contains(&"delete"), "{names:?}");
+    }
+
+    #[test]
+    fn a_row_matches_on_every_name_it_answers_to() {
+        // `install` also answers to `i` and `add`, `update` to `upgrade` and
+        // `up`, and `r` to `rm`. Only the first name used to be scored.
+        for (line, name) in [
+            ("npm add", "add"),
+            ("npm upg", "upgrade"),
+            ("npm rm", "rm"),
+            ("npm install --save-d", "--save-dev"),
+            ("npm run --work", "--workspace"),
+        ] {
+            let rows = complete(&mut Completions::default(), &target(line));
+            assert_eq!(names(&rows).first(), Some(&name), "{line}");
+            assert_eq!(rows[0].insert, name, "{line}");
+        }
+    }
+
+    #[test]
+    fn a_row_nothing_was_typed_for_shows_under_its_first_name() {
+        // Every name ties on an empty term and the specification's own
+        // order breaks it. A `-` ties `-D` and `--save-dev` on how they
+        // lead and the shorter name scores higher.
+        let rows = complete(&mut Completions::default(), &target("npm install "));
+        assert!(names(&rows).contains(&"-D"), "{:?}", names(&rows));
+        let rows = complete(&mut Completions::default(), &target("npm install -"));
+        assert!(names(&rows).contains(&"-D"), "{:?}", names(&rows));
+        assert!(!names(&rows).contains(&"--save-dev"), "{:?}", names(&rows));
     }
 
     /// `specs/npm.json`'s `install` argument is `package`, `isOptional` and
