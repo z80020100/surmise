@@ -537,9 +537,15 @@ earlier file argument. Single quotes, literal double quotes and escaped
 characters are supported. Shell expansions stay with shell completion.
 Acceptance does not stage files or execute the command. Esc keeps the edited line.
 Ctrl-C and Ctrl-G restore the line that opened the menu. Options can remain
-after all files are selected. Esc returns to the shell before Enter runs
-the command. Each file query and directory listing stays fixed until the
-next menu.
+after all files are selected. Each file query and directory listing stays
+fixed until the next menu.
+
+A path on the line is what `git add` needs and the row that runs the line
+leads the menu behind it. The second Enter therefore runs the command rather
+than taking the next file. `-A`, `-u`, `-p`, `-i`, `-e`, `--renormalize` and
+`--pathspec-from-file` each let Git act with no path and lead with the row as
+well. Git adds nothing on any other `git add` with no path and the menu there
+leads with the first file. Tab looks past the row.
 
 The option names and aliases follow the [Q Git completion specification](https://github.com/withfig/autocomplete/blob/aef52acff84c45edde61ae610cc2c964802b9a38/src/git.ts).
 The menu shows a short description of the highlighted option in its footer.

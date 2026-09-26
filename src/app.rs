@@ -317,15 +317,14 @@ impl App {
         self.growable(&word).then_some(word)
     }
 
-    /// Whether Git's own menu is what this run is on. `pick` asks before it
-    /// loads the directory history and again after each key. Git's own rows
-    /// have nothing to take from that history and the second question is
-    /// whether the run is over.
+    /// Whether Git's own menu is what this run is on. `pick` asks before each
+    /// key it reads. The answer says whether the run is over once no menu is
+    /// left and whether Enter with no row to take hands the line back rather
+    /// than running it.
     ///
-    /// Git's own parser rather than [`App::reader`]: a `git` line the spec
-    /// menu answers is one Git's own menu declined, and it wants the
-    /// directory history and the ending of every other spec menu. `git blame `
-    /// weighs a folder row the way `ls ` does.
+    /// Git's own parser rather than [`App::reader`]. A `git` line the spec
+    /// menu answers is one Git's own menu declined and it ends the way every
+    /// other spec menu does. `git blame ` runs on Enter the way `ls ` does.
     ///
     /// The whole line rather than the half in front of the cursor. The
     /// question is what the run is for rather than what the next key would
@@ -680,10 +679,17 @@ mod tests {
                 .count(),
             1
         );
-        assert_eq!(a.items[0].insert, "sample two");
+        // A path on the line is what Git wants and the row that runs the
+        // line leads. Tab looks past it.
+        assert_eq!(a.items[0].kind, candidates::Kind::Run);
+        assert_eq!(a.items[1].insert, "sample two");
         assert!(a.accept_common());
         assert_eq!(a.line.text(), "git add 'sample one' 'sample two' ");
-        assert!(a.items.iter().all(|c| c.kind == candidates::Kind::Option));
+        assert!(
+            a.items[1..]
+                .iter()
+                .all(|c| c.kind == candidates::Kind::Option)
+        );
         let reopened = App::over(f.path(), "git add 'sample one' ");
         assert_eq!(
             reopened
@@ -693,7 +699,7 @@ mod tests {
                 .count(),
             1
         );
-        assert_eq!(reopened.items[0].insert, "sample two");
+        assert_eq!(reopened.items[1].insert, "sample two");
         assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
     }
 
@@ -770,7 +776,12 @@ mod tests {
         let mut a = App::over(f.path(), "git add --pathspec-from-file='sample l");
         assert!(a.accept_common());
         assert_eq!(a.line.text(), "git add '--pathspec-from-file=sample list' ");
-        assert!(a.items.iter().all(|c| c.kind == candidates::Kind::Option));
+        assert_eq!(a.items[0].kind, candidates::Kind::Run);
+        assert!(
+            a.items[1..]
+                .iter()
+                .all(|c| c.kind == candidates::Kind::Option)
+        );
         let mut a = App::over(f.path(), "git add --ignore");
         assert!(a.accept_common());
         assert_eq!(a.line.text(), "git add --ignore-");
@@ -794,7 +805,12 @@ mod tests {
                 assert!(a.adds_to_the_line());
                 assert!(if tab { a.accept_common() } else { a.accept() });
                 assert_eq!(a.line.text(), format!("git add {expected} "));
-                assert!(a.items.iter().all(|c| c.kind == candidates::Kind::Option));
+                assert_eq!(a.items[0].kind, candidates::Kind::Run);
+                assert!(
+                    a.items[1..]
+                        .iter()
+                        .all(|c| c.kind == candidates::Kind::Option)
+                );
             }
         }
     }
