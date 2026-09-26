@@ -136,6 +136,15 @@ pub struct Walk<'a> {
     pub offers_options: bool,
     /// Whether [`Walk::current_arg`] is set.
     pub offers_args: bool,
+    /// Whether the command cannot run without another word: an argument
+    /// that is not optional and has no word yet, the option's own or the
+    /// node's, or a subcommand the node wants. `requiresSubcommand` answers
+    /// that last one where the node writes it. A node that does not write
+    /// it wants one of the subcommands it has. It wants one right behind
+    /// the word that reached it and nowhere further on. An option there such
+    /// as `git --version` may be the whole command and the specification
+    /// cannot tell it from `--no-pager`.
+    pub needs_word: bool,
     /// Index into the command's `words` of the word that named `node`. `0`
     /// means the walk never left the command name itself.
     pub command_index: usize,
@@ -155,7 +164,9 @@ struct State<'a> {
     option_arg: Option<OptionArg<'a>>,
     entered_subcommand_args: bool,
     subcommand_arg_index: usize,
-    subcommand_arg_filled: bool,
+    /// How many words the argument at `subcommand_arg_index` holds. Only a
+    /// variadic one holds any. Any other moves the index on.
+    subcommand_arg_words: usize,
     /// Every persistent option in scope, from `node` and every ancestor
     /// it took to reach it, keyed by name with the nearest declaration
     /// winning. `node`'s own regular `options` are not in here; they are
@@ -175,7 +186,7 @@ impl<'a> State<'a> {
             option_arg: None,
             entered_subcommand_args: false,
             subcommand_arg_index: 0,
-            subcommand_arg_filled: false,
+            subcommand_arg_words: 0,
             ancestor_persistent: HashMap::new(),
         };
         state.absorb_persistent(root);
@@ -194,7 +205,7 @@ impl<'a> State<'a> {
         self.command_index = index;
         self.entered_subcommand_args = false;
         self.subcommand_arg_index = 0;
-        self.subcommand_arg_filled = false;
+        self.subcommand_arg_words = 0;
         self.option_arg = None;
         self.absorb_persistent(child);
     }
@@ -211,7 +222,7 @@ impl<'a> State<'a> {
         self.option_arg = None;
         self.entered_subcommand_args = false;
         self.subcommand_arg_index = 0;
-        self.subcommand_arg_filled = false;
+        self.subcommand_arg_words = 0;
         self.ancestor_persistent.clear();
         self.absorb_persistent(new_root);
     }
@@ -251,7 +262,7 @@ impl<'a> State<'a> {
             return (filled && arg.is_variadic == Some(true)).then_some(arg);
         }
         if self.entered_subcommand_args
-            && self.subcommand_arg_filled
+            && self.subcommand_arg_words > 0
             && self.subcommand_arg_index < self.node.args.len()
         {
             let arg = &self.node.args[self.subcommand_arg_index];
@@ -476,10 +487,10 @@ pub fn walk<'a>(
                 let arg = &node.args[arg_index];
                 if !state.maybe_reroot(arg, text, index, &load_spec) {
                     if arg.is_variadic == Some(true) {
-                        state.subcommand_arg_filled = true;
+                        state.subcommand_arg_words += 1;
                     } else {
                         state.subcommand_arg_index += 1;
-                        state.subcommand_arg_filled = false;
+                        state.subcommand_arg_words = 0;
                     }
                     state.entered_subcommand_args = true;
                     state.seen_non_option = true;
@@ -504,12 +515,22 @@ pub fn walk<'a>(
     } else {
         None
     };
+    let needs_word = state.option_arg.is_some_and(|(opt, arg_index, filled)| {
+        wants_word(&opt.args, arg_index, usize::from(filled))
+    }) || wants_word(
+        &state.node.args,
+        state.subcommand_arg_index,
+        state.subcommand_arg_words,
+    ) || (state.command_index + 2 == words.len()
+        && !state.node.subcommands.is_empty()
+        && state.node.requires_subcommand != Some(false));
 
     Walk {
         node: state.node,
         root: state.root,
         offers_args: current_arg.is_some(),
         current_arg,
+        needs_word,
         offers_subcommands: !state.entered_subcommand_args && !forced,
         offers_options: !forced && state.can_consume_options(),
         command_index: state.command_index,
@@ -559,6 +580,22 @@ fn advance_option_arg<'a>(opt: &'a Opt, arg_index: usize) -> Option<OptionArg<'a
         Some((opt, arg_index, true))
     } else {
         start_pending_from(opt, arg_index + 1)
+    }
+}
+
+/// Whether `args` from `index` on still want a word. The one at `index`
+/// holds `taken` words and only a variadic argument holds more than one.
+/// A mandatory one keeps its first word. Every other word it holds may
+/// belong to the arguments behind it instead. `cp`'s variadic source takes
+/// every name the walk gives it. `cp one` still wants its target and
+/// `cp one two` may already be a source and its target. An optional one
+/// keeps none of them.
+fn wants_word(args: &[Arg], index: usize, taken: usize) -> bool {
+    let mandatory = |arg: &Arg| !arg.is_optional.unwrap_or(false);
+    let wanted = |from: usize| args.iter().skip(from).filter(|arg| mandatory(arg)).count();
+    match taken {
+        0 => wanted(index) > 0,
+        _ => wanted(index + 1) > taken - usize::from(args.get(index).is_some_and(mandatory)),
     }
 }
 
@@ -635,6 +672,53 @@ mod tests {
         assert!(std::ptr::eq(walk.node, &git));
         assert_eq!(walk.search_term, "");
         assert!(walk.offers_subcommands);
+    }
+
+    #[test]
+    fn a_word_is_needed_until_every_mandatory_argument_has_one() {
+        // `cp`'s target sits behind a variadic source and the second name
+        // may be that target. `ls` has only the variadic. `git stash` writes
+        // that it runs bare and `docker container` writes nothing and has
+        // subcommands. An option behind the word that reached a node wants
+        // none of them.
+        for (name, line, needed) in [
+            ("make", "make ", true),
+            ("make", "make sample ", false),
+            ("make", "make -C ", true),
+            ("cp", "cp one ", true),
+            ("cp", "cp one two ", false),
+            ("ls", "ls one ", false),
+            ("cargo", "cargo build ", false),
+            ("cargo", "cargo ", true),
+            ("cargo", "cargo --version ", false),
+            ("cargo", "cargo --verbose build ", false),
+            ("git", "git stash ", false),
+            ("git", "git -C sample ", false),
+            ("docker", "docker container ", true),
+        ] {
+            let spec = spec::load(name, &[]).unwrap();
+            let walk = walk(&command(line), &spec, |_| None);
+            assert_eq!(walk.needs_word, needed, "{line}");
+        }
+    }
+
+    #[test]
+    fn an_optional_variadic_lends_every_word_to_the_arguments_behind_it() {
+        // A mandatory variadic keeps its first word and an optional one keeps
+        // none. The first word an optional one holds may already be the
+        // argument after it.
+        let arg = |optional: bool| Arg {
+            is_optional: Some(optional),
+            is_variadic: Some(true),
+            ..Arg::default()
+        };
+        let target = Arg::default();
+        let optional = [arg(true), target.clone()];
+        assert!(wants_word(&optional, 0, 0));
+        assert!(!wants_word(&optional, 0, 1));
+        let mandatory = [arg(false), target];
+        assert!(wants_word(&mandatory, 0, 1));
+        assert!(!wants_word(&mandatory, 0, 2));
     }
 
     #[test]

@@ -207,18 +207,11 @@ pub fn run(seed: &str) -> io::Result<u8> {
     let completes_spec = crate::spec_menu::parse(seed, "", &input.aliases).is_some();
     // Both are true of a line Git's own menu claims, since the spec menu
     // reads a `git` line as well and `App::reader` is what holds it to the
-    // ones Git's own declined. The first is therefore what answers below:
-    // Git's own candidates never read the directory history, and a `git`
-    // line the walk answers wants that history the way `ls ` does. A run
-    // that opens on Git's own menu never reaches a row the walk weighs,
-    // because it ends where that menu does. Nothing but these two menus
-    // reads the command history, so each line pays for the one it will
-    // actually be ordered by and not for the other.
-    let history = if completes_git {
-        History::default()
-    } else {
-        History::load(&cwd)
-    };
+    // ones Git's own declined. Nothing but these two menus reads the command
+    // history. The directory history is read for every line. A run that
+    // opens on Git's own menu goes on into the walk behind an accepted
+    // subcommand and that walk weighs its folders the way `ls ` does.
+    let history = History::load(&cwd);
     let cmd_history = if completes_git || completes_spec {
         histfile::read(&input.histfile, &input.aliases)
     } else {
@@ -320,13 +313,10 @@ pub fn run(seed: &str) -> io::Result<u8> {
                     KeyCode::Tab => {
                         if !app.accept_common() {
                             ui.bell()?;
-                        } else if app.menu_repeats || !app.menu_open() {
+                        } else if !app.menu_open() {
                             // A whole name went in and left nothing behind to
                             // answer the next press with. The Enter arm below
-                            // ends on the same two conditions and says why.
-                            // A prefix is not a whole name and never lands on
-                            // the first of them: the rows it came from are the
-                            // rows that still match it.
+                            // ends the same way and says why.
                             break ACCEPTED;
                         }
                     }
@@ -351,14 +341,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
                         // and nothing to go on into. A directory nobody may
                         // read does that. Hand the line to the shell's own
                         // editor rather than hold a frame with no menu on it.
-                        //
-                        // A menu that came back with the list it already had
-                        // is handed back for the same reason: the row took
-                        // nothing out of it and the next press would put the
-                        // same name on the line a second time. The shell has
-                        // the finished word and the press after this one runs
-                        // it. `App::menu_repeats` is where that is written down.
-                        if app.menu_repeats || !app.menu_open() {
+                        if !app.menu_open() {
                             break ACCEPTED;
                         }
                     }
@@ -382,13 +365,14 @@ pub fn run(seed: &str) -> io::Result<u8> {
             // terminal again.
             _ => {}
         }
-        // A run Git's own menu answered ends where that menu does. An accepted
-        // subcommand or branch hands the next word to the walk and the run
-        // stops there rather than going on under it. Enter would take the
-        // walk's first row, and a second press that used to run `git status`
-        // or switch branches would write an option or a file onto the line
-        // instead. The next Tab is what opens the walk.
-        if completing_git && !(app.menu_open() && app.completes_git()) {
+        // A run Git's own menu answered ends once there is no menu left to
+        // show. A word no subcommand matches does that and so does a
+        // subcommand the walk behind it has nothing for. An accepted
+        // subcommand or branch the walk does answer goes on under the walk's
+        // menu. That menu leads with the row that runs the line wherever the
+        // line runs as it stands. The press that ran `git status` still runs
+        // it.
+        if completing_git && !app.menu_open() {
             break ACCEPTED;
         }
     };

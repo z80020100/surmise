@@ -472,20 +472,20 @@ Enter accepts the highlighted subcommand and adds a space. Right does the same
 when the name starts with what you typed. Tab accepts the shared prefix or a
 single prefix match. Accepting `switch` or `checkout` opens the branch menu
 when branches are available. Accepting `add` opens the file menu when files
-are available. Other complete subcommands return the line to the shell for
-further editing. A word no subcommand matches returns the line as well. Tab
-on such a word opens no menu and the shell completes it instead. Accepting a
-subcommand does not execute it. Esc keeps the edited line. Ctrl-C and Ctrl-G
-restore the line that opened the menu.
+are available. Any other complete subcommand opens the menu "Other commands"
+below describes on the word behind it. A subcommand that menu has nothing for
+returns the line to the shell for further editing. So does a word no
+subcommand matches. Tab on such a word opens no menu and the shell completes
+it instead. Accepting a subcommand does not execute it. Esc keeps the edited
+line. Ctrl-C and Ctrl-G restore the line that opened the menu.
 
-What comes after a returned subcommand is the menu "Other commands" below
-describes and Tab there is what opens it. `git blame ` opens on the files
-beside the line and `git stash ` on the eleven children of its own. The
-acceptance does not open that menu itself. Enter there takes the first row,
-so the second press that runs `git status` would write `--ahead-behind` onto
-the line instead. Behind a branch it would be worse. `git checkout <branch> `
-offers the paths beside the line first, and running that line writes the
-branch's copy of a file over the one on disk.
+`git blame ` opens on the files beside the line and `git stash ` on the eleven
+children of its own. A line that runs as it stands leads that menu with the
+row that runs it. The second Enter therefore still runs `git status` rather
+than writing `--ahead-behind` onto the line. Behind a branch that matters
+more. `git checkout <branch> ` offers the paths beside the line as well and
+running that line with a path on it writes the branch's copy of the file over
+the one on disk.
 
 Typing `git switch ` or `git checkout ` also opens the branch menu.
 Tab opens it on a partial branch name. The menu includes local branches and
@@ -499,13 +499,13 @@ other and the name on it says nothing about where the repository stands.
 
 Branch matching uses the whole name including every `/`. Enter accepts the
 highlighted branch. Right accepts a prefix match. Tab accepts a shared prefix
-or a single prefix match. Accepting a whole branch adds a space and returns
-the line to the shell for editing. It does not execute the command. Tab
-behind the branch opens what the subcommand's own specification asks for
-next, in the menu "Other commands" below describes: `switch`'s own options,
-and `checkout`'s beside the paths its second argument takes. No second
-branch is offered there. The branch reader answered the word it was asked
-about and the walk answers the next one.
+or a single prefix match. Accepting a whole branch adds a space and opens
+what the subcommand's own specification asks for next, in the menu "Other
+commands" below describes. The row that runs the line leads it. `switch`'s own
+options follow and `checkout`'s sit beside the paths its second argument
+takes. It does not execute the command. No second branch is offered there.
+The branch reader answered the word it was asked about and the walk answers
+the next one.
 Esc keeps the edited line. Ctrl-C and Ctrl-G restore the line that opened the
 menu. The menu reads branches and their settings once when it first needs
 them. Branches created later appear in the next menu.
@@ -758,18 +758,35 @@ on, or a row's whole name where only one agrees. Accepting a row never runs
 it. Moving the cursor off the word a row would replace makes that row go
 stale, the same way a Git row does.
 
-A row that takes nothing out of the list ends the menu. `ls ` offers every
-name in the directory and the argument behind it takes as many names as it is
-given. The menu an accepted file would reopen is therefore the menu that was
-already there and the next press would put that same name on the line a second
-time. Accepting one hands the line back to the shell instead. The word is
-finished and a space follows it and the press after that runs the line. A row
-that changes what comes next keeps the menu open: a subcommand moves the walk
-to another node and a folder moves the scan into itself. Tab reads the same
-answer for a whole name it takes. The prefix several rows share is not a whole
-name and never ends the menu: the rows it came from are the rows that still
-match it. Neither `cd`'s own menu nor Git's is affected. Each of their queries
-drops what it has just given.
+A space opens this menu unasked and Enter takes the highlighted row. The press
+that runs `make install` anywhere else would therefore write `--debug` onto
+the line. A line that runs as it stands leads its menu with the row that runs
+it instead. Nothing is typed in the word yet and the specification wants no
+further word. The row runs the line the screen shows and that is what Enter
+does without a menu. Down or a typed character moves off it to take anything
+else. A line that still needs a word keeps its first row under the highlight:
+`cargo `, `docker container `, `make -C ` and `cp one ` each want one more.
+
+What a command needs is read off the specification. An argument not marked
+optional that has no word yet needs one and so does a node's subcommand. A
+variadic argument's words past its first may belong to the arguments behind
+it. `cp one two ` therefore runs as it stands. A node that writes
+`requiresSubcommand` answers for itself and one that writes nothing wants one
+of the subcommands it has. It wants one only right behind the word that
+reached it. An option there such as `git --version` may be the whole command
+and the specification cannot tell it from `--no-pager`. Both lines lead with
+the row and a subcommand is one Down away. A specification that leaves out an
+argument the command needs offers the row too early and one that leaves out
+`isOptional` never offers it. `docker attach` is the first and `ls` is the
+second. Tab looks past the row. It reads the names of the first kind under it
+and the underline says so.
+
+Every accepted row leaves the menu open on the word behind it. That holds for
+a row that brings the same list back as well: `cp `'s source takes as many
+names as it is given and the same files return behind the first. The highlight
+says what the next press takes. Accepting a row with Enter or Tab ends the run
+only where the menu behind it has nothing left to show. The line goes back to
+the shell there.
 
 A generator's own template answers for three of the four names the corpus
 carries. `filepaths` and `folders` read the filesystem the way `cd`'s own menu
@@ -785,16 +802,16 @@ An argument one of those two templates fills also gets `cd`'s own row that
 runs the line, at the top of the menu and under the highlight, whenever what
 is typed already names something on disk. `ls assets/`, `ls assets` and
 `ls readme` each get one, and so does `git blame readme`. Enter there runs the
-line the way it does under `ls`, which is the one place a `git` line ends in a
-command rather than back on the shell's own editor. The row belongs to the
+line the way it does under `ls`. The row belongs to the
 `filepaths` argument rather than to anything Git's own menu decided, and a
 line that menu still answers never gets one: none of the three things it reads
-is a path a `cd` would take. A name still being typed does not and neither does
-an empty argument. A `folders` argument refuses a file. That is not what it
-asked for and the menu never offered it either. A link with no target still
-counts, the same way the scan behind the rows still lists it. Nothing else
-here gets the row. A subcommand is a word to go on from rather than an answer
-and the menu under it is what says where.
+is a path a `cd` would take. A name still being typed does not. An empty
+argument gets it only where the line runs as it stands. A `folders` argument
+refuses a file. That is not what it asked for and the menu never offered it
+either. A link with no target still counts, the same way the scan behind the
+rows still lists it. Nothing else gets the row while a word is being typed. A
+subcommand is a word to go on from rather than an answer and the menu under it
+is what says where.
 
 Two arguments are answered by a reader of surmise's own. `make ` offers the
 targets of the makefile beside the line and the same argument behind `-j`,
