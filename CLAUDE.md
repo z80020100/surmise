@@ -337,7 +337,9 @@ cannot promise what the key will not do.
 Everything else is ordinary line editing. Left, Home, End, Backspace, Delete
 and Ctrl-A, Ctrl-E, Ctrl-U and Ctrl-K all do what they do in the shell. Ctrl-W
 takes back one path segment where the shell would take the whole path.
-Emptying the line leaves the menu as well and keeps the empty line.
+Emptying the line leaves the menu as well and keeps the empty line. So does
+taking back the space that opened the menu. The line then goes back as the
+shell had it before that space.
 
 `bindkey ' ' $_surmise_space` after the `eval` gives the space key back and
 keeps the Tab route.

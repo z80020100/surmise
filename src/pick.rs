@@ -257,6 +257,9 @@ pub fn run(seed: &str) -> io::Result<u8> {
     // open for the writes that follow the loop.
     let mut ui = ui::Ui::new(term.try_clone()?, frame_col);
 
+    // The line as the shell had it before the space that opened this menu.
+    let unspaced = seed.strip_suffix(' ');
+
     let outcome = loop {
         // `App` decides whether the menu shows. `ui` only sizes it.
         let typed = app.typed();
@@ -363,7 +366,13 @@ pub fn run(seed: &str) -> io::Result<u8> {
                         keys::edit(&mut app, k);
                         // An empty line is the plainest way to say "not this".
                         // Leave it empty and give the terminal back.
-                        if app.line.is_empty() {
+                        //
+                        // Taking back the space that opened the menu says it
+                        // as well. A space typed behind `make install` opens
+                        // what may follow it and the edit that takes that
+                        // space away closes it again. The line goes back as
+                        // the shell had it.
+                        if app.line.is_empty() || unspaced == Some(app.line.text()) {
                             break ACCEPTED;
                         }
                     }

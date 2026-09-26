@@ -874,6 +874,21 @@ fn enter_on_a_file_a_specification_offers_hands_the_line_back() {
 }
 
 #[test]
+fn taking_back_the_space_that_opened_the_menu_hands_the_line_back() {
+    // The space behind `make sample-build` asked for what may follow it and
+    // the one behind a bare `make` asked for a target. Backspace takes either
+    // request back and the line is the one the shell had before it.
+    let f = Fixture::new(&[]);
+    std::fs::write(f.path().join("Makefile"), "sample-build:\n\t:\n").expect("a makefile");
+    for line in ["make sample-build ", "make "] {
+        let mut t = opened(f.path(), line);
+        t.send("\x7f");
+        assert_eq!(t.status(WAIT), Some(pick::ACCEPTED), "{line}");
+        assert!(shown(&t).contains(line.trim_end()), "{:?}", t.lines());
+    }
+}
+
+#[test]
 fn a_path_argument_a_specification_fills_gets_the_row_that_runs_the_line() {
     // `cd`'s own row, on an argument a specification reads off the
     // filesystem. Without it this line descends for as long as there are
