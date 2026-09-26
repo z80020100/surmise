@@ -233,7 +233,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
     // Draw on the shell's own prompt row in place of the line it already
     // shows. Nothing then appears twice. That needs the column the shell left
     // the cursor on.
-    let anchor = tty::column(&mut term).and_then(|c| anchor_col(c, seed, ui::width()));
+    let anchor = tty::column(&term)?.and_then(|c| anchor_col(c, seed, ui::width()));
     // A terminal that will not say gets the row below and a prompt of
     // surmise's own to sit behind.
     let head = match anchor {
