@@ -692,7 +692,10 @@ own `priority` breaks that. The group the row came from breaks what is
 still level: the subcommands lead, the values the argument in hand takes
 follow and the options come last. A subcommand is the next word the command
 is made of and a value is the word its argument wants. An option is
-neither. The alphabetical order breaks whatever remains.
+neither. The alphabetical order breaks whatever remains. Every row stays in
+the list however many there are. `npm ` has 70 subcommands and the last of
+them is as reachable as the first. Git's own menu keeps every row too. Only
+`cd`'s menu has a limit of its own.
 
 An empty argument is where that group order decides. Every row matches it
 equally well. The name alone decided before it and `-` sorts under every

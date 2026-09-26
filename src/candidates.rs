@@ -25,7 +25,9 @@ use std::path::{Path, PathBuf};
 /// directory holding hundreds of thousands of files and what it buys is a
 /// menu that is not silently empty. `Scan` is what keeps that pass to one.
 pub(crate) const SCAN_LIMIT: usize = 400;
-/// How many rows the menu will ever be asked to hold.
+/// How many rows a `cd` menu will ever be asked to hold. Every other menu
+/// keeps every row it ranks. `npm ` has 70 subcommands and a cap there left
+/// the last ten where no key could reach them.
 pub const MAX_RESULTS: usize = 60;
 /// What a row that adds a folder says it is. `icons` reads it to give such a
 /// row the folder glyph where the kind alone says only that Git named the row.
@@ -448,7 +450,7 @@ fn group_rank(kind: Kind) -> u8 {
 /// for each row instead of on every one of a sort's `O(n log n)`
 /// comparisons; `specs/aws/ec2.json`'s 448 subcommands are this corpus's
 /// worst case for it.
-pub(crate) fn rank(rows: &mut Vec<Candidate>, term: &str, used_after: Option<UsedAfter>) {
+pub(crate) fn rank(rows: &mut [Candidate], term: &str, used_after: Option<UsedAfter>) {
     rows.sort_by_cached_key(|c| {
         (
             Reverse(tier(term, &c.display)),
@@ -459,7 +461,6 @@ pub(crate) fn rank(rows: &mut Vec<Candidate>, term: &str, used_after: Option<Use
             c.display.clone(),
         )
     });
-    rows.truncate(MAX_RESULTS);
 }
 
 fn predict(arg: &str, cwd: &Path, scan: &mut Scan) -> Vec<Candidate> {

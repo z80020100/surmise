@@ -6,8 +6,8 @@
 
 use crate::argwalk::{self, Walk};
 use crate::candidates::{
-    Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, MAX_RESULTS, Query, Scan, UsedAfter,
-    priority_of, rank, resolved_in, run_row, split, tier,
+    Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, Query, Scan, UsedAfter, priority_of, rank,
+    resolved_in, run_row, split, tier,
 };
 use crate::fuzzy;
 use crate::histfile;
@@ -199,12 +199,9 @@ impl Completions {
                 // In front of that order rather than into it, the way `cd`'s
                 // own menu puts its row there. A line that already names a
                 // path is the one most often meant and a score would leave
-                // that to chance. The cap counts the row. The list therefore
-                // gives up its last name rather than grow past what `rank`
-                // left.
+                // that to chance.
                 if let Some(arg) = whole_path(&walk, cwd) {
                     rows.insert(0, run_row(arg));
-                    rows.truncate(MAX_RESULTS);
                 }
                 return rows;
             }
@@ -1261,6 +1258,15 @@ mod tests {
             assert_eq!(names(&rows).first(), Some(&name), "{line}");
             assert_eq!(rows[0].insert, name, "{line}");
         }
+    }
+
+    #[test]
+    fn every_row_a_walk_offers_stays_in_the_menu() {
+        // `npm` has 70 subcommands. A cap of 60 left `token` through
+        // `whoami` where no key could reach them.
+        let rows = complete(&mut Completions::default(), &target("npm "));
+        assert_eq!(rows.len(), 70);
+        assert!(names(&rows).contains(&"whoami"), "{:?}", names(&rows));
     }
 
     #[test]
