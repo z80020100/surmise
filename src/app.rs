@@ -52,9 +52,8 @@ pub struct App {
     history: History,
     scan: Scan,
     git: crate::git::Completions,
-    git_start: Option<usize>,
     spec_menu: crate::spec_menu::Completions,
-    spec_start: Option<usize>,
+    origin: Option<Origin>,
 }
 
 /// Which provider answers one line, and the word it read there.
@@ -72,11 +71,11 @@ pub struct App {
 /// the readers that ask the installed Git itself.
 ///
 /// One line therefore still has exactly one provider, and that is what
-/// `git_start` and `spec_start` record. `relist` sets one of the two and
-/// clears the other, and [`App::highlighted`] reads them back to tell a row
-/// of one provider's from a row of the other's — a question `Kind::is_git`
-/// cannot answer, because both providers name their flat rows with the same
-/// kinds.
+/// [`Origin`] records. `relist` records it and [`App::highlighted`] reads it
+/// back to tell a row of one provider's from a row of another's — a question
+/// a row's kind cannot answer. Git's own menu and the spec menu name their
+/// flat rows with the same kinds and the spec menu draws `cd`'s own row that
+/// runs the line.
 enum Reader {
     Cd(candidates::Query),
     Git(crate::git::Target),
@@ -93,7 +92,21 @@ impl Reader {
             Reader::Spec(target) => target.word,
         }
     }
+
+    /// What `relist` records of this read and what `highlighted` compares a
+    /// fresh read against.
+    fn origin(&self) -> Origin {
+        let start = match self {
+            Reader::Cd(word) => word.start,
+            Reader::Git(target) => target.word.start,
+            Reader::Spec(target) => target.word.start,
+        };
+        (std::mem::discriminant(self), start)
+    }
 }
+
+/// Which provider read the line and where the word it read begins.
+type Origin = (std::mem::Discriminant<Reader>, usize);
 
 /// Quote a candidate's insertion for the shell. A leading `~` is a deliberate
 /// expansion and stays outside the quotes. Everything after it is still a
@@ -178,9 +191,8 @@ impl App {
             history: History::default(),
             scan: Scan::default(),
             git: crate::git::Completions::default(),
-            git_start: None,
             spec_menu: crate::spec_menu::Completions::default(),
-            spec_start: None,
+            origin: None,
         }
     }
 
@@ -260,14 +272,8 @@ impl App {
     /// to measure.
     fn relist(&mut self) -> Vec<Candidate> {
         let reader = self.reader();
-        // Where the word the rows answer for begins, under the provider that
-        // read it. Never both at once: one line has one provider and
-        // `highlighted` reads these back to tell whose row it is holding.
-        (self.git_start, self.spec_start) = match &reader {
-            Some(Reader::Git(target)) => (Some(target.word.start), None),
-            Some(Reader::Spec(target)) => (None, Some(target.word.start)),
-            _ => (None, None),
-        };
+        // `highlighted` reads this back to tell whose row it is holding.
+        self.origin = reader.as_ref().map(Reader::origin);
         // `growable` rather than the parse alone. A word nothing here may
         // grow is one to offer no menu for. The key then falls through to the
         // shell's own completion instead of opening rows nothing can take.
@@ -304,42 +310,26 @@ impl App {
             return None;
         }
         let pick = self.items.get(self.selected)?;
-        // A row from the flat, non-directory providers goes stale once the
-        // cursor no longer sits on the word it would replace. `Kind::is_git`
-        // is what puts a row in that group and no more than that: Git's own
-        // menu and the spec menu both draw their rows with those kinds, so
-        // which provider a row came from is `git_start` and `spec_start`'s
-        // answer rather than the kind's. `relist` sets one of the two and
-        // clears the other, and the line has to still read as that same
-        // provider's, on the same word, for the row to be worth anything.
+        // A row goes stale once the cursor no longer sits on the word it
+        // would replace. Moving the cursor reads nothing again and the rows
+        // are still the ones the last edit read. The line has to still read
+        // as the same provider's, on the same word, for the row to be worth
+        // anything. `ls deep/ work/` read at the end and taken back to
+        // `deep/` would otherwise put `work/` there and run the line it made.
         //
-        // A list a caller staged by hand rather than through `relist` has
-        // neither recorded, and a fresh read of the line is the whole of the
-        // answer there.
-        if pick.kind.is_git() {
-            let stale = match self.reader() {
-                Some(Reader::Git(target)) => {
-                    self.spec_start.is_some()
-                        || !target.accepts(pick.kind)
-                        || self
-                            .git_start
-                            .is_some_and(|start| start != target.word.start)
-                }
-                Some(Reader::Spec(target)) => {
-                    self.git_start.is_some()
-                        || self
-                            .spec_start
-                            .is_some_and(|start| start != target.word.start)
-                }
-                // Nothing reads the line any more, or `cd`'s own reader does
-                // and it names none of these rows.
-                _ => true,
-            };
-            if stale {
-                return None;
+        // A list a caller staged by hand rather than through `relist` has no
+        // origin and a fresh read of the line is the whole of the answer
+        // there.
+        let stale = match self.reader() {
+            Some(reader) => {
+                matches!(&reader, Reader::Git(target) if !target.accepts(pick.kind))
+                    || self.origin.is_some_and(|origin| origin != reader.origin())
             }
-        }
-        Some(pick)
+            // Nothing reads the line any more and `arg` finds no word for any
+            // row to replace. A Git-kind row is stale there as it always was.
+            None => pick.kind.is_git(),
+        };
+        (!stale).then_some(pick)
     }
 
     /// The word the menu completes and its byte offset. `None` when no
@@ -1853,7 +1843,7 @@ mod tests {
         // One line, two providers at two cursor positions: the rows answer
         // for the file word and the line under the cursor now reads as Git's
         // own subcommand word. A row of one provider's is worth nothing
-        // under the other and `spec_start` is what says so.
+        // under the other and its origin is what says so.
         let f = Fixture::new(&["readme*"]);
         let mut a = App::over(f.path(), "git blame read");
         assert!(a.items.iter().any(|c| c.insert == "readme"));
@@ -1861,6 +1851,43 @@ mod tests {
         assert!(!a.accept());
         assert!(!a.accept_common());
         assert_eq!(a.line.text(), "git blame read");
+    }
+
+    #[test]
+    fn the_row_that_runs_the_line_goes_stale_with_its_word() {
+        // Each line leads with the row that runs it, read for its last word.
+        // Taken back to an earlier word that row would put the last one there
+        // and run what it made: `cd deep/ && ls deep/`, `ls work/ work/` and
+        // `git readme readme`.
+        let f = Fixture::new(&["work/alpha", "deep/nested", "readme*"]);
+        for (line, earlier) in [
+            ("cd work/ && ls deep/", "cd work/"),
+            ("ls deep/ work/", "ls deep/"),
+            ("git blame readme", "git blame"),
+        ] {
+            let mut a = App::over(f.path(), line);
+            assert_eq!(a.items[0].kind, candidates::Kind::Run, "{line}");
+            cursor_after(&mut a, earlier.len());
+            assert!(!a.accept(), "{line}");
+            assert_eq!(a.line.text(), line);
+        }
+    }
+
+    #[test]
+    fn a_row_cd_read_goes_stale_once_another_menu_reads_the_word() {
+        // `cd`'s own rows for `work/` were read with the cursor after it. At
+        // the end of the line the word is `diff` and none of them has
+        // anything to put there.
+        let f = Fixture::new(&["work/alpha"]);
+        let mut a = App::new(f.path().to_path_buf());
+        a.line.insert("cd work/ && git diff");
+        cursor_after(&mut a, "cd work/".len());
+        a.refresh();
+        assert!(a.items.iter().any(|c| c.insert == "work/alpha/"));
+        a.line.end();
+        a.step(1);
+        assert!(!a.accept());
+        assert_eq!(a.line.text(), "cd work/ && git diff");
     }
 
     #[test]

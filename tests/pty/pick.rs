@@ -921,6 +921,28 @@ fn enter_runs_the_line_once_the_cursor_leaves_the_argument() {
 }
 
 #[test]
+fn a_directory_row_goes_stale_once_the_cursor_leaves_its_word() {
+    // `cd`'s own rows for `work/` were read with the cursor after it. At the
+    // end of the line the word is `diff` and none of those rows has anything
+    // to put there. Enter runs the line rather than write a directory over
+    // the subcommand.
+    let f = fixture();
+    let mut t = opened(f.path(), "cd work/ && git diff");
+    t.send("\x01");
+    t.send(&"\x1b[C".repeat("cd work/".len()));
+    t.send("x\x7f");
+    t.pump(SETTLE);
+    assert!(
+        names(&t).iter().any(|name| name.contains("alpha")),
+        "{:?}",
+        t.lines()
+    );
+    t.send("\x05\x1b[B\r");
+    assert_eq!(t.status(WAIT), Some(pick::RUN), "{:?}", t.lines());
+    assert!(!shown(&t).contains("alpha"), "{:?}", t.lines());
+}
+
+#[test]
 fn a_line_that_is_not_a_cd_never_reaches_the_terminal() {
     // `ls` completes its own argument now that `spec_menu` answers a
     // `filepaths` template; `zzz` is what still matches nothing in this
