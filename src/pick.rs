@@ -330,9 +330,16 @@ pub fn run(seed: &str) -> io::Result<u8> {
                         // Every exit takes the row first. The line the shell is
                         // handed has to name the directory surmise resolved and
                         // a bare `it's` or `~root` names something else.
+                        //
+                        // The row that runs the line runs it on a Git line
+                        // too. A Git line with no row left to take goes back
+                        // to the shell instead.
                         if app.runs_the_line() {
-                            app.accept();
-                            break if completing_git { ACCEPTED } else { RUN };
+                            break if app.accept() || !completing_git {
+                                RUN
+                            } else {
+                                ACCEPTED
+                            };
                         }
                         if !app.accept() {
                             break if completing_git { ACCEPTED } else { RUN };

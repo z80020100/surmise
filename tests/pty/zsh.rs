@@ -166,18 +166,24 @@ fn git_subcommands_are_taken_without_running() {
 fn a_second_enter_runs_what_the_first_one_took() {
     // The first press takes the name and the menu stays on the word behind
     // it. The line runs as it stands there and the row that runs it leads.
-    // The second press runs it rather than taking a row the walk offers
-    // behind that name: an option behind `status`, and a path behind a
-    // branch that `git checkout` would then write over.
+    // The second press runs it rather than taking a row the menu offers
+    // behind that name: an option behind `status`, a path behind a branch
+    // that `git checkout` would then write over, and another file or an
+    // option behind what `git add` can already run with.
     for (seed, ran) in [
         ("git stat", "GIT-RAN status"),
         ("git checkout sample/t", "GIT-RAN checkout sample/topic"),
+        ("git add 'sample o", "GIT-RAN add sample one"),
+        ("git add -u", "GIT-RAN add -u"),
     ] {
         let f = home(
             "git() { print -r -- GIT-RAN $@ }",
             "bindkey ' ' $_surmise_space",
         );
         f.init_git(&["sample/topic"]);
+        for name in ["sample one", "sample two"] {
+            std::fs::write(f.path().join(name), "sample").unwrap();
+        }
         let mut t = ready(f.path());
         t.send(&format!("{seed}\t"));
         assert!(t.wait_panel(WAIT), "no menu for {seed}: {:?}", t.lines());
@@ -379,7 +385,7 @@ fn git_add_acceptance_keeps_editing_for_enter_tab_and_right() {
         assert!(t.wait_panel(WAIT), "no file menu: {:?}", t.lines());
         t.send(key);
         t.pump(SETTLE);
-        assert!(line(&t).starts_with("❯ git add 'sample file' "));
+        assert_eq!(line(&t).trim(), "❯ git add 'sample file'");
         t.send("\x1b");
         closed(&mut t);
         assert_eq!(line(&t).trim(), "❯ git add 'sample file'");
@@ -490,10 +496,13 @@ fn git_add_selects_multiple_files_without_staging_and_cancel_restores_the_seed()
         t.send("git add 'sample o\t");
         assert!(t.wait_panel(WAIT), "no file menu: {:?}", t.lines());
         typed(&mut t, "\r");
-        assert!(line(&t).starts_with("❯ git add 'sample one' "));
+        assert_eq!(line(&t).trim(), "❯ git add 'sample one'");
         assert!(t.panel().iter().all(|row| !row.text.contains("sample one")));
         typed(&mut t, "'sample*\t");
-        assert!(line(&t).starts_with("❯ git add 'sample one' ':(literal)sample*' "));
+        assert_eq!(
+            line(&t).trim(),
+            "❯ git add 'sample one' ':(literal)sample*'"
+        );
         assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
         t.send(if cancel { "\x03" } else { "\x1b" });
         closed(&mut t);
@@ -524,7 +533,7 @@ fn git_add_folder_selection_stages_the_subtree_only_after_leaving_the_menu() {
     typed(&mut t, "\r");
     assert!(line(&t).starts_with("❯ git add 'sample dir/'"));
     typed(&mut t, "\r");
-    assert!(line(&t).starts_with("❯ git add 'sample dir/' "));
+    assert_eq!(line(&t).trim(), "❯ git add 'sample dir/'");
     assert!(
         t.panel()
             .iter()
@@ -554,7 +563,7 @@ fn git_add_options_and_chmod_values_reach_git_without_early_execution() {
     typed(&mut t, "+x\t");
     assert!(line(&t).starts_with("❯ git add --chmod=+x "));
     typed(&mut t, "samp\t");
-    assert!(line(&t).starts_with("❯ git add --chmod=+x sample "));
+    assert_eq!(line(&t).trim(), "❯ git add --chmod=+x sample");
     assert_eq!(f.git(&["diff", "--cached", "--name-only"]), "");
     t.send("\x1b");
     closed(&mut t);

@@ -2,7 +2,7 @@
 
 use crate::candidates::{
     CURRENT_BRANCH, Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, Query, SCAN_LIMIT, Scan,
-    UsedAfter, rank,
+    UsedAfter, rank, run_row,
 };
 use crate::fuzzy;
 use crate::histfile;
@@ -61,9 +61,21 @@ impl Target {
     pub fn accepts(&self, kind: Kind) -> bool {
         self.kind == kind
             || (self.kind == Kind::File
-                && kind == Kind::Option
                 && self.word.arg.is_empty()
-                && self.add.as_ref().is_some_and(|a| !a.paths_only))
+                && (kind == Kind::Run
+                    || kind == Kind::Option && self.add.as_ref().is_some_and(|a| !a.paths_only)))
+    }
+
+    /// Whether `git add` runs as the line stands and the menu should lead
+    /// with the row that runs it. Nothing is typed in the word yet and Git
+    /// has what it wants: a path, a file of paths or an option that reaches
+    /// the whole tree.
+    fn runs_as_it_stands(&self) -> bool {
+        self.kind == Kind::File
+            && self.word.arg.is_empty()
+            && self.add.as_ref().is_some_and(|add| {
+                add.pathless || add.all || add.from_file || !self.taken.is_empty()
+            })
     }
     pub fn exclude_tail(&mut self, tail: &str) {
         if self.kind == Kind::File
@@ -208,6 +220,11 @@ struct Add {
     files: FileMode,
     paths_only: bool,
     from_file: bool,
+    /// An option on the line has Git act with no path at all. `-A` is the
+    /// one a later option can take back and `all` answers for it.
+    pathless: bool,
+    /// `-A` is on the line and no later `--no-all` took it back.
+    all: bool,
     value: Option<Value>,
     attached: bool,
 }
@@ -219,6 +236,9 @@ impl Add {
             .enumerate()
             .find(|(_, o)| o.names.contains(&name))?;
         self.used.push(id);
+        // Git's own rule and `-A` below is the rest of it. Every other
+        // `git add` with no path says nothing was specified and adds nothing.
+        self.pathless |= matches!(option.names[0], "-i" | "-p" | "-e" | "-u" | "--renormalize");
         match name {
             "--" => self.paths_only = true,
             "-f" | "--force" => self.files.force = true,
@@ -226,8 +246,12 @@ impl Add {
             "-A" | "--all" | "--no-ignore-removal" => {
                 self.files.tracked = false;
                 self.files.no_removal = false;
+                self.all = true;
             }
-            "--no-all" | "--ignore-removal" => self.files.no_removal = true,
+            "--no-all" | "--ignore-removal" => {
+                self.files.no_removal = true;
+                self.all = false;
+            }
             "--renormalize" | "--refresh" => {
                 self.files.tracked = true;
                 self.files.cached = true;
@@ -961,6 +985,9 @@ impl Completions {
             }
         }
         rank(&mut out, &arg, None);
+        if target.runs_as_it_stands() && !out.is_empty() {
+            out.insert(0, run_row(String::new()));
+        }
         out
     }
 
@@ -1681,6 +1708,35 @@ mod tests {
     }
 
     #[test]
+    fn a_git_add_line_that_runs_as_it_stands_leads_with_the_row_that_runs_it() {
+        let f = crate::fixture::Fixture::new(&["sample*", "other*"]);
+        f.init_git(&[]);
+        let mut c = Completions::default();
+        for line in [
+            "git add sample ",
+            "git add -u ",
+            "git add -Av ",
+            "git add -p ",
+            "git add --pathspec-from-file=sample ",
+        ] {
+            let rows = c.complete(&parse(line).unwrap(), f.path());
+            assert_eq!(rows[0].kind, Kind::Run, "{line}");
+            assert!(rows[1..].iter().all(|r| r.kind != Kind::Run), "{line}");
+        }
+        // Git adds nothing on these and says nothing was specified.
+        for line in [
+            "git add ",
+            "git add -nf ",
+            "git add -- ",
+            "git add --chmod=+x ",
+            "git add -A --no-all ",
+        ] {
+            let rows = c.complete(&parse(line).unwrap(), f.path());
+            assert!(rows.iter().all(|r| r.kind != Kind::Run), "{line}");
+        }
+    }
+
+    #[test]
     fn add_option_modes_query_the_files_the_option_can_use() {
         let f = crate::fixture::Fixture::new(&["changed*", "deleted*", "clean*"]);
         f.init_git(&[]);
@@ -1708,7 +1764,10 @@ mod tests {
         ] {
             let rows = c.complete(&parse(line).unwrap(), f.path());
             assert_eq!(
-                rows.iter().map(|r| r.insert.as_str()).collect::<Vec<_>>(),
+                rows.iter()
+                    .filter(|r| r.kind != Kind::Run)
+                    .map(|r| r.insert.as_str())
+                    .collect::<Vec<_>>(),
                 expected,
                 "{line}"
             );
@@ -1830,7 +1889,8 @@ mod tests {
             &parse("git add --pathspec-from-file 'sample list' ").unwrap(),
             f.path(),
         );
-        assert!(rows.iter().all(|r| r.kind == Kind::Option));
+        assert_eq!(rows[0].kind, Kind::Run);
+        assert!(rows[1..].iter().all(|r| r.kind == Kind::Option));
     }
 
     #[test]
