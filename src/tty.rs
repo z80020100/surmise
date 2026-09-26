@@ -9,16 +9,15 @@
 //!
 //! The device's mode lives here too. `Raw` holds the terminal in raw mode and
 //! in bracketed paste for as long as surmise wants both. Both calls come from
-//! crossterm. `column` names the one crossterm function this module replaces
-//! rather than calls.
+//! crossterm and so does the question `column` asks.
 
 use crossterm::event::{DisableBracketedPaste, EnableBracketedPaste};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use std::ffi::CStr;
 use std::fs::{File, OpenOptions};
-use std::io::{self, Write};
-use std::os::fd::AsRawFd;
-use std::time::{Duration, Instant};
+use std::io;
+use std::os::fd::{AsFd, AsRawFd};
+use std::time::Duration;
 
 /// The device name behind `fd`. `None` when `fd` is not a terminal.
 fn name_of(fd: i32) -> Option<String> {
@@ -78,99 +77,36 @@ pub fn claim() -> io::Result<File> {
     Ok(dev)
 }
 
-/// How long to wait for a terminal to say where the cursor is.
-///
-/// A terminal that answers ends the wait when its reply lands and pays none of
-/// this. The first open in a window is the one that answers slowly. A bound
-/// tight enough to cut that answer off puts the menu on a row of its own for a
-/// reason nothing on the screen explains. Only a terminal that never answers
-/// waits the whole of this out and the keys pressed inside that wait are what
-/// it costs.
-const DSR_WAIT: Duration = Duration::from_millis(500);
-
-fn was_interrupted() -> bool {
-    io::Error::last_os_error().kind() == io::ErrorKind::Interrupted
-}
-
-/// Whether the device has bytes waiting inside `wait`. `None` when a signal
-/// cut the wait short before either answer.
-fn readable_within(wait: Duration) -> Option<bool> {
-    let mut p = libc::pollfd {
-        fd: libc::STDIN_FILENO,
-        events: libc::POLLIN,
-        revents: 0,
-    };
-    let ms = wait.as_millis().min(i32::MAX as u128) as i32;
-    // SAFETY: the pointer is to one live `pollfd` and the count says one.
-    let n = unsafe { libc::poll(&mut p, 1, ms) };
-    if n < 0 && was_interrupted() {
-        return None;
-    }
-    Some(n > 0)
-}
-
-/// The zero-based column out of `\x1b[{row};{col}R`.
-///
-/// The last CSI in the buffer wins. Anything typed before surmise opened is
-/// still in the terminal's queue and arrives ahead of the reply. A stray `R`
-/// or `[` in it would otherwise be read as the answer.
-fn parse_dsr(buf: &[u8]) -> Option<usize> {
-    let start = buf.windows(2).rposition(|w| w == b"\x1b[")? + 2;
-    let end = start + buf[start..].iter().position(|b| *b == b'R')?;
-    // The row is dropped rather than parsed. That also carries the leading `?`
-    // some terminals answer with.
-    let text = std::str::from_utf8(&buf[start..end]).ok()?;
-    let (_, col) = text.split_once(';')?;
-    col.trim().parse::<usize>().ok()?.checked_sub(1)
-}
-
 /// Ask the terminal where the cursor is. Give up when it does not answer.
 ///
-/// Raw mode has to be on already and nothing else may be reading the terminal
-/// yet. The reply arrives on stdin rather than on `out`, because `claim` put
-/// the device there. crossterm's own `cursor::position` asks the same question
-/// and then waits forever on a terminal that never replies. This exists for
-/// that reason.
+/// Raw mode has to be on already. crossterm asks and reads the reply through
+/// the reader `pick` takes every key from. A key pressed before the reply
+/// lands therefore waits in that reader for the loop rather than going with
+/// the reply. A terminal that never answers costs the two seconds crossterm
+/// waits and the keys pressed inside them arrive after it.
 ///
-/// A key pressed inside the wait is lost. That window is `DSR_WAIT` and it
-/// opens before there is anything on screen to type at.
-pub fn column(out: &mut File) -> Option<usize> {
-    out.write_all(b"\x1b[6n").ok()?;
-    out.flush().ok()?;
-
-    let deadline = Instant::now() + DSR_WAIT;
-    let mut buf = Vec::new();
-    while buf.len() < 64 {
-        let left = deadline.checked_duration_since(Instant::now())?;
-        // A signal can cut a wait or a read short. The deadline still governs
-        // and the loop therefore asks again rather than giving up.
-        let Some(ready) = readable_within(left) else {
-            continue;
-        };
-        if !ready {
-            return None;
-        }
-        let mut chunk = [0u8; 32];
-        // SAFETY: the pointer is to `chunk` and the count is its length.
-        let n = unsafe {
-            libc::read(
-                libc::STDIN_FILENO,
-                chunk.as_mut_ptr().cast::<libc::c_void>(),
-                chunk.len(),
-            )
-        };
-        if n < 0 && was_interrupted() {
-            continue;
-        }
-        if n <= 0 {
-            return None;
-        }
-        buf.extend_from_slice(&chunk[..n as usize]);
-        if let Some(col) = parse_dsr(&buf) {
-            return Some(col);
-        }
+/// crossterm asks on stdout and stdout is the widget's pipe. The terminal
+/// stands in for it for the length of the call. This is therefore not a call
+/// to make from two threads either.
+pub fn column(term: &File) -> io::Result<Option<usize>> {
+    // crossterm asks again for as long as its reader fails and a reader that
+    // never started fails every time. `pick` reads every key through that
+    // same reader and the error ends it here instead.
+    crossterm::event::poll(Duration::ZERO)?;
+    let pipe = io::stdout().as_fd().try_clone_to_owned()?;
+    // SAFETY: both descriptors are live for the call.
+    if unsafe { libc::dup2(term.as_raw_fd(), libc::STDOUT_FILENO) } < 0 {
+        return Err(io::Error::last_os_error());
     }
-    None
+    let pos = crossterm::cursor::position();
+    // SAFETY: `pipe` owns its descriptor until the end of this function. The
+    // line goes out on stdout at the end and a pipe that did not come back
+    // would send it to the terminal and hand the widget an empty line. An
+    // error leaves the widget the line it already has.
+    if unsafe { libc::dup2(pipe.as_raw_fd(), libc::STDOUT_FILENO) } < 0 {
+        return Err(io::Error::last_os_error());
+    }
+    Ok(pos.ok().map(|(col, _)| usize::from(col)))
 }
 
 /// The terminal is surmise's for as long as this value lives. A panic or an
@@ -210,45 +146,5 @@ mod tests {
     fn a_descriptor_that_is_not_a_terminal_has_no_name() {
         let f = File::open("/dev/null").expect("/dev/null opens");
         assert_eq!(name_of(f.as_raw_fd()), None);
-    }
-
-    #[test]
-    fn a_reply_gives_the_column_one_lower_than_it_reports() {
-        assert_eq!(parse_dsr(b"\x1b[12;34R"), Some(33));
-    }
-
-    #[test]
-    fn the_leftmost_column_is_zero() {
-        assert_eq!(parse_dsr(b"\x1b[1;1R"), Some(0));
-    }
-
-    #[test]
-    fn a_column_below_one_is_not_a_column() {
-        assert_eq!(parse_dsr(b"\x1b[1;0R"), None);
-    }
-
-    #[test]
-    fn a_reply_that_has_not_arrived_in_full_is_not_read_early() {
-        assert_eq!(parse_dsr(b"\x1b[12;34"), None);
-        assert_eq!(parse_dsr(b"\x1b["), None);
-        assert_eq!(parse_dsr(b"\x1b"), None);
-        assert_eq!(parse_dsr(b""), None);
-    }
-
-    #[test]
-    fn a_terminal_that_answers_with_a_question_mark_is_still_read() {
-        assert_eq!(parse_dsr(b"\x1b[?12;34R"), Some(33));
-    }
-
-    #[test]
-    fn a_keystroke_waiting_ahead_of_the_reply_is_stepped_over() {
-        assert_eq!(parse_dsr(b"R[9;9Rx\x1b[12;34R"), Some(33));
-    }
-
-    #[test]
-    fn a_body_that_is_not_a_position_is_refused() {
-        assert_eq!(parse_dsr(b"\x1b[12;xR"), None);
-        assert_eq!(parse_dsr(b"\x1b[34R"), None);
-        assert_eq!(parse_dsr(b"12;34R"), None);
     }
 }
