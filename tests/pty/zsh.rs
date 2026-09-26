@@ -142,7 +142,10 @@ fn typing_a_bare_cd_opens_the_menu() {
 }
 
 #[test]
-fn git_subcommands_return_to_editing_without_running() {
+fn git_subcommands_are_taken_without_running() {
+    // The menu stays on the word behind the subcommand. `git status` runs as
+    // it stands and the row that runs it leads under the highlight. Enter
+    // there is the press that runs the line.
     for key in ["\r", "\t", "\x1b[C"] {
         let f = home("git() { print -r -- GIT-RAN }", "");
         let mut t = ready(f.path());
@@ -150,16 +153,10 @@ fn git_subcommands_return_to_editing_without_running() {
         assert!(t.wait_panel(WAIT), "no Git menu: {:?}", t.lines());
         typed(&mut t, "stat");
         assert!(t.panel().iter().any(|row| row.text.contains("status")));
-        t.send(key);
-        closed(&mut t);
+        typed(&mut t, key);
         assert!(line(&t).starts_with("❯ git status"), "{:?}", t.lines());
+        assert!(t.panel()[1].text.contains('↵'), "{:?}", t.lines());
         assert!(!t.lines().join("\n").contains("GIT-RAN"));
-        typed(&mut t, "--short");
-        assert!(
-            line(&t).starts_with("❯ git status --short"),
-            "{:?}",
-            t.lines()
-        );
         t.send("\r");
         assert!(t.wait_line("GIT-RAN", WAIT), "{:?}", t.lines());
     }
@@ -167,10 +164,11 @@ fn git_subcommands_return_to_editing_without_running() {
 
 #[test]
 fn a_second_enter_runs_what_the_first_one_took() {
-    // The first press takes the name and hands the line back. The second
-    // runs it rather than taking the first row the walk offers behind that
-    // name: an option behind `status`, and a path behind a branch that
-    // `git checkout` would then write over.
+    // The first press takes the name and the menu stays on the word behind
+    // it. The line runs as it stands there and the row that runs it leads.
+    // The second press runs it rather than taking a row the walk offers
+    // behind that name: an option behind `status`, and a path behind a
+    // branch that `git checkout` would then write over.
     for (seed, ran) in [
         ("git stat", "GIT-RAN status"),
         ("git checkout sample/t", "GIT-RAN checkout sample/topic"),
@@ -184,8 +182,8 @@ fn a_second_enter_runs_what_the_first_one_took() {
         t.send(&format!("{seed}\t"));
         assert!(t.wait_panel(WAIT), "no menu for {seed}: {:?}", t.lines());
         t.pump(SETTLE);
-        t.send("\r");
-        closed(&mut t);
+        typed(&mut t, "\r");
+        assert!(t.panel()[1].text.contains('↵'), "{:?}", t.lines());
         t.send("\r");
         assert!(t.wait_line(ran, WAIT), "{:?}", t.lines());
         assert!(t.lines().iter().any(|l| l.trim() == ran), "{:?}", t.lines());
@@ -236,7 +234,8 @@ fn the_line_surmise_writes_gets_a_suggestion_of_its_own() {
     t.send("git ");
     assert!(t.wait_panel(WAIT), "no Git menu: {:?}", t.lines());
     typed(&mut t, "stat");
-    t.send("\r");
+    typed(&mut t, "\r");
+    t.send("\x1b");
     closed(&mut t);
     assert_eq!(
         line(&t).trim(),
@@ -273,30 +272,38 @@ fn the_line_that_runs_also_gets_its_suggestion_asked_for() {
 #[test]
 fn a_whole_subcommand_gives_the_keys_back_to_the_shell() {
     // Tab and Right accept a subcommand outside the arm Enter breaks out of.
-    // Only the end of the run puts the keys back and nothing on the screen
-    // says which side of that the line is on. The shell's own Tab says it:
-    // on a word surmise answers PASS for, the widget hands the key to
-    // whatever held it. surmise's own Tab on a closed menu rings the bell and
-    // leaves the line alone. `zzzz` is such a word. No option of `status`'s
-    // carries those four letters and no name beside the line does either.
+    // A subcommand the walk has nothing behind ends the run there and only
+    // that end puts the keys back. Nothing on the screen says which side of
+    // it the line is on. The shell's own Tab says it: on a word surmise
+    // answers PASS for, the widget hands the key to whatever held it.
+    // surmise's own Tab on a closed menu rings the bell and leaves the line
+    // alone. `zzzz` is such a word. The committed specification has no node
+    // for an alias and nothing beside the line carries those four letters.
     for key in ["\t", "\x1b[C"] {
         let f = home(
             "sample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
             "",
         );
+        f.init_git(&[]);
+        f.git(&["config", "alias.sample-alias", "status"]);
         let mut t = ready(f.path());
         t.send("git ");
         assert!(t.wait_panel(WAIT), "no Git menu: {:?}", t.lines());
-        // `statu` reaches `status` and nothing else. Tab therefore takes the
-        // whole of one name rather than a prefix two of them share.
-        typed(&mut t, "statu");
+        // `sample-al` reaches the alias and nothing else. Tab therefore takes
+        // the whole of one name rather than a prefix two of them share.
+        typed(&mut t, "sample-al");
         t.send(key);
         closed(&mut t);
-        assert_eq!(line(&t).trim(), "\u{276f} git status", "{:?}", t.lines());
+        assert_eq!(
+            line(&t).trim(),
+            "\u{276f} git sample-alias",
+            "{:?}",
+            t.lines()
+        );
         typed(&mut t, "zzzz\t");
         assert_eq!(
             line(&t).trim(),
-            "\u{276f} git status zzzzSAMPLE",
+            "\u{276f} git sample-alias zzzzSAMPLE",
             "the keys never went back: {:?}",
             t.lines()
         );
@@ -328,11 +335,14 @@ fn git_branch_arguments_outside_a_repository_keep_the_shells_completion() {
 }
 
 #[test]
-fn git_branch_acceptance_returns_to_editing_for_enter_tab_and_right() {
+fn git_branch_acceptance_keeps_the_menu_for_enter_tab_and_right() {
+    // The branch goes in without running anything. The walk answers the word
+    // behind it and the line runs as it stands there. The row that runs it
+    // leads and Enter on it runs the line.
     for subcommand in ["switch", "checkout"] {
         for key in ["\r", "\t", "\x1b[C"] {
             let f = home(
-                "git() { print -r -- GIT-RAN }\nsample-complete() { LBUFFER+=SAMPLE }\nzle -N sample-complete\nbindkey '^I' sample-complete",
+                "git() { print -r -- GIT-RAN }",
                 "bindkey ' ' $_surmise_space",
             );
             f.init_git(&["sample/topic"]);
@@ -345,18 +355,12 @@ fn git_branch_acceptance_returns_to_editing_for_enter_tab_and_right() {
                     .iter()
                     .any(|row| row.text.contains("sample/topic"))
             );
-            t.send(key);
-            closed(&mut t);
+            typed(&mut t, key);
             assert_eq!(line(&t).trim(), format!("❯ git {subcommand} sample/topic"));
+            assert!(t.panel()[1].text.contains('↵'), "{:?}", t.lines());
             assert!(!t.lines().join("\n").contains("GIT-RAN"));
-            // `zzzz` reaches no option of that subcommand's and no name
-            // beside the line either, so surmise answers PASS and the widget
-            // hands Tab back to whatever held it.
-            typed(&mut t, "zzzz\t");
-            assert_eq!(
-                line(&t).trim(),
-                format!("❯ git {subcommand} sample/topic zzzzSAMPLE")
-            );
+            t.send("\r");
+            assert!(t.wait_line("GIT-RAN", WAIT), "{:?}", t.lines());
         }
     }
 }
@@ -827,8 +831,7 @@ fn git_branch_names_reach_the_shell_as_one_literal_argument() {
     let mut t = ready(f.path());
     t.send("git switch suffix\t");
     assert!(t.wait_panel(WAIT), "no branch menu: {:?}", t.lines());
-    t.send("\r");
-    closed(&mut t);
+    typed(&mut t, "\r");
     assert_eq!(line(&t).trim(), "❯ git switch 'sample$(false)'\\''suffix'");
     assert_eq!(f.git(&["symbolic-ref", "--short", "HEAD"]), "sample-main");
     t.send("\r");
@@ -1095,6 +1098,29 @@ fn docker_container_also_opens_the_menu_on_its_own_space() {
     let mut t = ready(f.path());
     t.send("docker container ");
     assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+}
+
+#[test]
+fn enter_runs_a_line_typed_whole_behind_its_space() {
+    // `make` takes one target and wants nothing behind it. The space behind
+    // it still leaves a menu of the options that may follow and the row that
+    // runs the line leads it. Enter runs the line rather than writing an
+    // option onto it. The first space opens the menu and the rest of the line
+    // is typed into it.
+    let f = home("make() { print -r -- MAKE-RAN $@ }", "");
+    std::fs::write(f.path().join("Makefile"), "sample-build:\n\t:\n").unwrap();
+    let mut t = ready(f.path());
+    t.send("make ");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    typed(&mut t, "sample-build ");
+    assert!(t.panel()[1].text.contains('↵'), "{:?}", t.lines());
+    t.send("\r");
+    assert!(
+        t.wait_line("MAKE-RAN sample-build", WAIT),
+        "{:?}",
+        t.lines()
+    );
 }
 
 #[test]

@@ -7,7 +7,7 @@
 //! the cursor breaks the moment a paint scrolls the screen. A cursor-position
 //! query hangs on a terminal that does not answer.
 
-use crate::candidates::{Candidate, Kind};
+use crate::candidates::{Candidate, Kind, tab_kind};
 use crate::fuzzy;
 use crate::icons::{self, Set};
 use crate::line::Line;
@@ -448,9 +448,9 @@ fn window_start(top: usize, selected: usize, rows: usize, total: usize) -> usize
 
 /// Whether Tab would grow this row's name. `common` reads the menu the same
 /// way and the underline therefore covers what the key would take.
-/// `highlighted` is the kind the highlight sits on, because that is what says
-/// which rows the key reads.
-fn tab_grows(k: Kind, highlighted: Kind, at: &[usize]) -> bool {
+/// `tab_reads` is what [`tab_kind`] makes of the kind the highlight sits on,
+/// because that is what says which rows the key reads.
+fn tab_grows(k: Kind, tab_reads: Kind, at: &[usize]) -> bool {
     // A match is a subsequence. Only a name whose match is the front of it
     // can take a prefix the menu agreed on.
     if !at.iter().enumerate().all(|(i, &j)| i == j) {
@@ -461,9 +461,9 @@ fn tab_grows(k: Kind, highlighted: Kind, at: &[usize]) -> bool {
         Kind::Run | Kind::Special => false,
         // Tab takes a highlighted parent row whole and reads the child
         // directories under every other highlight.
-        Kind::Parent => highlighted == Kind::Parent,
-        Kind::Dir => highlighted != Kind::Parent,
-        Kind::Command | Kind::Branch | Kind::File | Kind::Option | Kind::Path => k == highlighted,
+        Kind::Parent => tab_reads == Kind::Parent,
+        Kind::Dir => tab_reads != Kind::Parent,
+        Kind::Command | Kind::Branch | Kind::File | Kind::Option | Kind::Path => k == tab_reads,
     }
 }
 
@@ -536,6 +536,7 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
     let last = (first + rows).min(m.items.len());
     let shown = &m.items[first..last];
     let count = format!("{}/{}", m.selected + 1, m.items.len());
+    let tab_reads = tab_kind(m.items, current.kind);
 
     // The width comes first. Nothing below holds a floor under it and `width`
     // is what keeps one.
@@ -613,7 +614,7 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
         // rather than of the part the row shows. Dropping a match past
         // the cut first would leave a leading run behind and underline a
         // row the key passes over.
-        let under = if tab_grows(c.kind, current.kind, &all) {
+        let under = if tab_grows(c.kind, tab_reads, &all) {
             all.len()..m.reach.min(kept)
         } else {
             0..0
@@ -2101,6 +2102,28 @@ mod tests {
         };
         assert_eq!(under(0), ["wor", ""]);
         assert_eq!(under(1), ["", "../"]);
+    }
+
+    #[test]
+    fn the_row_that_runs_the_line_leaves_the_underline_to_the_names_below_it() {
+        // Tab looks past that row to the first name under it and reads the
+        // names of that kind. An option is not one of them.
+        let items = vec![
+            run_row(String::new()),
+            Candidate {
+                kind: Kind::Path,
+                ..command("sample")
+            },
+            Candidate {
+                kind: Kind::Option,
+                ..command("-s")
+            },
+        ];
+        let m = menu_in(&items, 0, 24, "", 6).expect("a menu");
+        let rows = menu_rows(&m, 80, 1, 0);
+        assert_eq!(underlined(&rows[1]), "");
+        assert_eq!(underlined(&rows[2]), "sample");
+        assert_eq!(underlined(&rows[3]), "");
     }
 
     #[test]

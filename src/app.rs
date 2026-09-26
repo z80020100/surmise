@@ -18,21 +18,6 @@ pub struct App {
     pub items: Vec<Candidate>,
     pub selected: usize,
     pub dismissed: bool,
-    /// Whether the last acceptance left behind the menu it found.
-    ///
-    /// A row that takes nothing out of the list is a row the next press takes
-    /// again. The menu would draw the same names behind it for as long as the
-    /// key was held. `pick` hands the line back to the shell instead and the
-    /// press after that runs it.
-    ///
-    /// Most acceptances change the list and the menu therefore stays open on
-    /// what they changed it to. A subcommand moves the walk to another node.
-    /// A folder moves the scan to another directory. Git's own file query
-    /// drops the file it just took and its option list drops the option. A
-    /// file a specification's own `filepaths` argument offers is the one
-    /// that changes nothing: the argument takes as many names as it is
-    /// given, the directory has not moved, and the same names come back.
-    pub menu_repeats: bool,
     /// The directory the candidates are drawn from.
     pub cwd: PathBuf,
     /// What sat to the right of the cursor when the widget opened, from the
@@ -183,7 +168,6 @@ impl App {
             items: Vec::new(),
             selected: 0,
             dismissed: false,
-            menu_repeats: false,
             cwd,
             rbuffer: String::new(),
             aliases: HashMap::new(),
@@ -223,10 +207,6 @@ impl App {
     pub fn refresh(&mut self) {
         self.items = self.relist();
         self.selected = 0;
-        // A list built for a line rather than for a row taken off one. Only
-        // `replace_arg` has a list to compare this against and it sets the
-        // answer itself.
-        self.menu_repeats = false;
     }
 
     /// The provider that reads the line as it stands, and what it read
@@ -266,10 +246,7 @@ impl App {
     /// The rows the line as it stands asks for. It also records which
     /// provider read the line.
     ///
-    /// `refresh` is what stores them. [`App::replace_arg`] asks for them
-    /// separately. It has the rows the menu already held to measure them
-    /// against and a list stored over the top of those would leave it nothing
-    /// to measure.
+    /// `refresh` is what stores them.
     fn relist(&mut self) -> Vec<Candidate> {
         let reader = self.reader();
         // `highlighted` reads this back to tell whose row it is holding.
@@ -439,25 +416,14 @@ impl App {
     }
 
     /// Put `s` on the line in place of the argument and draw the menu again
-    /// for what the line now says. `whole` is whether `s` spells a row's own
-    /// name rather than the prefix several of them share.
+    /// for what the line now says.
     ///
-    /// The names the menu held are what the new list is measured against.
-    /// [`App::menu_repeats`] is that measurement and the picker is what reads
-    /// it. A prefix is measured against nothing. The rows it came from are
-    /// the rows that still match it. The list it leaves behind is the same
-    /// list and the menu is still the answer to the word being typed.
-    fn replace_arg(&mut self, start: usize, s: &str, whole: bool) {
+    /// The menu stays open on whatever that is. That holds for the list it
+    /// already held as well. The highlight says what the next press takes. A
+    /// line that runs as it stands leads with the row that runs it.
+    fn replace_arg(&mut self, start: usize, s: &str) {
         self.line.replace_back_to(start, s);
-        self.dismissed = false;
-        let after = self.relist();
-        self.menu_repeats = whole
-            && after
-                .iter()
-                .map(|c| &c.insert)
-                .eq(self.items.iter().map(|c| &c.insert));
-        self.items = after;
-        self.selected = 0;
+        self.edited();
     }
 
     /// Take the highlighted row's whole name. `false` when there was nothing
@@ -469,13 +435,18 @@ impl App {
         let Some(q) = self.arg() else {
             return false;
         };
+        // The line runs as it stands and nothing was typed to name again. An
+        // empty word quoted would hand the command an argument of its own.
+        if pick.kind == Kind::Run && pick.insert.is_empty() {
+            return true;
+        }
         let mut insert = quote_kind(Some(pick.kind), &pick.insert);
         if finishes_word(pick.kind, &pick.insert, &shellword::unquote(&q.arg))
             && self.line.right_of_cursor().is_empty()
         {
             insert.push(' ');
         }
-        self.replace_arg(q.start, &insert, true);
+        self.replace_arg(q.start, &insert);
         true
     }
 
@@ -520,12 +491,13 @@ impl App {
         // the rows that do can agree on something to add to it. The row that
         // runs the line offers the argument back unchanged. Navigation rows
         // do not take part in the prefix the children share.
+        let tab_reads = candidates::tab_kind(&self.items, selected.kind);
         let agreeing: Vec<&Candidate> = self
             .items
             .iter()
             .filter(|c| {
                 (c.kind == Kind::Dir || c.kind.is_git())
-                    && (!selected.kind.is_git() || c.kind == selected.kind)
+                    && (!tab_reads.is_git() || c.kind == tab_reads)
                     && starts_with_folded(&c.insert, &arg)
             })
             .collect();
@@ -613,7 +585,7 @@ impl App {
         {
             insert.push(' ');
         }
-        self.replace_arg(c.start, &insert, c.whole.is_some());
+        self.replace_arg(c.start, &insert);
         true
     }
 
@@ -700,10 +672,7 @@ mod tests {
         assert!(a.accept());
         assert_eq!(a.line.text(), "git add 'sample one' ");
         assert!(a.menu_open());
-        // The query drops the file it just took. The menu that comes back is
-        // therefore a menu of its own rather than the one that was already
-        // there.
-        assert!(!a.menu_repeats);
+        // The query drops the file it just took.
         assert_eq!(
             a.items
                 .iter()
@@ -886,10 +855,15 @@ mod tests {
             // with it. What the line reads as now is the walk's answer for
             // the word behind the branch, which here is that subcommand's own
             // options. No second branch is offered: the two readers answer one
-            // line each and this is where that shows. `pick` ends the run on
-            // this line and the next Tab is what opens it.
-            assert!(!a.items.is_empty());
-            assert!(a.items.iter().all(|c| c.kind == candidates::Kind::Option));
+            // line each and this is where that shows. The line runs as it
+            // stands and the row that runs it leads those options.
+            assert_eq!(a.items[0].kind, candidates::Kind::Run);
+            assert!(a.items.len() > 1);
+            assert!(
+                a.items[1..]
+                    .iter()
+                    .all(|c| c.kind == candidates::Kind::Option)
+            );
         }
         let mut a = branches("git switch sample/t", &["sample/topic"]);
         assert!(a.accept_common());
@@ -1148,16 +1122,20 @@ mod tests {
     }
 
     #[test]
-    fn a_file_a_specification_offers_leaves_the_list_unchanged() {
-        // `ls` takes as many names as it is given. The argument the second
-        // name would fill is therefore the argument the first one filled.
-        // Nothing came out of the list and another press would put `one` on
-        // the line a second time.
+    fn a_file_a_specification_offers_leaves_the_menu_open_behind_it() {
+        // `cp`'s source takes as many names as it is given and the target
+        // behind it still wants one. The same names come back and the
+        // highlight says what the next press takes.
         let f = Fixture::new(&["one*", "two*"]);
-        let mut a = App::over(f.path(), "ls ");
+        let mut a = App::over(f.path(), "cp ");
         assert!(a.accept());
-        assert_eq!(a.line.text(), "ls one ");
-        assert!(a.menu_repeats);
+        assert_eq!(a.line.text(), "cp one ");
+        assert!(a.menu_open());
+        // `wc` runs once it has a file and the row that runs the line leads.
+        let mut a = App::over(f.path(), "wc o");
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "wc one ");
+        assert_eq!(a.items[0].kind, candidates::Kind::Run);
     }
 
     #[test]
@@ -1166,7 +1144,7 @@ mod tests {
         let mut a = App::over(f.path(), "cd lev");
         assert!(a.accept());
         assert_eq!(a.line.text(), "cd level/");
-        assert!(!a.menu_repeats);
+        assert!(a.menu_open());
     }
 
     #[test]
@@ -1175,7 +1153,7 @@ mod tests {
         let mut a = App::over(f.path(), "docker contai");
         assert!(a.accept());
         assert_eq!(a.line.text(), "docker container ");
-        assert!(!a.menu_repeats);
+        assert!(a.menu_open());
     }
 
     #[test]
@@ -1187,20 +1165,7 @@ mod tests {
         let mut a = App::over(f.path(), "cd wo");
         assert!(a.accept_common());
         assert_eq!(a.line.text(), "cd wor");
-        assert!(!a.menu_repeats);
-    }
-
-    #[test]
-    fn typing_the_line_on_leaves_the_menu_answering_for_it() {
-        // The measurement belongs to an acceptance. A key that edits the line
-        // opens whatever menu the new line asks for.
-        let f = Fixture::new(&["one*", "two*"]);
-        let mut a = App::over(f.path(), "ls ");
-        assert!(a.accept());
-        assert!(a.menu_repeats);
-        a.line.insert("t");
-        a.edited();
-        assert!(!a.menu_repeats);
+        assert!(a.menu_open());
     }
 
     #[test]
@@ -1596,6 +1561,27 @@ mod tests {
     }
 
     #[test]
+    fn enter_on_the_row_that_runs_the_line_leaves_the_line_as_it_stands() {
+        let mut a = spec_over("cargo build ");
+        assert!(a.runs_the_line());
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "cargo build ");
+    }
+
+    #[test]
+    fn tab_under_the_row_that_runs_the_line_reads_the_names_below_it() {
+        // `wc` runs as it stands and that row is highlighted. It grows
+        // nothing. Tab reads the file under it, the one name of its kind, and
+        // takes it whole.
+        let f = Fixture::new(&["sample-file*"]);
+        let mut a = App::over(f.path(), "wc ");
+        assert_eq!(a.items[0].kind, candidates::Kind::Run);
+        assert_eq!(a.reach(), "sample-file".len());
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "wc sample-file ");
+    }
+
+    #[test]
     fn a_command_with_no_spec_gives_no_rows() {
         let a = spec_over("zzz-not-a-real-command-xyz sub");
         assert!(a.items.is_empty());
@@ -1829,8 +1815,8 @@ mod tests {
     fn an_accepted_git_subcommand_leaves_a_line_the_walk_answers() {
         // Where the two providers meet. Git's own menu names the subcommand
         // and the walk answers the word behind it, so the line an acceptance
-        // leaves has a menu of files rather than none at all. `pick` ends the
-        // run on that line and the next Tab is what opens the menu.
+        // leaves has a menu of files rather than none at all. The run goes on
+        // under that menu.
         let f = Fixture::new(&["readme*"]);
         let mut a = App::over(f.path(), "git blam");
         assert!(a.accept_common());

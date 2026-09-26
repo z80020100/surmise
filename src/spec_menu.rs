@@ -206,6 +206,8 @@ impl Completions {
                 // that to chance.
                 if let Some(arg) = whole_path(&walk, cwd) {
                     rows.insert(0, run_row(arg));
+                } else if runs_as_it_stands(target, &walk, &rows) {
+                    rows.insert(0, run_row(String::new()));
                 }
                 return rows;
             }
@@ -480,8 +482,9 @@ fn reads_paths(generator: &Generator) -> Option<&str> {
 /// shape and gets the same row. Without it `ls target/` goes on descending
 /// for as long as there are directories under it.
 ///
-/// Nothing else here gets one. A subcommand is a word to go on from rather
-/// than an answer in itself and the menu under it is what says where.
+/// A subcommand is a word to go on from rather than an answer in itself and
+/// the menu under it is what says where. [`runs_as_it_stands`] is the one
+/// other place a row that runs the line comes from.
 fn whole_path(walk: &Walk, cwd: &Path) -> Option<String> {
     let term = walk.search_term.as_str();
     if !walk.offers_args || term.is_empty() {
@@ -516,6 +519,21 @@ fn whole_path(walk: &Walk, cwd: &Path) -> Option<String> {
             _ => true,
         })
         .then(|| term.to_string())
+}
+
+/// Whether the line runs as it stands and the menu should lead with the row
+/// that runs it. Nothing is typed in the word yet and the specification
+/// wants no further word.
+///
+/// A space opens this menu without being asked and Enter takes the
+/// highlighted row. `make install ` would otherwise take `--debug` on the
+/// press that runs the line anywhere else. The row runs the line as the
+/// screen shows it. That is what Enter does without a menu and a person
+/// moves off the row to take anything else. A line that still needs a word
+/// keeps its first row under the highlight. Running it would fail.
+/// A list with nothing else in it is no menu at all and does not open.
+fn runs_as_it_stands(target: &Target, walk: &Walk, rows: &[Candidate]) -> bool {
+    target.word.arg.is_empty() && !walk.needs_word && !rows.is_empty()
 }
 
 /// Rows for an argument whose generator names the `filepaths` or `folders`
@@ -843,10 +861,12 @@ mod tests {
         // at 100, `--username` at 95 and `--password` at 94. It leaves
         // the eight that configure the connection at the default. The
         // alphabetical order buried the one flag the command cannot run
-        // without under six of them.
+        // without under six of them. The line runs as it stands and the row
+        // that runs it leads them all.
         let rows = complete(&mut Completions::default(), &target("svn commit "));
+        assert_eq!(rows[0].kind, Kind::Run);
         assert_eq!(
-            names(&rows)[0..3],
+            names(&rows)[1..4],
             ["-m", "--username", "--password"],
             "{:?}",
             names(&rows)
@@ -1023,6 +1043,51 @@ mod tests {
         let f = Fixture::new(&[]);
         let rows = rows_in(f.path(), "docker container");
         assert_eq!(names(&rows), ["container"]);
+    }
+
+    #[test]
+    fn a_line_that_runs_as_it_stands_leads_with_the_row_that_runs_it() {
+        // Nothing is typed in the word and the specification wants no
+        // further one. `git --version` is the whole command and `svn commit`
+        // opens an editor for its message. `cp`'s second name may be its
+        // target.
+        let f = Fixture::new(&["sample-file*"]);
+        for line in [
+            "wc ",
+            "cargo build ",
+            "git --version ",
+            "git status ",
+            "svn commit ",
+            "cp sample-file sample-copy ",
+        ] {
+            let rows = rows_in(f.path(), line);
+            assert_eq!(rows[0].kind, Kind::Run, "{line}");
+            assert_eq!(rows[0].insert, "", "{line}");
+            assert!(rows.len() > 1, "{line}");
+        }
+    }
+
+    #[test]
+    fn a_line_that_still_needs_a_word_gets_no_row_that_runs_it() {
+        // `cargo` wants a subcommand, `docker container` one of its own,
+        // `make -C` its directory and `cp` its target. A word being typed is
+        // the menu's to answer rather than a line to run.
+        let f = Fixture::new(&["sample-file*", "assets/inner"]);
+        for line in [
+            "cargo ",
+            "docker container ",
+            "make -C ",
+            "cp sample-file ",
+            "cargo build --re",
+        ] {
+            let rows = rows_in(f.path(), line);
+            assert!(!rows.is_empty(), "{line}");
+            assert!(
+                rows.iter().all(|r| r.kind != Kind::Run),
+                "{line}: {:?}",
+                names(&rows)
+            );
+        }
     }
 
     #[test]

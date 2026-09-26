@@ -286,6 +286,22 @@ pub(crate) fn run_row(insert: String) -> Candidate {
     }
 }
 
+/// The kind Tab reads the menu by when `highlighted` is the kind under the
+/// highlight. That is the highlighted row's own. The row that runs the line
+/// grows nothing and Tab looks past it to the first row a flat reader named.
+/// `cd`'s own menu names none and reads its children under that row the way
+/// it always has.
+pub(crate) fn tab_kind(items: &[Candidate], highlighted: Kind) -> Kind {
+    if highlighted != Kind::Run {
+        return highlighted;
+    }
+    items
+        .iter()
+        .map(|c| c.kind)
+        .find(|kind| kind.is_git())
+        .unwrap_or(highlighted)
+}
+
 /// The directory an argument names and what was typed into it. Everything up
 /// to the last `/` is the first and the rest is the second. The menu marks
 /// the characters the second reached and the two modes below both match on

@@ -859,18 +859,37 @@ fn enter_takes_the_directory_and_a_second_enter_asks_for_the_line_to_be_run() {
 }
 
 #[test]
-fn enter_on_a_file_a_specification_offers_hands_the_line_back() {
+fn enter_takes_a_file_and_a_second_enter_runs_the_line_it_made() {
     // `ls` takes as many names as it is given and reads them out of the one
-    // directory. The menu this acceptance would reopen is therefore the menu
-    // that was already on the screen. A second press there would put `one` on
-    // the line again. The run ends instead and the shell gets the finished
-    // word.
+    // directory. The same names come back behind the file and the line now
+    // runs as it stands. The row that runs it leads them under the highlight
+    // and the second press runs the line rather than taking `one` again.
     let f = Fixture::new(&["one*", "two*"]);
     let mut t = opened(f.path(), "ls ");
     assert_eq!(names(&t)[0], "one");
     t.send("\r");
-    assert_eq!(t.status(WAIT), Some(pick::ACCEPTED));
+    t.pump(SETTLE);
+    assert!(!t.panel().is_empty(), "the menu closed: {:?}", t.lines());
     assert!(shown(&t).contains("ls one"), "{:?}", t.lines());
+    assert_eq!(names(&t)[0], "");
+    t.send("\r");
+    assert_eq!(t.status(WAIT), Some(pick::RUN));
+    assert!(shown(&t).contains("ls one"), "{:?}", t.lines());
+}
+
+#[test]
+fn taking_back_the_space_that_opened_the_menu_hands_the_line_back() {
+    // The space behind `make sample-build` asked for what may follow it and
+    // the one behind a bare `make` asked for a target. Backspace takes either
+    // request back and the line is the one the shell had before it.
+    let f = Fixture::new(&[]);
+    std::fs::write(f.path().join("Makefile"), "sample-build:\n\t:\n").expect("a makefile");
+    for line in ["make sample-build ", "make "] {
+        let mut t = opened(f.path(), line);
+        t.send("\x7f");
+        assert_eq!(t.status(WAIT), Some(pick::ACCEPTED), "{line}");
+        assert!(shown(&t).contains(line.trim_end()), "{:?}", t.lines());
+    }
 }
 
 #[test]
