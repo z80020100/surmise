@@ -787,13 +787,29 @@ patterns are not host names and a hashed `known_hosts` entry holds no name to
 read. An `Include` in an SSH configuration is not followed either. Each file
 is read up to 64 KiB, the cap a Git query's own output already carries.
 
-An argument that needs anything else — a script, another native reader, a
-package's own scripts, a branch name, anything else `specs/dynamic.txt`
-names — still offers no rows rather than guessing at one or running one
-unasked. Those two are two of the 4854 arguments that file lists and the other
-4852 show nothing. Teaching `argwalk` to fill one of those in from a
-generator, the way the Git branch and file readers already do their own,
-remains a later phase.
+Three more belong to `npm` and one file answers all three. `npm run ` offers
+the scripts in the `package.json` nearest the line and each row says what its
+script runs. `npm uninstall `, its four other spellings and `npm explore `
+offer the packages the project depends on. `-w` offers the project's
+workspaces under every subcommand that takes it. Both leave out a name the
+line already holds. A `workspaces` entry such as `packages/*` becomes every
+directory under `packages` that holds a `package.json` of its own. `-w` takes
+a path and a pattern names none. An entry with a leading `!` takes a path back
+out. Any other pattern is left out. The file is the one npm itself would find
+by walking up from the line's directory. It is read up to the same 64 KiB.
+`npm uninstall -g` gets nothing. The packages it would name belong to the
+machine rather than to the project and only running npm can say where those
+live. `npm install ` gets nothing either. Its argument searches the registry
+and nothing here reaches a network. Every reader here leaves out a name that
+holds a control character. Git's own readers do the same.
+
+An argument that needs anything else — a script, another native reader, the
+same `package.json` read for `pnpm` or `yarn`, a branch name, anything else
+`specs/dynamic.txt` names — still offers no rows rather than guessing at one
+or running one unasked. Those readers answer 37 of the 4854 arguments that
+file lists and the other 4817 show nothing. Teaching `argwalk` to fill one of
+those in from a generator, the way the Git branch and file readers already do
+their own, remains a later phase.
 
 A space opens the menu here too, the way a bare `cd ` or `git ` already did:
 `docker ` and `docker container ` both reach it, because the widget checks
