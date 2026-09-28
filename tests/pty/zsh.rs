@@ -1102,11 +1102,36 @@ fn typing_a_bare_docker_opens_the_menu() {
 fn docker_container_also_opens_the_menu_on_its_own_space() {
     // The trigger reads the line's first word, not the word the space
     // ends. A second word ending in a space opens the menu exactly as the
-    // first one does.
+    // first one does. The first space opens one of its own and Esc hands
+    // the line back before the second.
     let f = home("", "");
     let mut t = ready(f.path());
-    t.send("docker container ");
+    t.send("docker ");
     assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    typed(&mut t, "container");
+    t.send("\x1b");
+    closed(&mut t);
+    t.send(" ");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    assert!(
+        line(&t).starts_with("❯ docker container "),
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
+fn keys_typed_before_the_menu_draws_still_reach_it() {
+    // The whole line lands in the terminal's queue at once. Everything
+    // behind the first space is in it ahead of the terminal's answer about
+    // where the cursor is. It reaches the menu as though typed into it.
+    let f = home("", "");
+    let mut t = ready(f.path());
+    t.send("git status ");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    assert_eq!(line(&t).trim(), "❯ git status", "{:?}", t.lines());
 }
 
 #[test]
