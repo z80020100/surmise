@@ -4,7 +4,7 @@
 //! picker. Nothing here touches the terminal and the ranking and the
 //! acceptance rules are therefore testable on their own.
 
-use crate::candidates::{self, Candidate, Kind, Scan};
+use crate::candidates::{self, Candidate, Kind, Scan, Sort};
 use crate::fuzzy::{Match, shared_bytes, starts_with_folded};
 use crate::histfile;
 use crate::history::History;
@@ -215,8 +215,22 @@ impl App {
     /// of them. Never more than one answers a given line, so which of the
     /// two gets the real reading is nothing to track here, and `cd`'s own
     /// candidates read neither field at all.
-    pub(crate) fn seed_history(&mut self, history: History, cmd_history: histfile::Counts) {
-        self.history = history;
+    ///
+    /// `Sort::Alphabetical` lets neither history order anything. The
+    /// commands stay, because the `history` template offers their words as
+    /// rows of their own.
+    pub(crate) fn seed_history(
+        &mut self,
+        history: History,
+        mut cmd_history: histfile::Counts,
+        sort: Sort,
+    ) {
+        let recent = sort == Sort::Recent;
+        if !recent {
+            cmd_history.0.clear();
+        }
+        self.history = if recent { history } else { History::default() };
+        self.spec_menu.alphabetical = !recent;
         self.git.cmd_history = histfile::Counts(cmd_history.0.clone(), Vec::new());
         self.spec_menu.cmd_history = cmd_history;
     }
@@ -960,6 +974,33 @@ mod tests {
         assert_eq!(a.line.text(), "echo $(npm run)");
         // A word that goes on to the right is not.
         assert!(at("npm ruXn", 2).items.is_empty());
+    }
+
+    #[test]
+    fn an_alphabetical_order_lets_no_history_lead() {
+        // `readme` leads `src/` on its name. A hundred `cat src` lines lift
+        // the folder only while the order is the recent one.
+        let f = Fixture::new(&["src", "readme*"]);
+        let first = |sort| {
+            let mut a = App::new(f.path().to_path_buf());
+            a.line.insert("cat ");
+            let mut counts = crate::histfile::Counts::default();
+            counts
+                .0
+                .entry("cat".to_string())
+                .or_default()
+                .insert("src".to_string(), 100);
+            a.seed_history(crate::history::History::default(), counts, sort);
+            a.refresh();
+            a.items
+                .iter()
+                .find(|c| c.kind != candidates::Kind::Run)
+                .unwrap()
+                .insert
+                .clone()
+        };
+        assert_eq!(first(super::Sort::Recent), "src/");
+        assert_eq!(first(super::Sort::Alphabetical), "readme");
     }
 
     #[test]

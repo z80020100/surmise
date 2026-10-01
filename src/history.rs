@@ -365,6 +365,7 @@ mod tests {
         app.seed_history(
             History::read(&db, f.path(), AT).unwrap(),
             crate::histfile::Counts::default(),
+            crate::candidates::Sort::Recent,
         );
         for _ in 0..4 {
             record_at(&db, f.path(), &f.path().join("alpha"), AT).unwrap();

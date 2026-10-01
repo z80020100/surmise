@@ -9,6 +9,7 @@
 //! the four outcomes below happened and whether stdout holds a line.
 
 use crate::app::App;
+use crate::candidates::Sort;
 use crate::fuzzy::Match;
 use crate::histfile;
 use crate::history::History;
@@ -47,7 +48,7 @@ fn anchor_col(cursor_col: usize, seed: &str, width: usize) -> Option<usize> {
 }
 
 /// The state for `seed`, with `aliases`, `history`, `cmd_history` and the
-/// `match` setting in
+/// `match` and `sort` settings in
 /// place before the one refresh that builds the first candidate list.
 /// `App::over` cannot be used here: it calls `refresh` on construction and
 /// any of the three set afterward would answer a menu already drawn without
@@ -60,12 +61,13 @@ fn seeded(
     history: History,
     cmd_history: histfile::Counts,
     matching: Match,
+    sort: Sort,
 ) -> Option<App> {
     let mut app = App::new(cwd.to_path_buf());
     app.aliases = aliases;
     app.matching = matching;
     app.line.insert(seed);
-    app.seed_history(history, cmd_history);
+    app.seed_history(history, cmd_history, sort);
     app.refresh();
     (!app.items.is_empty()).then_some(app)
 }
@@ -228,7 +230,12 @@ pub fn run(seed: &str) -> io::Result<u8> {
     // history. The directory history is read for every line. A run that
     // opens on Git's own menu goes on into the walk behind an accepted
     // subcommand and that walk weighs its folders the way `ls ` does.
-    let history = History::load(&cwd);
+    // An alphabetical order has no use for the directory history and the
+    // database is left unopened.
+    let history = match config.sort {
+        Sort::Recent => History::load(&cwd),
+        Sort::Alphabetical => History::default(),
+    };
     let cmd_history = if completes_git || completes_spec {
         histfile::read(&input.histfile, &input.aliases)
     } else {
@@ -242,6 +249,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
         history,
         cmd_history,
         config.matching,
+        config.sort,
     ) else {
         return Ok(PASS);
     };
@@ -449,6 +457,7 @@ mod tests {
             History::default(),
             histfile::Counts::default(),
             Match::default(),
+            Sort::default(),
         )
     }
 

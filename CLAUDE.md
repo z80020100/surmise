@@ -1205,7 +1205,7 @@ surmise settings add disabled_commands kubectl    # one entry of a list
 surmise settings remove disabled_commands kubectl # one entry back out
 ```
 
-`set` and `unset` answer for `enabled`, `icons` and `match`. `add` and
+`set` and `unset` answer for `enabled`, `icons`, `match` and `sort`. `add` and
 `remove` answer for `disabled_commands` and `spec_dirs`. Naming the wrong one
 of the two says which verb reaches that key rather than writing anything, and
 so does a key or a value this build does not read. A value the picker would
@@ -1255,7 +1255,7 @@ earns is kept rather
 than the first of them, because a person sent back twice for one file has
 been told half of what the reader already knew.
 
-Five keys have a reader today.
+Six keys have a reader today.
 
 - `enabled` turns the picker off. `pick::run` checks it before it opens the
   terminal, so `false` answers every key with `PASS` and the shell's own
@@ -1282,9 +1282,14 @@ Five keys have a reader today.
   outranks the setting for that list. 235 places in the corpus name `fuzzy`
   and one names `prefix`. The row that runs the line and the parent and home
   rows stay whichever is set.
+- `sort` names what orders the rows a match leaves level. `"recent"` is the
+  default and lets the directory history and `$HISTFILE` lead.
+  `"alphabetical"` leaves it to the name. The directory history is then not
+  opened and the `$HISTFILE` counts order nothing. The words the `history`
+  template finds still show and go in the order of their names.
 
 `spec_menu` is the menu that calls `spec_store::get_configured`, once per
-command name it asks for, so three of the five keys now reach what a person
+command name it asks for, so three of the six keys now reach what a person
 sees:
 `enabled` through `pick::run`, the entry point every keystroke goes through,
 and `disabled_commands` and `spec_dirs` through the spec that menu completes

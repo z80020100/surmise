@@ -427,6 +427,33 @@ pub(crate) struct UsedAfter<'a> {
     pub(crate) counts: &'a histfile::Counts,
 }
 
+/// What orders the rows a match leaves level. `Recent` lets what a person
+/// typed and visited before lead. `Alphabetical` leaves it to the name.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Sort {
+    #[default]
+    Recent,
+    Alphabetical,
+}
+
+impl Sort {
+    const ALL: [Sort; 2] = [Sort::Recent, Sort::Alphabetical];
+
+    /// The word `config.toml` names this order by.
+    pub const fn word(self) -> &'static str {
+        match self {
+            Sort::Recent => "recent",
+            Sort::Alphabetical => "alphabetical",
+        }
+    }
+
+    pub const WORDS: [&'static str; 2] = [Sort::ALL[0].word(), Sort::ALL[1].word()];
+
+    pub fn from_word(word: &str) -> Option<Sort> {
+        Sort::ALL.into_iter().find(|sort| sort.word() == word)
+    }
+}
+
 /// Which of a specification's three groups a row came from. A subcommand
 /// leads, a value follows and an option comes last. A subcommand is the
 /// next word the command is made of and a value is the word its argument

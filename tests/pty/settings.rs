@@ -21,8 +21,7 @@ fn settings(home: &Path, words: &[&str]) -> Output {
 }
 
 /// Every key this build reads with the value it has where nothing set one.
-const DEFAULTS: &str =
-    "disabled_commands = []\nenabled = true\nicons = \"text\"\nmatch = \"fuzzy\"\nspec_dirs = []\n";
+const DEFAULTS: &str = "disabled_commands = []\nenabled = true\nicons = \"text\"\nmatch = \"fuzzy\"\nsort = \"recent\"\nspec_dirs = []\n";
 
 fn config(home: &Path) -> String {
     std::fs::read_to_string(home.join(".config/surmise/config.toml")).expect("a config file")
@@ -169,7 +168,7 @@ fn settings_show_prints_what_the_writes_before_it_made() {
     let after = settings(&home, &["show"]);
     assert_eq!(
         String::from_utf8(after.stdout).unwrap(),
-        "disabled_commands = [\"kubectl\"]\nenabled = true\nicons = \"nerd\"\nmatch = \"fuzzy\"\nspec_dirs = []\n"
+        "disabled_commands = [\"kubectl\"]\nenabled = true\nicons = \"nerd\"\nmatch = \"fuzzy\"\nsort = \"recent\"\nspec_dirs = []\n"
     );
 }
 
