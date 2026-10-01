@@ -174,7 +174,9 @@ struct Script {
 /// `git diff --cached --name-only` names its paths from the top of the
 /// repository and a line typed in a subdirectory would get the wrong file.
 /// `cargo metadata` without `--no-deps` can fetch an index to resolve the
-/// dependencies and has none either.
+/// dependencies and has none either. Nor has a line the corpus reads two
+/// ways. `task export` names tasks for one argument and projects for
+/// another. An entry here gives a line one answer.
 const SCRIPTS: &[Script] = &[
     Script {
         line: &["git", "--no-optional-locks", "log", "--oneline"],
@@ -423,6 +425,164 @@ const SCRIPTS: &[Script] = &[
         label: "feature",
         parse: cargo_features,
     },
+    Script {
+        line: &["podman", "ps", "--format", "{{ json . }}"],
+        label: "container",
+        parse: containers,
+    },
+    Script {
+        line: &["podman", "ps", "-a", "--format", "{{ json . }}"],
+        label: "container",
+        parse: containers,
+    },
+    Script {
+        line: &[
+            "podman",
+            "ps",
+            "--filter",
+            "status=paused",
+            "--format",
+            "{{ json . }}",
+        ],
+        label: "container",
+        parse: containers,
+    },
+    Script {
+        line: &["podman", "volume", "list", "--format", "{{ json . }}"],
+        label: "volume",
+        parse: |out| json_lines(out, "Name", "Driver"),
+    },
+    // Podman 4 writes the network's fields in lower case.
+    Script {
+        line: &["podman", "network", "list", "--format", "{{ json . }}"],
+        label: "network",
+        parse: |out| json_lines(out, "name", "driver"),
+    },
+    Script {
+        line: &["k3d", "cluster", "list", "--no-headers"],
+        label: "cluster",
+        parse: |out| {
+            out.lines()
+                .filter_map(|line| {
+                    let mut words = line.split_whitespace();
+                    let (name, servers, agents) = (words.next()?, words.next()?, words.next()?);
+                    Some(labelled(
+                        name,
+                        format!("{servers} servers, {agents} agents"),
+                    ))
+                })
+                .collect()
+        },
+    },
+    Script {
+        line: &["k3d", "node", "list", "--no-headers"],
+        label: "node",
+        parse: |out| {
+            out.lines()
+                .filter_map(|line| {
+                    let mut words = line.split_whitespace();
+                    let (name, role, cluster) = (words.next()?, words.next()?, words.next()?);
+                    Some(labelled(name, format!("{role} of {cluster}")))
+                })
+                .collect()
+        },
+    },
+    Script {
+        line: &["k3d", "registry", "list", "--no-headers"],
+        label: "registry",
+        parse: |out| {
+            out.lines()
+                .filter_map(|line| line.split_whitespace().next())
+                .map(name_only)
+                .collect()
+        },
+    },
+    Script {
+        line: &["kind", "get", "clusters"],
+        label: "cluster",
+        parse: plain_lines,
+    },
+    Script {
+        line: &["kind", "get", "nodes", "-A"],
+        label: "node",
+        parse: plain_lines,
+    },
+    Script {
+        line: &["limactl", "list", "--quiet"],
+        label: "instance",
+        parse: plain_lines,
+    },
+    Script {
+        line: &["multipass", "list", "--format=json"],
+        label: "instance",
+        parse: multipass_instances,
+    },
+    Script {
+        line: &["rclone", "listremotes"],
+        label: "remote",
+        parse: plain_lines,
+    },
+    Script {
+        line: &["asdf", "plugin-list"],
+        label: "plugin",
+        parse: plain_lines,
+    },
+    // `cat` is a program of its own and no shell stands between it and the
+    // file.
+    Script {
+        line: &["cat", "copilot/.workspace"],
+        label: "application",
+        parse: copilot_application,
+    },
+    Script {
+        line: &["networksetup", "-listallnetworkservices"],
+        label: "network service",
+        parse: network_services,
+    },
+    Script {
+        line: &["networksetup", "-listpppoeservices"],
+        label: "PPPoE service",
+        parse: plain_lines,
+    },
+    Script {
+        line: &["networksetup", "-listlocations"],
+        label: "network location",
+        parse: plain_lines,
+    },
+    Script {
+        line: &["networksetup", "-listBonds"],
+        label: "bond",
+        parse: |out| {
+            out.lines()
+                .filter_map(|line| line.trim().strip_prefix("user-defined-name: "))
+                .map(name_only)
+                .collect()
+        },
+    },
+    Script {
+        line: &["defaults", "domains"],
+        label: "domain",
+        parse: |out| {
+            out.split(',')
+                .map(str::trim)
+                .filter(|name| !name.is_empty())
+                .map(name_only)
+                .collect()
+        },
+    },
+    // A header and then a pid, a status and a label to a line.
+    Script {
+        line: &["launchctl", "list"],
+        label: "service",
+        parse: |out| {
+            out.lines()
+                .skip(1)
+                .filter_map(|line| line.split('\t').nth(2))
+                .filter(|name| !name.is_empty())
+                .map(name_only)
+                .collect()
+        },
+    },
 ];
 
 /// What each command line answered, for the life of one menu. A line runs
@@ -601,7 +761,15 @@ fn text_field<'a>(object: &'a Map<String, Value>, key: &str) -> Option<&'a str> 
 fn containers(out: &str) -> Vec<Found> {
     objects(out)
         .filter_map(|object| {
-            let name = text_field(&object, "Names")?.split(',').next()?;
+            // Docker joins a container's names with commas and Podman keeps
+            // them in a list.
+            let name = match object.get("Names")? {
+                Value::Array(names) => names.first()?.as_str()?,
+                names => names.as_str()?.split(',').next()?,
+            };
+            if name.is_empty() {
+                return None;
+            }
             let image = text_field(&object, "Image").unwrap_or("");
             let status = text_field(&object, "Status").unwrap_or("");
             Some(Found {
@@ -655,6 +823,61 @@ fn named_lines(out: &str) -> Vec<Found> {
         .collect()
 }
 
+/// Every instance `multipass` knows and how each one stands. The corpus
+/// filters by state for some arguments. One line gives one answer here and
+/// the state in the row says the rest.
+fn multipass_instances(out: &str) -> Vec<Found> {
+    let Ok(listed) = serde_json::from_str::<Value>(out) else {
+        return Vec::new();
+    };
+    listed["list"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter_map(|instance| {
+            let name = instance["name"].as_str().filter(|n| !n.is_empty())?;
+            let about = [&instance["state"], &instance["release"]]
+                .into_iter()
+                .filter_map(Value::as_str)
+                .collect::<Vec<_>>()
+                .join(" ");
+            Some(Found {
+                name: name.to_string(),
+                label: (!about.is_empty()).then_some(Cow::Owned(about)),
+            })
+        })
+        .collect()
+}
+
+/// The application a Copilot workspace file names. The file is YAML and
+/// the one key read here sits at its top level.
+fn copilot_application(out: &str) -> Vec<Found> {
+    out.lines()
+        .filter_map(|line| line.strip_prefix("application:"))
+        .map(|value| value.trim().trim_matches(['"', '\'']))
+        .filter(|name| !name.is_empty())
+        .map(name_only)
+        .take(1)
+        .collect()
+}
+
+/// `networksetup`'s services under a line that explains the mark in front
+/// of a disabled one.
+fn network_services(out: &str) -> Vec<Found> {
+    out.lines()
+        .skip(1)
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .map(|line| match line.strip_prefix("* ") {
+            Some(name) => Found {
+                name: name.to_string(),
+                label: Some(Cow::Borrowed("disabled network service")),
+            },
+            None => name_only(line),
+        })
+        .collect()
+}
+
 /// The packages `cargo metadata` describes, each under its own name.
 fn cargo_packages(out: &str) -> Vec<Found> {
     let Ok(metadata) = serde_json::from_str::<Value>(out) else {
@@ -688,6 +911,13 @@ fn name_only(name: &str) -> Found {
     Found {
         name: name.to_string(),
         label: None,
+    }
+}
+
+fn labelled(name: &str, label: String) -> Found {
+    Found {
+        name: name.to_string(),
+        label: Some(Cow::Owned(label)),
     }
 }
 
@@ -1621,6 +1851,99 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         features.sort_unstable();
         assert_eq!(features, ["default", "sample"]);
         assert!(cargo_packages("not json").is_empty());
+    }
+
+    /// What the entry for `line` makes of `out`.
+    fn parsed(line: &[&str], out: &str) -> Vec<(String, Option<String>)> {
+        let entry = SCRIPTS.iter().find(|e| e.line == line).expect("an entry");
+        (entry.parse)(out)
+            .into_iter()
+            .map(|f| (f.name, f.label.map(String::from)))
+            .collect()
+    }
+
+    #[test]
+    fn each_local_tool_line_reads_its_own_output() {
+        let named = |name: &str| (name.to_string(), None);
+        let said = |name: &str, label: &str| (name.to_string(), Some(label.to_string()));
+        assert_eq!(
+            parsed(
+                &["podman", "ps", "--format", "{{ json . }}"],
+                "{\"Names\":[\"sample-pod\"],\"Image\":\"sample:1\",\"Status\":\"Up\"}\n{\"Names\":[]}\n"
+            ),
+            [said("sample-pod", "sample:1 Up")]
+        );
+        assert_eq!(
+            parsed(
+                &["podman", "network", "list", "--format", "{{ json . }}"],
+                "{\"name\":\"sample-net\",\"driver\":\"bridge\"}\n"
+            ),
+            [said("sample-net", "bridge")]
+        );
+        assert_eq!(
+            parsed(
+                &["k3d", "cluster", "list", "--no-headers"],
+                "sample   1/1   0/0   true\n\n"
+            ),
+            [said("sample", "1/1 servers, 0/0 agents")]
+        );
+        assert_eq!(
+            parsed(
+                &["k3d", "node", "list", "--no-headers"],
+                "k3d-sample-server-0   server   sample   running\n"
+            ),
+            [said("k3d-sample-server-0", "server of sample")]
+        );
+        assert_eq!(
+            parsed(
+                &["k3d", "registry", "list", "--no-headers"],
+                "k3d-sample.localhost   registry   sample   running\n"
+            ),
+            [named("k3d-sample.localhost")]
+        );
+        assert_eq!(
+            parsed(
+                &["multipass", "list", "--format=json"],
+                "{\"list\":[{\"name\":\"sample\",\"state\":\"Running\",\"release\":\"24.04 LTS\"},{\"name\":\"\"}]}"
+            ),
+            [said("sample", "Running 24.04 LTS")]
+        );
+        assert!(parsed(&["multipass", "list", "--format=json"], "not json").is_empty());
+        assert_eq!(
+            parsed(
+                &["cat", "copilot/.workspace"],
+                "# sample\napplication: 'sample-app'\n"
+            ),
+            [named("sample-app")]
+        );
+        assert_eq!(
+            parsed(
+                &["networksetup", "-listallnetworkservices"],
+                "An asterisk (*) denotes that a network service is disabled.\nSample LAN\n* Sample VPN\n"
+            ),
+            [
+                named("Sample LAN"),
+                said("Sample VPN", "disabled network service")
+            ]
+        );
+        assert_eq!(
+            parsed(
+                &["networksetup", "-listBonds"],
+                "interface name: bond0\nuser-defined-name: Sample Bond\n"
+            ),
+            [named("Sample Bond")]
+        );
+        assert_eq!(
+            parsed(&["defaults", "domains"], "sample.one, sample.two\n"),
+            [named("sample.one"), named("sample.two")]
+        );
+        assert_eq!(
+            parsed(
+                &["launchctl", "list"],
+                "PID\tStatus\tLabel\n-\t0\tsample.agent\n123\t0\tother.agent\n"
+            ),
+            [named("sample.agent"), named("other.agent")]
+        );
     }
 
     #[test]
