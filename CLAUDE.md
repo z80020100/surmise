@@ -664,6 +664,12 @@ behind and goes on offering its options after its arguments, which is what
 `git add <file> -n` and `svn commit -m` both need. `src/argwalk.rs` is where
 that is written down.
 
+A word nothing in the specification takes ends the walk there. It is no
+subcommand, no option and no argument the node still has room for. `npm
+isntall ` therefore offers nothing and Tab hands the line to the shell. Every
+row past such a word would be a word the command reads some other way than
+the menu shows it. The menu used to offer all of `npm`'s subcommands again.
+
 An alias for `cd` is the one exception to the refusal above, and it reaches
 this menu rather than `cd`'s own: the refusal tests the word as typed, not
 what it expands to, because `cd`'s own reader matches only the literal word

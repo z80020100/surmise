@@ -77,6 +77,8 @@
 //! and the global options left behind it are words Git itself refuses. A
 //! node with no subcommand of its own has no such line to sit behind and
 //! keeps offering its options after its arguments.
+//! A word not even an argument takes ends the walk: the line has left what
+//! the specification describes and the walk offers nothing past it.
 //!
 //! **`loadSpec` re-rooting.** A node can itself be a pointer to another
 //! spec rather than one of its own (`Subcommand::load_spec`); the
@@ -421,6 +423,7 @@ pub fn walk<'a>(
         state.reroot(new_root, 0);
     }
     let mut search_term = String::new();
+    let mut stray = false;
 
     if words.len() > 1 {
         let last_index = words.len() - 1;
@@ -505,7 +508,13 @@ pub fn walk<'a>(
                 continue;
             }
 
-            state.seen_non_option = true;
+            // A word no consumer takes. The line has left what the
+            // specification describes. Whatever the walk offered from here
+            // would be a word the command reads some other way than the
+            // menu shows it. `npm isntall ` would offer every subcommand
+            // again.
+            stray = true;
+            break;
         }
         search_term = words[last_index].inner_text.clone();
     }
@@ -519,7 +528,8 @@ pub fn walk<'a>(
     // separator. The option is finished and the value is the word being
     // typed. Nothing but that value fits there.
     let mut search_lead = String::new();
-    if !forced
+    if !stray
+        && !forced
         && state.can_consume_options()
         && let Some((opt, lead)) = state.attached_option(&search_term)
         && !opt.args.is_empty()
@@ -530,22 +540,25 @@ pub fn walk<'a>(
         search_term.replace_range(..lead, "");
         forced = true;
     }
-    let current_arg = if let Some((opt, arg_index, _)) = state.option_arg {
+    let current_arg = if stray {
+        None
+    } else if let Some((opt, arg_index, _)) = state.option_arg {
         Some(opt.args[arg_index].clone())
     } else if state.subcommand_arg_index < state.node.args.len() {
         Some(state.node.args[state.subcommand_arg_index].clone())
     } else {
         None
     };
-    let needs_word = state.option_arg.is_some_and(|(opt, arg_index, filled)| {
-        wants_word(&opt.args, arg_index, usize::from(filled))
-    }) || wants_word(
-        &state.node.args,
-        state.subcommand_arg_index,
-        state.subcommand_arg_words,
-    ) || (state.command_index + 2 == words.len()
-        && !state.node.subcommands.is_empty()
-        && state.node.requires_subcommand != Some(false));
+    let needs_word = !stray
+        && (state.option_arg.is_some_and(|(opt, arg_index, filled)| {
+            wants_word(&opt.args, arg_index, usize::from(filled))
+        }) || wants_word(
+            &state.node.args,
+            state.subcommand_arg_index,
+            state.subcommand_arg_words,
+        ) || (state.command_index + 2 == words.len()
+            && !state.node.subcommands.is_empty()
+            && state.node.requires_subcommand != Some(false)));
 
     Walk {
         node: state.node,
@@ -553,8 +566,8 @@ pub fn walk<'a>(
         offers_args: current_arg.is_some(),
         current_arg,
         needs_word,
-        offers_subcommands: !state.entered_subcommand_args && !forced,
-        offers_options: !forced && state.can_consume_options(),
+        offers_subcommands: !stray && !state.entered_subcommand_args && !forced,
+        offers_options: !stray && !forced && state.can_consume_options(),
         command_index: state.command_index,
         end_of_options: state.end_of_options,
         search_term,
@@ -815,6 +828,19 @@ mod tests {
         assert!(std::ptr::eq(walk.node, &git));
         assert_eq!(walk.command_index, 0);
         assert_eq!(walk.search_term, "");
+    }
+
+    #[test]
+    fn a_word_nothing_takes_leaves_nothing_to_offer() {
+        let npm = spec::load("npm", &[]).unwrap();
+        let walk = walk_of(&npm, "npm isntall ");
+        assert!(!walk.offers_subcommands);
+        assert!(!walk.offers_options);
+        assert!(!walk.offers_args);
+        assert!(!walk.needs_word);
+        // A word an argument takes is not one of those.
+        let walk = walk_of(&npm, "npm install sample ");
+        assert!(walk.offers_args || walk.offers_options);
     }
 
     #[test]
