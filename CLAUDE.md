@@ -746,6 +746,19 @@ Every row stays in the list however many there are. `npm ` has 70 subcommands
 and the last of them is as reachable as the first. Git's own menu keeps every
 row too. Only `cd`'s menu has a limit of its own.
 
+An argument can take the values its specification lists and the rows a
+reader finds as well. A list of six values or fewer leads what a reader
+finds: `git merge ` offers `-` before the branches and `git reset ` offers
+`HEAD` before the commits. A longer list is a catalogue to search rather than
+a handful to pick from and what the machine holds leads it. `git config `
+therefore opens on the keys a person has set rather than on the 649 its
+specification knows. A value both name shows once with what the
+specification says of it. The length is the whole list's rather than what is
+left of it once something is typed. An argument's order therefore never
+turns on the word. The files and folders a template lists follow both. Any
+file is a fallback rather than the argument's own answer and `bun create `
+offers its 13 templates before the folders beside the line.
+
 An empty argument is where that group order decides. Every row matches it
 equally well. The name alone decided before it and `-` sorts under every
 letter. A bare `cargo ` therefore opened on `--color` and left all 38 of

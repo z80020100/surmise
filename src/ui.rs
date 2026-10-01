@@ -93,7 +93,7 @@ const PANEL_GAP: usize = 1;
 /// between the two: the same sentence in a third shape is one the eye has to
 /// find again every time a terminal changes size.
 const PAIR_WIDTH: usize = PANEL_INNER + 2 + PANEL_GAP + DETAIL_INNER + 2;
-const MENU_ROWS: usize = 6;
+pub(crate) const MENU_ROWS: usize = 6;
 /// The names the list shows beside the word. The word there gives up the
 /// line under the list and its own row under that. One of the two is a name
 /// more and the other is the terminal's to spare.
