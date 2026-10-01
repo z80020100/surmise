@@ -235,6 +235,12 @@ impl App {
         self.spec_menu.cmd_history = cmd_history;
     }
 
+    /// The `verbose_names` setting. A subcommand or an option shows its
+    /// longest name where what was typed does not choose one.
+    pub(crate) fn prefer_verbose_names(&mut self) {
+        self.spec_menu.verbose = true;
+    }
+
     pub fn refresh(&mut self) {
         self.items = self.relist();
         self.selected = 0;

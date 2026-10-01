@@ -49,6 +49,9 @@ pub struct Config {
     /// What orders the rows a match leaves level. `"alphabetical"` keeps
     /// the directory history and `$HISTFILE` out of the order.
     pub sort: Sort,
+    /// Whether a subcommand or an option shows its longest name where what
+    /// was typed does not choose one. `--message` rather than `-m`.
+    pub verbose_names: bool,
     /// What went wrong reading the file, if anything did. Nothing here
     /// prints it. `surmise doctor` is what a person sees this through.
     pub warning: Option<String>,
@@ -63,6 +66,7 @@ impl Default for Config {
             icons: Set::default(),
             matching: Match::default(),
             sort: Sort::default(),
+            verbose_names: false,
             warning: None,
         }
     }
@@ -82,6 +86,7 @@ struct Schema {
     #[serde(rename = "match")]
     matching: Option<String>,
     sort: Option<String>,
+    verbose_names: Option<bool>,
     #[serde(flatten)]
     extra: BTreeMap<String, toml::Value>,
 }
@@ -159,6 +164,7 @@ impl Config {
                     icons,
                     matching,
                     sort,
+                    verbose_names: schema.verbose_names.unwrap_or(false),
                     warning: (!warnings.is_empty()).then(|| warnings.join("; ")),
                 }
             }
@@ -196,6 +202,7 @@ impl Config {
                 .iter()
                 .map(|dir| dir.to_string_lossy().into_owned()),
         ));
+        doc["verbose_names"] = Item::Value(self.verbose_names.into());
         match &self.warning {
             None => doc.to_string(),
             Some(warning) => format!("{}{doc}", commented(warning)),
@@ -308,6 +315,7 @@ const KEYS: &[(&str, Shape)] = &[
     ("match", Shape::Word(&Match::WORDS)),
     ("sort", Shape::Word(&Sort::WORDS)),
     ("spec_dirs", Shape::List),
+    ("verbose_names", Shape::Bool),
 ];
 
 /// What a write asks for. The key and the value arrive as the words a person
@@ -567,6 +575,12 @@ mod tests {
     }
 
     #[test]
+    fn verbose_names_is_off_unless_the_file_turns_it_on() {
+        assert!(!Config::parse("").verbose_names);
+        assert!(Config::parse("verbose_names = true").verbose_names);
+    }
+
+    #[test]
     fn the_order_is_recent_unless_the_file_names_alphabetical() {
         assert_eq!(Config::parse("").sort, Sort::Recent);
         assert_eq!(
@@ -614,19 +628,19 @@ mod tests {
 
     #[test]
     fn a_file_that_earns_two_complaints_keeps_both() {
-        let config = Config::parse("verbose_names = false\nicons = \"emoji\"\n");
+        let config = Config::parse("insert_space = false\nicons = \"emoji\"\n");
         let warning = config.warning.expect("a warning");
-        assert!(warning.contains("verbose_names"), "{warning:?}");
+        assert!(warning.contains("insert_space"), "{warning:?}");
         assert!(warning.contains("emoji"), "{warning:?}");
     }
 
     #[test]
     fn an_unknown_key_is_ignored_and_kept_as_a_warning() {
-        let config = Config::parse("enabled = true\nverbose_names = false\n");
+        let config = Config::parse("enabled = true\ninsert_space = false\n");
         assert!(config.enabled);
         assert_eq!(
             config.warning,
-            Some("unknown config key(s): verbose_names".to_string())
+            Some("unknown config key(s): insert_space".to_string())
         );
     }
 
@@ -650,6 +664,7 @@ icons = \"text\"
 match = \"fuzzy\"
 sort = \"recent\"
 spec_dirs = []
+verbose_names = false
 ";
 
     #[test]
@@ -679,7 +694,8 @@ spec_dirs = []
              icons = \"nerd\"\n\
              match = \"fuzzy\"\n\
              sort = \"recent\"\n\
-             spec_dirs = [\"/opt/specs\"]\n"
+             spec_dirs = [\"/opt/specs\"]\n\
+             verbose_names = false\n"
         );
         assert_eq!(Config::parse(&config.toml()), config);
     }
@@ -865,15 +881,17 @@ spec_dirs = []
         let refused = |what| edit_at(&path, what).expect_err("a complaint");
         // A key with no reader would be a line in the file that does nothing.
         let said = refused(Edit::Set {
-            key: "verbose_names",
+            key: "insert_space",
             value: "false",
         });
         assert!(
-            said.starts_with("no config key named verbose_names."),
+            said.starts_with("no config key named insert_space."),
             "{said:?}"
         );
         assert!(
-            said.contains("disabled_commands, enabled, icons, match, sort, spec_dirs"),
+            said.contains(
+                "disabled_commands, enabled, icons, match, sort, spec_dirs, verbose_names"
+            ),
             "{said:?}"
         );
         // A value with no reader would be one the picker silently ignores,
@@ -940,7 +958,8 @@ spec_dirs = []
                 "icons",
                 "match",
                 "sort",
-                "spec_dirs"
+                "spec_dirs",
+                "verbose_names"
             ]
         );
         let f = Fixture::new(&[]);
