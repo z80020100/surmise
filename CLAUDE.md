@@ -473,7 +473,8 @@ asked for it to be kept, and `config.toml` is only ever written by a person
 naming the change themselves. "Configuration" below is where that is written
 down. Nothing here reaches the prompt either. A file that will not read
 leaves the word on its one row and a write that will not land loses one
-menu's answer.
+menu's answer. A file that is not a regular one is never opened. A FIFO there
+would hold the menu until somebody wrote to it.
 
 Enter accepts the highlighted subcommand and adds a space. Right does the same
 when the name starts with what you typed. Tab accepts the shared prefix or a
@@ -1171,7 +1172,9 @@ that does not parse is left exactly as it was, because a document surmise
 cannot read is one it cannot put back either. A file that cannot be read at
 all is left alone for the same reason and it is the stronger case: only a file
 that is not there starts a write from nothing, and treating an unreadable one
-as absent would replace everything in it.
+as absent would replace everything in it. A file that is not a regular one,
+such as a FIFO, counts as one that cannot be read and is never opened. Opening
+it would wait for somebody to write to it.
 
 A `config.toml` that is a symbolic link is followed and the file it names is
 the one written. A person who keeps their settings in a dotfiles repository

@@ -35,7 +35,9 @@ impl State {
     }
 
     fn load_from(path: &Path) -> State {
-        let text = std::fs::read_to_string(path).unwrap_or_default();
+        let text = crate::path::regular(path)
+            .and_then(|()| std::fs::read_to_string(path))
+            .unwrap_or_default();
         toml::from_str(&text).unwrap_or_default()
     }
 
@@ -80,7 +82,7 @@ fn location(data: Option<PathBuf>, home: Option<PathBuf>) -> Option<PathBuf> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::fixture::Fixture;
+    use crate::fixture::{Fixture, soon};
 
     #[test]
     fn a_missing_file_gives_defaults() {
@@ -142,6 +144,16 @@ mod tests {
             "keep me"
         );
         assert_eq!(State::load_from(&path), state);
+    }
+
+    #[test]
+    fn a_file_that_is_not_a_regular_one_gives_defaults_unopened() {
+        let f = Fixture::new(&[]);
+        let path = f.fifo("state.toml");
+        assert_eq!(
+            soon(move || State::load_from(&path)),
+            Some(State::default())
+        );
     }
 
     #[test]

@@ -6,6 +6,22 @@
 
 use std::path::{Path, PathBuf};
 
+/// `Ok` when `path` is a regular file, asked of `stat` before anything opens
+/// it. A FIFO waits for a writer and whatever waits on the read waits with
+/// it. A device answers a length of nothing and reads for as long as anything
+/// asks. A path that is not there keeps its `NotFound`, so a caller can still
+/// tell a missing file from a refused one.
+pub(crate) fn regular(path: &Path) -> std::io::Result<()> {
+    if std::fs::metadata(path)?.is_file() {
+        Ok(())
+    } else {
+        Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "not a regular file",
+        ))
+    }
+}
+
 /// Drop a trailing separator from `$HOME`. A value made only of separators
 /// keeps them, because `$HOME` set to `/` is still a home rather than an
 /// absent one.

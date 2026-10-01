@@ -68,6 +68,15 @@ impl Fixture {
             .to_string()
     }
 
+    /// Make a FIFO at `name`. Nothing ever writes to it and opening it for a
+    /// read therefore waits for good. [`soon`] is how a test asks for one.
+    pub fn fifo(&self, name: &str) -> PathBuf {
+        let path = self.path().join(name);
+        let made = Command::new("mkfifo").arg(&path).status();
+        assert!(made.is_ok_and(|s| s.success()), "mkfifo");
+        path
+    }
+
     /// Create local branches at one empty commit.
     pub fn init_git(&self, branches: &[&str]) {
         self.git(&[
@@ -88,6 +97,15 @@ impl Fixture {
             self.git(&["update-ref", &format!("refs/heads/{branch}"), &commit]);
         }
     }
+}
+
+/// What `read` returns, or `None` when it has not returned within five
+/// seconds. It runs on a thread of its own. A read that opened a FIFO then
+/// fails the test rather than holding the suite.
+pub fn soon<T: Send + 'static>(read: impl FnOnce() -> T + Send + 'static) -> Option<T> {
+    let (tx, rx) = std::sync::mpsc::channel();
+    std::thread::spawn(move || tx.send(read()));
+    rx.recv_timeout(std::time::Duration::from_secs(5)).ok()
 }
 
 impl Drop for Fixture {
