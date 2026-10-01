@@ -15,6 +15,7 @@ use crate::history::History;
 use crate::native;
 use crate::shellparse::{self, Command};
 use crate::spec::{self, Generator, Subcommand};
+use crate::ui::MENU_ROWS;
 use serde_json::Value;
 use std::borrow::Cow;
 use std::cell::RefCell;
@@ -546,13 +547,14 @@ fn build_rows(
     if walk.offers_args
         && let Some(arg) = &walk.current_arg
     {
+        let mut listed = Vec::new();
         for suggestion in &arg.suggestions {
             // A suggestion is a fixed value rather than a file Git would
             // recognise. `Kind::Path` is the nearest existing kind: it sits
             // in the same flat, non-directory group as `Command` and
             // `Option`, and its quoting is a plain shell word rather than a
             // Git pathspec.
-            rows.extend(
+            listed.extend(
                 row(
                     term,
                     &suggestion.name,
@@ -564,14 +566,16 @@ fn build_rows(
                 .map(|c| with_insert_value(c, suggestion.insert_value.as_deref())),
             );
         }
+        let mut found = Vec::new();
+        let mut templated = Vec::new();
         for generator in &arg.generators {
-            rows.extend(generator_rows(
+            templated.extend(generator_rows(
                 generator, term, cwd, history, scan, enclosing,
             ));
             // A command line `native` has a reader for runs once per menu.
             // Any other line offers nothing and never runs.
             if let Some(script) = &generator.script {
-                rows.extend(native::script_rows(script, term, cwd, runs));
+                found.extend(native::script_rows(script, term, cwd, runs));
             }
         }
         // An argument the conversion could not keep the code for. `native`
@@ -582,10 +586,49 @@ fn build_rows(
             && let Some(owner) = walk.node.name.first()
             && let Some(name) = arg.name.first()
         {
-            rows.extend(native::rows(command, owner, name, term, cwd, line));
+            found.extend(native::rows(command, owner, name, term, cwd, line));
         }
+        rows.extend(values(listed, found, arg.suggestions.len()));
+        // What a template lists follows both. Any file or folder is a
+        // fallback rather than an answer of the argument's own.
+        rows.extend(templated);
     }
 
+    rows
+}
+
+/// The values a specification lists and the ones a reader found for the
+/// argument, in the order [`rank`] keeps where nothing else tells them
+/// apart. A list the menu shows whole leads. `-`, `HEAD` and `.` are a
+/// specification's shortcuts and what this machine holds follows them. A
+/// longer list is a catalogue to search rather than a handful to pick from
+/// and what this machine holds leads it: `git config ` opens on the keys a
+/// person has set rather than on the 649 the specification knows. A value
+/// both name shows once with what the specification says of it. `whole` is
+/// the length of the specification's own list before `term` filtered it.
+/// The order of an argument therefore never turns on what was typed.
+fn values(listed: Vec<Candidate>, found: Vec<Candidate>, whole: usize) -> Vec<Candidate> {
+    if whole <= MENU_ROWS {
+        let fresh: Vec<Candidate> = found
+            .into_iter()
+            .filter(|c| !listed.iter().any(|l| l.insert == c.insert))
+            .collect();
+        return listed.into_iter().chain(fresh).collect();
+    }
+    let at: HashMap<String, usize> = listed
+        .iter()
+        .enumerate()
+        .map(|(i, c)| (c.insert.clone(), i))
+        .collect();
+    let mut listed: Vec<Option<Candidate>> = listed.into_iter().map(Some).collect();
+    let mut rows: Vec<Candidate> = found
+        .into_iter()
+        .map(|c| match at.get(&c.insert) {
+            Some(&i) => listed[i].take().unwrap_or(c),
+            None => c,
+        })
+        .collect();
+    rows.extend(listed.into_iter().flatten());
     rows
 }
 
@@ -1314,6 +1357,34 @@ mod tests {
         let names = names(&rows);
         assert!(names.contains(&"sample-topic"), "{names:?}");
         assert!(names.contains(&"sample-main"), "{names:?}");
+    }
+
+    #[test]
+    fn what_the_machine_holds_leads_a_catalogue_and_a_shortcut_leads_it() {
+        let f = Fixture::new(&["sample-dir"]);
+        f.init_git(&["sample-topic"]);
+        f.git(&["config", "sample.key", "value"]);
+        let rows = rows_in(f.path(), "git config ");
+        let at = |name: &str| names(&rows).iter().position(|n| *n == name);
+        let catalogue_only = at("add.interactive.useBuiltin").unwrap();
+        assert!(at("sample.key").unwrap() < catalogue_only);
+        // `git init` writes `core.bare` and the specification knows it.
+        let bare: Vec<&Candidate> = rows.iter().filter(|r| r.insert == "core.bare").collect();
+        assert_eq!(bare.len(), 1);
+        assert!(at("core.bare").unwrap() < catalogue_only);
+        assert_ne!(bare[0].label, "config");
+        // `-` is the one value `git merge` lists and it leads the branches.
+        // `HEAD` leads the commits the same way.
+        for (line, value) in [("git merge ", "-"), ("git reset ", "HEAD")] {
+            let rows = rows_in(f.path(), line);
+            let first = rows.iter().find(|r| r.kind != Kind::Run).unwrap();
+            assert_eq!(first.insert, value, "{line}");
+        }
+        // A folder is a fallback and the 13 templates `bun create` lists
+        // lead it however many there are.
+        let create = rows_in(f.path(), "bun create ");
+        let at = |name: &str| names(&create).iter().position(|n| *n == name);
+        assert!(at("react").unwrap() < at("sample-dir/").unwrap());
     }
 
     #[test]
