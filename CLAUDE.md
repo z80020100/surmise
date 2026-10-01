@@ -966,7 +966,7 @@ once per menu in the directory the menu opened in, under the budget and the
 cap Git's own queries keep. A line that fails or runs past either answers
 nothing. A `git -C` on the line does not move it.
 
-The table holds 38 lines today. Twelve are Git's own read-only lines: the
+The table holds 59 lines today. Twelve are Git's own read-only lines: the
 commits `log` and `rev-list` print, the local, remote and every branch, the
 remotes, the changed files, the stashes, the tags, the aliases and the
 configuration's keys. A commit row, a remote row and an alias row say what the
@@ -979,21 +979,35 @@ buffers. A window goes by its index. tmux writes its flags straight after a
 window's name and a name can end in one. `brew`'s three name the installed
 formulae and casks and the taps. `rustc`'s one names the targets it builds for
 and `cargo`'s two name the workspace's packages and the manifest's features.
-Those lines fill 410 arguments across 15 commands.
+`podman`'s five name its containers, volumes and networks the way `docker`'s
+do. `k3d`'s three name its clusters, nodes and registries. `kind`'s two name
+its clusters and nodes. `limactl` and `multipass` name their instances. A
+`multipass` row says how the instance stands. The corpus filters by state for
+some arguments and one line here gives one answer. `rclone` names its remotes
+and `asdf` its plugins. The Copilot workspace file names its application.
+`networksetup`'s four name the network services, the PPPoE services, the
+locations and the bonds. `defaults` names its domains and `launchctl` its
+services. Those lines fill 657 arguments across 25 commands.
 
 `git diff --cached --name-only` is left out. It names paths from the top of
 the repository and a line typed in a subdirectory would get the wrong file.
 `brew formulae` and `brew casks` print past the 64 KiB cap and are left out as
 well. So is `cargo metadata` without `--no-deps`. It can fetch an index to
-resolve the dependencies. A line that asks a server, such as `gh pr list` or
-`kubectl get`, has no entry. A `docker` line asks the daemon docker's own
+resolve the dependencies. A line the corpus reads two ways has no entry. An
+entry gives a line one answer. `task export` names tasks for one argument and
+projects for another. `arduino-cli board list` names a board for one and a
+port for another and `networksetup -listallhardwareports` a port or a device.
+`podman`'s images and secrets are left out as well. The corpus's own readers
+disagree on how their fields are spelt. `pbpaste` is left out because a
+clipboard can hold a password. A line that asks a server, such as `gh pr list`
+or `kubectl get`, has no entry. A `docker` line asks the daemon docker's own
 context names. That is a socket on this machine unless a person pointed it
 somewhere else.
 
 An argument that needs anything else — another native reader, a line that
 asks a server, anything else `specs/dynamic.txt` names — still offers no rows
-rather than guessing at one. The readers answer 462 of the 4854 arguments that
-file lists and the other 4392 show nothing.
+rather than guessing at one. The readers answer 709 of the 4854 arguments that
+file lists and the other 4145 show nothing.
 
 A space opens the menu here too, the way a bare `cd ` or `git ` already did:
 `docker ` and `docker container ` both reach it, because the widget checks
