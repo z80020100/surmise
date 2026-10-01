@@ -6,7 +6,7 @@
 
 use crate::argwalk::{self, Walk};
 use crate::candidates::{
-    Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, Query, Scan, UsedAfter, in_name_order,
+    Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, PARENT, Query, Scan, UsedAfter, in_name_order,
     priority_of, rank, resolved_in, run_row, split, tier,
 };
 use crate::fuzzy;
@@ -745,6 +745,25 @@ fn path_rows(
             verbatim: false,
         });
     }
+    // `cd`'s own menu offers the directory above as well and an argument the
+    // filesystem fills is the same shape. With nothing typed it waits behind
+    // the names rather than ahead of them.
+    if show_folders != "never"
+        && dir.is_dir()
+        && let Some(score) = fuzzy::score(term, "..")
+    {
+        out.push(Candidate {
+            display: "../".to_string(),
+            insert: format!("{prefix}../"),
+            label: Cow::Borrowed(PARENT),
+            hint: Vec::new(),
+            kind: Kind::Parent,
+            score: if term.is_empty() { -1 } else { score },
+            priority: DEFAULT_PRIORITY,
+            cursor: None,
+            verbatim: false,
+        });
+    }
     out
 }
 
@@ -1326,6 +1345,32 @@ mod tests {
     }
 
     #[test]
+    fn a_path_argument_offers_the_directory_above_behind_the_names() {
+        let f = Fixture::new(&["src", "readme*"]);
+        let rows = rows_in(f.path(), "cat ");
+        let names = names(&rows);
+        assert_eq!(names.last(), Some(&"../"), "{names:?}");
+        let parent = rows.iter().find(|r| r.display == "../").unwrap();
+        assert_eq!((parent.kind, parent.insert.as_str()), (Kind::Parent, "../"));
+        let rows = rows_in(f.path(), "cat src/..");
+        assert!(
+            rows.iter().any(|r| r.insert == "src/../"),
+            "{:?}",
+            names_of(&rows)
+        );
+        // A word that reaches nothing like `..` gets no such row.
+        assert!(
+            rows_in(f.path(), "cat rea")
+                .iter()
+                .all(|r| r.kind != Kind::Parent)
+        );
+    }
+
+    fn names_of(rows: &[Candidate]) -> Vec<&str> {
+        rows.iter().map(|r| r.insert.as_str()).collect()
+    }
+
+    #[test]
     fn cat_offers_files_and_folders_from_the_fixture_directory() {
         let f = Fixture::new(&["src", "readme*"]);
         std::fs::write(f.path().join("src").join("main.rs"), b"").unwrap();
@@ -1519,7 +1564,7 @@ mod tests {
             "only",
         );
         let names: Vec<&str> = rows.iter().map(|r| r.display.as_str()).collect();
-        assert_eq!(names, ["assets/"]);
+        assert_eq!(names, ["assets/", "../"]);
     }
 
     #[test]
@@ -1551,7 +1596,8 @@ mod tests {
             &mut Scan::default(),
             "always",
         );
-        assert_eq!(rows.len(), crate::candidates::SCAN_LIMIT);
+        // The directory above is no entry of this one and the limit leaves it.
+        assert_eq!(rows.len(), crate::candidates::SCAN_LIMIT + 1);
     }
 
     #[test]

@@ -36,6 +36,8 @@ pub(crate) const FOLDER: &str = "folder";
 /// tell a path on disk from a flat value a reader of surmise's own wrote. A
 /// make target and an SSH host are `Path` rows too and neither is a file.
 pub(crate) const FILE: &str = "file";
+/// What the row that goes up one directory says it is.
+pub(crate) const PARENT: &str = "parent";
 /// What a branch row that names the branch the repository is on says it is.
 /// `ui` reads it for the glyph, because the kind alone says only that the row
 /// is a branch.
@@ -578,7 +580,7 @@ pub(crate) fn generate_in(
         out.push(Candidate {
             display: "../".into(),
             insert: format!("{prefix}../"),
-            label: Cow::Borrowed("parent"),
+            label: Cow::Borrowed(PARENT),
             hint: Vec::new(),
             kind: Kind::Parent,
             // Nothing typed puts this row behind the children and ahead of

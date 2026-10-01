@@ -843,7 +843,9 @@ carries. `filepaths` and `folders` read the filesystem the way `cd`'s own menu
 does, through the one directory walk a menu already keeps for its own life;
 `folders` is `filepaths` with only its directories kept. A folder row carries
 the same history weight `cd` weighs its own rows by, and a file row carries
-none, the way `cd` never offers one to weigh in the first place. `help` offers
+none, the way `cd` never offers one to weigh in the first place. Both offer
+`../` the way `cd`'s own menu does. It waits behind the names when nothing is
+typed and taking it opens the directory above. `help` offers
 the sibling subcommands of the argument's own enclosing node, so `fnm help `
 offers `fnm`'s own subcommands rather than `help`'s, which has none of its
 own.
