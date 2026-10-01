@@ -8,7 +8,7 @@
 //! The exit status is the rest of that contract. It tells the widget which of
 //! the four outcomes below happened and whether stdout holds a line.
 
-use crate::app::App;
+use crate::app::{App, HistoryMode};
 use crate::candidates::Sort;
 use crate::config::Config;
 use crate::histfile;
@@ -71,6 +71,7 @@ fn seeded(
     }
     app.line.insert(seed);
     app.seed_history(history, cmd_history, config.sort);
+    app.open_history(config.history_mode);
     app.refresh();
     (!app.items.is_empty()).then_some(app)
 }
@@ -229,8 +230,10 @@ pub fn run(seed: &str) -> io::Result<u8> {
     let completes_spec = crate::spec_menu::parse(inner, "", &input.aliases).is_some();
     // Both are true of a line Git's own menu claims, since the spec menu
     // reads a `git` line as well and `App::reader` is what holds it to the
-    // ones Git's own declined. Nothing but these two menus reads the command
-    // history. The directory history is read for every line. A run that
+    // ones Git's own declined. Nothing but these two menus and a
+    // `history_mode` that shows past lines reads the command history up
+    // front. Ctrl-R reads it later where nothing did. The directory history
+    // is read for every line. A run that
     // opens on Git's own menu goes on into the walk behind an accepted
     // subcommand and that walk weighs its folders the way `ls ` does.
     // An alphabetical order has no use for the directory history and the
@@ -239,7 +242,8 @@ pub fn run(seed: &str) -> io::Result<u8> {
         Sort::Recent => History::load(&cwd),
         Sort::Alphabetical => History::default(),
     };
-    let cmd_history = if completes_git || completes_spec {
+    let cmd_history = if completes_git || completes_spec || config.history_mode != HistoryMode::Off
+    {
         histfile::read(&input.histfile, &input.aliases)
     } else {
         histfile::Counts::default()

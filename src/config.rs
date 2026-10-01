@@ -17,6 +17,7 @@
 //! surmise writes without being asked and it is kept somewhere else for
 //! exactly that reason.
 
+use crate::app::HistoryMode;
 use crate::candidates::Sort;
 use crate::fuzzy::Match;
 use crate::icons::Set;
@@ -53,6 +54,9 @@ pub struct Config {
     /// Whether a subcommand or an option shows its longest name where what
     /// was typed does not choose one. `--message` rather than `-m`.
     pub verbose_names: bool,
+    /// Whether past command lines join a menu. `"show"` puts them after its
+    /// own rows and `"only"` opens it on them.
+    pub history_mode: HistoryMode,
     /// Which key does what inside the menu. The `[keys]` table.
     pub keys: Keymap,
     /// What went wrong reading the file, if anything did. Nothing here
@@ -70,6 +74,7 @@ impl Default for Config {
             matching: Match::default(),
             sort: Sort::default(),
             verbose_names: false,
+            history_mode: HistoryMode::default(),
             keys: Keymap::default(),
             warning: None,
         }
@@ -91,6 +96,7 @@ struct Schema {
     matching: Option<String>,
     sort: Option<String>,
     verbose_names: Option<bool>,
+    history_mode: Option<String>,
     keys: Option<toml::Table>,
     #[serde(flatten)]
     extra: BTreeMap<String, toml::Value>,
@@ -162,6 +168,13 @@ impl Config {
                     Sort::from_word,
                     &mut warnings,
                 );
+                let history_mode = word(
+                    "history_mode",
+                    schema.history_mode.as_deref(),
+                    &HistoryMode::WORDS,
+                    HistoryMode::from_word,
+                    &mut warnings,
+                );
                 Config {
                     enabled: schema.enabled.unwrap_or(true),
                     disabled_commands: schema.disabled_commands.unwrap_or_default(),
@@ -170,6 +183,7 @@ impl Config {
                     matching,
                     sort,
                     verbose_names: schema.verbose_names.unwrap_or(false),
+                    history_mode,
                     keys: schema.keys.as_ref().map_or_else(Keymap::default, |table| {
                         Keymap::from_table(table, &mut warnings)
                     }),
@@ -200,6 +214,7 @@ impl Config {
         doc["disabled_commands"] =
             Item::Value(array_of(self.disabled_commands.iter().map(String::as_str)));
         doc["enabled"] = Item::Value(self.enabled.into());
+        doc["history_mode"] = Item::Value(self.history_mode.word().into());
         doc["icons"] = Item::Value(self.icons.word().into());
         doc["match"] = Item::Value(self.matching.word().into());
         doc["sort"] = Item::Value(self.sort.word().into());
@@ -320,6 +335,7 @@ enum Shape {
 const KEYS: &[(&str, Shape)] = &[
     ("disabled_commands", Shape::List),
     ("enabled", Shape::Bool),
+    ("history_mode", Shape::Word(&HistoryMode::WORDS)),
     ("icons", Shape::Word(&Set::WORDS)),
     ("match", Shape::Word(&Match::WORDS)),
     ("sort", Shape::Word(&Sort::WORDS)),
@@ -622,6 +638,21 @@ mod tests {
     }
 
     #[test]
+    fn the_history_mode_is_off_unless_the_file_names_another() {
+        assert_eq!(Config::parse("").history_mode, HistoryMode::Off);
+        assert_eq!(
+            Config::parse("history_mode = \"only\"").history_mode,
+            HistoryMode::Only
+        );
+        let config = Config::parse("history_mode = \"all\"");
+        assert_eq!(config.history_mode, HistoryMode::Off);
+        assert_eq!(
+            config.warning,
+            Some("history_mode is not off or show or only: \"all\"".to_string())
+        );
+    }
+
+    #[test]
     fn verbose_names_is_off_unless_the_file_turns_it_on() {
         assert!(!Config::parse("").verbose_names);
         assert!(Config::parse("verbose_names = true").verbose_names);
@@ -740,6 +771,7 @@ cancel = [\"ctrl+c\", \"ctrl+g\"]
         "\
 disabled_commands = []
 enabled = true
+history_mode = \"off\"
 icons = \"text\"
 match = \"fuzzy\"
 sort = \"recent\"
@@ -780,6 +812,7 @@ verbose_names = false
             concat!(
                 "disabled_commands = [\"kubectl\", \"helm\"]\n\
              enabled = false\n\
+             history_mode = \"off\"\n\
              icons = \"nerd\"\n\
              match = \"fuzzy\"\n\
              sort = \"recent\"\n\
@@ -981,7 +1014,7 @@ verbose_names = false
         );
         assert!(
             said.contains(
-                "disabled_commands, enabled, icons, match, sort, spec_dirs, verbose_names"
+                "disabled_commands, enabled, history_mode, icons, match, sort, spec_dirs, verbose_names"
             ),
             "{said:?}"
         );
@@ -1046,6 +1079,7 @@ verbose_names = false
             [
                 "disabled_commands",
                 "enabled",
+                "history_mode",
                 "icons",
                 "match",
                 "sort",

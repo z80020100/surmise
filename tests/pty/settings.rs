@@ -31,7 +31,7 @@ fn scalars(out: &[u8]) -> String {
     scalars.to_string()
 }
 
-const DEFAULTS: &str = "disabled_commands = []\nenabled = true\nicons = \"text\"\nmatch = \"fuzzy\"\nsort = \"recent\"\nspec_dirs = []\nverbose_names = false\n";
+const DEFAULTS: &str = "disabled_commands = []\nenabled = true\nhistory_mode = \"off\"\nicons = \"text\"\nmatch = \"fuzzy\"\nsort = \"recent\"\nspec_dirs = []\nverbose_names = false\n";
 
 fn config(home: &Path) -> String {
     std::fs::read_to_string(home.join(".config/surmise/config.toml")).expect("a config file")
@@ -178,7 +178,7 @@ fn settings_show_prints_what_the_writes_before_it_made() {
     let after = settings(&home, &["show"]);
     assert_eq!(
         scalars(&after.stdout),
-        "disabled_commands = [\"kubectl\"]\nenabled = true\nicons = \"nerd\"\nmatch = \"fuzzy\"\nsort = \"recent\"\nspec_dirs = []\nverbose_names = false\n"
+        "disabled_commands = [\"kubectl\"]\nenabled = true\nhistory_mode = \"off\"\nicons = \"nerd\"\nmatch = \"fuzzy\"\nsort = \"recent\"\nspec_dirs = []\nverbose_names = false\n"
     );
 }
 
