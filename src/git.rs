@@ -2,7 +2,7 @@
 
 use crate::candidates::{
     CURRENT_BRANCH, Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, Query, SCAN_LIMIT, Scan,
-    UsedAfter, rank, run_row,
+    UsedAfter, in_name_order, rank, run_row,
 };
 use crate::fuzzy;
 use crate::histfile;
@@ -893,6 +893,7 @@ impl Completions {
                     .collect(),
                 Value::File => self.path_arguments(&arg, lead, cwd),
             };
+            in_name_order(&mut out);
             rank(&mut out, &arg, None);
             return out;
         }
@@ -971,6 +972,7 @@ impl Completions {
                 }
             }
         }
+        in_name_order(&mut out);
         rank(&mut out, &arg, None);
         if target.runs_as_it_stands() && !out.is_empty() {
             out.insert(0, run_row(String::new()));
@@ -1123,6 +1125,7 @@ impl Completions {
             command: "git",
             counts: &self.cmd_history,
         });
+        in_name_order(&mut out);
         rank(&mut out, arg, used_after);
         // The name query prints a name and nothing else, so the label and the
         // hint both come from the specification instead. A word no name

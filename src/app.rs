@@ -1776,7 +1776,8 @@ mod tests {
         let a = spec_over("cargo --color ");
         assert!(a.items.iter().all(|c| c.kind != candidates::Kind::Option));
         let names: Vec<&str> = a.items.iter().map(|c| c.insert.as_str()).collect();
-        assert_eq!(names, ["always", "auto", "never"]);
+        // The specification's own order rather than the alphabet's.
+        assert_eq!(names, ["always", "never", "auto"]);
         assert!(a.items.iter().all(|c| c.kind == candidates::Kind::Path));
     }
 

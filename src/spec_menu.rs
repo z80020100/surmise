@@ -6,8 +6,8 @@
 
 use crate::argwalk::{self, Walk};
 use crate::candidates::{
-    Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, Query, Scan, UsedAfter, priority_of, rank,
-    resolved_in, run_row, split, tier,
+    Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, Query, Scan, UsedAfter, in_name_order,
+    priority_of, rank, resolved_in, run_row, split, tier,
 };
 use crate::fuzzy;
 use crate::histfile;
@@ -516,6 +516,7 @@ fn build_rows(
             );
         }
     }
+    in_name_order(&mut rows);
 
     if walk.offers_args
         && let Some(arg) = &walk.current_arg
@@ -575,13 +576,15 @@ fn generator_rows(
     scan: &mut Scan,
     enclosing: Option<&Subcommand>,
 ) -> Vec<Candidate> {
-    if let Some(show_folders) = reads_paths(generator) {
+    let mut rows = if let Some(show_folders) = reads_paths(generator) {
         path_rows(term, cwd, history, scan, show_folders)
     } else if generator.template.iter().any(|t| t == "help") {
         help_rows(term, enclosing)
     } else {
         Vec::new()
-    }
+    };
+    in_name_order(&mut rows);
+    rows
 }
 
 /// What a generator that reads the filesystem keeps of what it finds, as
@@ -1306,6 +1309,20 @@ mod tests {
     #[test]
     fn a_misspelt_subcommand_offers_nothing_behind_it() {
         assert!(complete(&mut Completions::default(), &target("npm isntall ")).is_empty());
+    }
+
+    #[test]
+    fn a_specifications_own_values_keep_its_order() {
+        let rows = complete(&mut Completions::default(), &target("npm ci --audit "));
+        assert_eq!(names(&rows), ["true", "false"]);
+        // Subcommands come out of a map and go in the order of their names.
+        let rows = complete(&mut Completions::default(), &target("npm "));
+        let subs: Vec<&str> = rows
+            .iter()
+            .filter(|r| r.kind == Kind::Command)
+            .map(|r| r.display.as_str())
+            .collect();
+        assert!(subs.windows(2).all(|w| w[0] <= w[1]), "{subs:?}");
     }
 
     #[test]
