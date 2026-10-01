@@ -1115,32 +1115,43 @@ fn npm_workspaces(sources: &Sources) -> Vec<Found> {
     let Some(Value::Array(entries)) = package.get("workspaces") else {
         return Vec::new();
     };
-    let removed: Vec<&str> = entries
+    // Every spelling is compared by the directory it reaches. `packages/*`
+    // and `./packages/sample/` both reach `packages/sample`. One such
+    // directory is one row under the first spelling the file gives it.
+    let reach = |path: &str| {
+        let dir = root.join(plain_path(path).trim_end_matches('/'));
+        dir.canonicalize().unwrap_or(dir)
+    };
+    let removed: Vec<PathBuf> = entries
         .iter()
         .filter_map(Value::as_str)
         .filter_map(|entry| entry.strip_prefix('!'))
         .filter(|path| !is_glob(path))
-        .map(plain_path)
+        .map(reach)
         .collect();
+    let on_line: Vec<PathBuf> = sources.line.iter().map(|word| reach(word)).collect();
     let left_out = |path: &str| {
-        let path = plain_path(path);
-        removed.contains(&path) || sources.line.iter().any(|word| plain_path(word) == path)
+        let key = reach(path);
+        removed.contains(&key) || on_line.contains(&key)
     };
     let mut seen = HashSet::new();
     let mut out = Vec::new();
+    let mut offer = |path: &str| {
+        if !path.is_empty() && seen.insert(reach(path)) {
+            out.push(path.to_string());
+        }
+    };
     for entry in entries.iter().filter_map(Value::as_str) {
         match entry.strip_suffix("/*") {
             Some(parent) if !is_glob(parent) => {
                 for child in workspace_dirs(&root.join(parent)) {
                     let path = format!("{parent}/{child}");
                     if !left_out(&path) {
-                        push_unique(&path, &mut seen, &mut out);
+                        offer(&path);
                     }
                 }
             }
-            _ if !is_glob(entry) && !left_out(entry) => {
-                push_unique(entry, &mut seen, &mut out);
-            }
+            _ if !is_glob(entry) && !left_out(entry) => offer(entry),
             _ => {}
         }
     }
@@ -1738,6 +1749,28 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
                 "tools/sample-cli"
             ]
         );
+    }
+
+    #[test]
+    fn one_workspace_spelt_two_ways_is_one_row() {
+        let f = project(
+            r#"{"workspaces": ["./packages/sample-one/", "packages/*", "packages/sample-one"]}"#,
+        );
+        std::fs::create_dir_all(f.path().join("packages/sample-one")).unwrap();
+        std::fs::write(f.path().join("packages/sample-one/package.json"), "{}").unwrap();
+        let found: Vec<String> = npm_workspaces(&sources(f.path(), nowhere(), nowhere()))
+            .into_iter()
+            .map(|f| f.name)
+            .collect();
+        // The first spelling the file gives it.
+        assert_eq!(found, ["./packages/sample-one/"]);
+        // Any spelling of it on the line already takes it out.
+        let line = ["-w", "packages/sample-one/"];
+        let s = Sources {
+            line: &line,
+            ..sources(f.path(), nowhere(), nowhere())
+        };
+        assert!(npm_workspaces(&s).is_empty());
     }
 
     #[test]
