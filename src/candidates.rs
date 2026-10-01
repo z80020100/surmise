@@ -96,6 +96,10 @@ pub struct Candidate {
     /// An option that takes its value on the same word ends in the
     /// separator and the cursor waits right behind it.
     pub cursor: Option<usize>,
+    /// Whether `insert` is shell text already and goes on the line as it
+    /// stands. A specification's own `insertValue` is: `-d ''` carries the
+    /// quotes it wants and quoting it again would hand them to the command.
+    pub verbatim: bool,
 }
 
 pub struct Query {
@@ -272,6 +276,7 @@ pub(crate) fn folder(display: String, insert: String, score: i32) -> Candidate {
         score,
         priority: DEFAULT_PRIORITY,
         cursor: None,
+        verbatim: false,
     }
 }
 
@@ -291,6 +296,7 @@ pub(crate) fn run_row(insert: String) -> Candidate {
         score: 0,
         priority: DEFAULT_PRIORITY,
         cursor: None,
+        verbatim: false,
     }
 }
 
@@ -394,8 +400,12 @@ pub(crate) fn tier(term: &str, name: &str) -> u8 {
 /// `cat sample/notes.txt` in a history reaches the row `notes.txt` under
 /// `sample/`. The trailing slash a folder row wears comes off, because it
 /// is the menu saying the row is a folder rather than anything a person
-/// typed. `match_rank` takes it off for the same reason.
+/// typed. `match_rank` takes it off for the same reason. A row whose
+/// `insert` is a specification's own text was typed as its name.
 fn typed_as(c: &Candidate) -> &str {
+    if c.verbatim {
+        return &c.display;
+    }
     c.insert.strip_suffix('/').unwrap_or(&c.insert)
 }
 
@@ -516,6 +526,7 @@ fn predict(arg: &str, cwd: &Path, scan: &mut Scan) -> Vec<Candidate> {
             score: 15,
             priority: DEFAULT_PRIORITY,
             cursor: None,
+            verbatim: false,
         });
     }
     out
@@ -570,6 +581,7 @@ pub(crate) fn generate_in(
             },
             priority: DEFAULT_PRIORITY,
             cursor: None,
+            verbatim: false,
         });
     }
     let mut weighted: Vec<_> = out

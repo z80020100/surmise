@@ -571,6 +571,20 @@ fn an_option_value_goes_in_behind_its_separator() {
 }
 
 #[test]
+fn the_cursor_a_row_leaves_inside_the_line_reaches_the_shell() {
+    let f = home("", "bindkey ' ' $_surmise_space");
+    let mut t = ready(f.path());
+    t.send("curl --data\t");
+    assert!(t.wait_panel(WAIT), "no option menu: {:?}", t.lines());
+    t.send("\r");
+    closed(&mut t);
+    assert_eq!(line(&t).trim(), "❯ curl -d ''");
+    // What is typed next lands between the quotes the row wrote.
+    typed(&mut t, "sample");
+    assert_eq!(line(&t).trim(), "❯ curl -d 'sample'");
+}
+
+#[test]
 fn git_add_options_and_chmod_values_reach_git_without_early_execution() {
     let f = home("", "bindkey ' ' $_surmise_space");
     f.init_git(&[]);

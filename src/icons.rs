@@ -404,6 +404,7 @@ mod tests {
             score: 0,
             priority: crate::candidates::DEFAULT_PRIORITY,
             cursor: None,
+            verbatim: false,
         }
     }
 

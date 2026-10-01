@@ -1196,6 +1196,7 @@ mod tests {
             score: 0,
             priority: DEFAULT_PRIORITY,
             cursor: None,
+            verbatim: false,
         }
     }
 
@@ -1210,6 +1211,7 @@ mod tests {
             score: 0,
             priority: DEFAULT_PRIORITY,
             cursor: None,
+            verbatim: false,
         }
     }
 
@@ -1225,6 +1227,7 @@ mod tests {
             score: 0,
             priority: DEFAULT_PRIORITY,
             cursor: None,
+            verbatim: false,
         }
     }
 
