@@ -331,7 +331,8 @@ the newest first and each once. Each row is the rest of such a line and the
 word in hand is matched against it. Enter puts that rest on the line as it was
 typed and the ordinary menu opens behind it. Ctrl-R again brings the other
 list back. A menu that read the file already hands its reading over and any
-other menu reads the file the first time the key asks. A line holding a
+other menu reads the file the first time the key asks. The `history_mode`
+setting in "Configuration" below can put these rows in every menu. A line holding a
 newline or another control character is not offered, because putting it on
 the line would run it.
 
@@ -1224,8 +1225,8 @@ surmise settings add disabled_commands kubectl    # one entry of a list
 surmise settings remove disabled_commands kubectl # one entry back out
 ```
 
-`set` and `unset` answer for `enabled`, `icons`, `match`, `sort` and
-`verbose_names`. `add` and
+`set` and `unset` answer for `enabled`, `history_mode`, `icons`, `match`,
+`sort` and `verbose_names`. `add` and
 `remove` answer for `disabled_commands` and `spec_dirs`. Naming the wrong one
 of the two says which verb reaches that key rather than writing anything, and
 so does a key or a value this build does not read. A value the picker would
@@ -1275,7 +1276,7 @@ earns is kept rather
 than the first of them, because a person sent back twice for one file has
 been told half of what the reader already knew.
 
-Seven keys and one table have a reader today.
+Eight keys and one table have a reader today.
 
 - `enabled` turns the picker off. `pick::run` checks it before it opens the
   terminal, so `false` answers every key with `PASS` and the shell's own
@@ -1307,6 +1308,12 @@ Seven keys and one table have a reader today.
   `"alphabetical"` leaves it to the name. The directory history is then not
   opened and the `$HISTFILE` counts order nothing. The words the `history`
   template finds still show and go in the order of their names.
+- `history_mode` names whether past command lines join a menu. `"off"` is the
+  default and leaves them to Ctrl-R. `"show"` puts the ones that lead with the
+  line after the menu's own rows wherever both would replace the same word.
+  `"only"` opens every menu on them the way Ctrl-R would and the key brings
+  the ordinary list back. Either of the two reads `$HISTFILE` when the menu
+  opens.
 - `verbose_names` is `false` by default. `true` gives a subcommand or an
   option the longest of its names wherever what was typed leaves the choice
   open. `git commit -` then shows `--message` rather than `-m`.
@@ -1330,7 +1337,7 @@ Seven keys and one table have a reader today.
   and a person writes it by hand.
 
 `spec_menu` is the menu that calls `spec_store::get_configured`, once per
-command name it asks for, so three of the seven keys now reach what a person
+command name it asks for, so three of the eight keys now reach what a person
 sees:
 `enabled` through `pick::run`, the entry point every keystroke goes through,
 and `disabled_commands` and `spec_dirs` through the spec that menu completes

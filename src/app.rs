@@ -41,6 +41,8 @@ pub struct App {
     pub histfile: String,
     /// Whether the list is the past command lines Ctrl-R swaps in.
     history_mode: bool,
+    /// `history_mode = "show"`. Past lines follow every menu's own rows.
+    history_shown: bool,
     /// Every past command line, oldest first, once Ctrl-R has asked.
     past: Vec<String>,
     history: History,
@@ -144,6 +146,48 @@ fn quote_kind(kind: Option<Kind>, s: &str) -> String {
 /// What a row in the list Ctrl-R swaps in says it is.
 const PAST_LABEL: &str = "past command";
 
+/// Whether past command lines join a menu, from the `history_mode` setting.
+/// `Show` puts them after the menu's own rows and `Only` opens every menu on
+/// them the way Ctrl-R would.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum HistoryMode {
+    #[default]
+    Off,
+    Show,
+    Only,
+}
+
+impl HistoryMode {
+    const ALL: [HistoryMode; 3] = [HistoryMode::Off, HistoryMode::Show, HistoryMode::Only];
+
+    /// The word `config.toml` names this by.
+    pub const fn word(self) -> &'static str {
+        match self {
+            HistoryMode::Off => "off",
+            HistoryMode::Show => "show",
+            HistoryMode::Only => "only",
+        }
+    }
+
+    pub const WORDS: [&'static str; 3] = [
+        HistoryMode::ALL[0].word(),
+        HistoryMode::ALL[1].word(),
+        HistoryMode::ALL[2].word(),
+    ];
+
+    pub fn from_word(word: &str) -> Option<HistoryMode> {
+        HistoryMode::ALL
+            .into_iter()
+            .find(|mode| mode.word() == word)
+    }
+}
+
+/// Where the word a past line is matched against starts in `left`. A past
+/// line has to lead with everything in front of it.
+fn past_start(left: &str) -> usize {
+    left.rfind([' ', '\t']).map_or(0, |at| at + 1)
+}
+
 fn finishes_word(kind: Kind, name: &str, arg: &str) -> bool {
     match kind {
         Kind::File | Kind::Path => !name.ends_with('/') || name == arg,
@@ -206,6 +250,7 @@ impl App {
             matching: Match::default(),
             histfile: String::new(),
             history_mode: false,
+            history_shown: false,
             past: Vec::new(),
             history: History::default(),
             scan: Scan::default(),
@@ -279,7 +324,7 @@ impl App {
         // A past line has to lead with the whole of this one up to the word
         // the cursor is in. That word is what the rows are matched against.
         if self.history_mode {
-            let start = line.rfind([' ', '\t']).map_or(0, |at| at + 1);
+            let start = past_start(line);
             return Some(Reader::Past(candidates::Query {
                 start,
                 arg: line[start..].to_string(),
@@ -349,6 +394,16 @@ impl App {
             ),
             _ => Vec::new(),
         };
+        // The past lines follow where they replace the same word the rows
+        // above do. A value behind its option's `=` is a word of its own and
+        // no past line leads with the line up to it.
+        if self.history_shown
+            && !self.history_mode
+            && let Some(word) = self.arg()
+            && word.start == past_start(self.line.left_of_cursor())
+        {
+            rows.extend(self.past_rows(&word));
+        }
         // Every provider matches the fuzzy way. `prefix` keeps the rows that
         // lead with what was typed. A specification that names its own
         // strategy for the list in hand outranks the setting.
@@ -394,7 +449,8 @@ impl App {
         // there.
         let stale = match self.reader() {
             Some(reader) => {
-                matches!(&reader, Reader::Git(target) if !target.accepts(pick.kind))
+                matches!(&reader, Reader::Git(target)
+                    if !target.accepts(pick.kind) && pick.kind != Kind::Past)
                     || self.origin.is_some_and(|origin| origin != reader.origin())
             }
             // Nothing reads the line any more and `arg` finds no word for any
@@ -724,16 +780,35 @@ impl App {
     /// key asks for it. A spec menu that read it already hands it over.
     pub fn toggle_history_mode(&mut self) {
         self.history_mode = !self.history_mode;
-        if self.history_mode && self.past.is_empty() {
-            let held = self.spec_menu.cmd_history.lines();
-            self.past = if held.is_empty() {
-                let read = histfile::read(&self.histfile, &self.aliases);
-                read.lines().to_vec()
-            } else {
-                held.to_vec()
-            };
+        if self.history_mode {
+            self.load_past();
         }
         self.refresh();
+    }
+
+    /// The `history_mode` setting, before the first refresh.
+    pub(crate) fn open_history(&mut self, mode: HistoryMode) {
+        self.history_shown = mode == HistoryMode::Show;
+        self.history_mode = mode == HistoryMode::Only;
+        if mode != HistoryMode::Off {
+            self.load_past();
+        }
+    }
+
+    /// The past command lines, read once. A spec menu that read the file
+    /// already hands its reading over.
+    fn load_past(&mut self) {
+        if !self.past.is_empty() {
+            return;
+        }
+        let held = self.spec_menu.cmd_history.lines();
+        self.past = if held.is_empty() {
+            histfile::read(&self.histfile, &self.aliases)
+                .lines()
+                .to_vec()
+        } else {
+            held.to_vec()
+        };
     }
 
     /// Whether the list is the one Ctrl-R swaps in.
@@ -1153,6 +1228,31 @@ mod tests {
         assert!(a.items.is_empty());
         a.toggle_history_mode();
         assert_eq!(a.items[0].insert, "sample/");
+    }
+
+    #[test]
+    fn the_history_mode_setting_shows_past_lines_after_the_rows_or_alone() {
+        let f = Fixture::new(&["sample"]);
+        let over = |mode| {
+            let mut a = App::new(f.path().to_path_buf());
+            a.past = vec!["cd sample-old".to_string()];
+            a.line.insert("cd s");
+            a.open_history(mode);
+            a.refresh();
+            a
+        };
+        let mut a = over(super::HistoryMode::Show);
+        let rows: Vec<&str> = a.items.iter().map(|c| c.insert.as_str()).collect();
+        assert_eq!(rows, ["sample/", "sample-old"]);
+        a.select(1);
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "cd sample-old ");
+        let a = over(super::HistoryMode::Only);
+        let rows: Vec<&str> = a.items.iter().map(|c| c.insert.as_str()).collect();
+        assert_eq!(rows, ["sample-old"]);
+        let a = over(super::HistoryMode::Off);
+        let rows: Vec<&str> = a.items.iter().map(|c| c.insert.as_str()).collect();
+        assert_eq!(rows, ["sample/"]);
     }
 
     #[test]
