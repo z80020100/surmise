@@ -414,11 +414,11 @@ carry no name, shows none.
 
 Those descriptions are the upstream's own sentences rather than labels
 written for this panel, and so are Git's own. Half of them are longer than
-the panel is wide: of the 38 the committed `git` specification carries, 18
-are cut short at the footer's edge. The position counter used to take its
-own cells off the end of that word and 22 of the 38 left it none. It sits
-on the panel's top edge now and the word under the list has the panel's
-whole width whatever it holds.
+the panel is wide: of the 38 subcommand sentences the committed `git`
+specification carries, 18 are cut short at the footer's edge. The position
+counter used to take its own cells off the end of that word and 22 of the 38
+left it none. It sits on the panel's top edge now and the word under the list
+has the panel's whole width whatever it holds.
 
 That word takes one row unasked. Every row below the list comes out of what
 the list and a wrapped name have left and the highlighted name has first
@@ -438,9 +438,9 @@ word carries the key the way the top edge carries the position in the list.
 Both sit on an edge because that is the one place either costs the word
 nothing. An open word breaks at a space rather than wherever the cells run
 out. A word split over two rows has to be read twice and 37 of git's own 38
-fit in two rows. Nothing is trimmed while it is open. The key asked for the
-whole of it and a clause is not that. The key is not Ctrl-K because surmise
-keeps Ctrl-K as the shell's own kill-line.
+subcommand sentences fit in two rows. Nothing is trimmed while it is open.
+The key asked for the whole of it and a clause is not that. The key is not
+Ctrl-K because surmise keeps Ctrl-K as the shell's own kill-line.
 
 A terminal 75 cells wide or wider opens the word beside the list, in a panel
 of its own 30 cells wide. That leaves the five cells an eighty-cell terminal
@@ -551,13 +551,16 @@ well. Git adds nothing on any other `git add` with no path and the menu there
 leads with the first file. Tab looks past the row.
 
 The option names and aliases follow the `add` entry in `specs/git.json`.
-The menu shows a short description of the highlighted option in its footer.
-It excludes options already on the left of the cursor and their aliases.
+The footer shows what `specs/git.json` says of the highlighted option. A walk
+of that specification would show the same sentence. An option that
+specification does not describe shows the word `option` there.
+The menu excludes options already on the left of the cursor and their aliases.
 Short option groups such as `-nv` are supported. Options can appear before
 or after paths. Accepting `--` ends option completion and allows paths that
 start with `-`.
 
-Accepting `--chmod` adds `=` and offers `+x` and `-x`.
+Accepting `--chmod` adds `=` and offers `+x` and `-x`. Each says `value`. A
+walk of `specs/git.json` shows the same word for them.
 `--pathspec-from-file` completes a file argument after a space or `=`.
 That argument uses filesystem names including unchanged files and absolute
 paths. A `-` value reads standard input. These names receive shell quoting
@@ -972,9 +975,10 @@ byte-level lookup the binary carries: `get(name)` decompresses one spec and
 `commands()` returns the compiled-in list of 727 names. `spec` parses what
 comes back into the shape `argwalk` walks, and "Other commands" above says
 what a menu does with one. Git's own menu is the second reader of this data
-and it takes two things from it: the description a subcommand row shows where
-this data carries one and the arguments beside its name. "Git" above is where
-the rest of those descriptions come from.
+and it takes three things from it: the description a subcommand row shows where
+this data carries one, the arguments beside a subcommand's name and the
+description an `add` option row shows. "Git" above is where the rest of the
+subcommand descriptions come from.
 This section stays about the directory itself: what it holds and what
 carrying it costs.
 
@@ -1135,12 +1139,13 @@ and `disabled_commands` and `spec_dirs` through the spec that menu completes
 from.
 
 Git's own menu is the second caller and it asks for one name only, once per
-menu, for the description a subcommand row shows and the arguments beside
-its name. `git` in `disabled_commands` therefore leaves every row with no
-arguments beside it and on whatever `git help -a` says of it. That is the
-second source the "Git" section describes rather than a row gone blank. A
-`git.json` under `spec_dirs` is what those rows read instead of the
-committed one.
+menu. That spec gives it three things: the description a subcommand row shows,
+the arguments beside a subcommand's name and the description an `add` option
+row shows. `git` in `disabled_commands` therefore leaves every subcommand row
+with no arguments beside it and on whatever `git help -a` says of it. That is
+the second source the "Git" section describes rather than a row gone blank. An
+`add` option row has no second source and says `option`. A `git.json` under
+`spec_dirs` is what all of those rows read instead of the committed one.
 Neither key reaches anything else that menu does: the subcommand names, the
 branches and the files all come from the installed Git either way. What the
 same two keys do reach is every `git` line that menu declined, since those

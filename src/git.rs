@@ -7,6 +7,7 @@ use crate::candidates::{
 use crate::fuzzy;
 use crate::histfile;
 use crate::spec::{self, Subcommand};
+use crate::spec_menu::{OPTION_LABEL, SUGGESTION_LABEL};
 use std::borrow::Cow;
 use std::collections::{BTreeSet, HashMap};
 use std::io::{ErrorKind, Read};
@@ -102,106 +103,88 @@ enum Value {
 
 struct AddOption {
     names: &'static [&'static str],
-    description: &'static str,
     value: Option<Value>,
 }
 
-// The Git add options `specs/git.json` gives `add`. A description is the word
-// the menu already shows for the highlighted row rather than a menu of its own.
+/// The options `git add` takes and the value an option takes where it takes
+/// one. `Add::option` holds what each one does to the rest of the line. The
+/// menu row for an option says what `specs/git.json` says of it. An option
+/// the specification does not describe says `"option"`.
 const ADD_OPTIONS: &[AddOption] = &[
     AddOption {
         names: &["-n", "--dry-run"],
-        description: "Preview changes",
         value: None,
     },
     AddOption {
         names: &["-v", "--verbose"],
-        description: "Show added files",
         value: None,
     },
     AddOption {
         names: &["-f", "--force"],
-        description: "Include ignored files",
         value: None,
     },
     AddOption {
         names: &["-i", "--interactive"],
-        description: "Select changes interactively",
         value: None,
     },
     AddOption {
         names: &["-p", "--patch"],
-        description: "Select changes by hunk",
         value: None,
     },
     AddOption {
         names: &["-e", "--edit"],
-        description: "Edit changes before staging",
         value: None,
     },
     AddOption {
         names: &["-u", "--update"],
-        description: "Update tracked files",
         value: None,
     },
     AddOption {
         names: &["-A", "--all", "--no-ignore-removal"],
-        description: "Include additions and deletions",
         value: None,
     },
     AddOption {
         names: &["--no-all", "--ignore-removal"],
-        description: "Exclude deletions",
         value: None,
     },
     AddOption {
         names: &["-N", "--intent-to-add"],
-        description: "Record paths without content",
         value: None,
     },
     AddOption {
         names: &["--refresh"],
-        description: "Refresh file information",
         value: None,
     },
     AddOption {
         names: &["--ignore-errors"],
-        description: "Continue after indexing errors",
         value: None,
     },
     AddOption {
         names: &["--ignore-missing"],
-        description: "Check missing files in preview",
         value: None,
     },
     AddOption {
         names: &["--no-warn-embedded-repo"],
-        description: "Suppress nested repo warnings",
         value: None,
     },
     AddOption {
         names: &["--renormalize"],
-        description: "Normalize tracked content again",
         value: None,
     },
     AddOption {
         names: &["--chmod"],
-        description: "Set the staged executable bit",
         value: Some(Value::Chmod),
     },
     AddOption {
         names: &["--pathspec-from-file"],
-        description: "Read paths from a file",
         value: Some(Value::File),
     },
     AddOption {
         names: &["--pathspec-file-nul"],
-        description: "Read NUL-separated paths",
         value: None,
     },
     AddOption {
         names: &["--"],
-        description: "End options and enter paths",
         value: None,
     },
 ];
@@ -809,10 +792,10 @@ pub(crate) struct Completions {
     names: Option<Vec<String>>,
     branches: Option<Branches>,
     files: Option<Vec<String>>,
-    /// The specification the subcommand rows take their descriptions from.
-    /// `None` inside the `Some` is a cached miss: a corpus without `git` or a
-    /// spec that will not parse stays a miss for the rest of the menu rather
-    /// than being asked for again.
+    /// The specification the subcommand rows and the `add` option rows take
+    /// their descriptions from. `None` inside the `Some` is a cached miss: a
+    /// corpus without `git` or a spec that will not parse stays a miss for
+    /// the rest of the menu rather than being asked for again.
     spec: Option<Option<Subcommand>>,
     /// What the installed Git says its own commands are for, for the rows the
     /// specification left on the fallback. An empty map is a cached miss the
@@ -905,12 +888,7 @@ impl Completions {
                 Value::Chmod => ["+x", "-x"]
                     .into_iter()
                     .filter_map(|v| {
-                        row(
-                            &arg,
-                            &format!("{lead}{v}"),
-                            "Set the staged executable bit",
-                            Kind::Option,
-                        )
+                        row(&arg, &format!("{lead}{v}"), SUGGESTION_LABEL, Kind::Option)
                     })
                     .collect(),
                 Value::File => self.path_arguments(&arg, lead, cwd),
@@ -974,9 +952,10 @@ impl Completions {
                     } else {
                         name.to_string()
                     };
-                    if let Some(mut candidate) =
-                        row(&arg, &insert, option.description, Kind::Option)
-                    {
+                    if let Some(mut candidate) = row(&arg, &insert, OPTION_LABEL, Kind::Option) {
+                        if let Some(description) = self.add_description(name) {
+                            candidate.label = Cow::Owned(description.to_owned());
+                        }
                         // The name a spec gives the value, for the one
                         // option that takes it as a word of its own.
                         // `--chmod` ends in the `=` its value goes after,
@@ -997,6 +976,24 @@ impl Completions {
             out.insert(0, run_row(String::new()));
         }
         out
+    }
+
+    fn git_spec(&mut self) -> Option<&Subcommand> {
+        self.spec
+            .get_or_insert_with(|| spec::load_configured("git").ok())
+            .as_ref()
+    }
+
+    /// What `specs/git.json` says of the `git add` option `name`. A walk of
+    /// that specification reads the same entry for that name.
+    fn add_description(&mut self, name: &str) -> Option<&str> {
+        self.git_spec()?
+            .subcommands
+            .get("add")?
+            .options
+            .get(name)?
+            .description
+            .as_deref()
     }
 
     fn path_arguments(&mut self, arg: &str, lead: &str, cwd: &Path) -> Vec<Candidate> {
@@ -1132,9 +1129,7 @@ impl Completions {
         // reached keeps the spec unread.
         if kind == Kind::Command
             && !out.is_empty()
-            && let Some(git) = self
-                .spec
-                .get_or_insert_with(|| spec::load_configured("git").ok())
+            && let Some(git) = self.git_spec()
         {
             for row in &mut out {
                 if let Some(sub) = git.subcommands.get(&row.insert) {
@@ -1715,15 +1710,34 @@ mod tests {
     }
 
     #[test]
-    fn add_offers_option_descriptions_and_omits_used_aliases() {
+    fn add_offers_the_specifications_option_descriptions_and_omits_used_aliases() {
         let f = crate::fixture::Fixture::new(&["sample*"]);
         f.init_git(&[]);
-        let mut c = Completions::default();
+        let mut c = Completions {
+            spec: Some(Some(
+                spec::load("git", &[]).expect("git is a committed spec"),
+            )),
+            ..Default::default()
+        };
         let rows = c.complete(&parse("git add ").unwrap(), f.path());
         assert_eq!(rows[0].insert, "sample");
+        assert!(rows.iter().any(
+            |r| r.insert == "--force" && r.label.starts_with("Allow adding otherwise ignored")
+        ));
+        let rows = c.complete(&parse("git add --chmod=").unwrap(), f.path());
         assert!(
             rows.iter()
-                .any(|r| r.insert == "--force" && r.label == "Include ignored files")
+                .any(|r| r.insert == "--chmod=+x" && r.label == "value")
+        );
+        // A menu with no specification to read says what the row is.
+        let mut bare = Completions {
+            spec: Some(None),
+            ..Default::default()
+        };
+        let rows = bare.complete(&parse("git add --for").unwrap(), f.path());
+        assert!(
+            rows.iter()
+                .any(|r| r.insert == "--force" && r.label == "option")
         );
         let rows = c.complete(&parse("git add -n --").unwrap(), f.path());
         assert!(!rows.iter().any(|r| r.insert == "--dry-run"));
