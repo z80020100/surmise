@@ -608,8 +608,8 @@ fn build_rows(
         if arg.dynamic
             && let Some(command) = walk.root.name.first()
             && let Some(owner) = walk.node.name.first()
-            && let Some(name) = arg.name.first()
         {
+            let name = arg.name.first().map_or("", String::as_str);
             found.extend(native::rows(command, owner, name, term, cwd, line));
         }
         rows.extend(values(listed, found, arg.suggestions.len()));
@@ -1872,6 +1872,15 @@ mod tests {
         )
         .unwrap();
         f
+    }
+
+    #[test]
+    fn an_argument_with_no_name_still_reaches_its_reader() {
+        // Both of `yarn`'s own arguments are unnamed in its specification.
+        let f = npm_fixture();
+        assert!(names(&rows_in(f.path(), "yarn ")).contains(&"sample-build"));
+        assert!(names(&rows_in(f.path(), "yarn remove ")).contains(&"sample-lib"));
+        assert!(names(&rows_in(f.path(), "bun ")).contains(&"sample-test"));
     }
 
     #[test]

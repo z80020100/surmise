@@ -55,7 +55,8 @@ struct Reader {
     /// Empty where every node of the specification means the same thing by
     /// that argument's name.
     owners: &'static [&'static str],
-    /// The argument's first name, as the specification spells it.
+    /// The argument's first name, as the specification spells it. Empty for
+    /// an argument the specification leaves unnamed.
     arg: &'static str,
     /// What a row says it is, where a specification's own row would carry a
     /// description and the reader found nothing better to say.
@@ -154,6 +155,50 @@ const READERS: &[Reader] = &[
         arg: "script",
         label: "script",
         read: npm_scripts,
+    },
+    // A bare `bun`, `nr` and `rushx` run a script the way `npm run` does.
+    Reader {
+        command: "bun",
+        owners: &["bun"],
+        arg: "file",
+        label: "script",
+        read: npm_scripts,
+    },
+    Reader {
+        command: "nr",
+        owners: &["nr"],
+        arg: "script",
+        label: "script",
+        read: npm_scripts,
+    },
+    Reader {
+        command: "rushx",
+        owners: &["rushx"],
+        arg: "Scripts",
+        label: "script",
+        read: npm_scripts,
+    },
+    // `yarn`'s own two arguments carry no name.
+    Reader {
+        command: "yarn",
+        owners: &["yarn"],
+        arg: "",
+        label: "script",
+        read: npm_scripts,
+    },
+    Reader {
+        command: "yarn",
+        owners: &["remove"],
+        arg: "",
+        label: "dependency",
+        read: npm_dependencies,
+    },
+    Reader {
+        command: "rush",
+        owners: &["install", "build", "rebuild"],
+        arg: "PROJECT",
+        label: "project",
+        read: rush_projects,
     },
 ];
 
@@ -1252,14 +1297,81 @@ fn known_hosts_names(line: &str) -> Vec<&str> {
 /// subdirectory belongs to. A file past [`READ_LIMIT`] is cut short and no
 /// longer parses. It gives nothing rather than half its names.
 fn package_json(cwd: &Path) -> Option<(PathBuf, Map<String, Value>)> {
-    let (dir, path) = cwd
-        .ancestors()
-        .map(|dir| (dir, dir.join("package.json")))
-        .find(|(_, path)| path.is_file())?;
-    match serde_json::from_slice(&read_capped(&path)?).ok()? {
-        Value::Object(map) => Some((dir.to_path_buf(), map)),
+    let (dir, bytes) = nearest(cwd, "package.json")?;
+    match serde_json::from_slice(&bytes).ok()? {
+        Value::Object(map) => Some((dir, map)),
         _ => None,
     }
+}
+
+/// The nearest file called `name` at or above `cwd` and the directory that
+/// holds it. A tool that reads its own file from the project root finds it
+/// by walking up the same way.
+fn nearest(cwd: &Path, name: &str) -> Option<(PathBuf, Vec<u8>)> {
+    let (dir, path) = cwd
+        .ancestors()
+        .map(|dir| (dir, dir.join(name)))
+        .find(|(_, path)| path.is_file())?;
+    Some((dir.to_path_buf(), read_capped(&path)?))
+}
+
+/// The projects the nearest `rush.json` names, each by its package name and
+/// with the folder it lives in.
+fn rush_projects(sources: &Sources) -> Vec<Found> {
+    let Some((_, bytes)) = nearest(sources.cwd, "rush.json") else {
+        return Vec::new();
+    };
+    let Ok(rush) =
+        serde_json::from_str::<Value>(&without_comments(&String::from_utf8_lossy(&bytes)))
+    else {
+        return Vec::new();
+    };
+    rush["projects"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter_map(|project| {
+            Some(Found {
+                name: project["packageName"].as_str()?.to_string(),
+                label: project["projectFolder"]
+                    .as_str()
+                    .map(|folder| Cow::Owned(folder.to_string())),
+            })
+        })
+        .collect()
+}
+
+/// `text` without its `//` and `/* */` comments, the way Rush reads its own
+/// configuration. A comment marker inside a string is part of the string.
+fn without_comments(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut chars = text.chars().peekable();
+    let mut in_string = false;
+    while let Some(c) = chars.next() {
+        if in_string {
+            out.push(c);
+            match c {
+                '\\' => out.extend(chars.next()),
+                '"' => in_string = false,
+                _ => {}
+            }
+        } else if c == '/' && chars.peek() == Some(&'/') {
+            while chars.next_if(|&n| n != '\n').is_some() {}
+        } else if c == '/' && chars.peek() == Some(&'*') {
+            chars.next();
+            let mut last = ' ';
+            for n in chars.by_ref() {
+                if last == '*' && n == '/' {
+                    break;
+                }
+                last = n;
+            }
+        } else {
+            in_string = c == '"';
+            out.push(c);
+        }
+    }
+    out
 }
 
 /// The scripts `npm run` can run, each described by what it runs.
@@ -1647,7 +1759,7 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
             .chain(node.persistent_options.values());
         if own
             .chain(options.flat_map(|opt| opt.args.iter()))
-            .any(|a| a.dynamic && a.name.first().is_some_and(|n| n == arg))
+            .any(|a| a.dynamic && a.name.first().map_or("", String::as_str) == arg)
             && let Some(name) = node.name.first()
         {
             out.push(name);
@@ -1947,6 +2059,27 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
     }
 
     #[test]
+    fn rush_reads_its_projects_from_the_nearest_rush_json() {
+        let f = Fixture::new(&["apps/sample"]);
+        std::fs::write(
+            f.path().join("rush.json"),
+            "// Rush writes comments into its own file.\n{\n  /* the projects */\n  \"projects\": [\n    {\"packageName\": \"sample-app\", \"projectFolder\": \"apps/sample\"},\n    {\"packageName\": \"//not-a-comment\"}\n  ]\n}\n",
+        )
+        .unwrap();
+        let rows = rows(
+            "rush",
+            "build",
+            "PROJECT",
+            "",
+            &f.path().join("apps/sample"),
+            &[],
+        );
+        let names: Vec<&str> = rows.iter().map(|r| r.insert.as_str()).collect();
+        assert_eq!(names, ["sample-app", "//not-a-comment"]);
+        assert_eq!(rows[0].label, "apps/sample");
+    }
+
+    #[test]
     fn pnpm_yarn_and_bun_read_the_same_package_json_npm_does() {
         assert!(reader("pnpm", "run", "Scripts").is_some());
         assert!(reader("pnpm", "pnpm", "Scripts").is_some());
@@ -1954,6 +2087,12 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         assert!(reader("yarn", "run", "script").is_some());
         assert!(reader("yarn", "upgrade", "package").is_some());
         assert!(reader("bun", "run", "script").is_some());
+        // A bare `bun`, `nr`, `rushx` and `yarn` run a script too.
+        assert!(reader("bun", "bun", "file").is_some());
+        assert!(reader("nr", "nr", "script").is_some());
+        assert!(reader("rushx", "rushx", "Scripts").is_some());
+        assert!(reader("yarn", "yarn", "").is_some());
+        assert!(reader("yarn", "remove", "").is_some());
         // `add` and `install` search the registry.
         assert!(reader("pnpm", "add", "package").is_none());
         assert!(reader("yarn", "add", "package").is_none());
