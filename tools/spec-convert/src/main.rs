@@ -406,7 +406,7 @@ fn versioned_target(function: &JsObject, ctx: &mut Context) -> Result<String, St
 }
 
 /// The name a person types to reach a spec. A directory keeps its own part in
-/// `index`, so `fig/index` is the command `fig`, and a scoped package keeps the
+/// `index`, so `az/index` is the command `az`, and a scoped package keeps the
 /// slash its scope needs.
 fn command_name(id: &str) -> &str {
     let id = id.strip_suffix("/index").unwrap_or(id);

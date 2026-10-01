@@ -106,8 +106,8 @@ struct AddOption {
     value: Option<Value>,
 }
 
-// The Git add options in the Q completion spec. A description is the word the
-// menu already shows for the highlighted row rather than a menu of its own.
+// The Git add options `specs/git.json` gives `add`. A description is the word
+// the menu already shows for the highlighted row rather than a menu of its own.
 const ADD_OPTIONS: &[AddOption] = &[
     AddOption {
         names: &["-n", "--dry-run"],

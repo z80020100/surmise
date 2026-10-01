@@ -244,14 +244,14 @@ fn list_entries(dir: &Path, want_hidden: bool) -> Vec<(String, bool)> {
 
 /// What a row is worth where nothing says otherwise. The middle of the
 /// range, which is what lets a specification push a row either way from
-/// it, and the same default Q reads.
+/// it, and the same default the corpus's own engine reads.
 pub(crate) const DEFAULT_PRIORITY: u8 = 50;
 
 /// A specification's own `priority` as [`rank`] reads it. The corpus is
 /// JSON and carries whatever number was written into it. The range is
-/// closed here rather than trusted. Q closes it the same way and exempts
-/// only its auto-execute rows. No specification carries that kind of row
-/// and this menu does not make one.
+/// closed here rather than trusted. The corpus's own engine closes it the
+/// same way and exempts only its auto-execute rows. No specification carries
+/// that kind of row and this menu does not make one.
 pub(crate) fn priority_of(raw: Option<i64>) -> u8 {
     raw.map_or(DEFAULT_PRIORITY, |p| p.clamp(0, 100) as u8)
 }
@@ -449,10 +449,10 @@ fn group_rank(kind: Kind) -> u8 {
 /// ahead of `-l` under `ls -l`. It reads a row's `insert` for the reason
 /// [`typed_as`] does: a path row shows a leaf and inserts the whole word.
 ///
-/// `priority` sits above the group and under the score for the reason Q
-/// puts it there. A number a specification wrote down says more than the
-/// group a row happens to belong to and less than how well what was typed
-/// reaches its name.
+/// `priority` sits above the group and under the score for the reason the
+/// corpus's own engine puts it there. A number a specification wrote down
+/// says more than the group a row happens to belong to and less than how well
+/// what was typed reaches its name.
 ///
 /// `used_after` is the history term, and `None` is what turns it off.
 /// [`crate::histfile::Counts`] holds how often a command's *second* word
