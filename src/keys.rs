@@ -37,6 +37,10 @@ pub fn edit(app: &mut App, k: KeyEvent) {
             app.line.kill_word_back();
             app.edited();
         }
+        // The highlight's own pair. Ctrl-K is the shell's kill-line here and
+        // moves nothing.
+        KeyCode::Char('n' | 'j') if ctrl => app.step(1),
+        KeyCode::Char('p') if ctrl => app.step(-1),
         // Shift is part of typing a character. Every other modifier makes the
         // key a command and the character commands are the arms above. Alt
         // and a letter is a word motion in most editors and typing the letter

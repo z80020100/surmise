@@ -303,6 +303,29 @@ fn the_menu_holds_still_to_its_edge_and_follows_the_highlight_past_it() {
 }
 
 #[test]
+fn alt_and_a_digit_takes_the_row_on_screen_and_control_keys_step() {
+    let f = Fixture::new(&["d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9"]);
+    let mut t = opened(f.path(), "cd ");
+    t.send("\x1b3");
+    t.pump(SETTLE);
+    assert!(edge(&t).contains("3/11"), "{:?}", t.lines());
+    // Ctrl-N and Ctrl-J step down and Ctrl-P steps up.
+    t.send("\x0e\x0a");
+    t.pump(SETTLE);
+    assert!(edge(&t).contains("5/11"), "{:?}", t.lines());
+    t.send("\x10");
+    t.pump(SETTLE);
+    assert!(edge(&t).contains("4/11"), "{:?}", t.lines());
+    // Past the window's edge the digit counts from the first row shown.
+    t.send(&"\x1b[B".repeat(4));
+    t.pump(SETTLE);
+    assert_eq!(names(&t)[0], "d3/", "{:?}", t.lines());
+    t.send("\x1b1");
+    t.pump(SETTLE);
+    assert!(edge(&t).contains("3/11"), "{:?}", t.lines());
+}
+
+#[test]
 fn a_directory_only_the_history_knows_about_does_not_get_in() {
     let f = fixture();
     // `target` is three levels down and the fixture's history visited it.
