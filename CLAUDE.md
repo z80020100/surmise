@@ -287,9 +287,11 @@ An entry reads the way a shell reads it rather than as a naive split on
 whitespace: `cd sample && git status` teaches a pair for `cd` and a pair for
 `git`, a leading `FOO=bar` is never mistaken for a command's name, and
 `alias g='git -C sample'` expands `g`'s whole value before the words are
-counted, so a person who types `g` still teaches `git`'s own menu. Only the
-first two words of each command matter: how often its own second word
-followed its first. A command of one word teaches nothing. A missing,
+counted, so a person who types `g` still teaches `git`'s own menu. For the
+ranking only the first two words of each command matter: how often its own
+second word followed its first. A command of one word teaches nothing. The
+`history` template "Other commands" describes is the one reader of the rest
+of a command. A missing,
 unreadable or empty file teaches nothing and prints nothing. So does a path
 that is not a regular file: a named pipe would hold the shell's own line
 editor open until somebody wrote to it and a device would answer a length
@@ -832,7 +834,17 @@ the same history weight `cd` weighs its own rows by, and a file row carries
 none, the way `cd` never offers one to weigh in the first place. `help` offers
 the sibling subcommands of the argument's own enclosing node, so `fnm help `
 offers `fnm`'s own subcommands rather than `help`'s, which has none of its
-own. `history` answers nothing yet; a later phase gives it a reader.
+own.
+
+`history` offers what the same argument took before. `ssh ` and `mosh ` offer
+the hosts a past `ssh` or `mosh` line was given, newest first. `ssh ` shows
+them beside the hosts the SSH files name. Each past command of the same specification is walked
+the way the line is, a word at a time, and a word counts where that walk ends
+on the same node and asks for the same argument. An option on a past line is
+therefore never offered as a host and nor is the value an option took. The
+commands are the ones the `$HISTFILE` reading above already holds for the
+menu. A past line whose first word is another command, such as `sudo ssh`, is
+not read. Ten arguments in the corpus name the template.
 
 An argument one of those two templates fills also gets `cd`'s own row that
 runs the line, at the top of the menu and under the highlight, whenever what

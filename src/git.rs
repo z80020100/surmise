@@ -1317,10 +1317,10 @@ mod tests {
     /// A reading of `$HISTFILE` that saw `git <second>` `n` times and
     /// nothing else at all.
     fn counts(second: &str, n: u32) -> histfile::Counts {
-        histfile::Counts(HashMap::from([(
-            "git".to_string(),
-            HashMap::from([(second.to_string(), n)]),
-        )]))
+        histfile::Counts(
+            HashMap::from([("git".to_string(), HashMap::from([(second.to_string(), n)]))]),
+            Vec::new(),
+        )
     }
 
     #[test]

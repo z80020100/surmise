@@ -96,6 +96,8 @@ pub(crate) fn parse(left: &str, tail: &str, aliases: &HashMap<String, String>) -
 /// `SUGGESTION_LABEL`.
 const SUBCOMMAND_LABEL: &str = "command";
 pub(crate) const OPTION_LABEL: &str = "option";
+/// What a row the `history` template found says it is.
+const PAST_LABEL: &str = "used before";
 pub(crate) const SUGGESTION_LABEL: &str = "value";
 
 /// What an option another one on the line depends on is worth. A higher
@@ -207,11 +209,7 @@ impl Completions {
                 // node; that walk asks for nothing this one has not already
                 // loaded, so it only runs when a `help` template is actually
                 // in play.
-                let wants_help = walk.current_arg.as_ref().is_some_and(|arg| {
-                    arg.generators
-                        .iter()
-                        .any(|g| g.template.iter().any(|t| t == "help"))
-                });
+                let wants_help = has_template(&walk, "help");
                 let enclosing = wants_help
                     .then(|| enclosing_node(&self.specs, &target.command, root, walk.command_index))
                     .flatten();
@@ -222,6 +220,10 @@ impl Completions {
                     .collect();
                 let mut rows =
                     build_rows(&walk, enclosing, &line, cwd, history, scan, &mut self.runs);
+                if has_template(&walk, "history") {
+                    let past = self.past_rows(&walk, &rows);
+                    rows.extend(past);
+                }
                 // Two words means the one being replaced is the command's
                 // own second, which is the only word `cmd_history` counted.
                 // A deeper subcommand, an option's value and anything past
@@ -247,6 +249,64 @@ impl Completions {
             }
         }
         Vec::new()
+    }
+
+    /// The `history` template's rows: every word a past command of the same
+    /// specification put where this line wants one. A past line is walked
+    /// against the specification the way this one is, one word at a time,
+    /// and a word counts when the walk that ends on it ends on the same node
+    /// and asks for the same argument. `ssh ` therefore offers the hosts
+    /// `ssh` was given before and not the options it was given. The newest
+    /// use leads and each word shows once. A word a row in `rows` already
+    /// holds shows no second time.
+    fn past_rows(&self, walk: &Walk, rows: &[Candidate]) -> Vec<Candidate> {
+        let (Some(command), Some(arg)) = (walk.root.name.first(), walk.current_arg.as_ref()) else {
+            return Vec::new();
+        };
+        let load = |name: &str| self.specs.get(name).and_then(|found| found.as_deref());
+        let mut seen: HashSet<String> = rows.iter().map(|row| row.insert.clone()).collect();
+        let mut rows = Vec::new();
+        for past in self.cmd_history.commands().iter().rev() {
+            if past.words.first().is_none_or(|w| &w.inner_text != command) {
+                continue;
+            }
+            for end in 1..past.words.len() {
+                let mut prefix = words_only(past.words[..=end].to_vec());
+                let then = argwalk::walk(&prefix, walk.root, load);
+                // The walk only reads the word it ends on. A word it would
+                // take as an option once another word follows is no value.
+                let mut gap = past.words[end].clone();
+                gap.inner_text.clear();
+                prefix.words.push(gap);
+                let after = argwalk::walk(&prefix, walk.root, load);
+                let value = &past.words[end].inner_text;
+                if after.passed_options.len() == then.passed_options.len()
+                    && std::ptr::eq(then.node, walk.node)
+                    && then.search_lead.is_empty()
+                    && then
+                        .current_arg
+                        .as_ref()
+                        .is_some_and(|a| a.name == arg.name)
+                    && !value.is_empty()
+                    && !value.chars().any(char::is_control)
+                    && seen.insert(value.clone())
+                    && let Some(score) = fuzzy::score(&walk.search_term, value)
+                {
+                    rows.push(Candidate {
+                        display: value.clone(),
+                        insert: value.clone(),
+                        label: Cow::Borrowed(PAST_LABEL),
+                        hint: Vec::new(),
+                        kind: Kind::Path,
+                        score,
+                        priority: DEFAULT_PRIORITY,
+                        cursor: None,
+                        verbatim: false,
+                    });
+                }
+            }
+        }
+        rows
     }
 
     fn spec_for(&mut self, name: &str) -> Option<Rc<Subcommand>> {
@@ -723,6 +783,26 @@ fn help_rows(term: &str, enclosing: Option<&Subcommand>) -> Vec<Candidate> {
         .collect()
 }
 
+/// A command made of `words` alone, for a walk of part of another one.
+fn words_only(words: Vec<shellparse::Token>) -> Command {
+    Command {
+        start: 0,
+        end: 0,
+        assignments: Vec::new(),
+        words,
+        terminator: None,
+    }
+}
+
+/// Whether the argument `walk` asks for has a generator naming `template`.
+fn has_template(walk: &Walk, template: &str) -> bool {
+    walk.current_arg.as_ref().is_some_and(|arg| {
+        arg.generators
+            .iter()
+            .any(|g| g.template.iter().any(|t| t == template))
+    })
+}
+
 /// The node one word back from `node_index`: `argwalk::walk` run again on
 /// only the words up to and including it, so the walk stops short of
 /// descending into it rather than reaching it. `help`'s siblings are that
@@ -739,13 +819,7 @@ fn enclosing_node<'a>(
     if node_index == 0 {
         return None;
     }
-    let prefix = Command {
-        start: 0,
-        end: 0,
-        assignments: Vec::new(),
-        words: command.words[..=node_index].to_vec(),
-        terminator: None,
-    };
+    let prefix = words_only(command.words[..=node_index].to_vec());
     let walk = argwalk::walk(&prefix, root, |name| {
         specs.get(name).and_then(|found| found.as_deref())
     });
@@ -775,10 +849,10 @@ mod tests {
     /// A reading of `$HISTFILE` that saw `first second` `n` times and
     /// nothing else at all.
     fn counts(first: &str, second: &str, n: u32) -> histfile::Counts {
-        histfile::Counts(HashMap::from([(
-            first.to_string(),
-            HashMap::from([(second.to_string(), n)]),
-        )]))
+        histfile::Counts(
+            HashMap::from([(first.to_string(), HashMap::from([(second.to_string(), n)]))]),
+            Vec::new(),
+        )
     }
 
     #[test]
@@ -1188,6 +1262,30 @@ mod tests {
         std::fs::write(f.path().join("src").join("lib.rs"), "").unwrap();
         let rows = rows_in(f.path(), "cargo build -p ");
         assert!(names(&rows).contains(&"sample-crate"), "{:?}", names(&rows));
+    }
+
+    #[test]
+    fn the_history_template_offers_what_the_same_argument_took_before() {
+        let f = Fixture::new(&[]);
+        let path = f.path().join("histfile");
+        std::fs::write(
+            &path,
+            "mosh sample-host\nmosh --family=inet other-host\nmosh -4 sample-host\nls sample-file\n",
+        )
+        .unwrap();
+        let mut c = Completions {
+            cmd_history: histfile::read(path.to_str().unwrap(), &HashMap::new()),
+            ..Default::default()
+        };
+        let rows = complete(&mut c, &target("mosh "));
+        let past: Vec<&str> = rows
+            .iter()
+            .filter(|r| r.label == PAST_LABEL)
+            .map(|r| r.insert.as_str())
+            .collect();
+        // The newest use leads and shows once. The options were words of
+        // their own and `sample-file` was another command's.
+        assert_eq!(past, ["sample-host", "other-host"]);
     }
 
     #[test]

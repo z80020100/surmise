@@ -206,7 +206,7 @@ impl App {
     /// candidates read neither field at all.
     pub(crate) fn seed_history(&mut self, history: History, cmd_history: histfile::Counts) {
         self.history = history;
-        self.git.cmd_history = cmd_history.clone();
+        self.git.cmd_history = histfile::Counts(cmd_history.0.clone(), Vec::new());
         self.spec_menu.cmd_history = cmd_history;
     }
 
