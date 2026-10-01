@@ -436,7 +436,7 @@ Both sit on an edge because that is the one place either costs the word
 nothing. An open word breaks at a space rather than wherever the cells run
 out. A word split over two rows has to be read twice and 37 of git's own 38
 fit in two rows. Nothing is trimmed while it is open. The key asked for the
-whole of it and a clause is not that. Q binds this to Ctrl-K and surmise
+whole of it and a clause is not that. The key is not Ctrl-K because surmise
 keeps Ctrl-K as the shell's own kill-line.
 
 A terminal 75 cells wide or wider opens the word beside the list, in a panel
@@ -547,7 +547,7 @@ than taking the next file. `-A`, `-u`, `-p`, `-i`, `-e`, `--renormalize` and
 well. Git adds nothing on any other `git add` with no path and the menu there
 leads with the first file. Tab looks past the row.
 
-The option names and aliases follow the [Q Git completion specification](https://github.com/withfig/autocomplete/blob/aef52acff84c45edde61ae610cc2c964802b9a38/src/git.ts).
+The option names and aliases follow the `add` entry in `specs/git.json`.
 The menu shows a short description of the highlighted option in its footer.
 It excludes options already on the left of the cursor and their aliases.
 Short option groups such as `-nv` are supported. Options can appear before

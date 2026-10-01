@@ -59,10 +59,9 @@ const RULE: char = '\u{2500}';
 /// the edge's own and below a name's. The edge must not swallow either one
 /// and neither of them is a name.
 const EDGE_FG: &str = "\x1b[38;5;244m";
-/// What the rule above the word says the key for it is. Q puts the badge for
-/// its own key in the corner of the popout it draws the description in. A
-/// rule is where a panel with no box of its own has the room for one. Beside
-/// the list the word has a box of its own and the badge sits on its top edge.
+/// What the rule above the word says the key for it is. A rule is where a
+/// panel with no box of its own has the room for a badge. Beside the list the
+/// word has a box of its own and the badge sits on its top edge.
 /// This is the drawn text alone and `pick` is where the key itself is read.
 ///
 /// `^O` rather than `⌃O`. U+2303 is one more shape to ask of a terminal font

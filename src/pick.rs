@@ -186,8 +186,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
 
     // A character right of the cursor that is not blank means the cursor
     // sits inside a word. Completing there would split it, so the key goes
-    // back to the shell before surmise looks at `seed` at all. Q refuses the
-    // same way.
+    // back to the shell before surmise looks at `seed` at all.
     if input.rbuffer.starts_with(|c: char| c != ' ' && c != '\t') {
         return Ok(PASS);
     }
@@ -288,8 +287,8 @@ pub fn run(seed: &str) -> io::Result<u8> {
                     // a sentence longer than that loses its tail. This
                     // opens the whole of it and closes it again. It opens
                     // beside the list where the terminal has room for both.
-                    // Q binds the same thing to Ctrl-K and surmise keeps
-                    // Ctrl-K as the shell's own kill-line.
+                    // The key is not Ctrl-K because surmise keeps Ctrl-K as
+                    // the shell's own kill-line.
                     //
                     // The answer outlives this menu. Every later one opens
                     // the way this key last left it. How the menu it was

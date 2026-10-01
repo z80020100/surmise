@@ -106,8 +106,8 @@ struct AddOption {
     value: Option<Value>,
 }
 
-// The Git add options in the Q completion spec. A description is the word the
-// menu already shows for the highlighted row rather than a menu of its own.
+// The Git add options `specs/git.json` gives `add`. A description is the word
+// the menu already shows for the highlighted row rather than a menu of its own.
 const ADD_OPTIONS: &[AddOption] = &[
     AddOption {
         names: &["-n", "--dry-run"],
@@ -1653,6 +1653,21 @@ mod tests {
         let rows = Completions::default().candidates("", f.path(), Kind::File, &names[..70]);
         assert_eq!(rows.len(), 10);
         assert_eq!(rows[0].insert, "sample-70");
+    }
+
+    #[test]
+    fn add_options_are_the_ones_the_specification_gives_add() {
+        let git = spec::load("git", &[]).expect("git is a committed spec");
+        let specified: BTreeSet<BTreeSet<_>> = git.subcommands["add"]
+            .options
+            .values()
+            .map(|o| o.name.iter().map(String::as_str).collect())
+            .collect();
+        let ours: BTreeSet<BTreeSet<_>> = ADD_OPTIONS
+            .iter()
+            .map(|o| o.names.iter().copied().collect())
+            .collect();
+        assert_eq!(ours, specified);
     }
 
     #[test]

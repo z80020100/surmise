@@ -418,7 +418,7 @@ fn build_rows(
 }
 
 /// The rows one generator on the current argument offers, by its template.
-/// `q-inventory-npm.md` §2 and `plans/phase-2-spec-runtime.md` §3 are the
+/// `inventory-npm.md` §2 and `plans/phase-2-spec-runtime.md` §3 are the
 /// whole of what a template can name; a generator naming none of them, or
 /// naming `history` (phase 5's own reader), offers nothing here.
 fn generator_rows(

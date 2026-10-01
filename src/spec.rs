@@ -2,9 +2,10 @@
 //! turns `spec_store`'s bytes into it. `CLAUDE.md`'s "Completion spec data"
 //! section says what `specs/` is; this module is what reads one file from it.
 //!
-//! **The committed data is the raw shape a spec author wrote.** `@fig/autocomplete-shared`
-//! normalizes that shape at Q's own load time, and `plans/reference/q-inventory-npm.md`
-//! §1 is that package read cover to cover. This module ports its rules:
+//! **The committed data is the raw shape a spec author wrote.** The corpus's
+//! own loader normalizes that shape when it reads a spec, and
+//! `plans/reference/inventory-npm.md` §1 is that loader read cover to cover.
+//! This module ports its rules:
 //!
 //! - `name` is always a list. A string becomes a one-element list. The same
 //!   rule is applied here to every name-bearing field ([`Subcommand`], [`Opt`],
@@ -20,11 +21,11 @@
 //! - `args` is always a list, empty when absent.
 //! - `parserDirectives` is inherited by a child only when the child declares
 //!   none.
-//! - `template` on an arg becomes one more entry in `generators`. Q's own
-//!   `initializeDefault` *removes* the arg's own generators when it does
-//!   this; surmise keeps both, because `gap-analysis.md` §6 item 14 found
-//!   nothing in Q's own engine that depends on the discard, and the data
-//!   disagrees for [8 arguments](Arg) out of 235 174.
+//! - `template` on an arg becomes one more entry in `generators`. The
+//!   loader's own `initializeDefault` *removes* the arg's own generators when
+//!   it does this; surmise keeps both, because `gap-analysis.md` §6 item 14
+//!   found nothing in the corpus's own engine that depends on the discard,
+//!   and the data disagrees for [8 arguments](Arg) out of 235 174.
 //! - A generator whose template names `folders` or `filepaths` gets
 //!   `trigger` and `get_query_term` of `/` unless the spec set them.
 //! - `loadSpec` as a string becomes one [`LoadSpec`] of kind `"global"`. The
@@ -84,7 +85,8 @@ impl std::error::Error for SpecError {
 
 /// A completion spec's normalized root. A spec file's own top level is one
 /// of these, and so is every entry under `subcommands`: the corpus and
-/// `Fig.Subcommand` both give a spec the same shape as a subcommand of one.
+/// the types it is written against both give a spec the same shape as a
+/// subcommand of one.
 #[derive(Debug, Clone)]
 pub struct Subcommand {
     pub name: Vec<String>,
@@ -97,9 +99,9 @@ pub struct Subcommand {
     /// back up the tree.
     pub parser_directives: Option<ParserDirectives>,
     pub load_spec: Vec<LoadSpec>,
-    /// The bare boolean `Fig.Subcommand.cache` declares. Parsed and never
-    /// read anywhere in Q; `Generator.cache` is the one anything acts on
-    /// (`plans/reference/q-inventory-npm.md` §4).
+    /// The bare boolean a subcommand's own `cache` declares. Parsed and never
+    /// read anywhere in the corpus's own engine; `Generator.cache` is the one
+    /// anything acts on (`plans/reference/inventory-npm.md` §4).
     pub cache: Option<bool>,
     pub description: Option<String>,
     pub icon: Option<String>,
@@ -128,8 +130,8 @@ pub struct Opt {
     pub name: Vec<String>,
     pub args: Vec<Arg>,
     pub is_persistent: bool,
-    /// `isRequired`. Parsed and never read anywhere in Q
-    /// (`plans/reference/q-inventory-npm.md` §4).
+    /// `isRequired`. Parsed and never read anywhere in the corpus's own
+    /// engine (`plans/reference/inventory-npm.md` §4).
     pub is_required: Option<bool>,
     pub description: Option<String>,
     pub icon: Option<String>,
@@ -161,9 +163,9 @@ pub struct Arg {
     /// runtime handle; `specs/dynamic.txt` is the corpus-wide list.
     pub dynamic: bool,
     pub load_spec: Vec<LoadSpec>,
-    /// `Fig.Arg.default`. Parsed and never read anywhere in Q; its shape
-    /// varies with the argument, so it stays a raw JSON value rather than a
-    /// guessed Rust type.
+    /// An argument's `default`. Parsed and never read anywhere in the
+    /// corpus's own engine; its shape varies with the argument, so it stays a
+    /// raw JSON value rather than a guessed Rust type.
     pub default: Option<Value>,
     pub description: Option<String>,
     pub is_optional: Option<bool>,
@@ -178,8 +180,8 @@ pub struct Arg {
     pub filter_strategy: Option<String>,
     pub suggest_current_token: Option<bool>,
     pub is_dangerous: Option<bool>,
-    /// `Fig.Arg.debounce`, read by the argument walk's trigger logic
-    /// (`plans/reference/q-inventory-parser.md` §1.3 and §4.4). This module
+    /// An argument's `debounce`, read by the argument walk's trigger logic
+    /// (`plans/reference/inventory-parser.md` §1.3 and §4.4). This module
     /// only carries it through; it does not act on it.
     pub debounce: Option<bool>,
     pub extra: Extra,
@@ -189,7 +191,7 @@ pub struct Arg {
 /// row's name: `<name>` for a mandatory argument, `[name]` for an optional
 /// one, and `...` inside either for a variadic one. An argument with no name
 /// at all contributes nothing. `ui` is what joins as many whole entries as
-/// still fit, the way Q's own `pull` shows `[remote] [branch]` beside it.
+/// still fit. `git pull` shows `[remote] [branch]` beside its name.
 pub fn arg_hints(args: &[Arg]) -> Vec<String> {
     args.iter()
         .filter_map(|arg| {
@@ -209,7 +211,7 @@ pub fn arg_hints(args: &[Arg]) -> Vec<String> {
         .collect()
 }
 
-/// `Fig.Option.isRepeatable`: `false` or absent means once, `true` means
+/// An option's `isRepeatable`: `false` or absent means once, `true` means
 /// unlimited, and a number is the cap. Three shapes in one field, so this
 /// gets a type that says so rather than a raw JSON value.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -239,7 +241,7 @@ impl<'de> Deserialize<'de> for Repeatable {
     }
 }
 
-/// `Fig.Option.requiresSeparator`: `true` asks for the option's own
+/// An option's `requiresSeparator`: `true` asks for the option's own
 /// separator, the first of `parserDirectives.optionArgSeparators`, or `=`,
 /// in that order; an explicit string overrides the whole resolution.
 /// `false` never appears in the corpus, so `Option<Separator>` alone (with
@@ -251,8 +253,8 @@ pub enum Separator {
     Explicit(String),
 }
 
-/// Where an argument's suggestions come from, holding data alone. Q's own
-/// `Fig.Generator` also carries a `custom` callback, a `postProcess`
+/// Where an argument's suggestions come from, holding data alone. A generator
+/// as a spec author writes it also carries a `custom` callback, a `postProcess`
 /// callback and a `filterTemplateSuggestions` callback; none of the three
 /// survives conversion into the corpus, so none has a place here.
 #[derive(Debug, Clone, Default)]
@@ -271,8 +273,8 @@ pub struct Generator {
     pub filter_strategy: Option<String>,
     pub suggestions: Vec<Suggestion>,
     pub cache: Option<GeneratorCache>,
-    /// `Fig.Generator.debounce`. Parsed and never read: only `Fig.Arg.debounce`
-    /// is (`plans/reference/q-inventory-parser.md` §1.4).
+    /// A generator's `debounce`. Parsed and never read: only an argument's
+    /// `debounce` is (`plans/reference/inventory-parser.md` §1.4).
     pub debounce: Option<Value>,
     pub extra: Extra,
 }
@@ -306,14 +308,14 @@ pub struct Suggestion {
     /// `type` in the data, renamed because `type` is a Rust keyword.
     pub kind: Option<String>,
     pub is_dangerous: Option<bool>,
-    /// Parsed and never read anywhere in Q
-    /// (`plans/reference/q-inventory-npm.md` §4).
+    /// Parsed and never read anywhere in the corpus's own engine
+    /// (`plans/reference/inventory-npm.md` §4).
     pub deprecated: Option<bool>,
     /// Parsed and never read: insertion reads `insertValue` alone
-    /// (`plans/reference/q-inventory-npm.md` §4).
+    /// (`plans/reference/inventory-npm.md` §4).
     pub replace_value: Option<String>,
     /// `_internal`. Parsed and never read
-    /// (`plans/reference/q-inventory-npm.md` §4).
+    /// (`plans/reference/inventory-npm.md` §4).
     pub internal: Option<Value>,
     pub extra: Extra,
 }
@@ -410,7 +412,7 @@ fn parse_raw(bytes: Option<Vec<u8>>) -> Result<RawSubcommand, SpecError> {
 /// `subcommands`, `options` and `persistentOptions` alike: every alias of
 /// `entries[i]` becomes a key over the same `Rc`, and inserting a name a
 /// prior entry already claimed overwrites it. The loop runs in the data's
-/// own order, so a later entry wins exactly as it does in Q.
+/// own order, so a later entry wins exactly as it does there.
 fn build_map<T>(entries: Vec<(Vec<String>, T)>) -> (HashMap<String, Rc<T>>, usize) {
     let mut map = HashMap::new();
     let mut collisions = 0;
@@ -528,8 +530,8 @@ fn normalize_arg(raw: RawArg, stats: &mut Stats) -> Arg {
         .into_iter()
         .map(normalize_generator)
         .collect();
-    // Q's own `initializeDefault` removes `arg.generators` when it does
-    // this; surmise keeps both. The module doc comment says why.
+    // The loader's own `initializeDefault` removes `arg.generators` when it
+    // does this; surmise keeps both. The module doc comment says why.
     if !raw.template.is_empty() {
         generators.push(Generator {
             template: raw.template,
@@ -887,7 +889,7 @@ where
 }
 
 /// A suggestion list holds a mix of bare strings and full objects. A bare
-/// string is the name of a one-field `Fig.Suggestion`, so it collapses into
+/// string is the name of a suggestion with no other field, so it collapses into
 /// the same `RawSuggestion` shape the object form already has.
 fn suggestion_list<'de, D>(deserializer: D) -> Result<Vec<RawSuggestion>, D::Error>
 where
@@ -1089,9 +1091,9 @@ mod tests {
     }
 
     /// `specs/mount.json`'s `Disk/loopfile` argument is one of the 8 where
-    /// the corpus disagrees with Q's own discard: it carries a `template`
-    /// alongside two script generators of its own, and surmise keeps all
-    /// three.
+    /// the corpus disagrees with the loader's own discard: it carries a
+    /// `template` alongside two script generators of its own, and surmise
+    /// keeps all three.
     #[test]
     fn a_template_adds_a_generator_without_discarding_the_arg_s_own() {
         let spec = load("mount", &[]).expect("mount is a committed spec");
@@ -1112,7 +1114,7 @@ mod tests {
         );
     }
 
-    /// The one field in `q-inventory-npm.md` §1's table with a real example
+    /// The one field in `inventory-npm.md` §1's table with a real example
     /// in the corpus: `specs/adb.json`'s `-s` option takes a `SERIAL` arg
     /// with a plain name and no template, so no generator is synthesized.
     #[test]
