@@ -2,7 +2,9 @@
 //!
 //! An argument marked `dyn` in a specification needed code the conversion
 //! could not keep, and `specs/dynamic.txt` lists all 4854 of them. This
-//! module answers some of them. Nothing here touches a network.
+//! module answers some of them. Nothing here asks a server on its own
+//! account. A `docker` line asks the daemon docker's own context names and
+//! that is a socket on this machine unless a person pointed it elsewhere.
 //!
 //! Two tables do it. [`SCRIPTS`] is keyed by the command line a generator
 //! runs. 3282 arguments keep that line in the data and lost only the code
@@ -116,6 +118,43 @@ const READERS: &[Reader] = &[
         label: "workspace",
         read: npm_workspaces,
     },
+    // `pnpm`, `yarn` and `bun` read the same file npm does. Each one spells
+    // the argument its own way.
+    Reader {
+        command: "pnpm",
+        owners: &["pnpm", "run"],
+        arg: "Scripts",
+        label: "script",
+        read: npm_scripts,
+    },
+    Reader {
+        command: "pnpm",
+        owners: &["update", "remove", "link", "unlink", "rebuild"],
+        arg: "Package",
+        label: "dependency",
+        read: npm_dependencies,
+    },
+    Reader {
+        command: "yarn",
+        owners: &["run"],
+        arg: "script",
+        label: "script",
+        read: npm_scripts,
+    },
+    Reader {
+        command: "yarn",
+        owners: &["upgrade"],
+        arg: "package",
+        label: "dependency",
+        read: npm_dependencies,
+    },
+    Reader {
+        command: "bun",
+        owners: &["run"],
+        arg: "script",
+        label: "script",
+        read: npm_scripts,
+    },
 ];
 
 /// A reader for every argument whose generator runs one command line.
@@ -134,6 +173,8 @@ struct Script {
 /// entry. Neither has one whose output no reader can use as it stands.
 /// `git diff --cached --name-only` names its paths from the top of the
 /// repository and a line typed in a subdirectory would get the wrong file.
+/// `cargo metadata` without `--no-deps` can fetch an index to resolve the
+/// dependencies and has none either.
 const SCRIPTS: &[Script] = &[
     Script {
         line: &["git", "--no-optional-locks", "log", "--oneline"],
@@ -198,7 +239,7 @@ const SCRIPTS: &[Script] = &[
     Script {
         line: &["git", "--no-optional-locks", "stash", "list"],
         label: "stash",
-        parse: stashes,
+        parse: named_lines,
     },
     Script {
         line: &[
@@ -231,6 +272,156 @@ const SCRIPTS: &[Script] = &[
         line: &["git", "config", "--get-regexp", ".*"],
         label: "config",
         parse: config_keys,
+    },
+    Script {
+        line: &["docker", "ps", "--format", "{{ json . }}"],
+        label: "container",
+        parse: containers,
+    },
+    Script {
+        line: &["docker", "ps", "-a", "--format", "{{ json . }}"],
+        label: "container",
+        parse: containers,
+    },
+    Script {
+        line: &[
+            "docker",
+            "ps",
+            "--filter",
+            "status=paused",
+            "--format",
+            "{{ json . }}",
+        ],
+        label: "container",
+        parse: containers,
+    },
+    Script {
+        line: &["docker", "image", "ls", "--format", "{{ json . }}"],
+        label: "image",
+        parse: images,
+    },
+    Script {
+        line: &["docker", "images", "-a", "--format", "{{ json . }}"],
+        label: "image",
+        parse: images,
+    },
+    Script {
+        line: &[
+            "docker",
+            "images",
+            "--format",
+            "{{.Repository}} {{.Size}} {{.Tag}} {{.ID}}",
+        ],
+        label: "image",
+        parse: |out| {
+            out.lines()
+                .filter_map(|line| {
+                    let mut words = line.split(' ');
+                    let (repository, size, tag) = (words.next()?, words.next()?, words.next()?);
+                    image(repository, tag, Some(size))
+                })
+                .collect()
+        },
+    },
+    Script {
+        line: &["docker", "service", "list", "--format", "{{ json . }}"],
+        label: "service",
+        parse: |out| json_lines(out, "Name", "Image"),
+    },
+    Script {
+        line: &["docker", "node", "list", "--format", "{{ json . }}"],
+        label: "node",
+        parse: |out| json_lines(out, "Hostname", "Status"),
+    },
+    Script {
+        line: &["docker", "plugin", "list", "--format", "{{ json . }}"],
+        label: "plugin",
+        parse: |out| json_lines(out, "Name", "Description"),
+    },
+    Script {
+        line: &["docker", "context", "list", "--format", "{{ json . }}"],
+        label: "context",
+        parse: |out| json_lines(out, "Name", "Description"),
+    },
+    Script {
+        line: &["docker", "network", "list", "--format", "{{ json . }}"],
+        label: "network",
+        parse: |out| json_lines(out, "Name", "Driver"),
+    },
+    Script {
+        line: &["docker", "stack", "list", "--format", "{{ json . }}"],
+        label: "stack",
+        parse: |out| json_lines(out, "Name", "Services"),
+    },
+    Script {
+        line: &["docker", "secret", "list", "--format", "{{ json . }}"],
+        label: "secret",
+        parse: |out| json_lines(out, "Name", ""),
+    },
+    Script {
+        line: &["docker", "volume", "list", "--format", "{{ json . }}"],
+        label: "volume",
+        parse: |out| json_lines(out, "Name", "Driver"),
+    },
+    Script {
+        line: &["docker", "volume", "ls", "--format", "{{ json . }}"],
+        label: "volume",
+        parse: |out| json_lines(out, "Name", "Driver"),
+    },
+    Script {
+        line: &["tmux", "ls"],
+        label: "session",
+        parse: named_lines,
+    },
+    Script {
+        line: &["tmux", "lsw"],
+        label: "window",
+        parse: named_lines,
+    },
+    Script {
+        line: &["tmux", "lsp"],
+        label: "pane",
+        parse: named_lines,
+    },
+    Script {
+        line: &["tmux", "lsc"],
+        label: "client",
+        parse: named_lines,
+    },
+    Script {
+        line: &["tmux", "lsb"],
+        label: "buffer",
+        parse: named_lines,
+    },
+    Script {
+        line: &["brew", "list", "-1"],
+        label: "installed",
+        parse: plain_lines,
+    },
+    Script {
+        line: &["brew", "list", "-1", "--cask"],
+        label: "installed cask",
+        parse: plain_lines,
+    },
+    Script {
+        line: &["brew", "tap"],
+        label: "tap",
+        parse: plain_lines,
+    },
+    Script {
+        line: &["rustc", "--print", "target-list"],
+        label: "target",
+        parse: plain_lines,
+    },
+    Script {
+        line: &["cargo", "metadata", "--format-version", "1", "--no-deps"],
+        label: "package",
+        parse: cargo_packages,
+    },
+    Script {
+        line: &["cargo", "read-manifest"],
+        label: "feature",
+        parse: cargo_features,
     },
 ];
 
@@ -341,19 +532,6 @@ fn changed_paths(out: &str) -> Vec<Found> {
         .collect()
 }
 
-/// `stash@{0}: WIP on main: abc1234 Subject`: the stash and what it holds.
-fn stashes(out: &str) -> Vec<Found> {
-    out.lines()
-        .filter_map(|line| {
-            let (name, rest) = line.split_once(": ")?;
-            Some(Found {
-                name: name.to_string(),
-                label: Some(Cow::Owned(rest.to_string())),
-            })
-        })
-        .collect()
-}
-
 /// `alias.co checkout`: the alias and what it stands for.
 fn aliases(out: &str) -> Vec<Found> {
     out.lines()
@@ -376,6 +554,133 @@ fn config_keys(out: &str) -> Vec<Found> {
     for line in out.lines() {
         push_unique(line.split(' ').next().unwrap_or(""), &mut seen, &mut names);
     }
+    unlabelled(names)
+}
+
+/// One name per line, as `brew list -1` and `rustc --print target-list`
+/// print them.
+fn plain_lines(out: &str) -> Vec<Found> {
+    out.lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .map(name_only)
+        .collect()
+}
+
+/// One JSON object per line, the shape every `--format '{{ json . }}'`
+/// prints. `name` is the field a row is named by and `about` the one it says
+/// of itself, where it says anything.
+fn json_lines(out: &str, name: &str, about: &str) -> Vec<Found> {
+    objects(out)
+        .filter_map(|object| {
+            let found = text_field(&object, name)?;
+            Some(Found {
+                name: found.to_string(),
+                label: text_field(&object, about).map(|t| Cow::Owned(t.to_string())),
+            })
+        })
+        .collect()
+}
+
+fn objects(out: &str) -> impl Iterator<Item = Map<String, Value>> + '_ {
+    out.lines()
+        .filter_map(|line| serde_json::from_str::<Map<String, Value>>(line).ok())
+}
+
+/// A field that holds text, or `None` for one that is absent, empty or not
+/// text at all.
+fn text_field<'a>(object: &'a Map<String, Value>, key: &str) -> Option<&'a str> {
+    object
+        .get(key)
+        .and_then(Value::as_str)
+        .filter(|text| !text.is_empty())
+}
+
+/// A container under the first of its names and with what it runs and how
+/// it stands.
+fn containers(out: &str) -> Vec<Found> {
+    objects(out)
+        .filter_map(|object| {
+            let name = text_field(&object, "Names")?.split(',').next()?;
+            let image = text_field(&object, "Image").unwrap_or("");
+            let status = text_field(&object, "Status").unwrap_or("");
+            Some(Found {
+                name: name.to_string(),
+                label: Some(Cow::Owned(format!("{image} {status}").trim().to_string())),
+            })
+        })
+        .collect()
+}
+
+fn images(out: &str) -> Vec<Found> {
+    objects(out)
+        .filter_map(|object| {
+            image(
+                text_field(&object, "Repository")?,
+                text_field(&object, "Tag")?,
+                text_field(&object, "Size"),
+            )
+        })
+        .collect()
+}
+
+/// An image under `repository:tag`, the name docker itself takes, and its
+/// size. One that lost its repository or its tag has no such name and is
+/// left out.
+fn image(repository: &str, tag: &str, size: Option<&str>) -> Option<Found> {
+    if repository == "<none>" || tag == "<none>" {
+        return None;
+    }
+    Some(Found {
+        name: format!("{repository}:{tag}"),
+        label: size.map(|size| Cow::Owned(size.to_string())),
+    })
+}
+
+/// `name: what the tool says of it`, the shape `git stash list` and every
+/// `tmux` list print. `stash@{0}: WIP on main` is the stash and what it
+/// holds. A window leads with its index rather than its name. tmux writes
+/// its flags straight after the name and a name can end in one of them.
+/// Every argument the window list fills but `break-pane -n` is a target and
+/// an index names one.
+fn named_lines(out: &str) -> Vec<Found> {
+    out.lines()
+        .filter_map(|line| {
+            let (name, rest) = line.split_once(": ")?;
+            Some(Found {
+                name: name.to_string(),
+                label: Some(Cow::Owned(rest.to_string())),
+            })
+        })
+        .collect()
+}
+
+/// The packages `cargo metadata` describes, each under its own name.
+fn cargo_packages(out: &str) -> Vec<Found> {
+    let Ok(metadata) = serde_json::from_str::<Value>(out) else {
+        return Vec::new();
+    };
+    let mut seen = HashSet::new();
+    let mut names = Vec::new();
+    for package in metadata["packages"].as_array().into_iter().flatten() {
+        push_unique(
+            package["name"].as_str().unwrap_or(""),
+            &mut seen,
+            &mut names,
+        );
+    }
+    unlabelled(names)
+}
+
+/// The features the manifest in front of the line declares.
+fn cargo_features(out: &str) -> Vec<Found> {
+    let Ok(manifest) = serde_json::from_str::<Value>(out) else {
+        return Vec::new();
+    };
+    let names = manifest["features"]
+        .as_object()
+        .map(|features| features.keys().cloned().collect())
+        .unwrap_or_default();
     unlabelled(names)
 }
 
@@ -1063,7 +1368,7 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         // `install`'s own `package` searches the registry.
         assert!(reader("npm", "install", "package").is_none());
         // The same pair under another command's specification is not this.
-        assert!(reader("yarn", "run", "script").is_none());
+        assert!(reader("cargo", "run", "script").is_none());
     }
 
     /// Every argument one entry of [`READERS`] can reach, by the name of the
@@ -1224,12 +1529,76 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
             ["user.name", "remote.origin.fetch"]
         );
         assert!(config_keys("credential.sample secret\n")[0].label.is_none());
-        let stash = stashes("stash@{0}: WIP on sample-main: abc1234 Sample\n");
+        let stash = named_lines("stash@{0}: WIP on sample-main: abc1234 Sample\n");
         assert_eq!(stash[0].name, "stash@{0}");
         assert_eq!(
             stash[0].label.as_deref(),
             Some("WIP on sample-main: abc1234 Sample")
         );
+    }
+
+    #[test]
+    fn each_tool_line_reads_its_own_output() {
+        let names = |found: Vec<Found>| found.into_iter().map(|f| f.name).collect::<Vec<_>>();
+        let ps = containers(
+            "{\"Names\":\"sample-web,sample-alias\",\"Image\":\"sample:1\",\"Status\":\"Up 2 hours\"}\nnot json\n",
+        );
+        assert_eq!(ps.len(), 1);
+        assert_eq!(ps[0].name, "sample-web");
+        assert_eq!(ps[0].label.as_deref(), Some("sample:1 Up 2 hours"));
+        assert_eq!(
+            names(images(
+                "{\"Repository\":\"sample\",\"Tag\":\"1\",\"Size\":\"5MB\"}\n{\"Repository\":\"<none>\",\"Tag\":\"<none>\"}\n"
+            )),
+            ["sample:1"]
+        );
+        let networks = json_lines(
+            "{\"Name\":\"sample-net\",\"Driver\":\"bridge\"}\n",
+            "Name",
+            "Driver",
+        );
+        assert_eq!(networks[0].label.as_deref(), Some("bridge"));
+        assert_eq!(
+            names(named_lines(
+                "sample: 2 windows (created Thu)\nother: 1 windows\n"
+            )),
+            ["sample", "other"]
+        );
+        let windows = named_lines("0: sample-VIM* (1 panes) [80x24]\n");
+        assert_eq!(windows[0].name, "0");
+        assert_eq!(
+            windows[0].label.as_deref(),
+            Some("sample-VIM* (1 panes) [80x24]")
+        );
+        assert_eq!(
+            names(plain_lines("sample\n\n  other  \n")),
+            ["sample", "other"]
+        );
+        assert_eq!(
+            names(cargo_packages(
+                "{\"packages\":[{\"name\":\"sample\"},{\"name\":\"sample\"},{\"name\":\"other\"}]}"
+            )),
+            ["sample", "other"]
+        );
+        let mut features = names(cargo_features(
+            "{\"features\":{\"sample\":[],\"default\":[\"sample\"]}}",
+        ));
+        features.sort_unstable();
+        assert_eq!(features, ["default", "sample"]);
+        assert!(cargo_packages("not json").is_empty());
+    }
+
+    #[test]
+    fn pnpm_yarn_and_bun_read_the_same_package_json_npm_does() {
+        assert!(reader("pnpm", "run", "Scripts").is_some());
+        assert!(reader("pnpm", "pnpm", "Scripts").is_some());
+        assert!(reader("pnpm", "remove", "Package").is_some());
+        assert!(reader("yarn", "run", "script").is_some());
+        assert!(reader("yarn", "upgrade", "package").is_some());
+        assert!(reader("bun", "run", "script").is_some());
+        // `add` and `install` search the registry.
+        assert!(reader("pnpm", "add", "package").is_none());
+        assert!(reader("yarn", "add", "package").is_none());
     }
 
     #[test]

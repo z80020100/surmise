@@ -875,6 +875,13 @@ live. `npm install ` gets nothing either. Its argument searches the registry
 and nothing here reaches a network. Every reader here leaves out a name that
 holds a control character. Git's own readers do the same.
 
+`pnpm`, `yarn` and `bun` read the same file. `pnpm run `, a bare `pnpm `,
+`yarn run ` and `bun run ` offer the scripts. `pnpm remove ` and its four
+neighbours `update`, `link`, `unlink` and `rebuild`, and `yarn upgrade `, offer
+the dependencies. Each spells the argument its own way and each entry is
+keyed to that spelling. `pnpm add ` and `yarn add ` search the registry and
+get nothing.
+
 A generator that kept its command line is the larger half. One line is
 shared by many arguments. `git`'s branch list is behind 20 of them and one
 reader answers all 20. surmise keeps a table of the lines it has a reader for
@@ -882,22 +889,36 @@ and runs its own copy of a line on that table. Nothing a specification
 carries runs. A line the table does not hold offers no rows. Each line runs
 once per menu in the directory the menu opened in, under the budget and the
 cap Git's own queries keep. A line that fails or runs past either answers
-nothing. A `git -C` on the line does not move it. The table holds twelve of
-Git's own read-only lines today: the commits `log` and `rev-list` print, the
-local, remote and every branch, the remotes, the changed files, the stashes,
-the tags, the aliases and the configuration's keys. A commit row, a remote row
-and an alias row say what the commit says, where the remote fetches from and
-what the alias stands for. A configuration row names its key alone, because a
-value can hold a token. Those twelve lines fill 177 arguments across `git`,
-`hub`, `pre-commit` and six more commands. `git diff --cached --name-only` is
-the one Git line left out. It names paths from the top of the repository and
-a line typed in a subdirectory would get the wrong file. A line that asks a server, such as `gh pr list` or `kubectl get`,
-has no entry and never will while nothing here reaches a network.
+nothing. A `git -C` on the line does not move it.
 
-An argument that needs anything else — another native reader, the same
-`package.json` read for `pnpm` or `yarn`, anything else `specs/dynamic.txt`
-names — still offers no rows rather than guessing at one. The readers answer
-214 of the 4854 arguments that file lists and the other 4640 show nothing.
+The table holds 38 lines today. Twelve are Git's own read-only lines: the
+commits `log` and `rev-list` print, the local, remote and every branch, the
+remotes, the changed files, the stashes, the tags, the aliases and the
+configuration's keys. A commit row, a remote row and an alias row say what the
+commit says, where the remote fetches from and what the alias stands for. A
+configuration row names its key alone. A value can hold a token. `docker`'s
+fifteen name its containers, images, services, nodes, plugins, contexts,
+networks, stacks, secrets and volumes. A container row says what it runs and
+how it stands. `tmux`'s five name its sessions, windows, panes, clients and
+buffers. A window goes by its index. tmux writes its flags straight after a
+window's name and a name can end in one. `brew`'s three name the installed
+formulae and casks and the taps. `rustc`'s one names the targets it builds for
+and `cargo`'s two name the workspace's packages and the manifest's features.
+Those lines fill 410 arguments across 15 commands.
+
+`git diff --cached --name-only` is left out. It names paths from the top of
+the repository and a line typed in a subdirectory would get the wrong file.
+`brew formulae` and `brew casks` print past the 64 KiB cap and are left out as
+well. So is `cargo metadata` without `--no-deps`. It can fetch an index to
+resolve the dependencies. A line that asks a server, such as `gh pr list` or
+`kubectl get`, has no entry. A `docker` line asks the daemon docker's own
+context names. That is a socket on this machine unless a person pointed it
+somewhere else.
+
+An argument that needs anything else — another native reader, a line that
+asks a server, anything else `specs/dynamic.txt` names — still offers no rows
+rather than guessing at one. The readers answer 462 of the 4854 arguments that
+file lists and the other 4392 show nothing.
 
 A space opens the menu here too, the way a bare `cd ` or `git ` already did:
 `docker ` and `docker container ` both reach it, because the widget checks

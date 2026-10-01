@@ -1176,6 +1176,19 @@ mod tests {
     }
 
     #[test]
+    fn cargo_names_the_packages_its_own_metadata_describes() {
+        let f = Fixture::new(&["src"]);
+        std::fs::write(
+            f.path().join("Cargo.toml"),
+            "[package]\nname = \"sample-crate\"\nversion = \"0.1.0\"\nedition = \"2021\"\n",
+        )
+        .unwrap();
+        std::fs::write(f.path().join("src").join("lib.rs"), "").unwrap();
+        let rows = rows_in(f.path(), "cargo build -p ");
+        assert!(names(&rows).contains(&"sample-crate"), "{:?}", names(&rows));
+    }
+
+    #[test]
     fn cat_offers_files_and_folders_from_the_fixture_directory() {
         let f = Fixture::new(&["src", "readme*"]);
         std::fs::write(f.path().join("src").join("main.rs"), b"").unwrap();
