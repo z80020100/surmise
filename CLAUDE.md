@@ -672,6 +672,13 @@ isntall ` therefore offers nothing and Tab hands the line to the shell. Every
 row past such a word would be a word the command reads some other way than
 the menu shows it. The menu used to offer all of `npm`'s subcommands again.
 
+A bare `--` ends the options. A node can also declare `--` as an option of
+its own, and the walk reads it as that option where its argument has
+something to offer: `git diff -- ` offers the paths that option takes. One
+whose argument is free text has nothing of its own to show and ends the
+options the plain way. `npm run -- ` therefore offers the scripts rather than
+a blank argument meant for the words a script is handed.
+
 An alias for `cd` is the one exception to the refusal above, and it reaches
 this menu rather than `cd`'s own: the refusal tests the word as typed, not
 what it expands to, because `cd`'s own reader matches only the literal word

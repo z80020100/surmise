@@ -35,7 +35,9 @@
 //! options are no longer being read from. A node that declares `--` as a
 //! real option of its own — `git diff --`, with its own trailing path
 //! argument — reaches that through the ordinary option consumer instead,
-//! since the exact-name match is tried before this fallback ever runs.
+//! since the exact-name match is tried before this fallback ever runs. A
+//! declared `--` whose arguments are free text has nothing of its own to
+//! offer and ends the options the plain way. `npm run -- ` is the case.
 //!
 //! **Persistent options.** `Subcommand::persistent_options` is a second map
 //! beside `options`, and nothing in `spec.rs` copies it into a child — this
@@ -320,6 +322,7 @@ impl<'a> State<'a> {
         if let Some(opt) = self.lookup_option(text)
             && opt.requires_equals != Some(true)
             && is_available(opt, &self.passed_options)
+            && !(text == "--" && offers_nothing(opt))
         {
             return Some((vec![opt], start_pending(opt)));
         }
@@ -608,6 +611,17 @@ fn command_lookup_name(text: &str) -> &str {
     }
 }
 
+/// Whether every argument `opt` takes is free text: no listed value, no
+/// generator and nothing a reader could answer. A `--` declared that way is
+/// the end of the options as far as a menu can tell. `npm run --` declares
+/// one for the words a script is handed and the word after it is still the
+/// script.
+fn offers_nothing(opt: &Opt) -> bool {
+    opt.args
+        .iter()
+        .all(|arg| arg.suggestions.is_empty() && arg.generators.is_empty() && !arg.dynamic)
+}
+
 /// Moves a just-filled option argument on: a variadic one stays put, marked
 /// filled, so it keeps taking words; anything else moves to the next
 /// argument, or to no pending argument at all past the last one.
@@ -841,6 +855,25 @@ mod tests {
         // A word an argument takes is not one of those.
         let walk = walk_of(&npm, "npm install sample ");
         assert!(walk.offers_args || walk.offers_options);
+    }
+
+    #[test]
+    fn a_declared_double_dash_with_nothing_to_offer_ends_the_options() {
+        let npm = spec::load("npm", &[]).unwrap();
+        let walk = walk_of(&npm, "npm run -- ");
+        assert!(walk.end_of_options);
+        assert_eq!(
+            walk.current_arg
+                .as_ref()
+                .and_then(|a| a.name.first())
+                .map(String::as_str),
+            Some("script")
+        );
+        // One whose argument names a template is still that option.
+        let git = spec::load("git", &[]).unwrap();
+        let walk = walk_of(&git, "git diff -- ");
+        assert!(!walk.end_of_options);
+        assert!(walk.current_arg.is_some_and(|a| !a.generators.is_empty()));
     }
 
     #[test]
