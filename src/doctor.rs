@@ -178,11 +178,11 @@ fn widget(facts: &Facts) -> Check {
         return check(
             Level::Fail,
             "widget",
-            "this shell has not loaded it. Add eval \"$(surmise init zsh)\" to ~/.zshrc",
+            "this shell has not loaded it. Add eval \"$(surmise init zsh)\" to ~/.zshrc or the bash line to ~/.bashrc",
         );
     };
     let mut fields = widget.split(' ');
-    let (tag, zsh, shell) = (fields.next(), fields.next(), fields.next());
+    let (tag, under, shell) = (fields.next(), fields.next(), fields.next());
     if tag != Some(pick::RECORD_TAG) {
         return check(
             Level::Warn,
@@ -194,13 +194,18 @@ fn widget(facts: &Facts) -> Check {
         return check(
             Level::Warn,
             "widget",
-            "loaded by another shell. Run this from the zsh prompt it should answer",
+            "loaded by another shell. Run this from the prompt it should answer",
         );
     }
     check(
         Level::Ok,
         "widget",
-        format!("loaded in zsh {}", zsh.unwrap_or("")),
+        // The zsh widget writes its version alone and every other one leads
+        // with the shell's name.
+        match under.unwrap_or("").split_once('/') {
+            Some((name, version)) => format!("loaded in {name} {version}"),
+            None => format!("loaded in zsh {}", under.unwrap_or("")),
+        },
     )
 }
 
@@ -283,6 +288,12 @@ mod tests {
         assert!(!failed, "{out}");
         assert!(out.lines().all(|line| line.starts_with("ok")), "{out}");
         assert!(out.contains("loaded in zsh 5.9"), "{out}");
+        // The bash widget names its shell before the version.
+        let mut f = healthy();
+        f.widget = Some(format!("{} bash/5.2.37 4242", pick::RECORD_TAG));
+        let (out, failed) = report(&checks(&f));
+        assert!(!failed, "{out}");
+        assert!(out.contains("loaded in bash 5.2.37"), "{out}");
     }
 
     #[test]

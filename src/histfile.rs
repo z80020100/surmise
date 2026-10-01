@@ -97,6 +97,9 @@ pub(crate) fn read(path: &str, aliases: &HashMap<String, String>) -> Counts {
     let mut commands = Vec::new();
     let mut lines = Vec::new();
     for entry in tail_entries(Path::new(path)) {
+        if bash_timestamp(&entry) {
+            continue;
+        }
         lines.push(command_text(&entry).to_string());
         for command in shellparse::parse_with_aliases(command_text(&entry), aliases).commands {
             if let [first, second, ..] = command.words.as_slice() {
@@ -195,6 +198,14 @@ fn join_continuations(lines: &[&str]) -> Vec<String> {
     entries
 }
 
+/// The `#<epoch>` line bash writes in front of an entry when `HISTTIMEFORMAT`
+/// is set. It says when the next line ran and is no command of its own.
+fn bash_timestamp(entry: &str) -> bool {
+    entry
+        .strip_prefix('#')
+        .is_some_and(|epoch| !epoch.is_empty() && epoch.bytes().all(|b| b.is_ascii_digit()))
+}
+
 /// `entry` with zsh's extended prefix, `: <epoch>:<elapsed>;`, taken off it.
 /// An entry the prefix does not fit is the plain format already and comes
 /// back untouched.
@@ -249,6 +260,14 @@ mod tests {
         assert_eq!(counts.count("npm", "run"), 1);
         // Each entry is kept the way it was typed for the list Ctrl-R swaps in.
         assert_eq!(counts.lines(), ["git status", "npm run build"]);
+    }
+
+    #[test]
+    fn a_bash_timestamp_is_no_entry_of_its_own() {
+        let (path, _f) = histfile(b"#1700000000\ngit status\n#notatime\n");
+        let counts = read(&path, &HashMap::new());
+        assert_eq!(counts.count("git", "status"), 1);
+        assert_eq!(counts.lines(), ["git status", "#notatime"]);
     }
 
     #[test]

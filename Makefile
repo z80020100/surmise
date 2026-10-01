@@ -35,7 +35,7 @@ test:
 # The shell gate. The POSIX scripts get shellcheck and shfmt. The zsh widgets
 # get a syntax check alone, because neither tool has a zsh dialect. A missing
 # tool fails rather than skips. `CLAUDE.md` gives the reasoning.
-SH_SCRIPTS := .cargo-husky/hooks/pre-commit
+SH_SCRIPTS := .cargo-husky/hooks/pre-commit shell/surmise.bash
 ZSH_WIDGETS := $(wildcard shell/*.zsh)
 
 # `shell/` is a directory. Without .PHONY make calls this target up to date and
