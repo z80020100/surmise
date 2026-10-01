@@ -1656,6 +1656,21 @@ mod tests {
     }
 
     #[test]
+    fn add_options_are_the_ones_the_specification_gives_add() {
+        let git = spec::load("git", &[]).expect("git is a committed spec");
+        let specified: BTreeSet<BTreeSet<_>> = git.subcommands["add"]
+            .options
+            .values()
+            .map(|o| o.name.iter().map(String::as_str).collect())
+            .collect();
+        let ours: BTreeSet<BTreeSet<_>> = ADD_OPTIONS
+            .iter()
+            .map(|o| o.names.iter().copied().collect())
+            .collect();
+        assert_eq!(ours, specified);
+    }
+
+    #[test]
     fn add_options_keep_their_values_separate_from_paths() {
         for line in [
             "git add -nvf sample ",
