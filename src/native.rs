@@ -787,12 +787,10 @@ fn to_rows<'a>(
 const READ_LIMIT: u64 = 64 * 1024;
 
 /// The first [`READ_LIMIT`] bytes of `path`. `None` for a file that is
-/// absent, that will not read or that is not a regular one. Opening a FIFO
-/// would hold the prompt until somebody wrote to it.
+/// absent, that will not read or that is not a regular one.
+/// [`crate::path::regular`] says why.
 fn read_capped(path: &Path) -> Option<Vec<u8>> {
-    if !std::fs::metadata(path).ok()?.is_file() {
-        return None;
-    }
+    crate::path::regular(path).ok()?;
     let file = File::open(path).ok()?;
     let mut bytes = Vec::new();
     file.take(READ_LIMIT).read_to_end(&mut bytes).ok()?;
@@ -1185,7 +1183,7 @@ fn workspace_dirs(dir: &Path) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::fixture::Fixture;
+    use crate::fixture::{Fixture, soon};
     use crate::spec::Subcommand;
 
     /// Every host name below is invented. A test that read the real
@@ -1318,18 +1316,11 @@ build:
 
     #[test]
     fn an_ssh_file_that_is_a_fifo_is_never_opened() {
-        // Opening a FIFO with no writer waits forever. The read runs on a
-        // thread of its own so a read that opens it fails here rather than
-        // holding the suite.
         let f = ssh_home(None, None);
-        let fifo = f.path().join(".ssh").join("config");
-        let made = Command::new("mkfifo").arg(&fifo).status();
-        assert!(made.is_ok_and(|s| s.success()), "mkfifo");
+        f.fifo(".ssh/config");
         let home = f.path().to_path_buf();
-        let (tx, rx) = std::sync::mpsc::channel();
-        std::thread::spawn(move || tx.send(ssh_hosts(&sources(nowhere(), &home, nowhere()))));
-        let hosts = rx.recv_timeout(std::time::Duration::from_secs(5));
-        assert_eq!(hosts, Ok(Vec::new()));
+        let hosts = soon(move || ssh_hosts(&sources(nowhere(), &home, nowhere())));
+        assert_eq!(hosts, Some(Vec::new()));
     }
 
     #[test]

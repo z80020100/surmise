@@ -93,7 +93,7 @@ impl Config {
     /// will not parse, or names a key this build does not know leaves a
     /// `warning` behind instead.
     fn load_from(path: &Path) -> Config {
-        match std::fs::read_to_string(path) {
+        match crate::path::regular(path).and_then(|()| std::fs::read_to_string(path)) {
             Ok(text) => Self::parse(&text),
             // Only a file that is not there is the defaults standing
             // quietly. Every other failure is a file that exists and holds
@@ -356,7 +356,7 @@ fn edit_at(path: &Path, what: Edit) -> Result<String, String> {
     // replaced by whatever this write was. `Config::load_from` treats the two
     // alike and can afford to: it reads, and a read that fails leaves the
     // defaults standing rather than taking anything away.
-    let text = match std::fs::read_to_string(path) {
+    let text = match crate::path::regular(path).and_then(|()| std::fs::read_to_string(path)) {
         Ok(text) => text,
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => String::new(),
         Err(e) => return Err(format!("{} could not be read: {e}", path.display())),
@@ -515,7 +515,7 @@ fn read(word: &str, shape: &Shape, key: &str) -> Result<Value, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::fixture::Fixture;
+    use crate::fixture::{Fixture, soon};
 
     #[test]
     fn a_missing_file_gives_defaults() {
@@ -957,6 +957,41 @@ spec_dirs = []
             Config::load_from(&f.path().join("absent.toml")),
             Config::default()
         );
+    }
+
+    #[test]
+    fn a_file_that_is_not_a_regular_one_is_never_opened() {
+        // The read says why and the write refuses. Either one that opened
+        // the FIFO would wait for a writer that never comes.
+        let f = Fixture::new(&[]);
+        let path = f.fifo("config.toml");
+        let at = path.clone();
+        let config = soon(move || Config::load_from(&at)).expect("a read that returns");
+        assert_eq!(config.icons, Set::default());
+        assert!(
+            config
+                .warning
+                .as_deref()
+                .is_some_and(|w| w.ends_with("not a regular file")),
+            "{:?}",
+            config.warning
+        );
+        let at = path.clone();
+        let edit = soon(move || {
+            edit_at(
+                &at,
+                Edit::Set {
+                    key: "icons",
+                    value: "nerd",
+                },
+            )
+        });
+        let complaint = edit
+            .expect("a write that returns")
+            .expect_err("a complaint");
+        assert!(complaint.ends_with("not a regular file"), "{complaint:?}");
+        let kind = std::fs::symlink_metadata(&path).expect("it").file_type();
+        assert!(std::os::unix::fs::FileTypeExt::is_fifo(&kind));
     }
 
     #[test]

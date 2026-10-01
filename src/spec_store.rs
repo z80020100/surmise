@@ -83,14 +83,10 @@ fn read_loose(dir: &Path, name: &str) -> Option<Vec<u8>> {
         .or_else(|| read_regular(&dir.join(name).join("index.json")))
 }
 
-/// The bytes of `path` when it is a regular file. `stat` decides that before
-/// anything opens it. A FIFO waits for a writer and the menu would wait with
-/// it. A device answers a length of nothing and reads for as long as anything
-/// asks. `crate::histfile` refuses both for the same reason.
+/// The bytes of `path` when it is a regular file. [`crate::path::regular`]
+/// says why nothing else is opened.
 fn read_regular(path: &Path) -> Option<Vec<u8>> {
-    if !std::fs::metadata(path).ok()?.is_file() {
-        return None;
-    }
+    crate::path::regular(path).ok()?;
     std::fs::read(path).ok()
 }
 
