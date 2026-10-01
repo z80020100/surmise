@@ -51,6 +51,18 @@ nothing at all. And a bash variable cannot hold a NUL, so the widget reads the
 answer with `mapfile`, which is why 4.4 is the floor. macOS ships bash 3.2 and
 `brew install bash` is where a newer one comes from.
 
+fish takes the line in `~/.config/fish/config.fish`, after anything else that
+binds Tab or Space:
+
+```sh
+surmise init fish | source
+```
+
+fish keeps its own history in a format of its own and the reader takes either.
+fish holds no alias table of the shape the record carries and the widget sends
+none. A space there is fish's own first and expands an abbreviation the way it
+always did. surmise looks at the line behind it.
+
 One shell can still hold an older copy. The `eval` above runs once and the
 function it defines lives as long as that shell does, so a session open
 when the binary is replaced keeps sending the widget it already has. The
@@ -1467,8 +1479,8 @@ way would therefore put the terminal the suite was started from into raw mode.
 
 `tests/pty/main.rs` is the only test binary and its siblings are its modules.
 `term` is the harness, `pick` runs `surmise --pick LINE`, `zsh` runs the
-widget in a real `zsh -i`, `bash` runs the bash one in a real `bash -i`,
-`history` runs the directory hook and `demo` runs
+widget in a real `zsh -i`, `bash` and `fish` run theirs in a real `bash -i`
+and `fish -i`, `history` runs the directory hook and `demo` runs
 `surmise demo` and opens a menu on the directory it was given. cargo makes a
 target of `tests/<name>/main.rs` as well as of a file directly under `tests/`.
 The second form would compile `term` again for each one. `dead_code` counts
@@ -1492,8 +1504,9 @@ change rather than on an accepted line.
 
 The `bash` tests run the first `bash` on the `PATH` and fail rather than skip
 where that one is older than 4.4. macOS ships 3.2 and a person running the
-gate there puts a newer one first with `brew install bash`. CI installs it the
-same way.
+gate there puts a newer one first with `brew install bash`. The `fish` tests
+run the first `fish` and fail where there is none. CI installs both the same
+way.
 
 That shell starts with `-d` as well as `-i`. `ZDOTDIR` gives it the `.zshrc`
 above and `-d` is what keeps the machine's own `/etc/zsh/zshrc` from running in
@@ -1605,7 +1618,8 @@ because cargo-husky leaves a foreign hook alone.
 The shell files have a gate of their own and `make shell` runs it as the last
 step of `make check`. The POSIX hook and the bash widget get `shellcheck` and
 `shfmt -i 2 -d`. The indentation flag matches what those scripts already use.
-The zsh widgets get `zsh -n` and nothing else. Neither shellcheck nor shfmt
+The fish widget gets `fish --no-execute` and `fish_indent --check`. The zsh
+widgets get `zsh -n` and nothing else. Neither shellcheck nor shfmt
 has a zsh dialect. `# shellcheck shell=zsh` is SC1103 and shellcheck then
 guesses bash. It reports SC2296 and SC2298 against a nested parameter
 expansion that is ordinary zsh. It reports SC2086 and SC2076 against a shell
@@ -1615,9 +1629,9 @@ use. Neither tool therefore says anything true about a widget and the gate
 reads its syntax alone. `zsh -n` takes only its first file argument and each widget therefore
 gets a run of its own.
 
-A missing `shellcheck` or `shfmt` fails that gate rather than skipping it.
-`brew install shellcheck shfmt` is the fix on macOS and
-`apt-get install shellcheck shfmt` is the one on Linux. CI installs them the
+A missing `shellcheck`, `shfmt` or `fish` fails that gate rather than skipping
+it. `brew install shellcheck shfmt fish` is the fix on macOS and
+`apt-get install shellcheck shfmt fish` is the one on Linux. CI installs them the
 same way. zsh ships with macOS and a Linux runner installs it beside the other
 two, because the pty tests run the widget in a real one. That install therefore
 goes in ahead of `make test` rather than ahead of `make shell`. A gate that
