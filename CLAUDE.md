@@ -328,7 +328,9 @@ as though it had never been typed.
 A match need not lead with what you typed and Tab ignores the rows that do
 not. `cd wk` reaching `work/` is a match Enter takes. Right leaves it: that
 key wants a name leading with what you typed, whatever case either is in. It
-is not a match Tab can build a prefix from either.
+is not a match Tab can build a prefix from either. `match = "prefix"` in the
+configuration keeps only the rows that do lead with it. "Configuration" below
+says what outranks it.
 
 Every name marks the characters what you typed reached. The `w` and the `k`
 carry a ground and a brighter name of their own in that row and the `or`
@@ -1103,12 +1105,12 @@ surmise settings add disabled_commands kubectl    # one entry of a list
 surmise settings remove disabled_commands kubectl # one entry back out
 ```
 
-`set` and `unset` answer for `enabled` and `icons`. `add` and `remove` answer
-for `disabled_commands` and `spec_dirs`. Naming the wrong one of the two says
-which verb reaches that key rather than writing anything, and so does a key or
-a value this build does not read. A value the picker would silently ignore is
-the one thing a person typing a command must not be handed, because nothing
-prints a warning at the prompt.
+`set` and `unset` answer for `enabled`, `icons` and `match`. `add` and
+`remove` answer for `disabled_commands` and `spec_dirs`. Naming the wrong one
+of the two says which verb reaches that key rather than writing anything, and
+so does a key or a value this build does not read. A value the picker would
+silently ignore is the one thing a person typing a command must not be handed,
+because nothing prints a warning at the prompt.
 
 Only these four write there, and each of them is a person naming the change.
 Nothing surmise decides for itself touches this file: a menu reads it and
@@ -1151,7 +1153,7 @@ earns is kept rather
 than the first of them, because a person sent back twice for one file has
 been told half of what the reader already knew.
 
-Four keys have a reader today.
+Five keys have a reader today.
 
 - `enabled` turns the picker off. `pick::run` checks it before it opens the
   terminal, so `false` answers every key with `PASS` and the shell's own
@@ -1169,9 +1171,17 @@ Four keys have a reader today.
   nothing guesses at the answer. `pick::run` reads it beside `enabled` and
   hands it to `ui::menu`, so the key costs the run nothing it was not
   already paying.
+- `match` names how what was typed has to reach a row. `"fuzzy"` is the
+  default and takes the characters in order wherever they fall. `"prefix"`
+  keeps only the rows that lead with them. It reaches every menu, `cd`'s and
+  Git's as well as a specification's. A specification that names its own
+  `filterStrategy` for the argument in hand, a generator on it or the node
+  outranks the setting for that list. 235 places in the corpus name `fuzzy`
+  and one names `prefix`. The row that runs the line and the parent and home
+  rows stay whichever is set.
 
 `spec_menu` is the menu that calls `spec_store::get_configured`, once per
-command name it asks for, so three of the four keys now reach what a person
+command name it asks for, so three of the five keys now reach what a person
 sees:
 `enabled` through `pick::run`, the entry point every keystroke goes through,
 and `disabled_commands` and `spec_dirs` through the spec that menu completes

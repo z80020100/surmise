@@ -4,6 +4,34 @@
 //! score. A run of adjacent matches scores highest, then a match at the start,
 //! then a match just after a separator. A long haystack pays a small penalty.
 
+/// How what was typed has to reach a name. `Fuzzy` takes the characters in
+/// order wherever they fall and `Prefix` wants the name to lead with them.
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+pub enum Match {
+    #[default]
+    Fuzzy,
+    Prefix,
+}
+
+impl Match {
+    const ALL: [Match; 2] = [Match::Fuzzy, Match::Prefix];
+
+    /// The word `config.toml` and a specification's `filterStrategy` name
+    /// this by.
+    pub const fn word(self) -> &'static str {
+        match self {
+            Match::Fuzzy => "fuzzy",
+            Match::Prefix => "prefix",
+        }
+    }
+
+    pub const WORDS: [&'static str; 2] = [Match::ALL[0].word(), Match::ALL[1].word()];
+
+    pub fn from_word(word: &str) -> Option<Match> {
+        Match::ALL.into_iter().find(|m| m.word() == word)
+    }
+}
+
 /// Case-fold one character. Folding per character rather than per string keeps
 /// the result one character wide. An index into the folded text is therefore
 /// also an index into the original. `char::to_lowercase` does not promise

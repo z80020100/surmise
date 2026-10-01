@@ -9,7 +9,7 @@ use crate::candidates::{
     Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, PARENT, Query, Scan, UsedAfter, in_name_order,
     priority_of, rank, resolved_in, run_row, split, tier,
 };
-use crate::fuzzy;
+use crate::fuzzy::{self, Match};
 use crate::histfile;
 use crate::history::History;
 use crate::native;
@@ -125,6 +125,9 @@ pub(crate) struct Completions {
     lead: String,
     /// What each command line a reader ran answered in this menu.
     runs: native::Runs,
+    /// How the last list wants what was typed to reach a row, where its
+    /// specification says. See [`Completions::matching`].
+    matching: Option<Match>,
 }
 
 impl Completions {
@@ -141,10 +144,17 @@ impl Completions {
         scan: &mut Scan,
     ) -> Vec<Candidate> {
         self.lead.clear();
+        self.matching = None;
         let Some(root) = self.spec_for(&target.command.words[0].inner_text) else {
             return Vec::new();
         };
         self.walk_resolving(target, &root, cwd, history, scan)
+    }
+
+    /// The `filterStrategy` the last list's specification names, if it
+    /// names one. It outranks the `match` setting for that list.
+    pub(crate) fn matching(&self) -> Option<Match> {
+        self.matching
     }
 
     /// The part of `word` the last list answered. A value stuck on behind
@@ -205,6 +215,21 @@ impl Completions {
                     return Vec::new();
                 }
                 self.lead.clone_from(&walk.search_lead);
+                // The argument in hand speaks first, then a generator on it
+                // and the node after both.
+                self.matching = walk
+                    .current_arg
+                    .as_ref()
+                    .filter(|_| walk.offers_args)
+                    .and_then(|arg| {
+                        arg.filter_strategy.as_deref().or_else(|| {
+                            arg.generators
+                                .iter()
+                                .find_map(|g| g.filter_strategy.as_deref())
+                        })
+                    })
+                    .or(walk.node.filter_strategy.as_deref())
+                    .and_then(Match::from_word);
                 // `help`'s siblings live one word back from the current
                 // node; that walk asks for nothing this one has not already
                 // loaded, so it only runs when a `help` template is actually

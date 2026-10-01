@@ -5,7 +5,7 @@
 //! acceptance rules are therefore testable on their own.
 
 use crate::candidates::{self, Candidate, Kind, Scan};
-use crate::fuzzy::{shared_bytes, starts_with_folded};
+use crate::fuzzy::{Match, shared_bytes, starts_with_folded};
 use crate::histfile;
 use crate::history::History;
 use crate::line::Line;
@@ -34,6 +34,8 @@ pub struct App {
     /// `crate::state` is what carries the answer past the menu it was pressed
     /// in and `pick` is what reads it back.
     pub whole_word: bool,
+    /// How what was typed has to reach a row, from the `match` setting.
+    pub matching: Match,
     history: History,
     scan: Scan,
     git: crate::git::Completions,
@@ -178,6 +180,7 @@ impl App {
             rbuffer: String::new(),
             aliases: HashMap::new(),
             whole_word: false,
+            matching: Match::default(),
             history: History::default(),
             scan: Scan::default(),
             git: crate::git::Completions::default(),
@@ -257,10 +260,11 @@ impl App {
         let reader = self.reader();
         // `highlighted` reads this back to tell whose row it is holding.
         self.origin = reader.as_ref().map(Reader::origin);
+        let spec = matches!(reader, Some(Reader::Spec(_)));
         // `growable` rather than the parse alone. A word nothing here may
         // grow is one to offer no menu for. The key then falls through to the
         // shell's own completion instead of opening rows nothing can take.
-        match reader {
+        let mut rows = match reader {
             Some(Reader::Git(mut target)) if self.growable(&target.word) => {
                 target.exclude_tail(self.line.right_of_cursor());
                 self.git.complete(&target, &self.cwd)
@@ -276,7 +280,24 @@ impl App {
                 &mut self.scan,
             ),
             _ => Vec::new(),
+        };
+        // Every provider matches the fuzzy way. `prefix` keeps the rows that
+        // lead with what was typed. A specification that names its own
+        // strategy for the list in hand outranks the setting.
+        let matching = if spec {
+            self.spec_menu.matching().unwrap_or(self.matching)
+        } else {
+            self.matching
+        };
+        if matching == Match::Prefix {
+            let typed = self.typed();
+            rows.retain(|c| {
+                matches!(c.kind, Kind::Run | Kind::Parent | Kind::Special)
+                    || starts_with_folded(c.display.trim_end_matches('/'), &typed)
+                    || starts_with_folded(&c.insert, &typed)
+            });
         }
+        rows
     }
 
     pub fn edited(&mut self) {
@@ -634,7 +655,7 @@ impl App {
 
 #[cfg(test)]
 mod tests {
-    use super::{App, candidates, quote_insert};
+    use super::{App, Match, candidates, quote_insert};
     use crate::fixture::Fixture;
     use std::path::PathBuf;
 
@@ -878,6 +899,44 @@ mod tests {
         assert!(a.accept());
         assert_eq!(a.line.text(), "ls --color=");
         assert_eq!(a.line.left_of_cursor(), "ls --c");
+    }
+
+    /// An App over `line` with the `match` setting at `matching`.
+    fn matching_over(cwd: &std::path::Path, line: &str, matching: Match) -> App {
+        let mut a = App::new(cwd.to_path_buf());
+        a.matching = matching;
+        a.line.insert(line);
+        a.refresh();
+        a
+    }
+
+    #[test]
+    fn prefix_keeps_the_rows_that_lead_with_what_was_typed() {
+        let f = Fixture::new(&["work", "wiki"]);
+        let fuzzy = matching_over(f.path(), "npm u", Match::Fuzzy);
+        let prefix = matching_over(f.path(), "npm u", Match::Prefix);
+        assert!(prefix.items.len() < fuzzy.items.len());
+        assert!(prefix.items.iter().all(|c| c.insert.starts_with('u')));
+        // `cd wk` reaches `work/` only the fuzzy way.
+        assert!(
+            !matching_over(f.path(), "cd wk", Match::Fuzzy)
+                .items
+                .is_empty()
+        );
+        assert!(
+            matching_over(f.path(), "cd wk", Match::Prefix)
+                .items
+                .is_empty()
+        );
+    }
+
+    #[test]
+    fn a_specifications_own_strategy_outranks_the_setting() {
+        let f = Fixture::new(&[]);
+        f.init_git(&["sample-topic"]);
+        // `git merge`'s branch argument says fuzzy.
+        let a = matching_over(f.path(), "git merge st", Match::Prefix);
+        assert!(a.items.iter().any(|c| c.insert == "sample-topic"));
     }
 
     #[test]
