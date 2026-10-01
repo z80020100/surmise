@@ -950,12 +950,22 @@ live. `npm install ` gets nothing either. Its argument searches the registry
 and nothing here reaches a network. Every reader here leaves out a name that
 holds a control character. Git's own readers do the same.
 
-`pnpm`, `yarn` and `bun` read the same file. `pnpm run `, a bare `pnpm `,
-`yarn run ` and `bun run ` offer the scripts. `pnpm remove ` and its four
-neighbours `update`, `link`, `unlink` and `rebuild`, and `yarn upgrade `, offer
-the dependencies. Each spells the argument its own way and each entry is
-keyed to that spelling. `pnpm add ` and `yarn add ` search the registry and
-get nothing.
+`pnpm`, `yarn`, `bun`, `nr` and `rushx` read the same file. `pnpm run `, a
+bare `pnpm `, `yarn run `, a bare `yarn `, `bun run `, a bare `bun `, a bare
+`nr ` and a bare `rushx ` offer the scripts. `pnpm remove ` and its four
+neighbours `update`, `link`, `unlink` and `rebuild`, `yarn upgrade ` and
+`yarn remove ` offer the dependencies. Each spells the argument its own way
+and each entry is keyed to that spelling. `yarn`'s own two carry no name and
+their entries are keyed to the empty one. `pnpm add ` and `yarn add ` search
+the registry and get nothing. The corpus also hands `pnpm why ` and
+`pnpm exec ` the scripts. `why` wants a package and `exec` a program.
+Neither gets a row from this file.
+
+`rush` reads `rush.json` the same way, from the nearest one at or above the
+line's directory. Each of `install`, `build` and `rebuild` takes a project
+behind six options of its own and all 18 offer the projects that file names.
+Each row says the folder the project lives in. Rush writes comments into that
+file and the reader takes them out before it reads the rest.
 
 A generator that kept its command line is the larger half. One line is
 shared by many arguments. `git`'s branch list is behind 20 of them and one
@@ -1006,8 +1016,8 @@ somewhere else.
 
 An argument that needs anything else — another native reader, a line that
 asks a server, anything else `specs/dynamic.txt` names — still offers no rows
-rather than guessing at one. The readers answer 709 of the 4854 arguments that
-file lists and the other 4145 show nothing.
+rather than guessing at one. The readers answer 732 of the 4854 arguments that
+file lists and the other 4122 show nothing.
 
 A space opens the menu here too, the way a bare `cd ` or `git ` already did:
 `docker ` and `docker container ` both reach it, because the widget checks
