@@ -908,7 +908,9 @@ workspaces under every subcommand that takes it. Both leave out a name the
 line already holds. A `workspaces` entry such as `packages/*` becomes every
 directory under `packages` that holds a `package.json` of its own. `-w` takes
 a path and a pattern names none. An entry with a leading `!` takes a path back
-out. Any other pattern is left out. The file is the one npm itself would find
+out. Any other pattern is left out. One directory the file reaches two ways,
+such as `packages/*` and `./packages/sample/`, is one row under the first
+spelling the file gives it. The file is the one npm itself would find
 by walking up from the line's directory. It is read up to the same 64 KiB.
 `npm uninstall -g` gets nothing. The packages it would name belong to the
 machine rather than to the project and only running npm can say where those
