@@ -219,9 +219,8 @@ struct Script {
 /// `git diff --cached --name-only` names its paths from the top of the
 /// repository and a line typed in a subdirectory would get the wrong file.
 /// `cargo metadata` without `--no-deps` can fetch an index to resolve the
-/// dependencies and has none either. Nor has a line the corpus reads two
-/// ways. `task export` names tasks for one argument and projects for
-/// another. An entry here gives a line one answer.
+/// dependencies and has none either. A line the corpus reads two ways has
+/// its entries in [`BY_ARGUMENT`] instead, one for each way.
 const SCRIPTS: &[Script] = &[
     Script {
         line: &["git", "--no-optional-locks", "log", "--oneline"],
@@ -633,14 +632,61 @@ const SCRIPTS: &[Script] = &[
 /// What each command line answered, for the life of one menu. A line runs
 /// once however many keys follow, the way Git's own readers and the
 /// directory scan already do. A line that failed stays an empty answer.
+///
+/// An entry is its own key. Two that read one line two ways each run it.
 #[derive(Default)]
-pub(crate) struct Runs(HashMap<&'static [&'static str], Vec<Found>>);
+pub(crate) struct Runs(HashMap<*const Script, Vec<Found>>);
+
+/// The lines the corpus reads two ways, each way under the names of the
+/// arguments that read it that way. [`script_rows`] asks this before
+/// [`SCRIPTS`].
+///
+/// `networksetup -listallhardwareports` names a port such as `Wi-Fi` for
+/// one argument and the device under it such as `en0` for another. An
+/// argument that takes only the wireless one is answered with every device,
+/// because its name does not say which it is.
+const BY_ARGUMENT: &[(&[&str], Script)] = &[
+    (
+        &["FQBN"],
+        Script {
+            line: &["arduino-cli", "board", "list", "--format", "json"],
+            label: "board",
+            parse: |out| boards(out, true),
+        },
+    ),
+    (
+        &["port"],
+        Script {
+            line: &["arduino-cli", "board", "list", "--format", "json"],
+            label: "port",
+            parse: |out| boards(out, false),
+        },
+    ),
+    (
+        &["hardwareport", "hardwarePort"],
+        Script {
+            line: &["networksetup", "-listallhardwareports"],
+            label: "hardware port",
+            parse: |out| hardware_ports(out, true),
+        },
+    ),
+    (
+        &["device", "parentdevice", "interface"],
+        Script {
+            line: &["networksetup", "-listallhardwareports"],
+            label: "device",
+            parse: |out| hardware_ports(out, false),
+        },
+    ),
+];
 
 /// The rows the command line `script` offers, where [`SCRIPTS`] has a reader
 /// for it. `script` is a generator's own field. Only the list form names
 /// its words without a shell between them and only that form is matched.
+/// `arg` is the name of the argument the generator sits on.
 pub(crate) fn script_rows(
     script: &Value,
+    arg: &str,
     term: &str,
     cwd: &Path,
     runs: &mut Runs,
@@ -648,10 +694,18 @@ pub(crate) fn script_rows(
     let Some(words) = script.as_array() else {
         return Vec::new();
     };
-    let Some(entry) = SCRIPTS.iter().find(|entry| same_line(words, entry.line)) else {
+    let entry = BY_ARGUMENT
+        .iter()
+        .find(|(args, entry)| args.contains(&arg) && same_line(words, entry.line))
+        .map(|(_, entry)| entry)
+        .or_else(|| SCRIPTS.iter().find(|entry| same_line(words, entry.line)));
+    let Some(entry) = entry else {
         return Vec::new();
     };
-    let found = runs.0.entry(entry.line).or_insert_with(|| run(entry, cwd));
+    let found = runs
+        .0
+        .entry(std::ptr::from_ref(entry))
+        .or_insert_with(|| run(entry, cwd));
     to_rows(found.iter(), entry.label, term)
 }
 
@@ -892,6 +946,54 @@ fn multipass_instances(out: &str) -> Vec<Found> {
             })
         })
         .collect()
+}
+
+/// The boards `arduino-cli` sees on its ports, by the board's FQBN where
+/// `fqbn` asks for one and by the port's address otherwise. A port no board
+/// matched names nothing. The CLI writes the list on its own or under
+/// `detected_ports`, by its version.
+fn boards(out: &str, fqbn: bool) -> Vec<Found> {
+    let Ok(listed) = serde_json::from_str::<Value>(out) else {
+        return Vec::new();
+    };
+    let ports = listed.get("detected_ports").unwrap_or(&listed);
+    ports
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter_map(|port| {
+            let board = port["matching_boards"].get(0)?;
+            let name = board["name"].as_str().unwrap_or("");
+            let address = port["port"]["address"].as_str()?;
+            Some(if fqbn {
+                labelled(board["fqbn"].as_str()?, format!("{name} on {address}"))
+            } else {
+                labelled(address, format!("{name} port connection"))
+            })
+        })
+        .collect()
+}
+
+/// `networksetup -listallhardwareports`: a `Hardware Port:` line and the
+/// `Device:` line under it for each port. `ports` names the port and says
+/// its device. Otherwise the device is the name and the port says what it
+/// is.
+fn hardware_ports(out: &str, ports: bool) -> Vec<Found> {
+    let mut found = Vec::new();
+    let mut port = None;
+    for line in out.lines() {
+        if let Some(name) = line.strip_prefix("Hardware Port: ") {
+            port = Some(name.trim());
+        } else if let (Some(device), Some(name)) = (line.strip_prefix("Device: "), port.take()) {
+            let device = device.trim();
+            found.push(if ports {
+                labelled(name, format!("device {device}"))
+            } else {
+                labelled(device, name.to_string())
+            });
+        }
+    }
+    found
 }
 
 /// The application a Copilot workspace file names. The file is YAML and
@@ -1829,16 +1931,77 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
     }
 
     #[test]
+    fn a_line_read_two_ways_reads_the_way_its_argument_asks() {
+        let ports = "Hardware Port: Wi-Fi\nDevice: en0\nEthernet Address: 00:00:00:00:00:00\n\nHardware Port: Sample Bridge\nDevice: bridge0\n";
+        let names = |found: Vec<Found>| found.into_iter().map(|f| f.name).collect::<Vec<_>>();
+        assert_eq!(
+            names(hardware_ports(ports, true)),
+            ["Wi-Fi", "Sample Bridge"]
+        );
+        let devices = hardware_ports(ports, false);
+        assert_eq!(devices[0].name, "en0");
+        assert_eq!(devices[0].label.as_deref(), Some("Wi-Fi"));
+        let listed = r#"{"detected_ports": [
+            {"port": {"address": "/dev/sample0"}, "matching_boards": [{"name": "Sample Board", "fqbn": "sample:avr:board"}]},
+            {"port": {"address": "/dev/sample1"}}]}"#;
+        assert_eq!(names(boards(listed, true)), ["sample:avr:board"]);
+        assert_eq!(names(boards(listed, false)), ["/dev/sample0"]);
+        // An older CLI writes the list on its own.
+        let older = r#"[{"port": {"address": "/dev/sample0"}, "matching_boards": [{"name": "Sample Board", "fqbn": "sample:avr:board"}]}]"#;
+        assert_eq!(names(boards(older, true)), ["sample:avr:board"]);
+    }
+
+    #[test]
+    fn every_argument_a_two_way_line_names_still_holds_that_line() {
+        // `make specs` could rename an argument and leave the entry reaching
+        // nothing. Each name has to sit on an argument that runs the line.
+        fn holds(value: &Value, name: &str, line: &[&str]) -> bool {
+            match value {
+                Value::Object(map) => {
+                    let named = map.get("name").is_some_and(|n| {
+                        n.as_str() == Some(name)
+                            || n.as_array().is_some_and(|all| {
+                                all.first().and_then(Value::as_str) == Some(name)
+                            })
+                    });
+                    (named && holds_script(value, line))
+                        || map.values().any(|v| holds(v, name, line))
+                }
+                Value::Array(items) => items.iter().any(|v| holds(v, name, line)),
+                _ => false,
+            }
+        }
+        let specs: Vec<Value> = ["arduino-cli", "networksetup", "networkQuality"]
+            .iter()
+            .map(|name| {
+                let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                    .join("specs")
+                    .join(format!("{name}.json"));
+                serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap()
+            })
+            .collect();
+        for (args, entry) in BY_ARGUMENT {
+            for arg in *args {
+                assert!(
+                    specs.iter().any(|spec| holds(spec, arg, entry.line)),
+                    "{arg} {:?}",
+                    entry.line
+                );
+            }
+        }
+    }
+
+    #[test]
     fn a_line_with_no_reader_never_runs() {
         let mut runs = Runs::default();
         let line = serde_json::json!(["sh", "-c", "touch sample"]);
         let f = Fixture::new(&[]);
-        assert!(script_rows(&line, "", f.path(), &mut runs).is_empty());
+        assert!(script_rows(&line, "", "", f.path(), &mut runs).is_empty());
         assert!(!f.path().join("sample").exists());
         assert!(runs.0.is_empty());
         // Only the list form names its words without a shell between them.
         let text = serde_json::json!("git --no-optional-locks log --oneline");
-        assert!(script_rows(&text, "", f.path(), &mut runs).is_empty());
+        assert!(script_rows(&text, "", "", f.path(), &mut runs).is_empty());
     }
 
     #[test]
@@ -1853,16 +2016,16 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
             "--sort=-committerdate"
         ]);
         let mut runs = Runs::default();
-        let rows = script_rows(&line, "", f.path(), &mut runs);
+        let rows = script_rows(&line, "", "", f.path(), &mut runs);
         let mut names: Vec<&str> = rows.iter().map(|r| r.insert.as_str()).collect();
         names.sort_unstable();
         assert_eq!(names, ["sample-main", "sample-topic"]);
         // A branch made now is the next menu's to find.
         f.git(&["branch", "sample-later", "sample-main"]);
-        assert_eq!(script_rows(&line, "", f.path(), &mut runs).len(), 2);
+        assert_eq!(script_rows(&line, "", "", f.path(), &mut runs).len(), 2);
         // Outside a repository Git fails and the line answers nothing.
         let outside = Fixture::new(&[]);
-        assert!(script_rows(&line, "", outside.path(), &mut Runs::default()).is_empty());
+        assert!(script_rows(&line, "", "", outside.path(), &mut Runs::default()).is_empty());
     }
 
     #[test]
