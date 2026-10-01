@@ -380,11 +380,48 @@ pub fn load_configured(name: &str) -> Result<Subcommand, SpecError> {
     load_with(name, read_raw_configured)
 }
 
-/// Arguments the committed data leaves mandatory that the command runs
-/// without, by command and by index into the root's own `args`. `ls` lists
-/// the directory it is in and `make` builds the makefile's first target.
-/// `make specs` overwrites `specs/` and the correction therefore lives here.
-const OPTIONAL_ARGS: &[(&str, usize)] = &[("ls", 0), ("make", 0)];
+/// Commands that run with no argument at all although the committed data
+/// gives them a mandatory one. `make` builds the makefile's first target.
+/// Every other one opens an editor, a browser or a prompt of its own or prints
+/// what is there. `make specs` overwrites `specs/` and the correction therefore
+/// lives here.
+pub(crate) const RUNS_BARE: &[&str] = &[
+    "broot",
+    "cal",
+    "code",
+    "code-insiders",
+    "df",
+    "dust",
+    "emacs",
+    "exa",
+    "export",
+    "eza",
+    "fd",
+    "firefox",
+    "hostname",
+    "hx",
+    "iex",
+    "ls",
+    "lsd",
+    "lvim",
+    "make",
+    "mount",
+    "mysql",
+    "nano",
+    "neofetch",
+    "node",
+    "nvim",
+    "pgcli",
+    "psql",
+    "python",
+    "python3",
+    "sqlite3",
+    "tree",
+    "ts-node",
+    "vi",
+    "vim",
+    "vimr",
+];
 
 /// The two entry points differ only in where the bytes come from. A pointer
 /// is followed with the same reader that found it, once and no further.
@@ -399,10 +436,8 @@ fn load_with(
     };
     let mut stats = Stats::default();
     let mut spec = normalize_subcommand(raw, None, &mut stats);
-    for &(command, index) in OPTIONAL_ARGS {
-        if command == name
-            && let Some(arg) = spec.args.get_mut(index)
-        {
+    if RUNS_BARE.contains(&name) {
+        for arg in &mut spec.args {
             arg.is_optional = Some(true);
         }
     }
@@ -1228,13 +1263,14 @@ mod tests {
     /// learned the `isOptional` leaves the entry doing nothing and this says
     /// so.
     #[test]
-    fn every_optional_arg_entry_corrects_a_mandatory_argument() {
-        for &(command, index) in OPTIONAL_ARGS {
+    fn every_bare_command_corrects_a_mandatory_argument() {
+        let optional = |arg: &Arg| arg.is_optional == Some(true);
+        for &command in RUNS_BARE {
             let raw = read_raw(command, &[]).expect("a committed spec");
             let as_written = normalize_subcommand(raw, None, &mut Stats::default());
-            assert_ne!(as_written.args[index].is_optional, Some(true), "{command}");
+            assert!(!as_written.args.iter().all(optional), "{command}");
             let spec = load(command, &[]).expect("a committed spec");
-            assert_eq!(spec.args[index].is_optional, Some(true), "{command}");
+            assert!(spec.args.iter().all(optional), "{command}");
         }
     }
 
