@@ -33,5 +33,6 @@ pub mod spec;
 pub mod spec_menu;
 pub mod spec_store;
 pub mod state;
+pub mod theme;
 pub mod tty;
 pub mod ui;

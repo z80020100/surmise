@@ -1276,7 +1276,7 @@ earns is kept rather
 than the first of them, because a person sent back twice for one file has
 been told half of what the reader already knew.
 
-Eight keys and one table have a reader today.
+Eight keys and two tables have a reader today.
 
 - `enabled` turns the picker off. `pick::run` checks it before it opens the
   terminal, so `false` answers every key with `PASS` and the shell's own
@@ -1335,6 +1335,16 @@ Eight keys and one table have a reader today.
   nothing. A binding that takes a character, Backspace or Left away from the
   line is a warning too and stands. The writing commands leave the table alone
   and a person writes it by hand.
+- `[theme]` is the other table. It gives any of eight colours another one:
+  `background`, `text`, `match_background`, `description_text`,
+  `description_border`, `selected_background`, `selected_text` and
+  `selected_match_background`, named the way the other engine's own themes
+  name them. A value is a 256-colour index such as `236` or a string such as
+  `"#303030"` or `"rgb(48,48,48)"`. A string draws in 24-bit colour. The glyph in front of each name
+  keeps the colour of its own sort, because that colour is what says what
+  the row is. A name no colour answers to and a value no colour reads as are
+  each a warning and leave that colour as it was. `settings show` prints
+  every colour as the menu draws it.
 
 `spec_menu` is the menu that calls `spec_store::get_configured`, once per
 command name it asks for, so three of the eight keys now reach what a person

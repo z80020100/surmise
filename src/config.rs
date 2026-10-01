@@ -22,6 +22,7 @@ use crate::candidates::Sort;
 use crate::fuzzy::Match;
 use crate::icons::Set;
 use crate::keymap::Keymap;
+use crate::theme::Theme;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 use std::os::unix::fs::PermissionsExt;
@@ -59,6 +60,8 @@ pub struct Config {
     pub history_mode: HistoryMode,
     /// Which key does what inside the menu. The `[keys]` table.
     pub keys: Keymap,
+    /// The menu's colours. The `[theme]` table.
+    pub theme: Theme,
     /// What went wrong reading the file, if anything did. Nothing here
     /// prints it. `surmise doctor` is what a person sees this through.
     pub warning: Option<String>,
@@ -76,6 +79,7 @@ impl Default for Config {
             verbose_names: false,
             history_mode: HistoryMode::default(),
             keys: Keymap::default(),
+            theme: Theme::default(),
             warning: None,
         }
     }
@@ -98,6 +102,7 @@ struct Schema {
     verbose_names: Option<bool>,
     history_mode: Option<String>,
     keys: Option<toml::Table>,
+    theme: Option<toml::Table>,
     #[serde(flatten)]
     extra: BTreeMap<String, toml::Value>,
 }
@@ -187,6 +192,9 @@ impl Config {
                     keys: schema.keys.as_ref().map_or_else(Keymap::default, |table| {
                         Keymap::from_table(table, &mut warnings)
                     }),
+                    theme: schema.theme.as_ref().map_or_else(Theme::default, |table| {
+                        Theme::from_table(table, &mut warnings)
+                    }),
                     warning: (!warnings.is_empty()).then(|| warnings.join("; ")),
                 }
             }
@@ -227,6 +235,7 @@ impl Config {
         ));
         doc["verbose_names"] = Item::Value(self.verbose_names.into());
         doc["keys"] = Item::Table(self.keys.table());
+        doc["theme"] = Item::Table(self.theme.table());
         match &self.warning {
             None => doc.to_string(),
             Some(warning) => format!("{}{doc}", commented(warning)),
@@ -384,11 +393,17 @@ fn edit_at(path: &Path, what: Edit) -> Result<String, String> {
     let path = &through_links(path);
     let key = what.key();
     // A table holds more than one value and these commands write one.
-    if key == "keys" || key.starts_with("keys.") {
-        return Err(format!(
-            "keys is a table and this command writes no table. Write [keys] in {} by hand",
-            path.display()
-        ));
+    for table in ["keys", "theme"] {
+        if key == table
+            || key
+                .strip_prefix(table)
+                .is_some_and(|rest| rest.starts_with('.'))
+        {
+            return Err(format!(
+                "{table} is a table and this command writes no table. Write [{table}] in {} by hand",
+                path.display()
+            ));
+        }
     }
     let shape = KEYS
         .iter()
@@ -620,10 +635,20 @@ mod tests {
     }
 
     #[test]
+    fn a_theme_table_colours_a_role_and_names_what_it_could_not() {
+        let config = Config::parse("[theme]\nbackground = \"#000000\"\nglow = 1\n");
+        assert_eq!(config.theme.background(), "\x1b[48;2;0;0;0m");
+        assert_eq!(
+            config.warning,
+            Some("theme has no colour named glow".to_string())
+        );
+    }
+
+    #[test]
     fn the_writing_commands_leave_the_keys_table_to_the_person() {
         let f = Fixture::new(&[]);
         let path = written(&f, "");
-        for key in ["keys", "keys.navigateDown"] {
+        for key in ["keys", "keys.navigateDown", "theme", "theme.text"] {
             let said = edit_at(
                 &path,
                 Edit::Set {
@@ -632,7 +657,7 @@ mod tests {
                 },
             )
             .expect_err("a refusal");
-            assert!(said.starts_with("keys is a table"), "{said:?}");
+            assert!(said.contains(" is a table"), "{said:?}");
         }
         assert_eq!(read(&path), "");
     }
@@ -735,8 +760,8 @@ mod tests {
         assert!(config.warning.is_some());
     }
 
-    /// What `show` prints for a `[keys]` table nobody wrote.
-    macro_rules! default_keys {
+    /// What `show` prints for a `[keys]` and a `[theme]` table nobody wrote.
+    macro_rules! default_tables {
         () => {
             "
 [keys]
@@ -763,6 +788,16 @@ toggleDescription = [\"ctrl+o\"]
 toggleFuzzySearch = []
 acceptRight = [\"right\"]
 cancel = [\"ctrl+c\", \"ctrl+g\"]
+
+[theme]
+background = 236
+text = 249
+match_background = 58
+description_text = 249
+description_border = 238
+selected_background = 25
+selected_text = 15
+selected_match_background = 67
 "
         };
     }
@@ -778,7 +813,7 @@ sort = \"recent\"
 spec_dirs = []
 verbose_names = false
 ",
-        default_keys!()
+        default_tables!()
     );
 
     #[test]
@@ -786,8 +821,8 @@ verbose_names = false
         assert_eq!(Config::default().toml(), DEFAULTS);
         // `KEYS` and this are two lists of the same thing. A key added to
         // one and not the other is a key a person can set and this never
-        // shows, or one this shows and nothing can set. `[keys]` is the one
-        // table and is written by hand.
+        // shows, or one this shows and nothing can set. `[keys]` and
+        // `[theme]` are tables and are written by hand.
         let doc: DocumentMut = DEFAULTS.parse().expect("a document");
         let printed: Vec<&str> = doc
             .iter()
@@ -797,6 +832,7 @@ verbose_names = false
         let known: Vec<&str> = KEYS.iter().map(|(name, _)| *name).collect();
         assert_eq!(printed, known);
         assert!(doc["keys"].is_table());
+        assert!(doc["theme"].is_table());
     }
 
     #[test]
@@ -818,7 +854,7 @@ verbose_names = false
              sort = \"recent\"\n\
              spec_dirs = [\"/opt/specs\"]\n\
              verbose_names = false\n",
-                default_keys!()
+                default_tables!()
             )
         );
         assert_eq!(Config::parse(&config.toml()), config);
