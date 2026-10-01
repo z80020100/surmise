@@ -854,6 +854,13 @@ does without a menu. Down or a typed character moves off it to take anything
 else. A line that still needs a word keeps its first row under the highlight:
 `cargo `, `docker container `, `make -C ` and `cp one ` each want one more.
 
+A line that holds something its specification calls dangerous gets no row
+that runs it. That is an option on the line or the subcommand the walk ended
+on. Two presses of Enter would otherwise run `rm -r sample` or
+`npm audit fix -f` the moment the word was taken. Enter there takes the
+highlighted row instead and Esc then Enter runs the line. The corpus marks 275
+options and 82 subcommands dangerous.
+
 What a command needs is read off the specification. An argument not marked
 optional that has no word yet needs one and so does a node's subcommand. A
 variadic argument's words past its first may belong to the arguments behind
