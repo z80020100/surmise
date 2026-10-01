@@ -99,6 +99,11 @@ pub fn commands(spec_dirs: &[PathBuf]) -> Vec<String> {
     names
 }
 
+/// The release of the corpus `specs/` was converted from.
+pub fn corpus_version() -> &'static str {
+    CORPUS_VERSION
+}
+
 /// The process-wide `commands`, over the config this process was started
 /// with. The union is filesystem work worth doing once, and a picker is one
 /// process per menu, so a `OnceLock` here never outlives the session it was

@@ -52,6 +52,8 @@ fn main() {
         table.push_str(&format!("    {command:?},\n"));
     }
     table.push_str("];\n");
+    let version = index["source"]["version"].as_str().unwrap_or("");
+    table.push_str(&format!("\nstatic CORPUS_VERSION: &str = {version:?};\n"));
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("cargo sets OUT_DIR"));
     fs::write(out_dir.join("specs.blob"), &blob).expect("write specs.blob");

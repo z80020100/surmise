@@ -4,7 +4,7 @@
 //!
 //! A parse error must never reach the prompt: nothing surmise does may write
 //! to a person's terminal outside the menu. `load` keeps the complaint as a
-//! `warning` for a later `doctor` command instead, and runs with defaults
+//! `warning` for `surmise doctor` instead, and runs with defaults
 //! meanwhile. An unknown key is a warning of the same kind rather than an
 //! error, because a file written for a later surmise should still work with
 //! this one. So is a value a key does not know, and that key keeps its
@@ -42,8 +42,7 @@ pub struct Config {
     /// where that answer is spent.
     pub icons: Set,
     /// What went wrong reading the file, if anything did. Nothing here
-    /// prints it; a later `doctor` command is what a person sees this
-    /// through.
+    /// prints it. `surmise doctor` is what a person sees this through.
     pub warning: Option<String>,
 }
 

@@ -1112,8 +1112,8 @@ and nothing should be able to point it somewhere else.
 
 A parse error never reaches the prompt, because nothing surmise does may
 write to a person's terminal outside the menu. It becomes a warning instead,
-kept for a later `doctor` command to report, and the picker runs with
-defaults meanwhile. An unknown key is a warning of the same kind rather than
+kept for `surmise doctor` to report, and the picker runs with defaults
+meanwhile. An unknown key is a warning of the same kind rather than
 an error, because a file carrying a key from a later surmise should still
 work with this one. A value one of the keys below does not know is a warning
 of that kind too and that key keeps its default. A file that cannot be read
@@ -1173,6 +1173,33 @@ Hand-writing one file for `spec_dirs` is easy: the shape is the same JSON
 because that spec is TypeScript and `tools/spec-convert` is the only reader
 of it. `cargo install` places a binary and nothing beside it, so that
 conversion needs a clone of this repository rather than an installed surmise.
+
+## Doctor
+
+```sh
+surmise doctor
+```
+
+That prints one line per check with `ok`, `warn` or `fail` and what to do
+about anything but `ok`. A `fail` keeps the menu from opening at all and makes
+the exit status 1. A `warn` leaves the menu working with something missing.
+
+| Check | What it reads |
+| --- | --- |
+| `binary` | The `surmise` the widget runs, `$SURMISE_BIN` or the one on `PATH`. It fails when there is none and warns when it is not this binary |
+| `widget` | Whether this shell loaded the widget. It fails when the shell has not and warns when the shell holds an older one or when another shell loaded it |
+| `specs` | The number of commands the binary carries and the corpus release they came from. It never fails |
+| `config` | The config file and the warning reading it earned, if any |
+| `history` | Where the directory history goes and whether that directory takes a write |
+| `git` | Whether a `git` runs. Git's own menu and every Git reader need one |
+
+The command runs as a child of the shell that typed it and a child cannot read
+that shell's own state. The widget therefore exports `SURMISE_WIDGET` when it
+loads. It holds the tag the widget's record leads with, the zsh version and
+that shell's own process id. The `widget` check compares the last one with
+the process that started `doctor`. A `bash` started from a zsh that loaded
+the widget inherits the variable and the check says so rather than claim the
+widget for it.
 
 ## Repository conventions
 

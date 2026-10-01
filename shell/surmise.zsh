@@ -11,6 +11,12 @@
 
 typeset -g SURMISE_BIN=${SURMISE_BIN:-surmise}
 
+# The record this widget writes leads with this tag. `surmise doctor` runs as a
+# child of the shell and reads the tag, the zsh it runs under and this shell
+# itself out of the one variable exported beside it.
+typeset -g _surmise_tag=surmise-record-4
+typeset -gx SURMISE_WIDGET="$_surmise_tag $ZSH_VERSION $$"
+
 # OLDPWD belongs to this change even when a quiet cd skipped an earlier hook.
 # A failed write must not stop the other directory hooks or print at the prompt.
 _surmise_chpwd() {
@@ -95,7 +101,7 @@ surmise-complete() {
   # name, and every pair behind it would land one field out. The tag also
   # says this widget reads the cursor back out of the answer.
   local -a record
-  record=("surmise-record-4" "$RBUFFER" "$HISTFILE" "${(kv)aliases[@]}")
+  record=("$_surmise_tag" "$RBUFFER" "$HISTFILE" "${(kv)aliases[@]}")
   # Paint the pending change first. surmise asks the terminal where the cursor
   # is. zsh does not redraw until the widget returns and the answer would
   # otherwise be one keystroke behind.

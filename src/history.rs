@@ -40,7 +40,7 @@ fn location(data: Option<PathBuf>, home: Option<PathBuf>) -> Option<PathBuf> {
 
 /// Where the database would be, whether or not it exists. `None` means there
 /// is no absolute directory to keep one in and the history is unavailable.
-fn database() -> Option<PathBuf> {
+pub(crate) fn database() -> Option<PathBuf> {
     location(
         std::env::var_os("XDG_DATA_HOME").map(PathBuf::from),
         std::env::var_os("HOME").map(PathBuf::from),

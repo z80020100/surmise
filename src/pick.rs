@@ -117,7 +117,7 @@ fn read_input() -> io::Result<Input> {
 /// a line whose text to the right of the cursor is exactly this tag, is
 /// the whole of what the tag costs, against every menu of an upgraded
 /// binary reading an older shell's aliases one field out.
-const RECORD_TAG: &str = "surmise-record-4";
+pub(crate) const RECORD_TAG: &str = "surmise-record-4";
 
 /// The tag of a widget that writes the same fields as [`RECORD_TAG`] and
 /// takes no cursor back.
