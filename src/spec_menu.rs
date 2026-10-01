@@ -91,10 +91,12 @@ pub(crate) fn parse(left: &str, tail: &str, aliases: &HashMap<String, String>) -
 
 /// The label a row falls back to when the spec gives it no description.
 /// Git's own command rows already fall back to `"command"`; the other two
-/// are this module's own choice, made for the same reason.
+/// are this module's own choice, made for the same reason. Git's own `add`
+/// option rows fall back to `OPTION_LABEL` and its `--chmod` value rows say
+/// `SUGGESTION_LABEL`.
 const SUBCOMMAND_LABEL: &str = "command";
-const OPTION_LABEL: &str = "option";
-const SUGGESTION_LABEL: &str = "value";
+pub(crate) const OPTION_LABEL: &str = "option";
+pub(crate) const SUGGESTION_LABEL: &str = "value";
 
 /// What an option another one on the line depends on is worth. A higher
 /// number its own specification wrote stands.
