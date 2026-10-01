@@ -949,6 +949,10 @@ fn ssh_hosts(sources: &Sources) -> Vec<String> {
             }
         }
     }
+    // A configuration lists its hosts in the order a person wrote them.
+    // `known_hosts` lists them in the order ssh first met them and that says
+    // nothing.
+    let configured = out.len();
     let known_hosts = sources.home.join(".ssh").join("known_hosts");
     for line in read_lines(&known_hosts) {
         for name in known_hosts_names(&line) {
@@ -957,6 +961,7 @@ fn ssh_hosts(sources: &Sources) -> Vec<String> {
             }
         }
     }
+    out[configured..].sort();
     out
 }
 
@@ -1079,6 +1084,9 @@ fn npm_dependencies(sources: &Sources) -> Vec<Found> {
             }
         }
     }
+    // The three lists make one menu and their order says nothing. Each
+    // `serde_json` map is already in the order of its keys.
+    out.sort_by(|a, b| a.name.cmp(&b.name));
     out
 }
 
@@ -1145,14 +1153,18 @@ fn workspace_dirs(dir: &Path) -> Vec<String> {
     let Ok(entries) = std::fs::read_dir(dir) else {
         return Vec::new();
     };
-    entries
+    let mut names: Vec<String> = entries
         .flatten()
         .filter_map(|entry| {
             let name = entry.file_name().into_string().ok()?;
             (!name.starts_with('.') && entry.path().join("package.json").is_file()).then_some(name)
         })
         .take(SCAN_LIMIT)
-        .collect()
+        .collect();
+    // A directory listing has no order of its own and the menu keeps the
+    // order a reader gives it.
+    names.sort();
+    names
 }
 
 #[cfg(test)]
@@ -1345,7 +1357,8 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
             ),
         );
         let s = sources(nowhere(), f.path(), nowhere());
-        assert_eq!(ssh_hosts(&s), ["sample-host", "10.0.0.1", "build-box"]);
+        // `known_hosts` says nothing by its order and the names come sorted.
+        assert_eq!(ssh_hosts(&s), ["10.0.0.1", "build-box", "sample-host"]);
     }
 
     #[test]
@@ -1658,9 +1671,11 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         let found = npm_dependencies(&sources(f.path(), nowhere(), nowhere()));
         assert_eq!(
             found_names(&found),
-            ["sample-lib", "sample-dev", "sample-extra"]
+            ["sample-dev", "sample-extra", "sample-lib"]
         );
-        assert_eq!(found[1].label.as_deref(), Some("dev dependency"));
+        assert_eq!(found[0].label.as_deref(), Some("dev dependency"));
+        // The first list that names a package is the one its row says.
+        assert_eq!(found[2].label.as_deref(), Some("dependency"));
     }
 
     #[test]

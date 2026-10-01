@@ -457,10 +457,9 @@ fn group_rank(kind: Kind) -> u8 {
 /// leads, a name that merely starts with it follows, a tie inside either
 /// goes to the row the shell history favours, a further tie keeps the fuzzy
 /// score's own order, the specification's own `priority` breaks that, the
-/// group the row came from breaks what is still level, a name leading with
-/// what was typed in the same case breaks what is left and the name itself
-/// breaks whatever remains. One `rank` rather than one copy each is what
-/// keeps the two menus from drifting apart.
+/// group the row came from breaks what is still level and a name leading
+/// with what was typed in the same case breaks what is left. One `rank`
+/// rather than one copy each is what keeps the two menus from drifting apart.
 ///
 /// The case sits that low on purpose. It says less about a row than any key
 /// above it and its whole job is to replace the byte order that put `-L`
@@ -490,6 +489,11 @@ fn group_rank(kind: Kind) -> u8 {
 /// for each row instead of on every one of a sort's `O(n log n)`
 /// comparisons; `specs/aws/ec2.json`'s 448 subcommands are this corpus's
 /// worst case for it.
+///
+/// Rows that tie on every key keep the order they came in. The sort is
+/// stable. A list of values a specification writes says something in its
+/// own order: `npm ci --audit ` offers `true` before `false`. A source with
+/// no order of its own goes through [`in_name_order`] first.
 pub(crate) fn rank(rows: &mut [Candidate], term: &str, used_after: Option<UsedAfter>) {
     rows.sort_by_cached_key(|c| {
         (
@@ -499,9 +503,15 @@ pub(crate) fn rank(rows: &mut [Candidate], term: &str, used_after: Option<UsedAf
             Reverse(c.priority),
             Reverse(group_rank(c.kind)),
             Reverse(c.insert.starts_with(term)),
-            c.display.clone(),
         )
     });
+}
+
+/// Puts rows in the order of their names. A map and a directory listing have
+/// no order of their own and Git's own menu shows its rows by name. [`rank`]
+/// keeps the order rows arrive in where nothing else tells them apart.
+pub(crate) fn in_name_order(rows: &mut [Candidate]) {
+    rows.sort_by(|a, b| a.display.cmp(&b.display));
 }
 
 fn predict(arg: &str, cwd: &Path, scan: &mut Scan) -> Vec<Candidate> {

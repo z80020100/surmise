@@ -722,8 +722,14 @@ still level: the subcommands lead, the values the argument in hand takes
 follow and the options come last. A subcommand is the next word the command
 is made of and a value is the word its argument wants. An option is
 neither. A name leading with what you typed in the same case breaks what is
-left. `ls -l` leads with `-l` and `ls -L` with `-L`. The alphabetical order
-breaks whatever remains.
+left. `ls -l` leads with `-l` and `ls -L` with `-L`. What is still level
+after that keeps the order its source gives it. Subcommands, options and the
+files and folders a path argument lists go in alphabetical order. The walk keeps no
+order for the first two and a directory listing has none. The values a
+specification lists keep the specification's own order and so do the rows
+one of the readers below finds: `npm ci --audit ` offers `true` before
+`false` and `git merge ` offers the branch committed to last first. Git's
+own menu puts its own rows in alphabetical order.
 Every row stays in the list however many there are. `npm ` has 70 subcommands
 and the last of them is as reachable as the first. Git's own menu keeps every
 row too. Only `cd`'s menu has a limit of its own.
@@ -873,7 +879,10 @@ targets of the makefile beside the line and the same argument behind `-j`,
 files and neither runs a program. The targets come from `GNUmakefile`,
 `makefile` or `Makefile`, whichever of make's own three names is there first.
 The hosts come from `~/.ssh/config`, `/etc/ssh/ssh_config` and
-`~/.ssh/known_hosts`. `make -qp` would give the thorough answer and it expands
+`~/.ssh/known_hosts`. The configured hosts keep the order a person wrote
+them in and the names only `known_hosts` holds follow in alphabetical order.
+That file lists a host when ssh first meets it and its order says nothing.
+`make -qp` would give the thorough answer and it expands
 the makefile to do it. Completing a line would then run whatever
 `$(shell ...)` the makefile holds and reading the text cannot. A `Host` line's
 patterns are not host names and a hashed `known_hosts` entry holds no name to
