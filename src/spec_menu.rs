@@ -14,7 +14,7 @@ use crate::histfile;
 use crate::history::History;
 use crate::native;
 use crate::shellparse::{self, Command};
-use crate::spec::{self, Generator, Subcommand};
+use crate::spec::{self, Generator, Subcommand, Suggestion};
 use crate::ui::MENU_ROWS;
 use serde_json::Value;
 use std::borrow::Cow;
@@ -445,6 +445,27 @@ fn row(
     })
 }
 
+/// The row for one fixed value a specification lists, or `None` where `term`
+/// reaches none of its names or the value is hidden from it. A value is a
+/// word rather than a file Git would recognise. `Kind::Path` is the nearest
+/// existing kind: it sits in the same flat, non-directory group as `Command`
+/// and `Option`, and its quoting is a plain shell word rather than a Git
+/// pathspec.
+fn suggestion_row(term: &str, suggestion: &Suggestion) -> Option<Candidate> {
+    if !shown(suggestion.hidden, &suggestion.name, term) {
+        return None;
+    }
+    row(
+        term,
+        &suggestion.name,
+        label(&suggestion.description, SUGGESTION_LABEL),
+        Vec::new(),
+        Kind::Path,
+        priority_of(suggestion.priority),
+    )
+    .map(|c| with_insert_value(c, suggestion.insert_value.as_deref()))
+}
+
 /// Whether a row its specification marks `hidden` shows for `term`. A
 /// hidden one shows only to a person who typed one of its names whole.
 fn shown(hidden: Option<bool>, names: &[String], term: &str) -> bool {
@@ -505,6 +526,15 @@ fn build_rows(
                 .map(|c| with_insert_value(c, sub.insert_value.as_deref())),
             );
         }
+        // A node's own shortcuts and values beside its subcommands. `tmux `
+        // offers `new -s 'name'` and `simctl ui appearance ` its two
+        // appearances.
+        rows.extend(
+            walk.node
+                .additional_suggestions
+                .iter()
+                .filter_map(|extra| suggestion_row(term, extra)),
+        );
     }
 
     if walk.offers_options {
@@ -581,28 +611,11 @@ fn build_rows(
     if walk.offers_args
         && let Some(arg) = &walk.current_arg
     {
-        let mut listed = Vec::new();
-        for suggestion in &arg.suggestions {
-            if !shown(suggestion.hidden, &suggestion.name, term) {
-                continue;
-            }
-            // A suggestion is a fixed value rather than a file Git would
-            // recognise. `Kind::Path` is the nearest existing kind: it sits
-            // in the same flat, non-directory group as `Command` and
-            // `Option`, and its quoting is a plain shell word rather than a
-            // Git pathspec.
-            listed.extend(
-                row(
-                    term,
-                    &suggestion.name,
-                    label(&suggestion.description, SUGGESTION_LABEL),
-                    Vec::new(),
-                    Kind::Path,
-                    priority_of(suggestion.priority),
-                )
-                .map(|c| with_insert_value(c, suggestion.insert_value.as_deref())),
-            );
-        }
+        let listed: Vec<Candidate> = arg
+            .suggestions
+            .iter()
+            .filter_map(|suggestion| suggestion_row(term, suggestion))
+            .collect();
         let mut found = Vec::new();
         let mut templated = Vec::new();
         for generator in &arg.generators {
@@ -1522,6 +1535,27 @@ mod tests {
                 names(&rows)
             );
         }
+    }
+
+    #[test]
+    fn a_node_offers_its_own_additional_suggestions_beside_its_subcommands() {
+        let rows = complete(&mut Completions::default(), &target("tmux "));
+        let shortcut = rows
+            .iter()
+            .find(|r| r.display == "new -s 'name'")
+            .expect("the shortcut");
+        assert_eq!(shortcut.insert, "new -s ''");
+        assert_eq!(shortcut.cursor, Some("new -s '".len()));
+        assert!(rows.iter().any(|r| r.kind == Kind::Command));
+        // `kubectx`'s `-` goes beside its subcommands and not behind its
+        // own argument.
+        let has_dash = |line: &str| {
+            complete(&mut Completions::default(), &target(line))
+                .iter()
+                .any(|r| r.insert == "-" && r.priority == 85)
+        };
+        assert!(has_dash("kubectx "));
+        assert!(!has_dash("kubectx sample "));
     }
 
     #[test]

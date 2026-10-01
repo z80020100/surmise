@@ -799,6 +799,12 @@ of its names whole, in either case. `cargo ` offers no `read-manifest` and
 neither does `cargo read-`. `cargo read-manifest` does. The corpus hides 1775
 options, 149 subcommands and 51 values this way.
 
+A node can also list words of its own beside its subcommands. `tmux ` offers
+`new -s 'name'` and Enter writes `new -s ''` with the cursor between the
+quotes. `simctl ui appearance ` offers `light` and `dark`. These rows sit with
+the values and leave the menu once the node's own argument has a word. The
+corpus has 13 such lists.
+
 A command can point the walk past its own specification at another's.
 `sudo git switch ` walks `git`'s own specification from the `git` token
 onward rather than `sudo`'s, the same way `aws account ` walks
