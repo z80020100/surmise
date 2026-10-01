@@ -551,6 +551,26 @@ fn git_add_folder_selection_stages_the_subtree_only_after_leaving_the_menu() {
 }
 
 #[test]
+fn an_option_value_goes_in_behind_its_separator() {
+    let f = home("", "bindkey ' ' $_surmise_space");
+    let mut t = ready(f.path());
+    t.send("ls --colo\t");
+    assert!(t.wait_panel(WAIT), "no option menu: {:?}", t.lines());
+    typed(&mut t, "\t");
+    assert!(line(&t).starts_with("❯ ls --color="), "{:?}", line(&t));
+    assert!(!line(&t).starts_with("❯ ls --color= "), "{:?}", line(&t));
+    typed(&mut t, "ne\t");
+    assert!(
+        line(&t).starts_with("❯ ls --color=never "),
+        "{:?}",
+        line(&t)
+    );
+    t.send("\x1b");
+    closed(&mut t);
+    assert_eq!(line(&t).trim(), "❯ ls --color=never");
+}
+
+#[test]
 fn git_add_options_and_chmod_values_reach_git_without_early_execution() {
     let f = home("", "bindkey ' ' $_surmise_space");
     f.init_git(&[]);

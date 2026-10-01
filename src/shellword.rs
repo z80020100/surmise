@@ -31,6 +31,17 @@ pub fn quote(s: &str) -> String {
     format!("'{}'", s.replace('\'', r"'\''"))
 }
 
+/// Quote `s` for the middle of a word, behind an option's separator. A
+/// leading `-` or `+` reads as itself there. Only `~` still expands:
+/// `MAGIC_EQUAL_SUBST` reaches past an `=`.
+pub fn quote_within(s: &str) -> String {
+    let plain = |c: char| c.is_alphanumeric() || SAFE.contains(c);
+    if !s.is_empty() && !s.starts_with('~') && s.chars().all(plain) {
+        return s.to_string();
+    }
+    quote(s)
+}
+
 /// Strip the shell quoting a person typed, including a quote they have not
 /// closed yet.
 pub fn unquote(s: &str) -> String {
@@ -50,7 +61,7 @@ pub fn unquote(s: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{quote, unquote};
+    use super::{quote, quote_within, unquote};
 
     #[test]
     fn a_plain_name_needs_no_quotes() {
@@ -69,6 +80,14 @@ mod tests {
     #[test]
     fn an_embedded_single_quote_is_escaped() {
         assert_eq!(quote("it's"), r"'it'\''s'");
+    }
+
+    #[test]
+    fn a_value_inside_a_word_keeps_a_leading_sign() {
+        assert_eq!(quote_within("+x"), "+x");
+        assert_eq!(quote_within("-x"), "-x");
+        assert_eq!(quote_within("~old"), "'~old'");
+        assert_eq!(quote_within("a b"), "'a b'");
     }
 
     #[test]

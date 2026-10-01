@@ -691,9 +691,9 @@ first that does not rather than reaching past it for a shorter one. Three
 rows carry none. A suggestion row has no arguments of its own. A `help` row
 names a sibling subcommand and fills `help`'s own one-word argument with it,
 so the sibling's own arguments are never reached and naming them would
-promise a word the menu will not offer. An option that requires a separator
-takes `--name=value`, which the space in front of a hint would deny, and it
-carries none until that separator is part of what the row inserts.
+promise a word the menu will not offer. An option that takes its value on
+the same word ends in the separator the value goes behind. That already says
+where the value lands.
 
 Rows rank the way Git's own do: exact names lead, prefixes follow and fuzzy
 matches come last. Where the row would become the command's own second word,
@@ -763,6 +763,18 @@ takes the highlighted row and Tab takes the prefix every matching row agrees
 on, or a row's whole name where only one agrees. Accepting a row never runs
 it. Moving the cursor off the word a row would replace makes that row go
 stale, the same way a Git row does.
+
+An option whose specification wants its value on the same word goes in with
+the separator and no space. `ls --colo` and Tab gives `ls --color=` and the
+menu behind it offers `always`, `auto` and `never`. Those rows match and
+replace what follows the separator and the option in front of it stays as
+typed. The separator is the option's own where it names one, such as
+`esbuild --loader:`, or the one its specification uses for every option, or
+`=`. An option whose value is optional is whole without one and goes in with
+its space. 4541 options in the corpus ask for a separator and 4253 of them
+take a value that is not optional. An option inside a quote it opened, such as
+`'--color=`, gets no rows: the value has no place of its own there to start
+from.
 
 A space opens this menu unasked and Enter takes the highlighted row. The press
 that runs `make install` anywhere else would therefore write `--debug` onto

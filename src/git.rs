@@ -878,6 +878,7 @@ fn row(arg: &str, name: &str, label: &'static str, kind: Kind) -> Option<Candida
         kind,
         score: fuzzy::score(arg, name)?,
         priority: DEFAULT_PRIORITY,
+        cursor: None,
     })
 }
 
@@ -975,9 +976,12 @@ impl Completions {
                         // The name a spec gives the value, for the one
                         // option that takes it as a word of its own.
                         // `--chmod` ends in the `=` its value goes after,
-                        // which already says where that value lands.
-                        if option.value == Some(Value::File) {
-                            candidate.hint = vec!["<File>".to_string()];
+                        // which already says where that value lands. The
+                        // cursor waits there rather than behind a space.
+                        match option.value {
+                            Some(Value::File) => candidate.hint = vec!["<File>".to_string()],
+                            Some(Value::Chmod) => candidate.cursor = Some(insert.len()),
+                            None => {}
                         }
                         out.push(candidate);
                     }
@@ -1100,6 +1104,7 @@ impl Completions {
                     kind,
                     score,
                     priority: DEFAULT_PRIORITY,
+                    cursor: None,
                 })
             })
             .collect();

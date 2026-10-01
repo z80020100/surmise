@@ -130,8 +130,14 @@ pub struct Walk<'a> {
     /// Every option the walk consumed, one entry per use. A menu drops one
     /// already at its `is_repeatable` cap rather than offering it again.
     pub passed_options: Vec<&'a Opt>,
-    /// The final word of the command, exactly as typed and never consumed.
+    /// The final word of the command as typed and never consumed. An
+    /// option with its value stuck on behind a separator leaves the value
+    /// alone here and [`Walk::search_lead`] holds the rest.
     pub search_term: String,
+    /// What stands in front of [`Walk::search_term`] in the final word. That
+    /// is an option's name and its separator when the word is `--opt=val`
+    /// and empty for every other word.
+    pub search_lead: String,
     pub offers_subcommands: bool,
     pub offers_options: bool,
     /// Whether [`Walk::current_arg`] is set.
@@ -316,7 +322,7 @@ impl<'a> State<'a> {
             return Some((vec![opt], start_pending(opt)));
         }
 
-        if let Some(opt) = self.attached_option(text)
+        if let Some((opt, _)) = self.attached_option(text)
             && is_available(opt, &self.passed_options)
         {
             return Some((vec![opt], start_pending_from(opt, 1)));
@@ -340,8 +346,9 @@ impl<'a> State<'a> {
     /// one, every separator `option_arg_separators` lists when it does
     /// not, and `=` alone when neither the option nor the spec names any.
     /// `node`'s own options are tried before a persistent option sharing a
-    /// name with one of them, matching `lookup_option`.
-    fn attached_option(&self, text: &str) -> Option<&'a Opt> {
+    /// name with one of them, matching `lookup_option`. The length covers
+    /// the name and the separator. The value starts there.
+    fn attached_option(&self, text: &str) -> Option<(&'a Opt, usize)> {
         let mut candidates: Vec<&'a Opt> =
             self.node.options.values().map(|opt| opt.as_ref()).collect();
         for (name, opt) in &self.ancestor_persistent {
@@ -354,11 +361,11 @@ impl<'a> State<'a> {
                 continue;
             };
             let rest = &text[name.len()..];
-            if candidate_separators(self.node, opt)
-                .iter()
-                .any(|separator| rest.starts_with(separator.as_str()))
+            if let Some(separator) = candidate_separators(self.node, opt)
+                .into_iter()
+                .find(|separator| rest.starts_with(separator.as_str()))
             {
-                return Some(opt);
+                return Some((opt, name.len() + separator.len()));
             }
         }
         None
@@ -503,11 +510,26 @@ pub fn walk<'a>(
         search_term = words[last_index].inner_text.clone();
     }
 
-    let forced = matches!(
+    let mut forced = matches!(
         state.option_arg,
         Some((opt, arg_index, filled))
             if !filled && !opt.args[arg_index].is_optional.unwrap_or(false)
     );
+    // The final word can be an option with its value stuck on behind a
+    // separator. The option is finished and the value is the word being
+    // typed. Nothing but that value fits there.
+    let mut search_lead = String::new();
+    if !forced
+        && state.can_consume_options()
+        && let Some((opt, lead)) = state.attached_option(&search_term)
+        && !opt.args.is_empty()
+        && is_available(opt, &state.passed_options)
+    {
+        state.option_arg = start_pending(opt);
+        search_lead = search_term[..lead].to_string();
+        search_term.replace_range(..lead, "");
+        forced = true;
+    }
     let current_arg = if let Some((opt, arg_index, _)) = state.option_arg {
         Some(opt.args[arg_index].clone())
     } else if state.subcommand_arg_index < state.node.args.len() {
@@ -536,6 +558,7 @@ pub fn walk<'a>(
         command_index: state.command_index,
         end_of_options: state.end_of_options,
         search_term,
+        search_lead,
         passed_options: state.passed_options,
     }
 }
@@ -625,6 +648,25 @@ pub(crate) fn is_available(opt: &Opt, passed: &[&Opt]) -> bool {
         Repeatable::Once => used < 1,
         Repeatable::Unlimited => true,
         Repeatable::Times(cap) => used < cap as usize,
+    }
+}
+
+/// The separator a row for `opt` ends in, when `opt` takes its value on the
+/// same word. `requires_separator` resolves the way an attached value on the
+/// line does and `requires_equals` asks for `=`. An option whose first
+/// argument is optional is whole without one and its row ends in its name.
+pub(crate) fn separator(node: &Subcommand, opt: &Opt) -> Option<String> {
+    if opt
+        .args
+        .first()
+        .is_none_or(|arg| arg.is_optional.unwrap_or(false))
+    {
+        return None;
+    }
+    match (&opt.requires_separator, opt.requires_equals) {
+        (Some(_), _) => candidate_separators(node, opt).into_iter().next(),
+        (None, Some(true)) => Some("=".to_string()),
+        (None, _) => None,
     }
 }
 
@@ -1284,6 +1326,56 @@ mod tests {
         });
         assert!(std::ptr::eq(walk.node, &docker));
         assert_eq!(walk.command_index, 1);
+    }
+
+    #[test]
+    fn a_final_word_with_its_value_stuck_on_walks_the_value_alone() {
+        let ls = spec::load("ls", &[]).unwrap();
+        let color = ls.options.get("--color").unwrap();
+        let walk = walk_of(&ls, "ls --color=ne");
+        assert_eq!(walk.search_lead, "--color=");
+        assert_eq!(walk.search_term, "ne");
+        assert_eq!(
+            walk.current_arg.as_ref().map(|a| &a.name),
+            Some(&color.args[0].name)
+        );
+        assert!(!walk.offers_options);
+        assert!(!walk.offers_subcommands);
+        // Nothing yet behind the separator is still the value's own word.
+        let walk = walk_of(&ls, "ls --color=");
+        assert_eq!(
+            (walk.search_lead.as_str(), walk.search_term.as_str()),
+            ("--color=", "")
+        );
+        // A word that only starts like an option stays a plain search term.
+        let walk = walk_of(&ls, "ls --colo");
+        assert_eq!(
+            (walk.search_lead.as_str(), walk.search_term.as_str()),
+            ("", "--colo")
+        );
+    }
+
+    fn walk_of<'a>(root: &'a Subcommand, line: &str) -> Walk<'a> {
+        walk(&command(line), root, |_| None)
+    }
+
+    #[test]
+    fn a_row_ends_in_the_separator_its_option_takes_its_value_behind() {
+        let ls = spec::load("ls", &[]).unwrap();
+        let esbuild = spec::load("esbuild", &[]).unwrap();
+        let mosh = spec::load("mosh", &[]).unwrap();
+        let ua = spec::load("ua", &[]).unwrap();
+        let status = ua.subcommands.get("status").unwrap();
+        let sep = |node: &Subcommand, name: &str| separator(node, node.options.get(name).unwrap());
+        assert_eq!(sep(&ls, "--color").as_deref(), Some("="));
+        assert_eq!(sep(&esbuild, "--loader").as_deref(), Some(":"));
+        assert_eq!(sep(&mosh, "--predict").as_deref(), Some("="));
+        assert_eq!(sep(status, "--format").as_deref(), Some("="));
+        // A flag takes no value and an optional one is whole without it.
+        assert_eq!(sep(&ls, "-a"), None);
+        let git = spec::load("git", &[]).unwrap();
+        let pull = git.subcommands.get("pull").unwrap();
+        assert_eq!(sep(pull, "--recurse-submodules"), None);
     }
 
     fn bare_opt(name: &str, requires_separator: Option<Separator>) -> Opt {
