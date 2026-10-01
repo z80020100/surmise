@@ -153,7 +153,11 @@ impl Completions {
     ) -> Vec<Candidate> {
         self.lead.clear();
         self.matching = None;
-        let Some(root) = self.spec_for(&target.command.words[0].inner_text) else {
+        let name = target.command.words[0].inner_text.as_str();
+        // A path to a program names no specification of its own. The corpus
+        // keeps one for that case and it takes files and folders.
+        let name = if name.contains('/') { "dotslash" } else { name };
+        let Some(root) = self.spec_for(name) else {
             return Vec::new();
         };
         self.walk_resolving(target, &root, cwd, history, scan)
@@ -1592,6 +1596,16 @@ mod tests {
             "{:?}",
             names(&rows)
         );
+    }
+
+    #[test]
+    fn a_program_named_by_its_path_takes_files() {
+        let f = Fixture::new(&["sample-dir", "sample.txt*"]);
+        for line in ["./build.sh ", "bin/tool ", "/usr/local/bin/tool -x "] {
+            let rows = rows_in(f.path(), line);
+            assert!(names(&rows).contains(&"sample.txt"), "{line}");
+            assert!(names(&rows).contains(&"sample-dir/"), "{line}");
+        }
     }
 
     #[test]

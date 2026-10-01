@@ -633,6 +633,12 @@ claims and `cd.json`'s two rows are no answer at all to a directory name. The
 command name resolves through the shell's alias table first, so an alias for
 `docker` opens the menu under the name it expands to.
 
+A program named by its path, such as `./build.sh` or `bin/tool`, has no
+specification of its own. Tab on one offers the files and folders beside the
+line, which is what the corpus's own `dotslash` specification says such a
+program takes. A space does not open that menu. The set the widget checks a
+first word against names commands and never a path.
+
 `git` reaches this menu for whatever Git's own leaves. That menu reads three
 things and no more: the subcommand word, a branch after `switch` or
 `checkout`, and a path or an option after `add`. Everything else on a `git`
