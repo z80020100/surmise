@@ -403,6 +403,7 @@ mod tests {
             kind,
             score: 0,
             priority: crate::candidates::DEFAULT_PRIORITY,
+            cursor: None,
         }
     }
 

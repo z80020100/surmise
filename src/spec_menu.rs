@@ -116,6 +116,9 @@ pub(crate) struct Completions {
     /// a given name. `App` sets this once; every other field here is this
     /// menu's own cache and this one is data handed in from outside it.
     pub(crate) cmd_history: histfile::Counts,
+    /// The option and separator in front of the value the last list
+    /// answered, or empty. See [`Walk::search_lead`].
+    lead: String,
 }
 
 impl Completions {
@@ -131,10 +134,24 @@ impl Completions {
         history: &History,
         scan: &mut Scan,
     ) -> Vec<Candidate> {
+        self.lead.clear();
         let Some(root) = self.spec_for(&target.command.words[0].inner_text) else {
             return Vec::new();
         };
         self.walk_resolving(target, &root, cwd, history, scan)
+    }
+
+    /// The part of `word` the last list answered. A value stuck on behind
+    /// its option is matched and replaced alone. `--color=` and then
+    /// `never` puts `never` behind the `=` and leaves the option as typed.
+    pub(crate) fn narrow(&self, word: Query) -> Query {
+        match word.arg.strip_prefix(self.lead.as_str()) {
+            Some(value) if !self.lead.is_empty() => Query {
+                start: word.start + self.lead.len(),
+                arg: value.to_string(),
+            },
+            _ => word,
+        }
     }
 
     /// Walks `target.command` against `root`, loading whatever a re-root
@@ -173,6 +190,15 @@ impl Completions {
                 .filter(|name| !self.specs.contains_key(name))
                 .collect();
             if new_names.is_empty() {
+                // A value stuck on behind its option is the word the rows
+                // answer and the option in front of it stays as typed.
+                // [`Completions::narrow`] is what tells `App` so. An option
+                // inside a quote it opened has no such place to start from
+                // and gets no rows.
+                if !target.word.arg.starts_with(&walk.search_lead) {
+                    return Vec::new();
+                }
+                self.lead.clone_from(&walk.search_lead);
                 // `help`'s siblings live one word back from the current
                 // node; that walk asks for nothing this one has not already
                 // loaded, so it only runs when a `help` template is actually
@@ -299,6 +325,7 @@ fn row(
         kind,
         score,
         priority,
+        cursor: None,
     })
 }
 
@@ -358,24 +385,44 @@ fn build_rows(
             } else {
                 own
             };
-            // A space between the name and the hint is what says the
-            // value is a word of its own. An option that requires a
-            // separator takes `--name=value` instead, and the row cannot
-            // say so until the separator is part of what it inserts, which
-            // `plans/phase-3-ranking-insertion.md` is where that lands. It
-            // shows no arguments until then rather than the wrong shape.
-            let hint = match opt.requires_separator {
-                Some(_) => Vec::new(),
-                None => spec::arg_hints(&opt.args),
+            // An option that takes its value on the same word ends in the
+            // separator the value goes behind. That already says where the
+            // value lands. The cursor waits behind the separator rather than
+            // behind a space and the menu then offers the value. A name that
+            // carries its own `=`, such as `less --tabs=`, waits the same way.
+            //
+            // A space between a name and its hint says the value is a word
+            // of its own. An option that asks for a separator never takes
+            // one there. It shows no hint even where its value is optional
+            // and the row ends in its name. Neither does a row that waits
+            // behind a separator of its own.
+            let separator = argwalk::separator(walk.node, opt);
+            let names = match &separator {
+                Some(sep) => Cow::Owned(opt.name.iter().map(|n| format!("{n}{sep}")).collect()),
+                None => Cow::Borrowed(&opt.name),
             };
-            rows.extend(row(
-                term,
-                &opt.name,
-                label(&opt.description, OPTION_LABEL),
-                hint,
-                Kind::Option,
-                priority,
-            ));
+            let hint = if opt.requires_separator.is_some() || opt.requires_equals == Some(true) {
+                Vec::new()
+            } else {
+                spec::arg_hints(&opt.args)
+            };
+            rows.extend(
+                row(
+                    term,
+                    &names,
+                    label(&opt.description, OPTION_LABEL),
+                    hint,
+                    Kind::Option,
+                    priority,
+                )
+                .map(|mut c| {
+                    if separator.is_some() || c.insert.ends_with('=') {
+                        c.cursor = Some(c.insert.len());
+                        c.hint.clear();
+                    }
+                    c
+                }),
+            );
         }
     }
 
@@ -592,6 +639,7 @@ fn path_rows(
             kind: Kind::Path,
             score,
             priority: DEFAULT_PRIORITY,
+            cursor: None,
         });
     }
     out
@@ -957,6 +1005,63 @@ mod tests {
         // each one already cached, rather than loading either again.
         assert!(Rc::ptr_eq(&first, &second));
         assert_eq!(c.specs.len(), 2);
+    }
+
+    #[test]
+    fn an_option_taking_its_value_on_the_same_word_ends_in_the_separator() {
+        let rows = complete(&mut Completions::default(), &target("ls --colo"));
+        let color = rows
+            .iter()
+            .find(|r| r.insert.starts_with("--color"))
+            .expect("ls has --color");
+        assert_eq!(color.display, "--color=");
+        assert_eq!(color.insert, "--color=");
+        assert_eq!(color.cursor, Some("--color=".len()));
+        assert!(color.hint.is_empty());
+        // A name that carries its own `=` waits behind it the same way.
+        let less = complete(&mut Completions::default(), &target("less --tab"));
+        let tabs = less
+            .iter()
+            .find(|r| r.insert == "--tabs=")
+            .expect("less has --tabs=");
+        assert_eq!(tabs.cursor, Some("--tabs=".len()));
+        assert!(tabs.hint.is_empty());
+        // An optional value still goes on the same word and a hint after a
+        // space would say otherwise.
+        let pull = complete(
+            &mut Completions::default(),
+            &target("git pull --recurse-sub"),
+        );
+        let recurse = pull
+            .iter()
+            .find(|r| r.insert == "--recurse-submodules")
+            .expect("git pull has --recurse-submodules");
+        assert_eq!(recurse.cursor, None);
+        assert!(recurse.hint.is_empty());
+        let esbuild = complete(&mut Completions::default(), &target("esbuild --load"));
+        assert!(
+            esbuild.iter().any(|r| r.insert == "--loader:"),
+            "{:?}",
+            names(&esbuild)
+        );
+    }
+
+    #[test]
+    fn the_value_behind_an_option_and_its_separator_is_what_the_menu_matches() {
+        let mut c = Completions::default();
+        let rows = complete(&mut c, &target("ls --color="));
+        // Nothing but the option's values fits there.
+        assert_eq!(names(&rows), ["always", "auto", "never"]);
+        let word = c.narrow(target("ls --color=").word);
+        assert_eq!((word.start, word.arg.as_str()), ("ls --color=".len(), ""));
+        let rows = complete(&mut c, &target("ls --color=ne"));
+        assert_eq!(names(&rows)[0], "never");
+        // The next list starts over. A word with no value in it is whole.
+        complete(&mut c, &target("ls --colo"));
+        let word = c.narrow(target("ls --colo").word);
+        assert_eq!((word.start, word.arg.as_str()), (3, "--colo"));
+        // An option inside a quote it opened gets no rows at all.
+        assert!(complete(&mut c, &target("ls '--color=")).is_empty());
     }
 
     #[test]

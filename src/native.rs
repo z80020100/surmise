@@ -189,6 +189,7 @@ fn candidates(reader: &Reader, sources: &Sources, term: &str) -> Vec<Candidate> 
                 hint: Vec::new(),
                 score,
                 priority: DEFAULT_PRIORITY,
+                cursor: None,
             })
         })
         .collect()

@@ -90,6 +90,12 @@ pub struct Candidate {
     /// alphabetical order buries the one flag that command cannot be run
     /// without under six that configure the connection.
     pub priority: u8,
+    /// Where the cursor waits in `insert` once the row is taken, in bytes.
+    /// A row that names a place gets no space behind it. `None` puts the
+    /// cursor past the end and behind the space a finished word gets there.
+    /// An option that takes its value on the same word ends in the
+    /// separator and the cursor waits right behind it.
+    pub cursor: Option<usize>,
 }
 
 pub struct Query {
@@ -265,6 +271,7 @@ pub(crate) fn folder(display: String, insert: String, score: i32) -> Candidate {
         kind: Kind::Dir,
         score,
         priority: DEFAULT_PRIORITY,
+        cursor: None,
     }
 }
 
@@ -283,6 +290,7 @@ pub(crate) fn run_row(insert: String) -> Candidate {
         kind: Kind::Run,
         score: 0,
         priority: DEFAULT_PRIORITY,
+        cursor: None,
     }
 }
 
@@ -507,6 +515,7 @@ fn predict(arg: &str, cwd: &Path, scan: &mut Scan) -> Vec<Candidate> {
             kind: Kind::Special,
             score: 15,
             priority: DEFAULT_PRIORITY,
+            cursor: None,
         });
     }
     out
@@ -560,6 +569,7 @@ pub(crate) fn generate_in(
                 score
             },
             priority: DEFAULT_PRIORITY,
+            cursor: None,
         });
     }
     let mut weighted: Vec<_> = out

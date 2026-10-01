@@ -123,7 +123,6 @@ fn quote_kind(kind: Option<Kind>, s: &str) -> String {
 
 fn finishes_word(kind: Kind, name: &str, arg: &str) -> bool {
     match kind {
-        Kind::Option => !name.ends_with('='),
         Kind::File | Kind::Path => !name.ends_with('/') || name == arg,
         _ => kind.is_git(),
     }
@@ -143,6 +142,9 @@ struct Common {
     /// several rows share and therefore no row's whole name. `accept_common`
     /// reads this to know a whole subcommand went in.
     whole: Option<Kind>,
+    /// The cursor of the row `name` is the whole name of. `None` for a
+    /// prefix several rows share.
+    cursor: Option<usize>,
 }
 
 impl Common {
@@ -157,6 +159,7 @@ impl Common {
             start,
             name,
             whole,
+            cursor: None,
         }
     }
 }
@@ -313,7 +316,10 @@ impl App {
     /// provider reads the line, and `None` for a word [`App::growable`]
     /// says the menu may no longer grow.
     fn arg(&self) -> Option<candidates::Query> {
-        let word = self.reader()?.into_word();
+        let word = match self.reader()? {
+            Reader::Spec(target) => self.spec_menu.narrow(target.word),
+            reader => reader.into_word(),
+        };
         self.growable(&word).then_some(word)
     }
 
@@ -380,7 +386,7 @@ impl App {
         // A name the shell would not take as it stands goes on the line inside
         // quotes or behind a pathspec prefix. A dim tail can draw neither and
         // the row therefore shows none. `accept` still takes the whole name.
-        if quote_kind(Some(pick.kind), &pick.insert) != pick.insert {
+        if self.quote_row(Some(pick.kind), &pick.insert) != pick.insert {
             return String::new();
         }
         let arg = shellword::unquote(&q.arg);
@@ -420,9 +426,30 @@ impl App {
     /// The menu stays open on whatever that is. That holds for the list it
     /// already held as well. The highlight says what the next press takes. A
     /// line that runs as it stands leads with the row that runs it.
-    fn replace_arg(&mut self, start: usize, s: &str) {
+    ///
+    /// `cursor` is where in `s` the cursor waits, from the row's own
+    /// [`Candidate::cursor`]. `None` leaves it past the end.
+    fn replace_arg(&mut self, start: usize, s: &str, cursor: Option<usize>) {
         self.line.replace_back_to(start, s);
+        if let Some(tail) = cursor.and_then(|at| s.get(at..)) {
+            for _ in tail.chars() {
+                self.line.left();
+            }
+        }
         self.edited();
+    }
+
+    /// [`quote_kind`] for the word the menu answers. A value the spec menu
+    /// answered behind its option's separator sits inside a word and quotes
+    /// the way the middle of one does.
+    fn quote_row(&self, kind: Option<Kind>, s: &str) -> String {
+        if let Some(Reader::Spec(target)) = self.reader() {
+            let start = target.word.start;
+            if self.spec_menu.narrow(target.word).start != start {
+                return shellword::quote_within(s);
+            }
+        }
+        quote_kind(kind, s)
     }
 
     /// Take the highlighted row's whole name. `false` when there was nothing
@@ -439,13 +466,14 @@ impl App {
         if pick.kind == Kind::Run && pick.insert.is_empty() {
             return true;
         }
-        let mut insert = quote_kind(Some(pick.kind), &pick.insert);
-        if finishes_word(pick.kind, &pick.insert, &shellword::unquote(&q.arg))
+        let mut insert = self.quote_row(Some(pick.kind), &pick.insert);
+        if pick.cursor.is_none()
+            && finishes_word(pick.kind, &pick.insert, &shellword::unquote(&q.arg))
             && self.line.right_of_cursor().is_empty()
         {
             insert.push(' ');
         }
-        self.replace_arg(q.start, &insert);
+        self.replace_arg(q.start, &insert, pick.cursor);
         true
     }
 
@@ -508,12 +536,10 @@ impl App {
             // quote behind a whole name and this row therefore goes in inside
             // one too.
             [one] => {
-                return Some(Common::new(
-                    q.start,
-                    one.insert.clone(),
-                    dir,
-                    Some(one.kind),
-                ));
+                return Some(Common {
+                    cursor: one.cursor,
+                    ..Common::new(q.start, one.insert.clone(), dir, Some(one.kind))
+                });
             }
             [head, rest @ ..] => {
                 let head = head.insert.as_str();
@@ -556,7 +582,7 @@ impl App {
         // half a name inside a quote it cannot close. A bare `~` is the one
         // string it leaves alone for the home row's sake rather than for half
         // a name. Half a name is what this is.
-        if prefix == "~" || quote_kind(Some(selected.kind), prefix) != prefix {
+        if prefix == "~" || self.quote_row(Some(selected.kind), prefix) != prefix {
             return None;
         }
         Some(Common::new(q.start, prefix.to_string(), dir, None))
@@ -577,14 +603,15 @@ impl App {
                 .filter(|pick| pick.kind == Kind::Option)
                 .map(|pick| pick.kind)
         });
-        let mut insert = quote_kind(kind, &c.name);
-        if c.whole
-            .is_some_and(|kind| finishes_word(kind, &c.name, &self.typed()))
+        let mut insert = self.quote_row(kind, &c.name);
+        if c.cursor.is_none()
+            && c.whole
+                .is_some_and(|kind| finishes_word(kind, &c.name, &self.typed()))
             && self.line.right_of_cursor().is_empty()
         {
             insert.push(' ');
         }
-        self.replace_arg(c.start, &insert);
+        self.replace_arg(c.start, &insert, c.cursor);
         true
     }
 
@@ -785,6 +812,52 @@ mod tests {
         let mut a = App::over(f.path(), "git add --ignore");
         assert!(a.accept_common());
         assert_eq!(a.line.text(), "git add --ignore-");
+    }
+
+    #[test]
+    fn an_option_taking_its_value_on_the_same_word_leaves_the_cursor_behind_its_separator() {
+        let f = Fixture::new(&[]);
+        let mut a = App::over(f.path(), "ls --colo");
+        assert!(a.accept_common());
+        assert_eq!(a.line.text(), "ls --color=");
+        let mut a = App::over(f.path(), "ls --colo");
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "ls --color=");
+        a.selected = a
+            .items
+            .iter()
+            .position(|c| c.insert == "never")
+            .expect("the menu offers the values");
+        // The value is the word being typed and the dim tail is the value's.
+        assert_eq!(a.ghost(), "never");
+        assert_eq!(a.typed(), "");
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "ls --color=never ");
+    }
+
+    #[test]
+    fn a_value_behind_its_separator_keeps_a_leading_sign_unquoted() {
+        let f = Fixture::new(&[]);
+        let mut a = App::over(f.path(), "git stage --chmod=");
+        a.selected = a
+            .items
+            .iter()
+            .position(|c| c.insert == "+x")
+            .expect("git stage --chmod offers +x");
+        assert_eq!(a.ghost(), "+x");
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "git stage --chmod=+x ");
+    }
+
+    #[test]
+    fn a_row_that_names_a_place_for_the_cursor_leaves_it_there() {
+        let f = Fixture::new(&[]);
+        let mut a = App::over(f.path(), "ls --colo");
+        a.selected = a.items.iter().position(|c| c.insert == "--color=").unwrap();
+        a.items[a.selected].cursor = Some("--c".len());
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "ls --color=");
+        assert_eq!(a.line.left_of_cursor(), "ls --c");
     }
 
     #[test]

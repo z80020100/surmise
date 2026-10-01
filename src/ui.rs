@@ -1195,6 +1195,7 @@ mod tests {
             kind: Kind::Special,
             score: 0,
             priority: DEFAULT_PRIORITY,
+            cursor: None,
         }
     }
 
@@ -1208,6 +1209,7 @@ mod tests {
             kind: Kind::Command,
             score: 0,
             priority: DEFAULT_PRIORITY,
+            cursor: None,
         }
     }
 
@@ -1222,6 +1224,7 @@ mod tests {
             kind: Kind::Parent,
             score: 0,
             priority: DEFAULT_PRIORITY,
+            cursor: None,
         }
     }
 
