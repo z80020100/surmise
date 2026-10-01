@@ -139,6 +139,9 @@ pub(crate) struct Completions {
     /// `sort = "alphabetical"`. A past word then lifts nothing and the words
     /// the `history` template offers go in the order of their names.
     pub(crate) alphabetical: bool,
+    /// `verbose_names`. A subcommand or an option shows its longest name
+    /// where what was typed does not choose one. See [`row`].
+    pub(crate) verbose: bool,
 }
 
 impl Completions {
@@ -258,8 +261,14 @@ impl Completions {
                     .iter()
                     .map(|w| w.inner_text.as_str())
                     .collect();
-                let mut rows =
-                    build_rows(&walk, enclosing, &line, cwd, history, scan, &mut self.runs);
+                let cx = Context {
+                    cwd,
+                    history,
+                    scan,
+                    runs: &mut self.runs,
+                    verbose: self.verbose,
+                };
+                let mut rows = build_rows(&walk, enclosing, &line, cx);
                 if has_template(&walk, "history") {
                     self.past_rows(&walk, &mut rows);
                 }
@@ -431,6 +440,10 @@ fn label(description: &Option<String>, fallback: &'static str) -> Cow<'static, s
 /// specification's own order and a row nothing was typed for therefore
 /// shows under its first name. `grep -r` shows `-r` rather than the `-R`
 /// its specification lists first.
+///
+/// `verbose` is the `verbose_names` setting. The longest name then wins
+/// inside its tier. `git commit ` shows `--message` and `git commit -m`
+/// still shows `-m`.
 fn row(
     term: &str,
     names: &[String],
@@ -438,18 +451,24 @@ fn row(
     hint: Vec<String>,
     kind: Kind,
     priority: u8,
+    verbose: bool,
 ) -> Option<Candidate> {
-    let mut best: Option<(&str, (u8, i32, bool))> = None;
+    let mut best: Option<(&str, (u8, i32, bool), i32)> = None;
     for name in names {
         let Some(score) = fuzzy::score(term, name) else {
             continue;
         };
-        let key = (tier(term, name), score, name.starts_with(term));
-        if best.is_none_or(|(_, won)| key > won) {
-            best = Some((name, key));
+        let second = if verbose {
+            name.chars().count() as i32
+        } else {
+            score
+        };
+        let key = (tier(term, name), second, name.starts_with(term));
+        if best.is_none_or(|(_, won, _)| key > won) {
+            best = Some((name, key, score));
         }
     }
-    let (name, (_, score, _)) = best?;
+    let (name, _, score) = best?;
     Some(Candidate {
         display: name.to_string(),
         insert: name.to_string(),
@@ -480,6 +499,7 @@ fn suggestion_row(term: &str, suggestion: &Suggestion) -> Option<Candidate> {
         Vec::new(),
         Kind::Path,
         priority_of(suggestion.priority),
+        false,
     )
     .map(|c| with_insert_value(c, suggestion.insert_value.as_deref()))
 }
@@ -511,6 +531,17 @@ fn with_insert_value(mut c: Candidate, value: Option<&str>) -> Candidate {
     c
 }
 
+/// What [`build_rows`] reads besides the walk: the directory the line is
+/// typed in, the history a folder is weighed by and the scan that lists one,
+/// the command lines this menu already ran and the `verbose_names` setting.
+struct Context<'a> {
+    cwd: &'a Path,
+    history: &'a History,
+    scan: &'a mut Scan,
+    runs: &'a mut native::Runs,
+    verbose: bool,
+}
+
 /// The rows one walk offers, unranked. `enclosing` is the node a `help`
 /// template's rows come from; every other caller passes `None`. `line` is
 /// every word in front of the one being typed.
@@ -519,11 +550,15 @@ fn build_rows(
     walk: &Walk,
     enclosing: Option<&Subcommand>,
     line: &[&str],
-    cwd: &Path,
-    history: &History,
-    scan: &mut Scan,
-    runs: &mut native::Runs,
+    cx: Context,
 ) -> Vec<Candidate> {
+    let Context {
+        cwd,
+        history,
+        scan,
+        runs,
+        verbose,
+    } = cx;
     let term = walk.search_term.as_str();
     let mut rows = Vec::new();
 
@@ -540,6 +575,7 @@ fn build_rows(
                     spec::arg_hints(&sub.args),
                     Kind::Command,
                     priority_of(sub.priority),
+                    verbose,
                 )
                 .map(|c| with_insert_value(c, sub.insert_value.as_deref())),
             );
@@ -613,6 +649,7 @@ fn build_rows(
                     hint,
                     Kind::Option,
                     priority,
+                    verbose,
                 )
                 .map(|mut c| {
                     if separator.is_some() || c.insert.ends_with('=') {
@@ -638,7 +675,7 @@ fn build_rows(
         let mut templated = Vec::new();
         for generator in &arg.generators {
             templated.extend(generator_rows(
-                generator, term, cwd, history, scan, enclosing,
+                generator, term, cwd, history, scan, enclosing, verbose,
             ));
             // A command line `native` has a reader for runs once per menu.
             // Any other line offers nothing and never runs.
@@ -711,11 +748,12 @@ fn generator_rows(
     history: &History,
     scan: &mut Scan,
     enclosing: Option<&Subcommand>,
+    verbose: bool,
 ) -> Vec<Candidate> {
     let mut rows = if let Some(show_folders) = reads_paths(generator) {
         path_rows(term, cwd, history, scan, show_folders)
     } else if generator.template.iter().any(|t| t == "help") {
-        help_rows(term, enclosing)
+        help_rows(term, enclosing, verbose)
     } else {
         Vec::new()
     };
@@ -931,7 +969,7 @@ fn history_bonus(history: &History, target: &Path) -> i32 {
 /// current one, so `fnm help <x>` offers `fnm`'s own subcommands rather than
 /// `help`'s own, which has none. `None` when the walk never left the
 /// command name or found nothing to reach.
-fn help_rows(term: &str, enclosing: Option<&Subcommand>) -> Vec<Candidate> {
+fn help_rows(term: &str, enclosing: Option<&Subcommand>, verbose: bool) -> Vec<Candidate> {
     let Some(node) = enclosing else {
         return Vec::new();
     };
@@ -950,6 +988,7 @@ fn help_rows(term: &str, enclosing: Option<&Subcommand>) -> Vec<Candidate> {
                 Vec::new(),
                 Kind::Command,
                 priority_of(sub.priority),
+                verbose,
             )
         })
         .collect()
@@ -1106,6 +1145,7 @@ mod tests {
                     Vec::new(),
                     Kind::Command,
                     DEFAULT_PRIORITY,
+                    false,
                 )
             })
             .collect();
@@ -1139,6 +1179,7 @@ mod tests {
                     Vec::new(),
                     *kind,
                     *priority,
+                    false,
                 )
             })
             .collect();
@@ -1378,6 +1419,7 @@ mod tests {
                     Vec::new(),
                     Kind::Command,
                     DEFAULT_PRIORITY,
+                    false,
                 )
                 .map(|c| with_insert_value(c, value))
             })
@@ -1403,6 +1445,7 @@ mod tests {
             Vec::new(),
             Kind::Option,
             DEFAULT_PRIORITY,
+            false,
         )
         .unwrap();
         let kept = with_insert_value(plain.clone(), Some("-\n"));
@@ -1633,6 +1676,24 @@ mod tests {
             assert!(names(&rows).contains(&"sample.txt"), "{line}");
             assert!(names(&rows).contains(&"sample-dir/"), "{line}");
         }
+    }
+
+    #[test]
+    fn verbose_names_show_the_longest_name_inside_its_tier() {
+        let message = |verbose: bool, line: &str| {
+            let mut c = Completions {
+                verbose,
+                ..Default::default()
+            };
+            complete(&mut c, &target(line))
+                .into_iter()
+                .find(|r| r.insert == "-m" || r.insert == "--message")
+                .map(|r| r.insert)
+        };
+        assert_eq!(message(false, "git commit -").as_deref(), Some("-m"));
+        assert_eq!(message(true, "git commit -").as_deref(), Some("--message"));
+        // A name typed whole still wins.
+        assert_eq!(message(true, "git commit -m").as_deref(), Some("-m"));
     }
 
     #[test]
@@ -1942,6 +2003,7 @@ mod tests {
             &History::default(),
             &mut Scan::default(),
             None,
+            false,
         );
         assert!(rows.is_empty());
     }

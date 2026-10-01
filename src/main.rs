@@ -29,8 +29,9 @@ committed specification.
   surmise settings remove KEY VALUE  take one entry back out of that list
   surmise specs names                every command with a specification, one per line
 
-The keys are enabled, icons, match, sort, disabled_commands and spec_dirs. A
-wrong key or a wrong value names what it takes rather than writing anything.
+The keys are enabled, icons, match, sort, verbose_names, disabled_commands and
+spec_dirs. A wrong key or a wrong value names what it takes rather than
+writing anything.
 ";
 
 /// The zsh widget, compiled in. `cargo install` places a binary and has no
@@ -470,9 +471,9 @@ mod tests {
         // the one claim this file can make about it: a key this build does
         // not read is refused before any path is resolved.
         let complaint =
-            settings_says(&args(&["set", "verbose_names", "false"])).expect_err("a complaint");
+            settings_says(&args(&["set", "insert_space", "false"])).expect_err("a complaint");
         assert!(
-            complaint.starts_with("no config key named verbose_names."),
+            complaint.starts_with("no config key named insert_space."),
             "{complaint:?}"
         );
     }

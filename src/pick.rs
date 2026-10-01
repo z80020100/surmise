@@ -10,7 +10,7 @@
 
 use crate::app::App;
 use crate::candidates::Sort;
-use crate::fuzzy::Match;
+use crate::config::Config;
 use crate::histfile;
 use crate::history::History;
 use crate::keys;
@@ -48,8 +48,8 @@ fn anchor_col(cursor_col: usize, seed: &str, width: usize) -> Option<usize> {
 }
 
 /// The state for `seed`, with `aliases`, `history`, `cmd_history` and the
-/// `match` and `sort` settings in
-/// place before the one refresh that builds the first candidate list.
+/// settings in `config` that order or name the rows in place before the one
+/// refresh that builds the first candidate list.
 /// `App::over` cannot be used here: it calls `refresh` on construction and
 /// any of the three set afterward would answer a menu already drawn without
 /// it, which is what would force a second refresh to fix. `None` when
@@ -60,14 +60,16 @@ fn seeded(
     aliases: HashMap<String, String>,
     history: History,
     cmd_history: histfile::Counts,
-    matching: Match,
-    sort: Sort,
+    config: &Config,
 ) -> Option<App> {
     let mut app = App::new(cwd.to_path_buf());
     app.aliases = aliases;
-    app.matching = matching;
+    app.matching = config.matching;
+    if config.verbose_names {
+        app.prefer_verbose_names();
+    }
     app.line.insert(seed);
-    app.seed_history(history, cmd_history, sort);
+    app.seed_history(history, cmd_history, config.sort);
     app.refresh();
     (!app.items.is_empty()).then_some(app)
 }
@@ -198,7 +200,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
     // entirely: every key answers `PASS`, the same status a menu with nothing
     // to offer already gives back, and the shell's own completion runs in its
     // place. The glyph set below is the other thing this run takes from it.
-    let config = crate::config::Config::load();
+    let config = Config::load();
     if !config.enabled {
         return Ok(PASS);
     }
@@ -242,15 +244,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
         histfile::Counts::default()
     };
     // Nothing to offer. Give the key back without touching the terminal.
-    let Some(mut app) = seeded(
-        seed,
-        &cwd,
-        input.aliases,
-        history,
-        cmd_history,
-        config.matching,
-        config.sort,
-    ) else {
+    let Some(mut app) = seeded(seed, &cwd, input.aliases, history, cmd_history, &config) else {
         return Ok(PASS);
     };
     app.rbuffer = input.rbuffer;
@@ -456,8 +450,7 @@ mod tests {
             aliases,
             History::default(),
             histfile::Counts::default(),
-            Match::default(),
-            Sort::default(),
+            &Config::default(),
         )
     }
 

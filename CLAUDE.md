@@ -722,7 +722,8 @@ shows and inserts the one that reaches what was typed best. `npm add` offers
 the name leading with what you typed in the same case and a tie after that
 keeps the specification's own order. A row nothing was typed for therefore
 shows under the first of its names. `grep -r` shows `-r` and `grep -R` shows
-`-R`. Each row's label is the
+`-R`. `verbose_names` in "Configuration" below is the one thing that changes
+which name a row nothing chose between shows. Each row's label is the
 spec's own description, or `"command"`, `"option"` or `"value"` for a row
 whose spec carries none. A line break, a tab or a line separator in a label
 shows as a space and every other control character in it is gone. That holds
@@ -1205,7 +1206,8 @@ surmise settings add disabled_commands kubectl    # one entry of a list
 surmise settings remove disabled_commands kubectl # one entry back out
 ```
 
-`set` and `unset` answer for `enabled`, `icons`, `match` and `sort`. `add` and
+`set` and `unset` answer for `enabled`, `icons`, `match`, `sort` and
+`verbose_names`. `add` and
 `remove` answer for `disabled_commands` and `spec_dirs`. Naming the wrong one
 of the two says which verb reaches that key rather than writing anything, and
 so does a key or a value this build does not read. A value the picker would
@@ -1255,7 +1257,7 @@ earns is kept rather
 than the first of them, because a person sent back twice for one file has
 been told half of what the reader already knew.
 
-Six keys have a reader today.
+Seven keys have a reader today.
 
 - `enabled` turns the picker off. `pick::run` checks it before it opens the
   terminal, so `false` answers every key with `PASS` and the shell's own
@@ -1287,9 +1289,14 @@ Six keys have a reader today.
   `"alphabetical"` leaves it to the name. The directory history is then not
   opened and the `$HISTFILE` counts order nothing. The words the `history`
   template finds still show and go in the order of their names.
+- `verbose_names` is `false` by default. `true` gives a subcommand or an
+  option the longest of its names wherever what was typed leaves the choice
+  open. `git commit -` then shows `--message` rather than `-m`.
+  `git commit -m` still shows `-m` because that name is typed whole. A value
+  a specification lists keeps its first name.
 
 `spec_menu` is the menu that calls `spec_store::get_configured`, once per
-command name it asks for, so three of the six keys now reach what a person
+command name it asks for, so three of the seven keys now reach what a person
 sees:
 `enabled` through `pick::run`, the entry point every keystroke goes through,
 and `disabled_commands` and `spec_dirs` through the spec that menu completes
