@@ -24,7 +24,7 @@ use std::time::{Duration, Instant};
 /// directly, so a test moves this rather than passing an argument.
 static TIMEOUT_MS: AtomicU64 = AtomicU64::new(250);
 
-fn timeout() -> Duration {
+pub(crate) fn timeout() -> Duration {
     Duration::from_millis(TIMEOUT_MS.load(Ordering::Relaxed))
 }
 
@@ -521,7 +521,10 @@ fn described_command(line: &str) -> Option<(String, String)> {
 /// The child's output as text. `None` when a byte of it is not UTF-8, because
 /// a caller here reads the whole answer as one string and has no name of its
 /// own to drop.
-fn read_output(command: &mut Command, patience: Duration) -> Option<(ExitStatus, String)> {
+pub(crate) fn read_output(
+    command: &mut Command,
+    patience: Duration,
+) -> Option<(ExitStatus, String)> {
     let (status, bytes) = read_output_bytes(command, patience)?;
     Some((status, String::from_utf8(bytes).ok()?))
 }

@@ -119,6 +119,8 @@ pub(crate) struct Completions {
     /// The option and separator in front of the value the last list
     /// answered, or empty. See [`Walk::search_lead`].
     lead: String,
+    /// What each command line a reader ran answered in this menu.
+    runs: native::Runs,
 }
 
 impl Completions {
@@ -216,7 +218,8 @@ impl Completions {
                     .iter()
                     .map(|w| w.inner_text.as_str())
                     .collect();
-                let mut rows = build_rows(&walk, enclosing, &line, cwd, history, scan);
+                let mut rows =
+                    build_rows(&walk, enclosing, &line, cwd, history, scan, &mut self.runs);
                 // Two words means the one being replaced is the command's
                 // own second, which is the only word `cmd_history` counted.
                 // A deeper subcommand, an option's value and anything past
@@ -362,6 +365,7 @@ fn build_rows(
     cwd: &Path,
     history: &History,
     scan: &mut Scan,
+    runs: &mut native::Runs,
 ) -> Vec<Candidate> {
     let term = walk.search_term.as_str();
     let mut rows = Vec::new();
@@ -476,6 +480,11 @@ fn build_rows(
             rows.extend(generator_rows(
                 generator, term, cwd, history, scan, enclosing,
             ));
+            // A command line `native` has a reader for runs once per menu.
+            // Any other line offers nothing and never runs.
+            if let Some(script) = &generator.script {
+                rows.extend(native::script_rows(script, term, cwd, runs));
+            }
         }
         // An argument the conversion could not keep the code for. `native`
         // has a reader for a few of them and nothing at all for the rest,
@@ -1152,6 +1161,18 @@ mod tests {
         assert_eq!((word.start, word.arg.as_str()), (3, "--colo"));
         // An option inside a quote it opened gets no rows at all.
         assert!(complete(&mut c, &target("ls '--color=")).is_empty());
+    }
+
+    #[test]
+    fn a_git_line_the_spec_answers_reads_the_repository_through_its_own_command_line() {
+        // Git's own menu declines `merge`. The walk of `specs/git.json` keeps
+        // the branch list's command line and `native` runs its own copy.
+        let f = Fixture::new(&[]);
+        f.init_git(&["sample-topic"]);
+        let rows = rows_in(f.path(), "git merge ");
+        let names = names(&rows);
+        assert!(names.contains(&"sample-topic"), "{names:?}");
+        assert!(names.contains(&"sample-main"), "{names:?}");
     }
 
     #[test]
