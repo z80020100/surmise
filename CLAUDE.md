@@ -584,10 +584,12 @@ subcommand behind a `git` global option such as `git -C sample status `, an
 `add` argument that reader refuses such as an absolute path or one with a
 `..` in it, and a `git` that is not the first word of the line. What that
 menu finds there is the specification's own and no more. An argument the
-corpus marks `dyn` offers only what the specification itself lists for it:
-its own suggestions and the files or folders a template names. The script
-the corpus kept beside those is never run. One the specification names and
-hands nothing to fill offers nothing at all. The new branch name after
+corpus marks `dyn` offers what the specification itself lists for it: its
+own suggestions and the files or folders a template names. A command line the
+corpus kept beside those runs only where surmise has a reader of its own for
+it, and "Other commands" below says which. `git merge ` offers the branches
+that way and `git push ` the remotes. One the specification names and hands
+nothing to fill offers nothing at all. The new branch name after
 `switch -c` or `checkout -b` is such an argument and that line still shows
 nothing. Git candidates rank by that text, and a subcommand row by
 `$HISTFILE` as well. A branch row and a file row rank by
@@ -873,13 +875,29 @@ live. `npm install ` gets nothing either. Its argument searches the registry
 and nothing here reaches a network. Every reader here leaves out a name that
 holds a control character. Git's own readers do the same.
 
-An argument that needs anything else — a script, another native reader, the
-same `package.json` read for `pnpm` or `yarn`, a branch name, anything else
-`specs/dynamic.txt` names — still offers no rows rather than guessing at one
-or running one unasked. Those readers answer 37 of the 4854 arguments that
-file lists and the other 4817 show nothing. Teaching `argwalk` to fill one of
-those in from a generator, the way the Git branch and file readers already do
-their own, remains a later phase.
+A generator that kept its command line is the larger half. One line is
+shared by many arguments. `git`'s branch list is behind 20 of them and one
+reader answers all 20. surmise keeps a table of the lines it has a reader for
+and runs its own copy of a line on that table. Nothing a specification
+carries runs. A line the table does not hold offers no rows. Each line runs
+once per menu in the directory the menu opened in, under the budget and the
+cap Git's own queries keep. A line that fails or runs past either answers
+nothing. A `git -C` on the line does not move it. The table holds twelve of
+Git's own read-only lines today: the commits `log` and `rev-list` print, the
+local, remote and every branch, the remotes, the changed files, the stashes,
+the tags, the aliases and the configuration's keys. A commit row, a remote row
+and an alias row say what the commit says, where the remote fetches from and
+what the alias stands for. A configuration row names its key alone, because a
+value can hold a token. Those twelve lines fill 177 arguments across `git`,
+`hub`, `pre-commit` and six more commands. `git diff --cached --name-only` is
+the one Git line left out. It names paths from the top of the repository and
+a line typed in a subdirectory would get the wrong file. A line that asks a server, such as `gh pr list` or `kubectl get`,
+has no entry and never will while nothing here reaches a network.
+
+An argument that needs anything else — another native reader, the same
+`package.json` read for `pnpm` or `yarn`, anything else `specs/dynamic.txt`
+names — still offers no rows rather than guessing at one. The readers answer
+214 of the 4854 arguments that file lists and the other 4640 show nothing.
 
 A space opens the menu here too, the way a bare `cd ` or `git ` already did:
 `docker ` and `docker container ` both reach it, because the widget checks

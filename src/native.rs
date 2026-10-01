@@ -2,30 +2,30 @@
 //!
 //! An argument marked `dyn` in a specification needed code the conversion
 //! could not keep, and `specs/dynamic.txt` lists all 4854 of them. This
-//! module answers some of them by reading the files that code would have
-//! read. Nothing here spawns a process and nothing here touches a network.
+//! module answers some of them. Nothing here touches a network.
 //!
-//! `plans/phase-2-spec-runtime.md` §5.1 describes two tables and this is the
-//! second of them: readers keyed by the argument's own identity, which is
-//! the door for an argument whose generator carries no command line at all.
-//! The first table is missing. It would be keyed by a generator's own
-//! `script`, and it is the larger half by a wide margin: 3282 arguments keep
-//! a command line in the data and lost only the code that read its output,
-//! and because one generator is referenced from many arguments of the same
-//! specification, a single reader there fills every argument sharing that
-//! line. It is not built here. `npm run`'s own argument keeps the one line
-//! that walks up to a `package.json`. `pnpm remove` and `pnpm run` keep that
-//! same line and read opposite halves of the file. The line alone therefore
-//! cannot say which half a reader wants.
+//! Two tables do it. [`SCRIPTS`] is keyed by the command line a generator
+//! runs. 3282 arguments keep that line in the data and lost only the code
+//! that read its output. One generator is referenced from many arguments of
+//! the same specification. One reader there therefore fills every argument
+//! that shares the line. The line is the key and never the program: surmise runs
+//! its own copy of a line it has a reader for and nothing a specification
+//! carries runs at all. [`READERS`] is keyed by the argument's own identity
+//! and reads the files the lost code would have read. It is the door for an
+//! argument whose generator carries no command line, and for one whose line
+//! cannot say what to read. `npm run`'s argument keeps the line that walks
+//! up to a `package.json`. `pnpm remove` and `pnpm run` keep that same line
+//! and read opposite halves of the file.
 
 use crate::candidates::{Candidate, DEFAULT_PRIORITY, Kind, SCAN_LIMIT};
 use crate::fuzzy;
 use serde_json::{Map, Value};
 use std::borrow::Cow;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
+use std::process::Command;
 
 /// One reader and the argument it answers for.
 ///
@@ -63,6 +63,7 @@ struct Reader {
 
 /// One name a reader found. `label` is what the row says of itself where
 /// the reader's own label would say less. A script's body is the case.
+#[derive(Clone)]
 struct Found {
     name: String,
     label: Option<Cow<'static, str>>,
@@ -117,6 +118,274 @@ const READERS: &[Reader] = &[
     },
 ];
 
+/// A reader for every argument whose generator runs one command line.
+struct Script {
+    /// The command line, word for word as the generators in `specs/` write
+    /// it. It is also what runs.
+    line: &'static [&'static str],
+    /// What a row says it is where the output says nothing more.
+    label: &'static str,
+    /// The names the output holds.
+    parse: fn(&str) -> Vec<Found>,
+}
+
+/// Every line here only reads what the tool already has on this machine.
+/// A line that asks a server, such as `gh pr list` or `kubectl get`, has no
+/// entry. Neither has one whose output no reader can use as it stands.
+/// `git diff --cached --name-only` names its paths from the top of the
+/// repository and a line typed in a subdirectory would get the wrong file.
+const SCRIPTS: &[Script] = &[
+    Script {
+        line: &["git", "--no-optional-locks", "log", "--oneline"],
+        label: "commit",
+        parse: oneline,
+    },
+    Script {
+        line: &["git", "rev-list", "--all", "--oneline"],
+        label: "commit",
+        parse: oneline,
+    },
+    Script {
+        line: &[
+            "git",
+            "--no-optional-locks",
+            "branch",
+            "--no-color",
+            "--sort=-committerdate",
+        ],
+        label: "branch",
+        parse: branches,
+    },
+    Script {
+        line: &[
+            "git",
+            "--no-optional-locks",
+            "branch",
+            "-a",
+            "--no-color",
+            "--sort=-committerdate",
+        ],
+        label: "branch",
+        parse: branches,
+    },
+    Script {
+        line: &[
+            "git",
+            "--no-optional-locks",
+            "branch",
+            "-r",
+            "--no-color",
+            "--sort=-committerdate",
+        ],
+        label: "branch",
+        parse: branches,
+    },
+    Script {
+        line: &["git", "branch", "--no-color"],
+        label: "branch",
+        parse: branches,
+    },
+    Script {
+        line: &["git", "--no-optional-locks", "remote", "-v"],
+        label: "remote",
+        parse: remotes,
+    },
+    Script {
+        line: &["git", "--no-optional-locks", "status", "--short"],
+        label: "file",
+        parse: changed_paths,
+    },
+    Script {
+        line: &["git", "--no-optional-locks", "stash", "list"],
+        label: "stash",
+        parse: stashes,
+    },
+    Script {
+        line: &[
+            "git",
+            "--no-optional-locks",
+            "tag",
+            "--list",
+            "--sort=-committerdate",
+        ],
+        label: "tag",
+        parse: |out| {
+            out.lines()
+                .filter(|l| !l.is_empty())
+                .map(name_only)
+                .collect()
+        },
+    },
+    Script {
+        line: &[
+            "git",
+            "--no-optional-locks",
+            "config",
+            "--get-regexp",
+            "^alias.",
+        ],
+        label: "alias",
+        parse: aliases,
+    },
+    Script {
+        line: &["git", "config", "--get-regexp", ".*"],
+        label: "config",
+        parse: config_keys,
+    },
+];
+
+/// What each command line answered, for the life of one menu. A line runs
+/// once however many keys follow, the way Git's own readers and the
+/// directory scan already do. A line that failed stays an empty answer.
+#[derive(Default)]
+pub(crate) struct Runs(HashMap<&'static [&'static str], Vec<Found>>);
+
+/// The rows the command line `script` offers, where [`SCRIPTS`] has a reader
+/// for it. `script` is a generator's own field. Only the list form names
+/// its words without a shell between them and only that form is matched.
+pub(crate) fn script_rows(
+    script: &Value,
+    term: &str,
+    cwd: &Path,
+    runs: &mut Runs,
+) -> Vec<Candidate> {
+    let Some(words) = script.as_array() else {
+        return Vec::new();
+    };
+    let Some(entry) = SCRIPTS.iter().find(|entry| same_line(words, entry.line)) else {
+        return Vec::new();
+    };
+    let found = runs.0.entry(entry.line).or_insert_with(|| run(entry, cwd));
+    to_rows(found.iter(), entry.label, term)
+}
+
+/// Whether a generator's `words` are `line` word for word.
+fn same_line(words: &[Value], line: &[&str]) -> bool {
+    words.len() == line.len()
+        && words
+            .iter()
+            .zip(line)
+            .all(|(word, want)| word.as_str() == Some(*want))
+}
+
+/// What `entry`'s line prints in `cwd` within the budget Git's own queries
+/// keep. A line that fails, runs past that or prints past its cap answers
+/// nothing and prints nothing at the prompt.
+fn run(entry: &Script, cwd: &Path) -> Vec<Found> {
+    let [program, args @ ..] = entry.line else {
+        return Vec::new();
+    };
+    let mut command = Command::new(program);
+    command.args(args).current_dir(cwd);
+    match crate::git::read_output(&mut command, crate::git::timeout()) {
+        Some((status, out)) if status.success() => (entry.parse)(&out),
+        _ => Vec::new(),
+    }
+}
+
+/// `abc1234 Subject line`: the hash and what the commit says.
+fn oneline(out: &str) -> Vec<Found> {
+    out.lines()
+        .filter_map(|line| {
+            let (hash, subject) = line.split_once(' ').unwrap_or((line, ""));
+            (!hash.is_empty()).then(|| Found {
+                name: hash.to_string(),
+                label: (!subject.is_empty()).then(|| Cow::Owned(subject.to_string())),
+            })
+        })
+        .collect()
+}
+
+/// `git branch`'s own list. The mark in front of the current branch and of
+/// one checked out in another worktree comes off. A detached `HEAD` names
+/// no branch and a symbolic remote `HEAD` points at a branch the list
+/// already holds. A remote branch loses its `remotes/` and keeps its
+/// remote's name.
+fn branches(out: &str) -> Vec<Found> {
+    let names = out
+        .lines()
+        .map(|line| line.get(2..).unwrap_or("").trim())
+        .filter(|name| !name.is_empty() && !name.starts_with('(') && !name.contains(" -> "))
+        .map(|name| name.strip_prefix("remotes/").unwrap_or(name).to_string())
+        .collect();
+    unlabelled(names)
+}
+
+/// `origin\turl (fetch)` and the same remote again for `(push)`. One row
+/// per remote, with the address it fetches from.
+fn remotes(out: &str) -> Vec<Found> {
+    let mut seen = HashSet::new();
+    out.lines()
+        .filter_map(|line| {
+            let (name, rest) = line.split_once('\t')?;
+            let url = rest.split(' ').next().unwrap_or("");
+            seen.insert(name.to_string()).then(|| Found {
+                name: name.to_string(),
+                label: (!url.is_empty()).then(|| Cow::Owned(url.to_string())),
+            })
+        })
+        .collect()
+}
+
+/// `git status --short`: two status letters, a space and the path. A rename
+/// names the path it went to. Git puts a path holding an unusual character
+/// in quotes with its own escapes, and such a path is left out rather than
+/// read back wrong.
+fn changed_paths(out: &str) -> Vec<Found> {
+    out.lines()
+        .filter_map(|line| {
+            let path = line.get(3..)?;
+            let path = path.rsplit_once(" -> ").map_or(path, |(_, to)| to);
+            (!path.is_empty() && !path.starts_with('"')).then(|| name_only(path))
+        })
+        .collect()
+}
+
+/// `stash@{0}: WIP on main: abc1234 Subject`: the stash and what it holds.
+fn stashes(out: &str) -> Vec<Found> {
+    out.lines()
+        .filter_map(|line| {
+            let (name, rest) = line.split_once(": ")?;
+            Some(Found {
+                name: name.to_string(),
+                label: Some(Cow::Owned(rest.to_string())),
+            })
+        })
+        .collect()
+}
+
+/// `alias.co checkout`: the alias and what it stands for.
+fn aliases(out: &str) -> Vec<Found> {
+    out.lines()
+        .filter_map(|line| {
+            let (key, value) = line.split_once(' ').unwrap_or((line, ""));
+            let name = key.strip_prefix("alias.")?;
+            Some(Found {
+                name: name.to_string(),
+                label: (!value.is_empty()).then(|| Cow::Owned(value.to_string())),
+            })
+        })
+        .collect()
+}
+
+/// `user.name Sample`: each key once. A value can hold a token or a
+/// password and no row says what one is set to.
+fn config_keys(out: &str) -> Vec<Found> {
+    let mut seen = HashSet::new();
+    let mut names = Vec::new();
+    for line in out.lines() {
+        push_unique(line.split(' ').next().unwrap_or(""), &mut seen, &mut names);
+    }
+    unlabelled(names)
+}
+
+fn name_only(name: &str) -> Found {
+    Found {
+        name: name.to_string(),
+        label: None,
+    }
+}
+
 /// Where a reader is allowed to look. The environment is read at one edge
 /// and every reader takes its paths from here, which is what lets a test
 /// hand one a temporary home rather than the person's own. `path` keeps
@@ -168,24 +437,33 @@ fn reader(command: &str, owner: &str, arg: &str) -> Option<&'static Reader> {
 }
 
 fn candidates(reader: &Reader, sources: &Sources, term: &str) -> Vec<Candidate> {
-    (reader.read)(sources)
-        .into_iter()
-        .filter_map(|Found { name, label }| {
+    to_rows((reader.read)(sources).iter(), reader.label, term)
+}
+
+/// One row per name `term` reaches, under `label` where the name brought
+/// none of its own.
+fn to_rows<'a>(
+    found: impl Iterator<Item = &'a Found>,
+    label: &'static str,
+    term: &str,
+) -> Vec<Candidate> {
+    found
+        .filter_map(|Found { name, label: own }| {
             // The row would show such a name with the character stripped and
             // insert it whole. Git's own readers leave one out too.
             if name.chars().any(char::is_control) {
                 return None;
             }
-            let score = fuzzy::score(term, &name)?;
+            let score = fuzzy::score(term, name)?;
             Some(Candidate {
                 display: name.clone(),
-                insert: name,
+                insert: name.clone(),
                 // A target and a host are both flat values rather than paths
                 // on disk, which is what `spec_menu` already gives a
                 // specification's own fixed suggestions: no folder glyph, no
                 // trailing slash and plain shell quoting.
                 kind: Kind::Path,
-                label: label.unwrap_or(Cow::Borrowed(reader.label)),
+                label: own.clone().unwrap_or(Cow::Borrowed(label)),
                 hint: Vec::new(),
                 score,
                 priority: DEFAULT_PRIORITY,
@@ -828,6 +1106,130 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
                 );
             }
         }
+    }
+
+    /// Whether `value` holds a generator whose `script` is `line` anywhere
+    /// inside it.
+    fn holds_script(value: &Value, line: &[&str]) -> bool {
+        match value {
+            Value::Object(map) => {
+                map.get("script")
+                    .and_then(Value::as_array)
+                    .is_some_and(|words| same_line(words, line))
+                    || map.values().any(|v| holds_script(v, line))
+            }
+            Value::Array(items) => items.iter().any(|v| holds_script(v, line)),
+            _ => false,
+        }
+    }
+
+    #[test]
+    fn every_script_reader_still_matches_a_line_the_committed_data_runs() {
+        // The same guard as the one above for the other table. A line the
+        // upstream rewrites would leave its reader matching nothing.
+        let mut files = vec![std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("specs")];
+        let mut specs = Vec::new();
+        while let Some(path) = files.pop() {
+            if path.is_dir() {
+                files.extend(std::fs::read_dir(&path).unwrap().map(|e| e.unwrap().path()));
+            } else if path.extension().is_some_and(|e| e == "json") {
+                specs
+                    .push(serde_json::from_slice::<Value>(&std::fs::read(&path).unwrap()).unwrap());
+            }
+        }
+        for entry in SCRIPTS {
+            assert!(
+                specs.iter().any(|spec| holds_script(spec, entry.line)),
+                "{:?}",
+                entry.line
+            );
+        }
+    }
+
+    #[test]
+    fn a_line_with_no_reader_never_runs() {
+        let mut runs = Runs::default();
+        let line = serde_json::json!(["sh", "-c", "touch sample"]);
+        let f = Fixture::new(&[]);
+        assert!(script_rows(&line, "", f.path(), &mut runs).is_empty());
+        assert!(!f.path().join("sample").exists());
+        assert!(runs.0.is_empty());
+        // Only the list form names its words without a shell between them.
+        let text = serde_json::json!("git --no-optional-locks log --oneline");
+        assert!(script_rows(&text, "", f.path(), &mut runs).is_empty());
+    }
+
+    #[test]
+    fn a_line_runs_once_per_menu_and_answers_from_the_repository() {
+        let f = Fixture::new(&[]);
+        f.init_git(&["sample-topic"]);
+        let line = serde_json::json!([
+            "git",
+            "--no-optional-locks",
+            "branch",
+            "--no-color",
+            "--sort=-committerdate"
+        ]);
+        let mut runs = Runs::default();
+        let rows = script_rows(&line, "", f.path(), &mut runs);
+        let mut names: Vec<&str> = rows.iter().map(|r| r.insert.as_str()).collect();
+        names.sort_unstable();
+        assert_eq!(names, ["sample-main", "sample-topic"]);
+        // A branch made now is the next menu's to find.
+        f.git(&["branch", "sample-later", "sample-main"]);
+        assert_eq!(script_rows(&line, "", f.path(), &mut runs).len(), 2);
+        // Outside a repository Git fails and the line answers nothing.
+        let outside = Fixture::new(&[]);
+        assert!(script_rows(&line, "", outside.path(), &mut Runs::default()).is_empty());
+    }
+
+    #[test]
+    fn each_git_line_reads_its_own_output() {
+        let names = |found: Vec<Found>| found.into_iter().map(|f| f.name).collect::<Vec<_>>();
+        let log = oneline("abc1234 Sample subject\ndef5678 Another\n");
+        assert_eq!(log[0].name, "abc1234");
+        assert_eq!(log[0].label.as_deref(), Some("Sample subject"));
+        assert_eq!(
+            names(branches(
+                "* sample-main\n+ sample-tree\n  sample-topic\n  (HEAD detached at abc1234)\n  remotes/origin/HEAD -> origin/sample-main\n  remotes/origin/sample-topic\n"
+            )),
+            [
+                "sample-main",
+                "sample-tree",
+                "sample-topic",
+                "origin/sample-topic"
+            ]
+        );
+        let remote = remotes(
+            "origin\thttps://example.invalid/sample.git (fetch)\norigin\thttps://example.invalid/sample.git (push)\n",
+        );
+        assert_eq!(remote.len(), 1);
+        assert_eq!(
+            remote[0].label.as_deref(),
+            Some("https://example.invalid/sample.git")
+        );
+        assert_eq!(
+            names(changed_paths(
+                " M sample.txt\nR  old.txt -> new.txt\n?? \"odd name\"\n"
+            )),
+            ["sample.txt", "new.txt"]
+        );
+        let alias = aliases("alias.co checkout\nalias.st status --short\n");
+        assert_eq!(alias[1].name, "st");
+        assert_eq!(alias[1].label.as_deref(), Some("status --short"));
+        assert_eq!(
+            names(config_keys(
+                "user.name Sample\nremote.origin.fetch +a\nremote.origin.fetch +b\n"
+            )),
+            ["user.name", "remote.origin.fetch"]
+        );
+        assert!(config_keys("credential.sample secret\n")[0].label.is_none());
+        let stash = stashes("stash@{0}: WIP on sample-main: abc1234 Sample\n");
+        assert_eq!(stash[0].name, "stash@{0}");
+        assert_eq!(
+            stash[0].label.as_deref(),
+            Some("WIP on sample-main: abc1234 Sample")
+        );
     }
 
     #[test]
