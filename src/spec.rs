@@ -380,16 +380,18 @@ pub fn load_configured(name: &str) -> Result<Subcommand, SpecError> {
     load_with(name, read_raw_configured)
 }
 
-/// Commands that run with no argument at all although the committed data
-/// gives them a mandatory one. `make` builds the makefile's first target.
-/// Every other one opens an editor, a browser or a prompt of its own or prints
-/// what is there. `make specs` overwrites `specs/` and the correction therefore
-/// lives here.
+/// Commands that run with no word at all although the committed data gives
+/// them a mandatory argument or subcommands to want. `make` builds the
+/// makefile's first target. Every other one opens an editor, a browser, a
+/// session or a prompt of its own or prints what is there. `make specs`
+/// overwrites `specs/` and the correction therefore lives here.
 pub(crate) const RUNS_BARE: &[&str] = &[
     "broot",
     "cal",
+    "clion",
     "code",
     "code-insiders",
+    "deno",
     "df",
     "dust",
     "emacs",
@@ -398,9 +400,13 @@ pub(crate) const RUNS_BARE: &[&str] = &[
     "eza",
     "fd",
     "firefox",
+    "goland",
     "hostname",
     "hx",
+    "hyper",
+    "idea",
     "iex",
+    "kitty",
     "ls",
     "lsd",
     "lvim",
@@ -411,16 +417,25 @@ pub(crate) const RUNS_BARE: &[&str] = &[
     "neofetch",
     "node",
     "nvim",
+    "pass",
     "pgcli",
+    "phpstorm",
     "psql",
+    "pycharm",
     "python",
     "python3",
+    "rubymine",
+    "screen",
     "sqlite3",
+    "tmux",
     "tree",
     "ts-node",
+    "tsx",
     "vi",
     "vim",
     "vimr",
+    "webstorm",
+    "zellij",
 ];
 
 /// The two entry points differ only in where the bytes come from. A pointer
@@ -440,6 +455,7 @@ fn load_with(
         for arg in &mut spec.args {
             arg.is_optional = Some(true);
         }
+        spec.requires_subcommand = Some(false);
     }
     Ok(spec)
 }
@@ -1260,17 +1276,24 @@ mod tests {
     }
 
     /// Each entry still has something to correct. A corpus that has since
-    /// learned the `isOptional` leaves the entry doing nothing and this says
-    /// so.
+    /// learned the `isOptional` or the `requiresSubcommand` leaves the entry
+    /// doing nothing and this says so.
     #[test]
-    fn every_bare_command_corrects_a_mandatory_argument() {
+    fn every_bare_command_corrects_a_word_it_was_said_to_want() {
         let optional = |arg: &Arg| arg.is_optional == Some(true);
+        let wants_subcommand = |node: &Subcommand| {
+            !node.subcommands.is_empty() && node.requires_subcommand != Some(false)
+        };
         for &command in RUNS_BARE {
             let raw = read_raw(command, &[]).expect("a committed spec");
             let as_written = normalize_subcommand(raw, None, &mut Stats::default());
-            assert!(!as_written.args.iter().all(optional), "{command}");
+            assert!(
+                !as_written.args.iter().all(optional) || wants_subcommand(&as_written),
+                "{command}"
+            );
             let spec = load(command, &[]).expect("a committed spec");
             assert!(spec.args.iter().all(optional), "{command}");
+            assert!(!wants_subcommand(&spec), "{command}");
         }
     }
 
