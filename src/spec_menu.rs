@@ -1304,6 +1304,11 @@ mod tests {
     }
 
     #[test]
+    fn a_misspelt_subcommand_offers_nothing_behind_it() {
+        assert!(complete(&mut Completions::default(), &target("npm isntall ")).is_empty());
+    }
+
+    #[test]
     fn cat_offers_files_and_folders_from_the_fixture_directory() {
         let f = Fixture::new(&["src", "readme*"]);
         std::fs::write(f.path().join("src").join("main.rs"), b"").unwrap();
