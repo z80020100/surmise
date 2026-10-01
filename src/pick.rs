@@ -298,6 +298,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
                     app.reach(),
                     app.whole_word,
                     config.icons,
+                    &config.theme,
                 )
             })
             .flatten();

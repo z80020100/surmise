@@ -11,6 +11,7 @@ use crate::candidates::{Candidate, Kind, tab_kind};
 use crate::fuzzy;
 use crate::icons::{self, Set};
 use crate::line::Line;
+use crate::theme::Theme;
 use std::io::{self, Write};
 use std::ops::Range;
 use unicode_width::UnicodeWidthStr;
@@ -18,25 +19,24 @@ use unicode_width::UnicodeWidthStr;
 pub const DIM: &str = "\x1b[2m";
 const ITALIC: &str = "\x1b[3m";
 const RESET: &str = "\x1b[0m";
-/// The panel sits on a ground of its own that is a shade off the terminal's.
-const PANEL: &str = "\x1b[48;5;236m";
-/// The highlighted row's ground.
-const PANEL_CHOSEN: &str = "\x1b[48;5;25m";
-const NAME: &str = "\x1b[38;5;249m";
-/// The name on the highlighted row's own ground. The glyph in front of it
-/// wears a colour of its own and this is what puts the name back.
-const NAME_CHOSEN: &str = "\x1b[97m";
-/// The word that says what the highlighted row is. It reads at the weight a
-/// name does and italic alone is what sets it apart. What the row says is
-/// worth reading rather than worth fading out.
-const FOOT: &str = NAME;
-/// The ground under a character what was typed reached. A dark olive rather
-/// than a tint of the panel's own grey. A mark then reads as a mark rather
-/// than as another row.
-const MARK: &str = "\x1b[48;5;58m";
-/// The same on the highlighted row. That row's ground is a blue the olive
-/// disappears into and a lighter tint of that blue takes over.
-const MARK_CHOSEN: &str = "\x1b[48;5;67m";
+/// The default theme's escapes, for the tests below to read a row against.
+/// `crate::theme` holds the palette and why each colour is the one it is.
+#[cfg(test)]
+pub(crate) const PANEL: &str = "\x1b[48;5;236m";
+#[cfg(test)]
+pub(crate) const PANEL_CHOSEN: &str = "\x1b[48;5;25m";
+#[cfg(test)]
+pub(crate) const NAME: &str = "\x1b[38;5;249m";
+#[cfg(test)]
+pub(crate) const NAME_CHOSEN: &str = "\x1b[38;5;15m";
+#[cfg(test)]
+pub(crate) const FOOT: &str = NAME;
+#[cfg(test)]
+pub(crate) const MARK: &str = "\x1b[48;5;58m";
+#[cfg(test)]
+pub(crate) const MARK_CHOSEN: &str = "\x1b[48;5;67m";
+#[cfg(test)]
+pub(crate) const BORDER: &str = "\x1b[38;5;238m";
 /// A marked character's own name. A brighter tint of `NAME`: the ground says
 /// which characters what was typed reached and the brighter name is what makes
 /// them read first. Every row wears the same one. What a row is is the glyph's
@@ -44,15 +44,8 @@ const MARK_CHOSEN: &str = "\x1b[48;5;67m";
 /// highlighted row has none of its own, because `NAME_CHOSEN` is already as
 /// bright as a name gets.
 const NAME_MARKED: &str = "\x1b[38;5;188m";
-/// The run Tab would add to the argument. An underline rather than a ground
-/// of its own: the characters what was typed reached already carry one and a
-/// second ground beside it would read as another row.
-/// The line that closes a panel and the one that separates the list from
-/// what the panel puts under it. A shade off the panel's own ground rather
-/// than a name's colour: it separates two things rather than saying anything
-/// of its own.
-const BORDER: &str = "\x1b[38;5;238m";
-/// What that line is drawn with.
+/// What the line that closes a panel is drawn with, and the line that
+/// separates the list from what the panel puts under it.
 const RULE: char = '\u{2500}';
 /// What an edge carries: the position in the list on the list's own top edge
 /// and the key for the word on the edge above the word. A grey above
@@ -67,6 +60,9 @@ const EDGE_FG: &str = "\x1b[38;5;244m";
 /// `^O` rather than `⌃O`. U+2303 is one more shape to ask of a terminal font
 /// and the panel already asks for as few as it can.
 const WHOLE_WORD_BADGE: &str = "^O";
+/// The run Tab would add to the argument. An underline rather than a ground
+/// of its own: the characters what was typed reached already carry one and a
+/// second ground beside it would read as another row.
 const UNDER: &str = "\x1b[4m";
 const UNDER_OFF: &str = "\x1b[24m";
 /// Cells inside the panel's own two edge spaces. It is fixed rather than
@@ -187,6 +183,9 @@ pub struct Menu<'a> {
     /// Which glyphs the rows wear. `menu_in` opens a menu on the default set
     /// and the config is what names another.
     icons: Set,
+    /// The colours. `menu_in` opens a menu on the default theme and the
+    /// config is what names another.
+    theme: &'a Theme,
 }
 
 impl Menu<'_> {
@@ -224,10 +223,12 @@ pub fn menu<'a>(
     reach: usize,
     whole_word: bool,
     icons: Set,
+    theme: &'a Theme,
 ) -> Option<Menu<'a>> {
     let mut m = menu_in(items, selected, height(), typed, reach)?;
     m.whole_word = whole_word;
     m.icons = icons;
+    m.theme = theme;
     Some(m)
 }
 
@@ -252,8 +253,12 @@ fn menu_in<'a>(
             .min(height.saturating_sub(RESERVED_ROWS).max(1)),
         whole_word: false,
         icons: Set::default(),
+        theme: &DEFAULT_THEME,
     })
 }
+
+/// The colours a menu opens with where nothing named others.
+static DEFAULT_THEME: std::sync::LazyLock<Theme> = std::sync::LazyLock::new(Theme::default);
 
 /// Cut `s` down to `w` cells and mark the cut. A short `s` comes back
 /// unpadded, which is what lets `menu_rows` measure the room a hint would
@@ -532,6 +537,7 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
     let Some(current) = m.items.get(m.selected) else {
         return Vec::new();
     };
+    let t = m.theme;
     let beside = m.beside(w);
     let rows = m.list_rows(w);
     let last = (first + rows).min(m.items.len());
@@ -573,13 +579,18 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
         let lead = (across + 2).saturating_sub(cells(label) + 3);
         if label.is_empty() || lead == 0 {
             return format!(
-                "{PANEL}{BORDER}{}{RESET}",
+                "{}{}{}{RESET}",
+                t.background(),
+                t.description_border(),
                 String::from(RULE).repeat(across + 2)
             );
         }
         format!(
-            "{PANEL}{BORDER}{} {EDGE_FG}{label}{BORDER} {RULE}{RESET}",
-            String::from(RULE).repeat(lead)
+            "{}{}{} {EDGE_FG}{label}{} {RULE}{RESET}",
+            t.background(),
+            t.description_border(),
+            String::from(RULE).repeat(lead),
+            t.description_border(),
         )
     };
 
@@ -587,15 +598,19 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
     list.extend(shown.iter().enumerate().map(|(r, c)| {
         let text = printable(&c.display);
         let chosen = first + r == m.selected;
-        let ground = if chosen { PANEL_CHOSEN } else { PANEL };
+        let ground = if chosen {
+            t.selected_background()
+        } else {
+            t.background()
+        };
         // The glyph's own colour replaces whatever the name wanted. The
         // name therefore names its colour again behind it.
-        let name_fg = if chosen { NAME_CHOSEN } else { NAME };
+        let name_fg = if chosen { t.selected_text() } else { t.text() };
         // A mark carries a ground and a name colour together.
         let (mark, mark_fg) = if chosen {
-            (MARK_CHOSEN, NAME_CHOSEN)
+            (t.selected_match_background(), t.selected_text())
         } else {
-            (MARK, NAME_MARKED)
+            (t.match_background(), NAME_MARKED)
         };
         // The name is cut first, unpadded, so a hint beside it can still see
         // what room the cut left. A cut name ends in an ellipsis rather than
@@ -680,7 +695,7 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
     }
     let wrapped: Vec<String> = wrapped
         .iter()
-        .map(|row| format!("{PANEL}{NAME} {} {RESET}", fit(row, inner)))
+        .map(|row| format!("{}{} {} {RESET}", t.background(), t.text(), fit(row, inner)))
         .collect();
     // The name has first claim on what the terminal spared. It says which row
     // the keys would act on and the sentence only says what that row does.
@@ -703,7 +718,14 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
     let said = |across: usize, rows: usize| {
         word(&label, across, rows, opened)
             .into_iter()
-            .map(move |row| format!("{PANEL}{FOOT}{ITALIC} {} {RESET}", fit(&row, across)))
+            .map(move |row| {
+                format!(
+                    "{}{}{ITALIC} {} {RESET}",
+                    t.background(),
+                    t.description_text(),
+                    fit(&row, across)
+                )
+            })
     };
 
     if !beside {
@@ -1865,6 +1887,21 @@ mod tests {
         let items = dirs(3);
         let m = menu_in(&items, 1, 24, "", 0).expect("a menu");
         assert_eq!(chosen_rows(&menu_rows(&m, 80, 1, 0)), vec![2]);
+    }
+
+    #[test]
+    fn a_theme_of_its_own_colours_the_panel() {
+        let table: toml::Table = "background = 17\nselected_text = \"#ffffff\"\n"
+            .parse()
+            .unwrap();
+        let theme = Theme::from_table(&table, &mut Vec::new());
+        let items = vec![dir("work/"), dir("wiki/")];
+        let mut m = menu_in(&items, 0, 30, "", 0).unwrap();
+        m.theme = &theme;
+        let rows = menu_rows(&m, 80, 1, 0);
+        assert!(rows[1].contains("\x1b[38;2;255;255;255m"), "{rows:?}");
+        assert!(rows[2].contains("\x1b[48;5;17m"), "{rows:?}");
+        assert!(!rows[2].contains(PANEL), "{rows:?}");
     }
 
     #[test]
