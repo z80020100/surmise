@@ -445,6 +445,12 @@ fn row(
     })
 }
 
+/// Whether a row its specification marks `hidden` shows for `term`. A
+/// hidden one shows only to a person who typed one of its names whole.
+fn shown(hidden: Option<bool>, names: &[String], term: &str) -> bool {
+    hidden != Some(true) || names.iter().any(|name| tier(term, name) == 2)
+}
+
 /// Where an `insertValue` puts the cursor. The marker itself never reaches
 /// the line.
 const CURSOR: &str = "{cursor}";
@@ -484,6 +490,9 @@ fn build_rows(
 
     if walk.offers_subcommands {
         for sub in unique_targets(&walk.node.subcommands) {
+            if !shown(sub.hidden, &sub.name, term) {
+                continue;
+            }
             rows.extend(
                 row(
                     term,
@@ -515,6 +524,7 @@ fn build_rows(
         for opt in unique_targets(&walk.node.options) {
             if !argwalk::is_available(opt, passed)
                 || opt.name.iter().any(|n| excluded.contains(n.as_str()))
+                || !shown(opt.hidden, &opt.name, term)
             {
                 continue;
             }
@@ -573,6 +583,9 @@ fn build_rows(
     {
         let mut listed = Vec::new();
         for suggestion in &arg.suggestions {
+            if !shown(suggestion.hidden, &suggestion.name, term) {
+                continue;
+            }
             // A suggestion is a fixed value rather than a file Git would
             // recognise. `Kind::Path` is the nearest existing kind: it sits
             // in the same flat, non-directory group as `Command` and
@@ -880,6 +893,7 @@ fn help_rows(term: &str, enclosing: Option<&Subcommand>) -> Vec<Candidate> {
     };
     unique_targets(&node.subcommands)
         .into_iter()
+        .filter(|sub| shown(sub.hidden, &sub.name, term))
         .filter_map(|sub| {
             row(
                 term,
@@ -1508,6 +1522,25 @@ mod tests {
                 names(&rows)
             );
         }
+    }
+
+    #[test]
+    fn a_hidden_row_shows_only_to_a_name_typed_whole() {
+        let subs = |line: &str| -> Vec<String> {
+            complete(&mut Completions::default(), &target(line))
+                .into_iter()
+                .filter(|r| r.kind == Kind::Command)
+                .map(|r| r.insert)
+                .collect()
+        };
+        // `cargo read-manifest` is hidden in its specification.
+        assert!(subs("cargo ").contains(&"run".to_string()));
+        assert!(!subs("cargo ").contains(&"read-manifest".to_string()));
+        assert!(!subs("cargo read-").contains(&"read-manifest".to_string()));
+        assert_eq!(subs("cargo READ-MANIFEST"), ["read-manifest"]);
+        // A value the specification hides goes the same way.
+        let values = complete(&mut Completions::default(), &target("git config add."));
+        assert!(!names(&values).contains(&"add.ignore-errors"));
     }
 
     #[test]

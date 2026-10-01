@@ -794,6 +794,11 @@ depends on `--text` and that line therefore leads with it. An option another
 one depends on is worth 75 until the line holds it. A specification that
 wrote a higher number for it keeps that number.
 
+A row its specification marks `hidden` shows only to a person who typed one
+of its names whole, in either case. `cargo ` offers no `read-manifest` and
+neither does `cargo read-`. `cargo read-manifest` does. The corpus hides 1775
+options, 149 subcommands and 51 values this way.
+
 A command can point the walk past its own specification at another's.
 `sudo git switch ` walks `git`'s own specification from the `git` token
 onward rather than `sudo`'s, the same way `aws account ` walks
