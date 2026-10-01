@@ -201,10 +201,10 @@ pub fn run(seed: &str) -> io::Result<u8> {
         return Ok(PASS);
     }
 
-    // A character right of the cursor that is not blank means the cursor
-    // sits inside a word. Completing there would split it, so the key goes
-    // back to the shell before surmise looks at `seed` at all.
-    if input.rbuffer.starts_with(|c: char| c != ' ' && c != '\t') {
+    // A character right of the cursor that does not end a word means the
+    // cursor sits inside one. Completing there would split it, so the key
+    // goes back to the shell before surmise looks at `seed` at all.
+    if !crate::shellparse::ends_word(&input.rbuffer) {
         return Ok(PASS);
     }
 

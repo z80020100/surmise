@@ -395,6 +395,16 @@ pub fn command_at(buffer: &str, cursor: usize) -> Option<Command> {
         .find(|cmd| cmd.start <= cursor && cursor <= cmd.end)
 }
 
+/// Whether `tail`, the text right of the cursor, leaves the word in front of
+/// the cursor finished. Nothing, a blank or a character the shell reads as
+/// ending a word does: one of `;&|()<>` or a backtick. `$(git sw)` with the
+/// cursor in front of the `)` is a word to complete and `git sw|tch` is not.
+pub fn ends_word(tail: &str) -> bool {
+    tail.chars()
+        .next()
+        .is_none_or(|c| is_ifs_whitespace(c) || ";&|()<>`".contains(c))
+}
+
 /// Where the innermost command `left` is still inside begins. That is the
 /// byte after a `$(`, a backtick or a `(` that opens a subshell and has not
 /// been closed by the end of `left`, or 0 where none is open. `echo $(git sw`
@@ -584,6 +594,19 @@ mod tests {
             .iter()
             .map(|t| t.inner_text.as_str())
             .collect()
+    }
+
+    #[test]
+    fn a_blank_or_an_operator_ends_the_word_in_front_of_it() {
+        for tail in [
+            "", " x", "\tx", "\nx", ")", ";ls", "|less", "&", "`", "<in", ">out",
+        ] {
+            assert!(ends_word(tail), "{tail:?}");
+        }
+        // A non-breaking space is part of the word `parse` reads.
+        for tail in ["x", "-", "/", "\"", "'", "\u{a0}x"] {
+            assert!(!ends_word(tail), "{tail:?}");
+        }
     }
 
     #[test]
