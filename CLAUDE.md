@@ -707,8 +707,11 @@ keeps the specification's own order. A row nothing was typed for therefore
 shows under the first of its names. `grep -r` shows `-r` and `grep -R` shows
 `-R`. Each row's label is the
 spec's own description, or `"command"`, `"option"` or `"value"` for a row
-whose spec carries none. A subcommand or an option row also carries the
-arguments that still fit beside its name, drawn dim: `<name>` for a
+whose spec carries none. A line break, a tab or a line separator in a label
+shows as a space and every other control character in it is gone. That holds
+for every menu and for a label any reader found. A subcommand or an option
+row also carries the arguments that still fit beside its name, drawn dim:
+`<name>` for a
 mandatory one, `[name]` for an optional one, and `...` inside either for a
 variadic one. `crate::spec::arg_hints` turns the row's own `args` into that
 list and `ui` shows as many whole entries as fit in order, stopping at the
@@ -908,6 +911,7 @@ the makefile to do it. Completing a line would then run whatever
 patterns are not host names and a hashed `known_hosts` entry holds no name to
 read. An `Include` in an SSH configuration is not followed either. Each file
 is read up to 64 KiB, the cap a Git query's own output already carries.
+A file that is not a regular one is never opened.
 
 Three more belong to `npm` and one file answers all three. `npm run ` offers
 the scripts in the `package.json` nearest the line and each row says what its
@@ -920,7 +924,8 @@ a path and a pattern names none. An entry with a leading `!` takes a path back
 out. Any other pattern is left out. One directory the file reaches two ways,
 such as `packages/*` and `./packages/sample/`, is one row under the first
 spelling the file gives it. The file is the one npm itself would find
-by walking up from the line's directory. It is read up to the same 64 KiB.
+by walking up from the line's directory. It is read up to the same 64 KiB
+and only when it is a regular file.
 `npm uninstall -g` gets nothing. The packages it would name belong to the
 machine rather than to the project and only running npm can say where those
 live. `npm install ` gets nothing either. Its argument searches the registry
@@ -1183,7 +1188,8 @@ Five keys have a reader today.
   compiled-in data, so a person's own spec for a private tool is found first
   and a stale public one can be overridden the same way. A name coming off
   the shell line is refused before it reaches the filesystem if it holds a
-  `..` component or is itself an absolute path.
+  `..` component or is itself an absolute path. A file there that is not a
+  regular one is passed over before it is opened.
 - `icons` names the glyph set. `"text"` is the default and `"nerd"` is the
   one a patched font draws. "Use" above says what that changes and why
   nothing guesses at the answer. `pick::run` reads it beside `enabled` and

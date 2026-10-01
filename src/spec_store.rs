@@ -79,9 +79,19 @@ fn is_untrusted(name: &str) -> bool {
 /// unreadable directory or an unreadable file is not an error; it is skipped
 /// like any other candidate that does not answer `name`.
 fn read_loose(dir: &Path, name: &str) -> Option<Vec<u8>> {
-    std::fs::read(dir.join(format!("{name}.json")))
-        .ok()
-        .or_else(|| std::fs::read(dir.join(name).join("index.json")).ok())
+    read_regular(&dir.join(format!("{name}.json")))
+        .or_else(|| read_regular(&dir.join(name).join("index.json")))
+}
+
+/// The bytes of `path` when it is a regular file. `stat` decides that before
+/// anything opens it. A FIFO waits for a writer and the menu would wait with
+/// it. A device answers a length of nothing and reads for as long as anything
+/// asks. `crate::histfile` refuses both for the same reason.
+fn read_regular(path: &Path) -> Option<Vec<u8>> {
+    if !std::fs::metadata(path).ok()?.is_file() {
+        return None;
+    }
+    std::fs::read(path).ok()
 }
 
 /// The compiled-in command list plus the top-level names each directory in
@@ -126,7 +136,7 @@ fn loose_names(dir: &Path) -> Vec<String> {
             let path = entry.path();
             let name = path.file_name()?.to_str()?;
             if let Some(stem) = name.strip_suffix(".json") {
-                Some(stem.to_string())
+                path.is_file().then(|| stem.to_string())
             } else if path.join("index.json").is_file() {
                 Some(name.to_string())
             } else {
@@ -258,6 +268,21 @@ mod tests {
         let missing = f.path().join("does-not-exist");
         let bytes = get("git", &[missing]).expect("the compiled-in git still answers");
         assert!(!bytes.is_empty());
+    }
+
+    #[test]
+    fn a_spec_that_is_not_a_regular_file_is_passed_over() {
+        // `/dev/null` stands for a FIFO and for every other device. All of
+        // them fail the same check and this one answers a read at once
+        // where a FIFO would wait for a writer.
+        let f = Fixture::new(&[]);
+        for name in ["git.json", "private-tool.json"] {
+            std::os::unix::fs::symlink("/dev/null", f.path().join(name)).unwrap();
+        }
+        let dirs = [f.path().to_path_buf()];
+        let bytes = get("git", &dirs).expect("the compiled-in git answers instead");
+        assert!(!bytes.is_empty());
+        assert!(!commands(&dirs).iter().any(|c| c == "private-tool"));
     }
 
     #[test]

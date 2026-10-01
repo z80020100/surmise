@@ -691,8 +691,15 @@ fn menu_rows(m: &Menu, w: usize, col: usize, first: usize) -> Vec<String> {
     // The word, drawn the way either layout draws it. The two differ in the
     // width they give it and the rows they have to spend, and in nothing
     // else. One writer is what keeps the sentence reading the same in both.
+    // A sentence can come from a file somebody else wrote: a specification
+    // under `spec_dirs` or the `package.json` of a project somebody cloned.
+    // A line break, a tab or a line separator becomes a space. Every other
+    // control character goes and every name the menu draws loses one too.
+    let breaks =
+        |c: char| c.is_whitespace() && c.is_control() || matches!(c, '\u{2028}' | '\u{2029}');
+    let label = printable(&current.label.replace(breaks, " "));
     let said = |across: usize, rows: usize| {
-        word(&current.label, across, rows, opened)
+        word(&label, across, rows, opened)
             .into_iter()
             .map(move |row| format!("{PANEL}{FOOT}{ITALIC} {} {RESET}", fit(&row, across)))
     };
@@ -1572,6 +1579,24 @@ mod tests {
     /// The same again, with the key that opens the word pressed.
     fn footer_open(label: &str) -> String {
         joined(&footer_rows_for(label, 24, true))
+    }
+
+    #[test]
+    fn a_description_reaches_the_terminal_with_no_control_character_in_it() {
+        let rows = footer_rows_for("Clear\x1b[2J the screen\x07", 24, true);
+        assert!(
+            rows.iter()
+                .all(|row| !row.contains("\x1b[2J") && !row.contains('\x07'))
+        );
+        assert_eq!(footer_for("Clear\x1b[2J the screen"), "Clear[2J the screen");
+        // A line break the corpus itself carries reads as the space it is.
+        assert_eq!(footer_for("Read\nthe\tfile"), "Read the file");
+        assert_eq!(footer_for("Read\u{2028}the\u{85}file"), "Read the file");
+        // A space that is not a break stays the space it was.
+        assert_eq!(
+            footer_for("Read\u{a0}the\u{3000}file"),
+            "Read\u{a0}the\u{3000}file"
+        );
     }
 
     #[test]
