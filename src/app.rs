@@ -70,6 +70,14 @@ enum Reader {
 }
 
 impl Reader {
+    fn word_mut(&mut self) -> &mut candidates::Query {
+        match self {
+            Reader::Cd(word) => word,
+            Reader::Git(target) => &mut target.word,
+            Reader::Spec(target) => &mut target.word,
+        }
+    }
+
     /// The word this provider would replace, which is all `App::arg` wants
     /// of it.
     fn into_word(self) -> candidates::Query {
@@ -223,15 +231,28 @@ impl App {
     /// down, and this is the one place that order is applied: `arg`,
     /// `relist` and `highlighted` all ask this rather than trying the
     /// parsers themselves and each settling the tie its own way.
+    ///
+    /// The command the cursor is still inside is the one read, so
+    /// `echo $(git sw` reads `git sw`. Each provider reads that part of the
+    /// line alone and the word it finds is moved back to where it sits on
+    /// the whole line.
     fn reader(&self) -> Option<Reader> {
-        let left = self.line.left_of_cursor();
-        if let Some(word) = candidates::parse(left) {
-            return Some(Reader::Cd(word));
-        }
-        if let Some(target) = crate::git::parse(left) {
-            return Some(Reader::Git(target));
-        }
-        crate::spec_menu::parse(left, self.line.right_of_cursor(), &self.aliases).map(Reader::Spec)
+        let line = self.line.left_of_cursor();
+        let base = crate::shellparse::innermost(line);
+        let left = &line[base..];
+        let mut reader = if let Some(word) = candidates::parse(left) {
+            Reader::Cd(word)
+        } else if let Some(target) = crate::git::parse(left) {
+            Reader::Git(target)
+        } else {
+            Reader::Spec(crate::spec_menu::parse(
+                left,
+                self.line.right_of_cursor(),
+                &self.aliases,
+            )?)
+        };
+        reader.word_mut().start += base;
+        Some(reader)
     }
 
     /// Whether `word` is one the menu may still grow. It is not in two
@@ -908,6 +929,19 @@ mod tests {
         a.line.insert(line);
         a.refresh();
         a
+    }
+
+    #[test]
+    fn the_command_a_substitution_opens_is_the_one_completed() {
+        let f = Fixture::new(&["sample"]);
+        let mut a = matching_over(f.path(), "echo $(npm ru", Match::Fuzzy);
+        assert_eq!(a.items[0].insert, "run");
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "echo $(npm run ");
+        // `cd`'s own menu reads the inside of one too.
+        let mut a = matching_over(f.path(), "ls `cd sam", Match::Fuzzy);
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "ls `cd sample/");
     }
 
     #[test]

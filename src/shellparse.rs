@@ -20,7 +20,10 @@
 //! `ArithmeticExpansion`, `CommandSubstitution` and the rest of the structured
 //! expansion family. None of them are built here: they are parity work with
 //! another shell reader rather than completion work, and a menu loses nothing
-//! today from reading `$(a; b)` as two commands instead of one.
+//! today from reading `$(a; b)` as two commands instead of one. A menu does
+//! need to know which command the cursor is still inside. [`innermost`]
+//! answers that one question and the menu reads the rest of the line from
+//! there.
 //!
 //! [`parse_with_aliases`] expands a command's own name when the alias table
 //! names it. An alias value that itself holds an operator, such as
@@ -392,6 +395,108 @@ pub fn command_at(buffer: &str, cursor: usize) -> Option<Command> {
         .find(|cmd| cmd.start <= cursor && cursor <= cmd.end)
 }
 
+/// Where the innermost command `left` is still inside begins. That is the
+/// byte after a `$(`, a backtick or a `(` that opens a subshell and has not
+/// been closed by the end of `left`, or 0 where none is open. `echo $(git sw`
+/// is still inside `git sw` and a menu there completes Git rather than
+/// `echo`. Quotes are read the way [`parse`] reads them, except that a `$(`
+/// or a backtick inside double quotes still opens a command the way it does
+/// in the shell. A `(` opens a subshell only where a command could start, so
+/// a glob qualifier such as `*(.` stays part of its word. `$((` opens
+/// arithmetic rather than a command and `left` inside one is left to the
+/// command around it.
+pub fn innermost(left: &str) -> usize {
+    let mut frames: Vec<Frame> = Vec::new();
+    let bytes = left.as_bytes();
+    let mut i = 0;
+    // Whether a word could start a command here: at the start, after an
+    // operator and right inside a command that just opened.
+    let mut fresh = true;
+    while i < bytes.len() {
+        let c = bytes[i];
+        let opens = c == b'$' && bytes.get(i + 1) == Some(&b'(');
+        match frames.last_mut() {
+            Some(Frame::Arithmetic(depth)) => match c {
+                b'(' => *depth += 1,
+                b')' if *depth > 0 => *depth -= 1,
+                b')' if bytes.get(i + 1) == Some(&b')') => {
+                    frames.pop();
+                    i += 1;
+                }
+                _ => {}
+            },
+            Some(Frame::Double) if !opens && c != b'`' => match c {
+                b'\\' => i += 1,
+                b'"' => {
+                    frames.pop();
+                }
+                _ => {}
+            },
+            _ if opens => {
+                if bytes.get(i + 2) == Some(&b'(') {
+                    frames.push(Frame::Arithmetic(0));
+                    i += 1;
+                } else {
+                    frames.push(Frame::Command(i + 2));
+                    fresh = true;
+                }
+                i += 1;
+            }
+            Some(Frame::Backtick(_)) if c == b'`' => {
+                frames.pop();
+                fresh = false;
+            }
+            _ if c == b'`' => {
+                frames.push(Frame::Backtick(i + 1));
+                fresh = true;
+            }
+            _ => {
+                match c {
+                    b'\\' => i += 1,
+                    b'\'' => match left[i + 1..].find('\'') {
+                        Some(end) => i += end + 1,
+                        None => break,
+                    },
+                    b'"' => frames.push(Frame::Double),
+                    b'(' if fresh => frames.push(Frame::Command(i + 1)),
+                    b')' if matches!(frames.last(), Some(Frame::Command(_))) => {
+                        frames.pop();
+                    }
+                    _ => {}
+                }
+                fresh = match c {
+                    b';' | b'&' | b'|' | b'\n' | b'(' => true,
+                    b' ' | b'\t' => fresh,
+                    _ => false,
+                };
+            }
+        }
+        i += 1;
+    }
+    frames.iter().rev().find_map(Frame::start).unwrap_or(0)
+}
+
+/// What [`innermost`] is inside of at one point of the line.
+enum Frame {
+    /// A `$(` or a subshell's `(`, and the byte after it.
+    Command(usize),
+    /// A backtick and the byte after it.
+    Backtick(usize),
+    /// A double quote. A command can still open inside one.
+    Double,
+    /// `$((` and how many of its own parentheses are open inside it.
+    Arithmetic(u32),
+}
+
+impl Frame {
+    fn start(&self) -> Option<usize> {
+        match self {
+            Frame::Command(at) | Frame::Backtick(at) => Some(*at),
+            Frame::Double | Frame::Arithmetic(_) => None,
+        }
+    }
+}
+
 /// A value ending in blank space reads as a word still being typed to
 /// `parse`, which is right for a line someone is typing and wrong for an
 /// alias value: that value is finished text, nobody is mid-word at its end.
@@ -479,6 +584,29 @@ mod tests {
             .iter()
             .map(|t| t.inner_text.as_str())
             .collect()
+    }
+
+    #[test]
+    fn the_innermost_open_command_is_where_the_cursor_is() {
+        fn at(left: &str) -> &str {
+            &left[innermost(left)..]
+        }
+        assert_eq!(at("git sw"), "git sw");
+        assert_eq!(at("echo $(git sw"), "git sw");
+        assert_eq!(at("echo `git sw"), "git sw");
+        assert_eq!(at("(cd sample && git sw"), "cd sample && git sw");
+        assert_eq!(at("echo \"$(git sw"), "git sw");
+        assert_eq!(at("echo $(ls $(git sw"), "git sw");
+        // Closed ones are words of the command around them.
+        assert_eq!(at("echo $(date) git sw"), "echo $(date) git sw");
+        assert_eq!(at("echo `date` git"), "echo `date` git");
+        // Quoted text opens nothing and neither does arithmetic.
+        assert_eq!(at("echo '$(git sw"), "echo '$(git sw");
+        assert_eq!(at("echo \\$(git"), "echo \\$(git");
+        assert_eq!(at("echo $((1 + (2"), "echo $((1 + (2");
+        assert_eq!(at("echo $(( 1 )) $(git sw"), "git sw");
+        // A `(` inside a word is a glob qualifier and not a subshell.
+        assert_eq!(at("ls *(."), "ls *(.");
     }
 
     #[test]
