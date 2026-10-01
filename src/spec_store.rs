@@ -168,9 +168,13 @@ mod tests {
     use crate::fixture::Fixture;
 
     #[test]
-    fn commands_are_727_sorted_and_unique_with_no_spec_dirs() {
+    fn commands_are_731_sorted_and_unique_with_no_spec_dirs() {
+        // `specs/`'s 727 and the four `extra-specs/` adds.
         let list = commands(&[]);
-        assert_eq!(list.len(), 727);
+        assert_eq!(list.len(), 731);
+        for name in ["claude", "codex", "mise", "tig"] {
+            assert!(list.iter().any(|n| n == name), "{name}");
+        }
         assert!(list.windows(2).all(|w| w[0] < w[1]));
     }
 

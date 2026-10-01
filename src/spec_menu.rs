@@ -1289,6 +1289,21 @@ mod tests {
     }
 
     #[test]
+    fn surmises_own_specifications_answer_like_the_corpus_does() {
+        for (line, row) in [
+            ("tig ", "blame"),
+            ("claude ", "mcp"),
+            ("claude mcp ", "add"),
+            ("codex ", "exec"),
+            ("codex exec --", "--model"),
+            ("mise ", "use"),
+        ] {
+            let rows = complete(&mut Completions::default(), &target(line));
+            assert!(names(&rows).contains(&row), "{line}: {:?}", names(&rows));
+        }
+    }
+
+    #[test]
     fn cat_offers_files_and_folders_from_the_fixture_directory() {
         let f = Fixture::new(&["src", "readme*"]);
         std::fs::write(f.path().join("src").join("main.rs"), b"").unwrap();

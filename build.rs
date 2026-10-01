@@ -1,7 +1,9 @@
 //! Compresses the committed spec corpus into one blob and a sorted lookup
 //! table at build time. `spec_store` reads both back through `include_bytes!`
 //! and `include!`, so the binary carries `specs/` and this script is the only
-//! thing that reads the directory itself. `CLAUDE.md`'s "Completion spec
+//! thing that reads the directory itself. `extra-specs/` rides in the same
+//! blob. It holds the specifications surmise writes for itself and a name it
+//! shares with the corpus fails the build rather than shadow one. `CLAUDE.md`'s "Completion spec
 //! data" section says what `specs/` is and why it is committed rather than
 //! fetched.
 
@@ -14,18 +16,34 @@ use std::path::{Path, PathBuf};
 
 fn main() {
     println!("cargo:rerun-if-changed=specs");
+    println!("cargo:rerun-if-changed=extra-specs");
 
     let specs_dir = Path::new("specs");
     let index = fs::read_to_string(specs_dir.join("index.json")).expect("read specs/index.json");
     let index: serde_json::Value = serde_json::from_str(&index).expect("parse specs/index.json");
-    let commands = index["commands"]
+    let mut commands: Vec<String> = index["commands"]
         .as_array()
         .expect("specs/index.json has a commands array")
         .iter()
-        .map(|name| name.as_str().expect("command name is a string"));
+        .map(|name| name.as_str().expect("command name is a string").to_owned())
+        .collect();
 
     let mut entries = Vec::new();
     collect(specs_dir, specs_dir, &mut entries);
+    let extra_dir = Path::new("extra-specs");
+    let mut extra = Vec::new();
+    collect(extra_dir, extra_dir, &mut extra);
+    for (key, path) in extra {
+        assert!(
+            entries.iter().all(|(taken, _)| taken != &key),
+            "{} names {key}, which specs/ already holds",
+            path.display()
+        );
+        if !key.contains('/') {
+            commands.push(key.clone());
+        }
+        entries.push((key, path));
+    }
     // Sorted once here rather than in `spec_store`, so a lookup there is a
     // binary search over data that is already in order.
     entries.sort_by(|a, b| a.0.cmp(&b.0));
