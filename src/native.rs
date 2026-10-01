@@ -190,6 +190,7 @@ fn candidates(reader: &Reader, sources: &Sources, term: &str) -> Vec<Candidate> 
                 score,
                 priority: DEFAULT_PRIORITY,
                 cursor: None,
+                verbatim: false,
             })
         })
         .collect()

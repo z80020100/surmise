@@ -145,6 +145,8 @@ struct Common {
     /// The cursor of the row `name` is the whole name of. `None` for a
     /// prefix several rows share.
     cursor: Option<usize>,
+    /// Whether that row's `name` is shell text already.
+    verbatim: bool,
 }
 
 impl Common {
@@ -160,6 +162,7 @@ impl Common {
             name,
             whole,
             cursor: None,
+            verbatim: false,
         }
     }
 }
@@ -386,7 +389,7 @@ impl App {
         // A name the shell would not take as it stands goes on the line inside
         // quotes or behind a pathspec prefix. A dim tail can draw neither and
         // the row therefore shows none. `accept` still takes the whole name.
-        if self.quote_row(Some(pick.kind), &pick.insert) != pick.insert {
+        if self.quote_row(Some(pick.kind), &pick.insert, pick.verbatim) != pick.insert {
             return String::new();
         }
         let arg = shellword::unquote(&q.arg);
@@ -441,8 +444,12 @@ impl App {
 
     /// [`quote_kind`] for the word the menu answers. A value the spec menu
     /// answered behind its option's separator sits inside a word and quotes
-    /// the way the middle of one does.
-    fn quote_row(&self, kind: Option<Kind>, s: &str) -> String {
+    /// the way the middle of one does. A row whose text is
+    /// [`Candidate::verbatim`] is not quoted at all.
+    fn quote_row(&self, kind: Option<Kind>, s: &str, verbatim: bool) -> String {
+        if verbatim {
+            return s.to_string();
+        }
         if let Some(Reader::Spec(target)) = self.reader() {
             let start = target.word.start;
             if self.spec_menu.narrow(target.word).start != start {
@@ -466,7 +473,7 @@ impl App {
         if pick.kind == Kind::Run && pick.insert.is_empty() {
             return true;
         }
-        let mut insert = self.quote_row(Some(pick.kind), &pick.insert);
+        let mut insert = self.quote_row(Some(pick.kind), &pick.insert, pick.verbatim);
         if pick.cursor.is_none()
             && finishes_word(pick.kind, &pick.insert, &shellword::unquote(&q.arg))
             && self.line.right_of_cursor().is_empty()
@@ -538,6 +545,7 @@ impl App {
             [one] => {
                 return Some(Common {
                     cursor: one.cursor,
+                    verbatim: one.verbatim,
                     ..Common::new(q.start, one.insert.clone(), dir, Some(one.kind))
                 });
             }
@@ -582,7 +590,7 @@ impl App {
         // half a name inside a quote it cannot close. A bare `~` is the one
         // string it leaves alone for the home row's sake rather than for half
         // a name. Half a name is what this is.
-        if prefix == "~" || self.quote_row(Some(selected.kind), prefix) != prefix {
+        if prefix == "~" || self.quote_row(Some(selected.kind), prefix, false) != prefix {
             return None;
         }
         Some(Common::new(q.start, prefix.to_string(), dir, None))
@@ -603,7 +611,7 @@ impl App {
                 .filter(|pick| pick.kind == Kind::Option)
                 .map(|pick| pick.kind)
         });
-        let mut insert = self.quote_row(kind, &c.name);
+        let mut insert = self.quote_row(kind, &c.name, c.verbatim);
         if c.cursor.is_none()
             && c.whole
                 .is_some_and(|kind| finishes_word(kind, &c.name, &self.typed()))
@@ -847,6 +855,18 @@ mod tests {
         assert_eq!(a.ghost(), "+x");
         assert!(a.accept());
         assert_eq!(a.line.text(), "git stage --chmod=+x ");
+    }
+
+    #[test]
+    fn an_insert_value_goes_on_the_line_unquoted_with_the_cursor_inside_it() {
+        let f = Fixture::new(&[]);
+        let mut a = App::over(f.path(), "curl --data");
+        assert_eq!(a.items[0].display, "--data");
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "curl -d ''");
+        assert_eq!(a.line.left_of_cursor(), "curl -d '");
+        // The cursor sits inside a word now and nothing here grows that.
+        assert!(!a.menu_open());
     }
 
     #[test]

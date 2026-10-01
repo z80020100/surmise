@@ -40,8 +40,11 @@ when the binary is replaced keeps sending the widget it already has. The
 record the widget writes therefore leads with a tag naming its own shape,
 and a binary reading a record without that tag reads the shape that came
 before it rather than the fields behind it. A shell in that state completes
-on everything but what the newer field carries. Starting a shell, or
-running the `eval` again in the one you have, is what pairs the two.
+on everything but what the newer field carries. The tag also says whether the
+widget takes the cursor back. A newer one is handed the text on either side of
+the cursor. An older one can read only the whole line and gets it with the
+cursor at its end. Starting a shell, or running the `eval` again in the one
+you have, is what pairs the two.
 
 zsh-autosuggestions asks for a new suggestion after a widget it wrapped
 changes the line. It wraps the widgets `zle -la` lists when it binds. Under
@@ -775,6 +778,16 @@ its space. 4541 options in the corpus ask for a separator and 4253 of them
 take a value that is not optional. An option inside a quote it opened, such as
 `'--color=`, gets no rows: the value has no place of its own there to start
 from.
+
+A row whose specification writes an `insertValue` puts that text on the line
+as written. Its name still shows and still matches. `curl --data` shows
+`--data` and Enter writes `-d ''` with the cursor between the quotes. The text
+is not quoted again, because the quotes it carries are the ones it wants. A
+`{cursor}` in it is where the cursor waits and a row that names one gets no
+space behind it. 2696 rows in the corpus write an `insertValue` and 797 of
+them mark the cursor. One holds a newline and keeps its name instead. Tab
+reads `insert` as it always does and a row whose text does not lead with what
+was typed is therefore Enter's alone.
 
 A space opens this menu unasked and Enter takes the highlighted row. The press
 that runs `make install` anywhere else would therefore write `--debug` onto

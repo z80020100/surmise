@@ -326,7 +326,29 @@ fn row(
         score,
         priority,
         cursor: None,
+        verbatim: false,
     })
+}
+
+/// Where an `insertValue` puts the cursor. The marker itself never reaches
+/// the line.
+const CURSOR: &str = "{cursor}";
+
+/// `c` with its specification's own `insertValue` as what it puts on the
+/// line, where it wrote one. The value goes in as written rather than as a
+/// name to quote and the cursor waits at its `{cursor}`. A name still shows
+/// and still matches. `curl --data` shows `--data` and puts `-d ''` on the
+/// line with the cursor between the quotes. A value holding a control
+/// character such as a newline is no text to edit and the row keeps its
+/// name.
+fn with_insert_value(mut c: Candidate, value: Option<&str>) -> Candidate {
+    let Some(value) = value.filter(|v| !v.is_empty() && !v.chars().any(char::is_control)) else {
+        return c;
+    };
+    c.cursor = value.find(CURSOR);
+    c.insert = value.replace(CURSOR, "");
+    c.verbatim = true;
+    c
 }
 
 /// The rows one walk offers, unranked. `enclosing` is the node a `help`
@@ -346,14 +368,17 @@ fn build_rows(
 
     if walk.offers_subcommands {
         for sub in unique_targets(&walk.node.subcommands) {
-            rows.extend(row(
-                term,
-                &sub.name,
-                label(&sub.description, SUBCOMMAND_LABEL),
-                spec::arg_hints(&sub.args),
-                Kind::Command,
-                priority_of(sub.priority),
-            ));
+            rows.extend(
+                row(
+                    term,
+                    &sub.name,
+                    label(&sub.description, SUBCOMMAND_LABEL),
+                    spec::arg_hints(&sub.args),
+                    Kind::Command,
+                    priority_of(sub.priority),
+                )
+                .map(|c| with_insert_value(c, sub.insert_value.as_deref())),
+            );
         }
     }
 
@@ -420,7 +445,7 @@ fn build_rows(
                         c.cursor = Some(c.insert.len());
                         c.hint.clear();
                     }
-                    c
+                    with_insert_value(c, opt.insert_value.as_deref())
                 }),
             );
         }
@@ -435,14 +460,17 @@ fn build_rows(
             // in the same flat, non-directory group as `Command` and
             // `Option`, and its quoting is a plain shell word rather than a
             // Git pathspec.
-            rows.extend(row(
-                term,
-                &suggestion.name,
-                label(&suggestion.description, SUGGESTION_LABEL),
-                Vec::new(),
-                Kind::Path,
-                priority_of(suggestion.priority),
-            ));
+            rows.extend(
+                row(
+                    term,
+                    &suggestion.name,
+                    label(&suggestion.description, SUGGESTION_LABEL),
+                    Vec::new(),
+                    Kind::Path,
+                    priority_of(suggestion.priority),
+                )
+                .map(|c| with_insert_value(c, suggestion.insert_value.as_deref())),
+            );
         }
         for generator in &arg.generators {
             rows.extend(generator_rows(
@@ -640,6 +668,7 @@ fn path_rows(
             score,
             priority: DEFAULT_PRIORITY,
             cursor: None,
+            verbatim: false,
         });
     }
     out
@@ -1044,6 +1073,67 @@ mod tests {
             "{:?}",
             names(&esbuild)
         );
+    }
+
+    #[test]
+    fn a_row_puts_its_own_insert_value_on_the_line_as_written() {
+        let rows = complete(&mut Completions::default(), &target("curl --data"));
+        let data = &rows[0];
+        assert_eq!(data.display, "--data");
+        assert_eq!(data.insert, "-d ''");
+        assert_eq!(data.cursor, Some("-d '".len()));
+        assert!(data.verbatim);
+        // A marker at the end leaves the cursor there and no space behind it.
+        let rows = complete(&mut Completions::default(), &target("git -c"));
+        let config = rows.iter().find(|r| r.display == "-c").expect("git has -c");
+        assert_eq!((config.insert.as_str(), config.cursor), ("-c ", Some(3)));
+        // A row with no value of its own keeps quoting its name.
+        assert!(rows.iter().any(|r| !r.verbatim));
+    }
+
+    #[test]
+    fn history_counts_a_row_with_an_insert_value_under_its_name() {
+        let mut rows: Vec<Candidate> = [("alpha", None), ("pager", Some("pager {cursor}"))]
+            .into_iter()
+            .filter_map(|(name, value)| {
+                row(
+                    "",
+                    &[name.to_string()],
+                    Cow::Borrowed(SUBCOMMAND_LABEL),
+                    Vec::new(),
+                    Kind::Command,
+                    DEFAULT_PRIORITY,
+                )
+                .map(|c| with_insert_value(c, value))
+            })
+            .collect();
+        let cmd_history = counts("sample", "pager", 5);
+        rank(
+            &mut rows,
+            "",
+            Some(UsedAfter {
+                command: "sample",
+                counts: &cmd_history,
+            }),
+        );
+        assert_eq!(names(&rows), ["pager", "alpha"]);
+    }
+
+    #[test]
+    fn an_insert_value_with_a_control_character_leaves_the_row_its_name() {
+        let plain = row(
+            "",
+            &["-".to_string()],
+            Cow::Borrowed(OPTION_LABEL),
+            Vec::new(),
+            Kind::Option,
+            DEFAULT_PRIORITY,
+        )
+        .unwrap();
+        let kept = with_insert_value(plain.clone(), Some("-\n"));
+        assert_eq!((kept.insert.as_str(), kept.verbatim), ("-", false));
+        let kept = with_insert_value(plain, Some(""));
+        assert!(!kept.verbatim);
     }
 
     #[test]

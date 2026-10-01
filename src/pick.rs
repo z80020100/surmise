@@ -70,6 +70,11 @@ fn seeded(
 /// alias table.
 #[derive(Default)]
 struct Input {
+    /// Whether the widget takes the cursor back. One that led with
+    /// [`RECORD_TAG`] reads the line as the text left of the cursor, a NUL
+    /// and the text right of it. An older one reads the whole line as the
+    /// text left of the cursor.
+    cursor: bool,
     rbuffer: String,
     /// `$HISTFILE`, from the same record. Empty when the shell has none set,
     /// which `crate::histfile::read` reads as no history to count.
@@ -112,9 +117,14 @@ fn read_input() -> io::Result<Input> {
 /// a line whose text to the right of the cursor is exactly this tag, is
 /// the whole of what the tag costs, against every menu of an upgraded
 /// binary reading an older shell's aliases one field out.
-const RECORD_TAG: &str = "surmise-record-3";
+const RECORD_TAG: &str = "surmise-record-4";
 
-/// Parse the record: [`RECORD_TAG`], then `RBUFFER`, then `$HISTFILE`, then
+/// The tag of a widget that writes the same fields as [`RECORD_TAG`] and
+/// takes no cursor back.
+const CURSORLESS_TAG: &str = "surmise-record-3";
+
+/// Parse the record: [`RECORD_TAG`] or [`CURSORLESS_TAG`], then `RBUFFER`,
+/// then `$HISTFILE`, then
 /// a NUL-separated name and value for every shell alias. A record with no
 /// tag is read as the shape before the `$HISTFILE` field: `RBUFFER` first
 /// and the aliases straight after it. Empty bytes parse to the empty
@@ -125,7 +135,8 @@ fn parse_input(bytes: &[u8]) -> Input {
     let first = fields.next().map(&text).unwrap_or_default();
     // Without the tag the field just read is `RBUFFER` and there is no
     // `$HISTFILE` behind it to read.
-    let tagged = first == RECORD_TAG;
+    let cursor = first == RECORD_TAG;
+    let tagged = cursor || first == CURSORLESS_TAG;
     let rbuffer = if tagged {
         fields.next().map(&text).unwrap_or_default()
     } else {
@@ -154,6 +165,7 @@ fn parse_input(bytes: &[u8]) -> Input {
         aliases.insert(text(name), text(value));
     }
     Input {
+        cursor,
         rbuffer,
         histfile,
         aliases,
@@ -174,6 +186,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
     // `tty::claim` below replaces stdin outright and there is no reading it
     // back afterwards.
     let input = read_input()?;
+    let takes_cursor = input.cursor;
 
     // The file is read once. `enabled = false` keeps surmise out of the way
     // entirely: every key answers `PASS`, the same status a menu with nothing
@@ -392,7 +405,17 @@ pub fn run(seed: &str) -> io::Result<u8> {
     term.flush()?;
 
     if outcome == ACCEPTED || outcome == RUN {
-        print!("{}", app.line.text());
+        // The cursor can sit inside the line. A row can leave it between
+        // the quotes it wrote and a person can move it there.
+        if takes_cursor {
+            print!(
+                "{}\0{}",
+                app.line.left_of_cursor(),
+                app.line.right_of_cursor()
+            );
+        } else {
+            print!("{}", app.line.text());
+        }
         io::stdout().flush()?;
     }
     Ok(outcome)
@@ -548,6 +571,20 @@ mod tests {
         assert_eq!(input.histfile, "git");
         assert_eq!(input.aliases.get("ll").map(String::as_str), Some("ls -la"));
         assert_eq!(input.aliases.len(), 1);
+    }
+
+    #[test]
+    fn only_the_newer_tag_takes_the_cursor_back() {
+        let newer = parse_input(b"surmise-record-4\0tail\0/sample/histfile\0g\0git\0");
+        let older = parse_input(b"surmise-record-3\0tail\0/sample/histfile\0g\0git\0");
+        assert!(newer.cursor);
+        assert!(!older.cursor);
+        for input in [&newer, &older] {
+            assert_eq!(input.rbuffer, "tail");
+            assert_eq!(input.histfile, "/sample/histfile");
+            assert_eq!(input.aliases.get("g").map(String::as_str), Some("git"));
+        }
+        assert!(!parse_input(b"tail\0g\0git\0").cursor);
     }
 
     #[test]

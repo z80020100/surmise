@@ -62,11 +62,19 @@ _surmise_redraw() {
   zle reset-prompt
 }
 
+# The line surmise hands back is the text left of its cursor, a NUL and the
+# text right of it. What sat right of the cursor before surmise ran was never
+# handed over and stays where it was, behind both.
+_surmise_take() {
+  LBUFFER=${1%%$'\0'*}
+  [[ $1 == *$'\0'* ]] && RBUFFER=${1#*$'\0'}$RBUFFER
+}
+
 # A first argument says the key was not a completion request. zle hands a
 # widget none of its own and only `surmise-space` passes one.
 surmise-complete() {
   emulate -L zsh
-  local from_space=$1 result ret
+  local from_space=$1 result ret unseen=$RBUFFER
   # Filled here as well as on the space key below, so whichever one runs
   # first pays the one fork `_surmise_fill_specs` costs and the other only
   # ever reads the array it left behind.
@@ -84,9 +92,10 @@ surmise-complete() {
   # the binary was upgraded keeps sending the older shape for as long as it
   # lives. Without the tag the newer binary would read this record's second
   # field as $HISTFILE, which in the older shape is the first alias's own
-  # name, and every pair behind it would land one field out.
+  # name, and every pair behind it would land one field out. The tag also
+  # says this widget reads the cursor back out of the answer.
   local -a record
-  record=("surmise-record-3" "$RBUFFER" "$HISTFILE" "${(kv)aliases[@]}")
+  record=("surmise-record-4" "$RBUFFER" "$HISTFILE" "${(kv)aliases[@]}")
   # Paint the pending change first. surmise asks the terminal where the cursor
   # is. zsh does not redraw until the widget returns and the answer would
   # otherwise be one keystroke behind.
@@ -96,13 +105,13 @@ surmise-complete() {
   result=$(SURMISE_TTY=$TTY command $SURMISE_BIN --pick "$LBUFFER" < <(print -rN -- "${record[@]}"))
   ret=$?
   case $ret in
-    0) LBUFFER=$result; _surmise_redraw ;;
+    0) _surmise_take "$result"; _surmise_redraw ;;
     # Nothing was written. The suggestion on the screen still fits the line.
     1) zle reset-prompt ;;
     # Enter runs the line. surmise was handed the half in front of the cursor
     # alone and running the rest of it unseen is not what Enter offered. Take
     # the completion and leave the running to the person.
-    3) LBUFFER=$result; _surmise_redraw; [[ -n $RBUFFER ]] || zle accept-line ;;
+    3) _surmise_take "$result"; _surmise_redraw; [[ -n $unseen ]] || zle accept-line ;;
     # 2 is PASS: nothing surmise completes. Tab hands the key back to whatever
     # held it. A space is already typed and completing it is not what was
     # asked for. Any other status is a surmise that never ran and the same

@@ -879,6 +879,7 @@ fn row(arg: &str, name: &str, label: &'static str, kind: Kind) -> Option<Candida
         score: fuzzy::score(arg, name)?,
         priority: DEFAULT_PRIORITY,
         cursor: None,
+        verbatim: false,
     })
 }
 
@@ -1105,6 +1106,7 @@ impl Completions {
                     score,
                     priority: DEFAULT_PRIORITY,
                     cursor: None,
+                    verbatim: false,
                 })
             })
             .collect();
