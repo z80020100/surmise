@@ -43,8 +43,8 @@ pub(crate) struct Target {
 
 /// Read a command from `left`, once neither Git's own menu nor `cd`'s claims
 /// it for itself. `tail` is what sits to the right of the cursor; a tail that
-/// does not start on a space is the middle of a word the cursor has not
-/// finished, the same case `App::arg` refuses for Git and `cd`.
+/// [`shellparse::ends_word`] refuses is the middle of a word the cursor has
+/// not finished, the same case `App::arg` refuses for Git and `cd`.
 ///
 /// `cd` is refused by name here rather than left to fall through. Its own
 /// menu sits above this one in [`crate::app::App`] and already answers every
@@ -64,7 +64,7 @@ pub(crate) struct Target {
 /// name would therefore hold this provider off a line nobody else is going
 /// to answer, and `alias c=cd` would open on nothing at all.
 pub(crate) fn parse(left: &str, tail: &str, aliases: &HashMap<String, String>) -> Option<Target> {
-    if !tail.is_empty() && !tail.starts_with(char::is_whitespace) {
+    if !shellparse::ends_word(tail) {
         return None;
     }
     let command = command_at_cursor(left, aliases)?;

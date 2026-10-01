@@ -187,7 +187,9 @@ Without spare rows the menu shows only the list and its label.
 A cursor that sits inside a word narrows Tab before surmise reads anything
 else on the line. When the character to its right is not a space or a tab,
 Tab hands the key to the shell's own completion instead, because completing
-there would split a word still being typed.
+there would split a word still being typed. A character the shell reads as
+ending a word counts as a space here. That is one of `;&|()<>` and a
+backtick, so `$(git sw)` with the cursor in front of the `)` completes `sw`.
 
 A command inside `$(…)`, backticks or a subshell's `(` is the one Tab
 completes while the cursor is still inside it. `echo $(git sw` offers Git's

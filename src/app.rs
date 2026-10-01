@@ -269,8 +269,7 @@ impl App {
         if !quoted && word.arg.ends_with(char::is_whitespace) {
             return false;
         }
-        let tail = self.line.right_of_cursor();
-        tail.is_empty() || tail.starts_with(char::is_whitespace)
+        crate::shellparse::ends_word(self.line.right_of_cursor())
     }
 
     /// The rows the line as it stands asks for. It also records which
@@ -942,6 +941,25 @@ mod tests {
         let mut a = matching_over(f.path(), "ls `cd sam", Match::Fuzzy);
         assert!(a.accept());
         assert_eq!(a.line.text(), "ls `cd sample/");
+    }
+
+    #[test]
+    fn a_word_in_front_of_a_closing_parenthesis_is_finished_enough_to_complete() {
+        let f = Fixture::new(&[]);
+        let at = |line: &str, back: usize| {
+            let mut a = App::new(f.path().to_path_buf());
+            a.line.insert(line);
+            for _ in 0..back {
+                a.line.left();
+            }
+            a.refresh();
+            a
+        };
+        let mut a = at("echo $(npm ru)", 1);
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "echo $(npm run)");
+        // A word that goes on to the right is not.
+        assert!(at("npm ruXn", 2).items.is_empty());
     }
 
     #[test]
