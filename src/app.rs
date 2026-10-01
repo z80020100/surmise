@@ -684,6 +684,13 @@ impl App {
         true
     }
 
+    /// Put the highlight on row `i` where the list has one.
+    pub fn select(&mut self, i: usize) {
+        if i < self.items.len() {
+            self.selected = i;
+        }
+    }
+
     pub fn step(&mut self, delta: isize) {
         let n = self.items.len() as isize;
         if n == 0 {

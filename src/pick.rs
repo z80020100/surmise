@@ -305,6 +305,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
             }
             Event::Key(k) if matches!(k.kind, KeyEventKind::Press | KeyEventKind::Repeat) => {
                 let ctrl = k.modifiers.contains(KeyModifiers::CONTROL);
+                let alt = k.modifiers.contains(KeyModifiers::ALT);
                 match k.code {
                     // Escape hands the line back as it stands. Anything typed
                     // in here is the person's work and must survive.
@@ -333,6 +334,13 @@ pub fn run(seed: &str) -> io::Result<u8> {
                             whole_word: app.whole_word,
                         }
                         .save();
+                    }
+                    // Alt and a digit puts the highlight on that row of the
+                    // ones on screen. Alt-0 is the tenth. A terminal delivers
+                    // Alt and a digit where it delivers no Ctrl-digit at all.
+                    KeyCode::Char(digit @ '0'..='9') if alt && app.menu_open() => {
+                        let nth = (digit as usize - '0' as usize + 9) % 10;
+                        app.select(ui.top() + nth);
                     }
                     // Nothing to take is an answer of its own and the line
                     // cannot show it. The bell is what says it instead.

@@ -176,6 +176,9 @@ Without spare rows the menu shows only the list and its label.
 | Key | Inside the menu |
 | --- | --- |
 | Up and Down | Move the highlight |
+| Ctrl-N and Ctrl-J | Move the highlight down |
+| Ctrl-P | Move the highlight up |
+| Alt-1 to Alt-9 and Alt-0 | Put the highlight on that row of the ones shown. Alt-0 is the tenth |
 | Shift-Tab | Move the highlight back |
 | Tab | Take a highlighted `../` whole or the prefix the directories share |
 | Right | Take what the highlighted directory adds. At the end of the line |

@@ -779,6 +779,11 @@ impl<W: Write> Ui<W> {
         }
     }
 
+    /// The first item the last frame showed.
+    pub fn top(&self) -> usize {
+        self.top
+    }
+
     /// Forget the painted frame. Use after writing ordinary output.
     pub fn detach(&mut self) {
         self.cursor_row = None;
