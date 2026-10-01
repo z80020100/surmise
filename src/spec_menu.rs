@@ -1351,6 +1351,24 @@ mod tests {
     }
 
     #[test]
+    fn npm_run_offers_its_scripts_behind_a_double_dash_too() {
+        let f = Fixture::new(&[]);
+        std::fs::write(
+            f.path().join("package.json"),
+            r#"{"scripts": {"sample-build": "true"}}"#,
+        )
+        .unwrap();
+        for line in ["npm run ", "npm run -- "] {
+            let rows = rows_in(f.path(), line);
+            assert!(
+                names(&rows).contains(&"sample-build"),
+                "{line}: {:?}",
+                names(&rows)
+            );
+        }
+    }
+
+    #[test]
     fn a_misspelt_subcommand_offers_nothing_behind_it() {
         assert!(complete(&mut Completions::default(), &target("npm isntall ")).is_empty());
     }
