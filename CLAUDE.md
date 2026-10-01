@@ -836,13 +836,18 @@ reached it. An option there such as `git --version` may be the whole command
 and the specification cannot tell it from `--no-pager`. Both lines lead with
 the row and a subcommand is one Down away. A specification that leaves out an
 argument the command needs offers the row too early and one that leaves out
-`isOptional` never offers it. `docker attach` is the first and `tree` is the
-second. The committed data leaves `isOptional` out of `ls` and `make` as well.
-`ls` lists the directory it is in and `make` builds the makefile's first
-target. `make specs` would overwrite a correction made in `specs/` and surmise
-therefore marks each of their arguments optional by name when it loads the
-specification. Tab looks past the row. It reads the names of the first kind
-under it and the underline says so.
+`isOptional` never offers it. `docker attach` is the first and `jest` is the
+second. The committed data leaves `isOptional` out of many commands that run
+with no argument at all and surmise corrects 35 of them. `ls`, `vim`,
+`python` and `df` are four. `make` builds the makefile's first target. Every
+other one of the 35 opens an editor, a browser or a prompt of its own or
+prints what is there. `make specs` would overwrite a correction made in
+`specs/` and surmise therefore marks every argument of those 35 optional by
+name when it loads the specification. Any other command that builds, tests or
+deploys when it runs bare keeps what the data says. `jest` is one and Enter on
+a bare `jest ` takes the first row rather than run the suite. Tab looks past
+the row. It reads the names of the first kind under it and the underline says
+so.
 
 Every accepted row leaves the menu open on the word behind it. That holds for
 a row that brings the same list back as well: `cp `'s source takes as many

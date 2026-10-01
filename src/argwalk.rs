@@ -746,19 +746,17 @@ mod tests {
     #[test]
     fn a_word_is_needed_until_every_mandatory_argument_has_one() {
         // `cp`'s target sits behind a variadic source and the second name
-        // may be that target. `cat` wants one file. `ls` and `make` run bare
-        // by the correction `spec::load` makes. `git stash` writes that it
-        // runs bare and `docker container` writes nothing and has
-        // subcommands. An option behind the word that reached a node wants
-        // none of them.
+        // may be that target. `cat` wants one file. `ls`, `make` and every
+        // other command `spec::RUNS_BARE` names run bare by the correction
+        // `spec::load` makes. `git stash` writes that it runs bare and
+        // `docker container` writes nothing and has subcommands. An option
+        // behind the word that reached a node wants none of them.
         for (name, line, needed) in [
-            ("make", "make ", false),
             ("make", "make sample ", false),
             ("make", "make -C ", true),
             ("cat", "cat ", true),
             ("cp", "cp one ", true),
             ("cp", "cp one two ", false),
-            ("ls", "ls ", false),
             ("ls", "ls one ", false),
             ("cargo", "cargo build ", false),
             ("cargo", "cargo ", true),
@@ -771,6 +769,11 @@ mod tests {
             let spec = spec::load(name, &[]).unwrap();
             let walk = walk(&command(line), &spec, |_| None);
             assert_eq!(walk.needs_word, needed, "{line}");
+        }
+        for name in spec::RUNS_BARE {
+            let spec = spec::load(name, &[]).unwrap();
+            let walk = walk(&command(&format!("{name} ")), &spec, |_| None);
+            assert!(!walk.needs_word, "{name}");
         }
     }
 
