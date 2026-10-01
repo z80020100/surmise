@@ -9,6 +9,7 @@
 //! the four outcomes below happened and whether stdout holds a line.
 
 use crate::app::App;
+use crate::fuzzy::Match;
 use crate::histfile;
 use crate::history::History;
 use crate::keys;
@@ -45,7 +46,8 @@ fn anchor_col(cursor_col: usize, seed: &str, width: usize) -> Option<usize> {
     (start + MIN_ROOM < width).then_some(start)
 }
 
-/// The state for `seed`, with `aliases`, `history` and `cmd_history` in
+/// The state for `seed`, with `aliases`, `history`, `cmd_history` and the
+/// `match` setting in
 /// place before the one refresh that builds the first candidate list.
 /// `App::over` cannot be used here: it calls `refresh` on construction and
 /// any of the three set afterward would answer a menu already drawn without
@@ -57,9 +59,11 @@ fn seeded(
     aliases: HashMap<String, String>,
     history: History,
     cmd_history: histfile::Counts,
+    matching: Match,
 ) -> Option<App> {
     let mut app = App::new(cwd.to_path_buf());
     app.aliases = aliases;
+    app.matching = matching;
     app.line.insert(seed);
     app.seed_history(history, cmd_history);
     app.refresh();
@@ -230,7 +234,14 @@ pub fn run(seed: &str) -> io::Result<u8> {
         histfile::Counts::default()
     };
     // Nothing to offer. Give the key back without touching the terminal.
-    let Some(mut app) = seeded(seed, &cwd, input.aliases, history, cmd_history) else {
+    let Some(mut app) = seeded(
+        seed,
+        &cwd,
+        input.aliases,
+        history,
+        cmd_history,
+        config.matching,
+    ) else {
         return Ok(PASS);
     };
     app.rbuffer = input.rbuffer;
@@ -436,6 +447,7 @@ mod tests {
             aliases,
             History::default(),
             histfile::Counts::default(),
+            Match::default(),
         )
     }
 

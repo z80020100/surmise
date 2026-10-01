@@ -29,8 +29,8 @@ committed specification.
   surmise settings remove KEY VALUE  take one entry back out of that list
   surmise specs names                every command with a specification, one per line
 
-The keys are enabled, icons, disabled_commands and spec_dirs. A wrong key or
-a wrong value names what it takes rather than writing anything.
+The keys are enabled, icons, match, disabled_commands and spec_dirs. A wrong
+key or a wrong value names what it takes rather than writing anything.
 ";
 
 /// The zsh widget, compiled in. `cargo install` places a binary and has no

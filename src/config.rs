@@ -17,6 +17,7 @@
 //! surmise writes without being asked and it is kept somewhere else for
 //! exactly that reason.
 
+use crate::fuzzy::Match;
 use crate::icons::Set;
 use serde::Deserialize;
 use std::collections::BTreeMap;
@@ -41,6 +42,9 @@ pub struct Config {
     /// saying their terminal has a font that carries them and `icons` is
     /// where that answer is spent.
     pub icons: Set,
+    /// How what was typed has to reach a row. A specification's own
+    /// `filterStrategy` outranks it for the argument or the node it names.
+    pub matching: Match,
     /// What went wrong reading the file, if anything did. Nothing here
     /// prints it. `surmise doctor` is what a person sees this through.
     pub warning: Option<String>,
@@ -53,6 +57,7 @@ impl Default for Config {
             disabled_commands: Vec::new(),
             spec_dirs: Vec::new(),
             icons: Set::default(),
+            matching: Match::default(),
             warning: None,
         }
     }
@@ -69,6 +74,8 @@ struct Schema {
     disabled_commands: Option<Vec<String>>,
     spec_dirs: Option<Vec<PathBuf>>,
     icons: Option<String>,
+    #[serde(rename = "match")]
+    matching: Option<String>,
     #[serde(flatten)]
     extra: BTreeMap<String, toml::Value>,
 }
@@ -118,21 +125,26 @@ impl Config {
                 // A value this build does not know keeps the default rather
                 // than turning the whole file away. The rest of the file is
                 // still what the person meant.
-                let icons = match schema.icons.as_deref() {
-                    None => Set::default(),
-                    Some(word) => Set::from_word(word).unwrap_or_else(|| {
-                        warnings.push(format!(
-                            "icons is not {}: {word:?}",
-                            Set::WORDS.join(" or ")
-                        ));
-                        Set::default()
-                    }),
-                };
+                let icons = word(
+                    "icons",
+                    schema.icons.as_deref(),
+                    &Set::WORDS,
+                    Set::from_word,
+                    &mut warnings,
+                );
+                let matching = word(
+                    "match",
+                    schema.matching.as_deref(),
+                    &Match::WORDS,
+                    Match::from_word,
+                    &mut warnings,
+                );
                 Config {
                     enabled: schema.enabled.unwrap_or(true),
                     disabled_commands: schema.disabled_commands.unwrap_or_default(),
                     spec_dirs: schema.spec_dirs.unwrap_or_default(),
                     icons,
+                    matching,
                     warning: (!warnings.is_empty()).then(|| warnings.join("; ")),
                 }
             }
@@ -161,6 +173,7 @@ impl Config {
             Item::Value(array_of(self.disabled_commands.iter().map(String::as_str)));
         doc["enabled"] = Item::Value(self.enabled.into());
         doc["icons"] = Item::Value(self.icons.word().into());
+        doc["match"] = Item::Value(self.matching.word().into());
         // A path here came out of the file and TOML is UTF-8, so there is
         // nothing for this conversion to lose.
         doc["spec_dirs"] = Item::Value(array_of(
@@ -173,6 +186,25 @@ impl Config {
             Some(warning) => format!("{}{doc}", commented(warning)),
         }
     }
+}
+
+/// The value a key that takes one of `words` names, or its default. A word
+/// this build does not know keeps the default and earns a warning rather
+/// than turning the whole file away.
+fn word<T: Default>(
+    key: &str,
+    value: Option<&str>,
+    words: &[&str],
+    from_word: fn(&str) -> Option<T>,
+    warnings: &mut Vec<String>,
+) -> T {
+    let Some(value) = value else {
+        return T::default();
+    };
+    from_word(value).unwrap_or_else(|| {
+        warnings.push(format!("{key} is not {}: {value:?}", words.join(" or ")));
+        T::default()
+    })
 }
 
 /// Every key this build reads with the value this process would use.
@@ -258,6 +290,7 @@ const KEYS: &[(&str, Shape)] = &[
     ("disabled_commands", Shape::List),
     ("enabled", Shape::Bool),
     ("icons", Shape::Word(&Set::WORDS)),
+    ("match", Shape::Word(&Match::WORDS)),
     ("spec_dirs", Shape::List),
 ];
 
@@ -518,6 +551,18 @@ mod tests {
     }
 
     #[test]
+    fn matching_is_fuzzy_unless_the_file_names_prefix() {
+        assert_eq!(Config::parse("").matching, Match::Fuzzy);
+        assert_eq!(Config::parse("match = \"prefix\"").matching, Match::Prefix);
+        let config = Config::parse("match = \"exact\"");
+        assert_eq!(config.matching, Match::Fuzzy);
+        assert_eq!(
+            config.warning,
+            Some("match is not fuzzy or prefix: \"exact\"".to_string())
+        );
+    }
+
+    #[test]
     fn the_glyph_set_is_the_text_one_unless_the_file_names_the_other() {
         assert_eq!(Config::parse("").icons, Set::Text);
         assert_eq!(Config::parse("icons = \"text\"").icons, Set::Text);
@@ -571,6 +616,7 @@ mod tests {
 disabled_commands = []
 enabled = true
 icons = \"text\"
+match = \"fuzzy\"
 spec_dirs = []
 ";
 
@@ -599,6 +645,7 @@ spec_dirs = []
             "disabled_commands = [\"kubectl\", \"helm\"]\n\
              enabled = false\n\
              icons = \"nerd\"\n\
+             match = \"fuzzy\"\n\
              spec_dirs = [\"/opt/specs\"]\n"
         );
         assert_eq!(Config::parse(&config.toml()), config);
@@ -793,7 +840,7 @@ spec_dirs = []
             "{said:?}"
         );
         assert!(
-            said.contains("disabled_commands, enabled, icons, spec_dirs"),
+            said.contains("disabled_commands, enabled, icons, match, spec_dirs"),
             "{said:?}"
         );
         // A value with no reader would be one the picker silently ignores,
@@ -854,7 +901,13 @@ spec_dirs = []
         let names: Vec<&str> = KEYS.iter().map(|(name, _)| *name).collect();
         assert_eq!(
             names,
-            ["disabled_commands", "enabled", "icons", "spec_dirs"]
+            [
+                "disabled_commands",
+                "enabled",
+                "icons",
+                "match",
+                "spec_dirs"
+            ]
         );
         let f = Fixture::new(&[]);
         let path = written(&f, "");
