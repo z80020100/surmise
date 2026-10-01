@@ -746,16 +746,19 @@ mod tests {
     #[test]
     fn a_word_is_needed_until_every_mandatory_argument_has_one() {
         // `cp`'s target sits behind a variadic source and the second name
-        // may be that target. `ls` has only the variadic. `git stash` writes
-        // that it runs bare and `docker container` writes nothing and has
+        // may be that target. `cat` wants one file. `ls` and `make` run bare
+        // by the correction `spec::load` makes. `git stash` writes that it
+        // runs bare and `docker container` writes nothing and has
         // subcommands. An option behind the word that reached a node wants
         // none of them.
         for (name, line, needed) in [
-            ("make", "make ", true),
+            ("make", "make ", false),
             ("make", "make sample ", false),
             ("make", "make -C ", true),
+            ("cat", "cat ", true),
             ("cp", "cp one ", true),
             ("cp", "cp one two ", false),
+            ("ls", "ls ", false),
             ("ls", "ls one ", false),
             ("cargo", "cargo build ", false),
             ("cargo", "cargo ", true),

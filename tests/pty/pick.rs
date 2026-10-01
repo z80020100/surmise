@@ -860,21 +860,21 @@ fn enter_takes_the_directory_and_a_second_enter_asks_for_the_line_to_be_run() {
 
 #[test]
 fn enter_takes_a_file_and_a_second_enter_runs_the_line_it_made() {
-    // `ls` takes as many names as it is given and reads them out of the one
+    // `cat` takes as many names as it is given and reads them out of the one
     // directory. The same names come back behind the file and the line now
     // runs as it stands. The row that runs it leads them under the highlight
     // and the second press runs the line rather than taking `one` again.
     let f = Fixture::new(&["one*", "two*"]);
-    let mut t = opened(f.path(), "ls ");
+    let mut t = opened(f.path(), "cat ");
     assert_eq!(names(&t)[0], "one");
     t.send("\r");
     t.pump(SETTLE);
     assert!(!t.panel().is_empty(), "the menu closed: {:?}", t.lines());
-    assert!(shown(&t).contains("ls one"), "{:?}", t.lines());
+    assert!(shown(&t).contains("cat one"), "{:?}", t.lines());
     assert_eq!(names(&t)[0], "");
     t.send("\r");
     assert_eq!(t.status(WAIT), Some(pick::RUN));
-    assert!(shown(&t).contains("ls one"), "{:?}", t.lines());
+    assert!(shown(&t).contains("cat one"), "{:?}", t.lines());
 }
 
 #[test]

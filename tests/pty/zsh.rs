@@ -572,15 +572,18 @@ fn an_option_value_goes_in_behind_its_separator() {
     typed(&mut t, "\t");
     assert!(line(&t).starts_with("❯ ls --color="), "{:?}", line(&t));
     assert!(!line(&t).starts_with("❯ ls --color= "), "{:?}", line(&t));
-    typed(&mut t, "ne\t");
+    // `ls` runs bare and the row that runs the line leads behind the space.
+    // That row draws no tail and a dash typed behind it is what shows the
+    // space.
+    typed(&mut t, "ne\t-");
     assert!(
-        line(&t).starts_with("❯ ls --color=never "),
+        line(&t).starts_with("❯ ls --color=never -"),
         "{:?}",
         line(&t)
     );
     t.send("\x1b");
     closed(&mut t);
-    assert_eq!(line(&t).trim(), "❯ ls --color=never");
+    assert_eq!(line(&t).trim(), "❯ ls --color=never -");
 }
 
 #[test]
