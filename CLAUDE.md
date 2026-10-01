@@ -1052,27 +1052,29 @@ some arguments and one line here gives one answer. `rclone` names its remotes
 and `asdf` its plugins. The Copilot workspace file names its application.
 `networksetup`'s four name the network services, the PPPoE services, the
 locations and the bonds. `defaults` names its domains and `launchctl` its
-services. Those lines fill 657 arguments across 25 commands.
+services. Two lines more are read two ways, by the name of the argument that
+runs them. `arduino-cli board list` names a board for an FQBN and a port for a
+port. `networksetup -listallhardwareports` names a port such as `Wi-Fi` or the
+device under it such as `en0`. Those lines fill 701 arguments across 27
+commands.
 
 `git diff --cached --name-only` is left out. It names paths from the top of
 the repository and a line typed in a subdirectory would get the wrong file.
 `brew formulae` and `brew casks` print past the 64 KiB cap and are left out as
 well. So is `cargo metadata` without `--no-deps`. It can fetch an index to
-resolve the dependencies. A line the corpus reads two ways has no entry. An
-entry gives a line one answer. `task export` names tasks for one argument and
-projects for another. `arduino-cli board list` names a board for one and a
-port for another and `networksetup -listallhardwareports` a port or a device.
-`podman`'s images and secrets are left out as well. The corpus's own readers
-disagree on how their fields are spelt. `pbpaste` is left out because a
-clipboard can hold a password. A line that asks a server, such as `gh pr list`
-or `kubectl get`, has no entry. A `docker` line asks the daemon docker's own
-context names. That is a socket on this machine unless a person pointed it
-somewhere else.
+resolve the dependencies. `task export` is left out. `task` names two tools
+and the corpus picks between them with code it could not keep. No argument
+under it is ever reached. `podman`'s images and secrets are left out as well.
+The corpus's own readers disagree on how their fields are spelt. `pbpaste` is
+left out because a clipboard can hold a password. A line that asks a server,
+such as `gh pr list` or `kubectl get`, has no entry. A `docker` line asks the
+daemon docker's own context names. That is a socket on this machine unless a
+person pointed it somewhere else.
 
 An argument that needs anything else — another native reader, a line that
 asks a server, anything else `specs/dynamic.txt` names — still offers no rows
-rather than guessing at one. The readers answer 732 of the 4854 arguments that
-file lists and the other 4122 show nothing.
+rather than guessing at one. The readers answer 776 of the 4854 arguments that
+file lists and the other 4078 show nothing.
 
 A space opens the menu here too, the way a bare `cd ` or `git ` already did:
 `docker ` and `docker container ` both reach it, because the widget checks

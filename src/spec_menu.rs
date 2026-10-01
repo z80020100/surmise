@@ -680,7 +680,8 @@ fn build_rows(
             // A command line `native` has a reader for runs once per menu.
             // Any other line offers nothing and never runs.
             if let Some(script) = &generator.script {
-                found.extend(native::script_rows(script, term, cwd, runs));
+                let name = arg.name.first().map_or("", String::as_str);
+                found.extend(native::script_rows(script, name, term, cwd, runs));
             }
         }
         // An argument the conversion could not keep the code for. `native`
