@@ -185,6 +185,7 @@ Without spare rows the menu shows only the list and its label.
 | Enter | Go into the highlighted directory or run the line |
 | Esc | Leave the menu and keep what you typed |
 | Ctrl-O | Open the whole of the word, beside the list where it fits |
+| Ctrl-R | Swap the list for past command lines and back |
 | Ctrl-C and Ctrl-G | Leave and restore the line you started with |
 
 Every key in that table is one the `[keys]` table in the configuration can
@@ -323,6 +324,16 @@ the same way the directory preferences above are read once and kept. A menu
 opened on a line neither of them answers therefore has no reading at all,
 and editing that line into one they do answer does not go back for one. The
 line has to empty and close the menu before the next one reads the file.
+
+Ctrl-R is the one key that reads it on its own. It swaps the list for the
+past command lines that lead with this one up to the word the cursor is in,
+the newest first and each once. Each row is the rest of such a line and the
+word in hand is matched against it. Enter puts that rest on the line as it was
+typed and the ordinary menu opens behind it. Ctrl-R again brings the other
+list back. A menu that read the file already hands its reading over and any
+other menu reads the file the first time the key asks. A line holding a
+newline or another control character is not offered, because putting it on
+the line would run it.
 
 What that reading may order is therefore a second word and nothing else. A
 Git subcommand is one and so is the word a specification's menu offers

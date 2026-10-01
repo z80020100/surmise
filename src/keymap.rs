@@ -30,6 +30,9 @@ pub enum Action {
     /// Put the highlight on the row on screen that the number names. 1 is
     /// the first.
     SelectSuggestion(u8),
+    /// Swap the list for the past command lines that lead with this one, or
+    /// swap it back.
+    ToggleHistoryMode,
     /// Open the whole of the word under the list or close it again.
     ToggleDescription,
     /// Swap how what was typed reaches a row, for this menu alone.
@@ -43,7 +46,7 @@ pub enum Action {
 
 impl Action {
     /// Every action, in the order `settings show` lists them.
-    const ALL: [Action; 22] = [
+    const ALL: [Action; 23] = [
         Action::InsertSelected,
         Action::InsertCommonPrefix,
         Action::InsertCommonPrefixOrNavigateDown,
@@ -62,6 +65,7 @@ impl Action {
         Action::SelectSuggestion(8),
         Action::SelectSuggestion(9),
         Action::SelectSuggestion(10),
+        Action::ToggleHistoryMode,
         Action::ToggleDescription,
         Action::ToggleFuzzySearch,
         Action::AcceptRight,
@@ -82,6 +86,7 @@ impl Action {
             Action::NavigateUp => "navigateUp".into(),
             Action::NavigateDown => "navigateDown".into(),
             Action::SelectSuggestion(n) => format!("selectSuggestion{n}"),
+            Action::ToggleHistoryMode => "toggleHistoryMode".into(),
             Action::ToggleDescription => "toggleDescription".into(),
             Action::ToggleFuzzySearch => "toggleFuzzySearch".into(),
             Action::AcceptRight => "acceptRight".into(),
@@ -104,6 +109,7 @@ impl Action {
             Action::SelectSuggestion(n) => {
                 return vec![Key::char(char::from(b'0' + n % 10), KeyModifiers::ALT)];
             }
+            Action::ToggleHistoryMode => &["ctrl+r"],
             Action::ToggleDescription => &["ctrl+o"],
             Action::AcceptRight => &["right"],
             Action::Cancel => &["ctrl+c", "ctrl+g"],
@@ -404,6 +410,11 @@ mod tests {
                 Action::ToggleDescription,
             ),
             (KeyCode::Char('g'), KeyModifiers::CONTROL, Action::Cancel),
+            (
+                KeyCode::Char('r'),
+                KeyModifiers::CONTROL,
+                Action::ToggleHistoryMode,
+            ),
             (KeyCode::Esc, KeyModifiers::NONE, Action::HideAutocomplete),
             (KeyCode::Right, KeyModifiers::NONE, Action::AcceptRight),
         ] {

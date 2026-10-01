@@ -56,6 +56,9 @@ pub enum Kind {
     /// The argument as it stands. This row grows nothing and runs the line
     /// instead.
     Run,
+    /// A whole command line from the shell's history, in the list Ctrl-R
+    /// swaps in.
+    Past,
 }
 
 impl Kind {
@@ -482,7 +485,8 @@ fn group_rank(kind: Kind) -> u8 {
         | Kind::Dir
         | Kind::Parent
         | Kind::Special
-        | Kind::Run => 1,
+        | Kind::Run
+        | Kind::Past => 1,
     }
 }
 

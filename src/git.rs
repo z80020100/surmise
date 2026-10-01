@@ -1323,6 +1323,7 @@ mod tests {
         histfile::Counts(
             HashMap::from([("git".to_string(), HashMap::from([(second.to_string(), n)]))]),
             Vec::new(),
+            Vec::new(),
         )
     }
 
