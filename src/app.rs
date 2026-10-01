@@ -36,6 +36,13 @@ pub struct App {
     pub whole_word: bool,
     /// How what was typed has to reach a row, from the `match` setting.
     pub matching: Match,
+    /// `$HISTFILE`, from the stdin record. Ctrl-R reads it the first time
+    /// the key asks for past command lines.
+    pub histfile: String,
+    /// Whether the list is the past command lines Ctrl-R swaps in.
+    history_mode: bool,
+    /// Every past command line, oldest first, once Ctrl-R has asked.
+    past: Vec<String>,
     history: History,
     scan: Scan,
     git: crate::git::Completions,
@@ -67,12 +74,15 @@ enum Reader {
     Cd(candidates::Query),
     Git(crate::git::Target),
     Spec(crate::spec_menu::Target),
+    /// The list Ctrl-R swaps in. It reads the word the cursor is in and
+    /// answers before any of the three above.
+    Past(candidates::Query),
 }
 
 impl Reader {
     fn word_mut(&mut self) -> &mut candidates::Query {
         match self {
-            Reader::Cd(word) => word,
+            Reader::Cd(word) | Reader::Past(word) => word,
             Reader::Git(target) => &mut target.word,
             Reader::Spec(target) => &mut target.word,
         }
@@ -82,7 +92,7 @@ impl Reader {
     /// of it.
     fn into_word(self) -> candidates::Query {
         match self {
-            Reader::Cd(word) => word,
+            Reader::Cd(word) | Reader::Past(word) => word,
             Reader::Git(target) => target.word,
             Reader::Spec(target) => target.word,
         }
@@ -92,7 +102,7 @@ impl Reader {
     /// fresh read against.
     fn origin(&self) -> Origin {
         let start = match self {
-            Reader::Cd(word) => word.start,
+            Reader::Cd(word) | Reader::Past(word) => word.start,
             Reader::Git(target) => target.word.start,
             Reader::Spec(target) => target.word.start,
         };
@@ -131,9 +141,14 @@ fn quote_kind(kind: Option<Kind>, s: &str) -> String {
     }
 }
 
+/// What a row in the list Ctrl-R swaps in says it is.
+const PAST_LABEL: &str = "past command";
+
 fn finishes_word(kind: Kind, name: &str, arg: &str) -> bool {
     match kind {
         Kind::File | Kind::Path => !name.ends_with('/') || name == arg,
+        // A whole command line is a whole answer.
+        Kind::Past => true,
         _ => kind.is_git(),
     }
 }
@@ -189,6 +204,9 @@ impl App {
             aliases: HashMap::new(),
             whole_word: false,
             matching: Match::default(),
+            histfile: String::new(),
+            history_mode: false,
+            past: Vec::new(),
             history: History::default(),
             scan: Scan::default(),
             git: crate::git::Completions::default(),
@@ -231,7 +249,7 @@ impl App {
         }
         self.history = if recent { history } else { History::default() };
         self.spec_menu.alphabetical = !recent;
-        self.git.cmd_history = histfile::Counts(cmd_history.0.clone(), Vec::new());
+        self.git.cmd_history = histfile::Counts(cmd_history.0.clone(), Vec::new(), Vec::new());
         self.spec_menu.cmd_history = cmd_history;
     }
 
@@ -258,6 +276,15 @@ impl App {
     /// the whole line.
     fn reader(&self) -> Option<Reader> {
         let line = self.line.left_of_cursor();
+        // A past line has to lead with the whole of this one up to the word
+        // the cursor is in. That word is what the rows are matched against.
+        if self.history_mode {
+            let start = line.rfind([' ', '\t']).map_or(0, |at| at + 1);
+            return Some(Reader::Past(candidates::Query {
+                start,
+                arg: line[start..].to_string(),
+            }));
+        }
         let base = crate::shellparse::innermost(line);
         let left = &line[base..];
         let mut reader = if let Some(word) = candidates::parse(left) {
@@ -313,6 +340,7 @@ impl App {
                 self.spec_menu
                     .complete(&target, &self.cwd, &self.history, &mut self.scan)
             }
+            Some(Reader::Past(word)) if self.growable(&word) => self.past_rows(&word),
             Some(Reader::Cd(word)) if self.growable(&word) => candidates::generate_in(
                 &shellword::unquote(&word.arg),
                 &self.cwd,
@@ -541,7 +569,13 @@ impl App {
         {
             insert.push(' ');
         }
-        self.replace_arg(q.start, &insert, pick.cursor);
+        let cursor = pick.cursor;
+        // A past line taken is the line now and the menu behind it is the
+        // ordinary one again.
+        if pick.kind == Kind::Past {
+            self.history_mode = false;
+        }
+        self.replace_arg(q.start, &insert, cursor);
         true
     }
 
@@ -682,6 +716,58 @@ impl App {
         }
         self.replace_arg(c.start, &insert, c.cursor);
         true
+    }
+
+    /// `toggleHistoryMode`. The list becomes the past command lines that
+    /// lead with this one up to the word the cursor is in, and the same key
+    /// brings the other list back. The history is read the first time the
+    /// key asks for it. A spec menu that read it already hands it over.
+    pub fn toggle_history_mode(&mut self) {
+        self.history_mode = !self.history_mode;
+        if self.history_mode && self.past.is_empty() {
+            let held = self.spec_menu.cmd_history.lines();
+            self.past = if held.is_empty() {
+                let read = histfile::read(&self.histfile, &self.aliases);
+                read.lines().to_vec()
+            } else {
+                held.to_vec()
+            };
+        }
+        self.refresh();
+    }
+
+    /// Whether the list is the one Ctrl-R swaps in.
+    pub fn in_history_mode(&self) -> bool {
+        self.history_mode
+    }
+
+    /// The rest of every past line that leads with the line up to `word`,
+    /// newest first and each once. What the shell would run is shell text
+    /// already and goes on the line as it stands. A line holding a control
+    /// character is left out. A newline in one would run it.
+    fn past_rows(&self, word: &candidates::Query) -> Vec<Candidate> {
+        let prefix = &self.line.left_of_cursor()[..word.start];
+        let mut seen = std::collections::HashSet::new();
+        self.past
+            .iter()
+            .rev()
+            .filter_map(|line| line.strip_prefix(prefix))
+            .filter(|rest| !rest.is_empty() && !rest.chars().any(char::is_control))
+            .filter(|rest| seen.insert(*rest))
+            .filter_map(|rest| {
+                Some(Candidate {
+                    display: rest.to_string(),
+                    insert: rest.to_string(),
+                    label: std::borrow::Cow::Borrowed(PAST_LABEL),
+                    hint: Vec::new(),
+                    kind: Kind::Past,
+                    score: crate::fuzzy::score(&word.arg, rest)?,
+                    priority: candidates::DEFAULT_PRIORITY,
+                    cursor: None,
+                    verbatim: true,
+                })
+            })
+            .collect()
     }
 
     /// `toggleFuzzySearch`. The other way of matching for the rest of this
@@ -1024,6 +1110,49 @@ mod tests {
         };
         assert_eq!(first(super::Sort::Recent), "src/");
         assert_eq!(first(super::Sort::Alphabetical), "readme");
+    }
+
+    #[test]
+    fn ctrl_r_swaps_the_list_for_the_past_lines_that_lead_with_this_one() {
+        let f = Fixture::new(&["sample"]);
+        let mut a = App::new(f.path().to_path_buf());
+        a.past = [
+            "git checkout sample-main",
+            "ls -la",
+            "git commit -m 'sample note'",
+            "git checkout sample-topic",
+            "git checkout sample-main",
+        ]
+        .map(String::from)
+        .to_vec();
+        a.line.insert("git c");
+        a.refresh();
+        a.toggle_history_mode();
+        let rows: Vec<&str> = a.items.iter().map(|c| c.insert.as_str()).collect();
+        // The newest first and each once. `c` reaches every one of them.
+        assert_eq!(
+            rows,
+            [
+                "checkout sample-main",
+                "checkout sample-topic",
+                "commit -m 'sample note'"
+            ]
+        );
+        assert!(a.items.iter().all(|c| c.kind == candidates::Kind::Past));
+        // The line it puts back is shell text already and the menu behind it
+        // is the ordinary one again.
+        a.select(2);
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "git commit -m 'sample note' ");
+        assert!(!a.history_mode);
+        // The same key gives the other list back.
+        a.line.kill_to_start();
+        a.line.insert("cd sa");
+        a.refresh();
+        a.toggle_history_mode();
+        assert!(a.items.is_empty());
+        a.toggle_history_mode();
+        assert_eq!(a.items[0].insert, "sample/");
     }
 
     #[test]

@@ -249,6 +249,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
         return Ok(PASS);
     };
     app.rbuffer = input.rbuffer;
+    app.histfile = input.histfile;
     // Whatever the last menu was left set to. The key below is the only
     // thing that writes it and a person who asked for the whole word once
     // is asking for it again.
@@ -362,6 +363,7 @@ pub fn run(seed: &str) -> io::Result<u8> {
                         Action::NavigateDown => app.step(1),
                         Action::AcceptRight => keys::accept_right(&mut app),
                         Action::ToggleFuzzySearch => app.toggle_matching(),
+                        Action::ToggleHistoryMode => app.toggle_history_mode(),
                         // Nothing to take is an answer of its own and the line
                         // cannot show it. The bell is what says it instead. The
                         // two others ask for something else where nothing is
@@ -435,7 +437,9 @@ pub fn run(seed: &str) -> io::Result<u8> {
         // menu. That menu leads with the row that runs the line wherever the
         // line runs as it stands. The press that ran `git status` still runs
         // it.
-        if completing_git && !app.menu_open() {
+        // A list Ctrl-R swapped in can be empty and the same key brings the
+        // other one back.
+        if completing_git && !app.menu_open() && !app.in_history_mode() {
             break ACCEPTED;
         }
     };

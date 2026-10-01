@@ -462,7 +462,9 @@ fn tab_grows(k: Kind, tab_reads: Kind, at: &[usize]) -> bool {
         // directories under every other highlight.
         Kind::Parent => tab_reads == Kind::Parent,
         Kind::Dir => tab_reads != Kind::Parent,
-        Kind::Command | Kind::Branch | Kind::File | Kind::Option | Kind::Path => k == tab_reads,
+        Kind::Command | Kind::Branch | Kind::File | Kind::Option | Kind::Path | Kind::Past => {
+            k == tab_reads
+        }
     }
 }
 

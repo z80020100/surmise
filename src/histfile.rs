@@ -39,11 +39,13 @@ use std::path::Path;
 /// person is waiting through.
 ///
 /// The second field is every command the read found, in the file's own order
-/// and with the same aliases resolved.
+/// and with the same aliases resolved. The third is every entry as it was
+/// typed, in the same order, for the menu Ctrl-R swaps in.
 #[derive(Clone, Default)]
 pub(crate) struct Counts(
     pub(crate) HashMap<String, HashMap<String, u32>>,
     pub(crate) Vec<shellparse::Command>,
+    pub(crate) Vec<String>,
 );
 
 impl Counts {
@@ -61,6 +63,11 @@ impl Counts {
     /// Every command the history holds, oldest first.
     pub(crate) fn commands(&self) -> &[shellparse::Command] {
         &self.1
+    }
+
+    /// Every entry as it was typed, oldest first.
+    pub(crate) fn lines(&self) -> &[String] {
+        &self.2
     }
 }
 
@@ -88,7 +95,9 @@ pub(crate) fn read(path: &str, aliases: &HashMap<String, String>) -> Counts {
     }
     let mut counts: HashMap<String, HashMap<String, u32>> = HashMap::new();
     let mut commands = Vec::new();
+    let mut lines = Vec::new();
     for entry in tail_entries(Path::new(path)) {
+        lines.push(command_text(&entry).to_string());
         for command in shellparse::parse_with_aliases(command_text(&entry), aliases).commands {
             if let [first, second, ..] = command.words.as_slice() {
                 *counts
@@ -100,7 +109,7 @@ pub(crate) fn read(path: &str, aliases: &HashMap<String, String>) -> Counts {
             commands.push(command);
         }
     }
-    Counts(counts, commands)
+    Counts(counts, commands, lines)
 }
 
 /// The last [`READ_LIMIT`] bytes of `path`, and whether the entry the
@@ -238,6 +247,8 @@ mod tests {
         let counts = read(&path, &HashMap::new());
         assert_eq!(counts.count("git", "status"), 1);
         assert_eq!(counts.count("npm", "run"), 1);
+        // Each entry is kept the way it was typed for the list Ctrl-R swaps in.
+        assert_eq!(counts.lines(), ["git status", "npm run build"]);
     }
 
     #[test]

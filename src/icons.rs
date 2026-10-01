@@ -88,8 +88,11 @@ const CURRENT: &str = "*";
 const PLAIN_FILE: &str = "=";
 /// An option row.
 const OPTION: &str = "-";
+/// A past command line. The character the shell's own history expansion
+/// opens with.
+const PAST: &str = "!";
 
-/// The same eight in the nerd set. Each one is named for the glyph a patched
+/// The same nine in the nerd set. Each one is named for the glyph a patched
 /// font carries at that codepoint, because the escape says nothing to a
 /// reader and the name is the only way to check one.
 const NF_DIR: &str = "\u{f07b}"; // nf-fa-folder
@@ -100,6 +103,7 @@ const NF_BRANCH: &str = "\u{e0a0}"; // nf-pl-branch
 const NF_CURRENT: &str = "\u{f005}"; // nf-fa-star
 const NF_PLAIN_FILE: &str = "\u{f15b}"; // nf-fa-file
 const NF_OPTION: &str = "\u{f024}"; // nf-fa-flag
+const NF_PAST: &str = "\u{f1da}"; // nf-fa-history
 
 /// The colour a directory's glyph wears.
 const DIR_FG: &str = "\x1b[38;5;75m";
@@ -120,7 +124,9 @@ const BRANCH_FG: &str = "\x1b[38;5;114m";
 const FILE_FG: &str = "\x1b[38;5;180m";
 /// The glyph on an option row.
 const OPTION_FG: &str = "\x1b[38;5;221m";
-/// The six glyphs above on the highlighted row. That row has a ground of its
+/// The glyph on a past command line.
+const PAST_FG: &str = "\x1b[38;5;146m";
+/// The seven glyphs above on the highlighted row. That row has a ground of its
 /// own and every colour above is too close to it to read. A lighter tint of
 /// the same hue clears it and still says which sort of row this is.
 const DIR_FG_CHOSEN: &str = "\x1b[38;5;153m";
@@ -129,6 +135,7 @@ const CMD_FG_CHOSEN: &str = "\x1b[38;5;218m";
 const BRANCH_FG_CHOSEN: &str = "\x1b[38;5;157m";
 const FILE_FG_CHOSEN: &str = "\x1b[38;5;223m";
 const OPTION_FG_CHOSEN: &str = "\x1b[38;5;229m";
+const PAST_FG_CHOSEN: &str = "\x1b[38;5;189m";
 
 /// What a file's name says it holds. The glyph says which sort of file it is
 /// and the role says what that sort is for, so a `.rs` and a `.sh` read as
@@ -238,7 +245,7 @@ const NAMES: &[(&[&str], &str, Role)] = &[
 
 /// Every kind a row can be. [`glyphs`] walks it and the tests below hold each
 /// one to a look of its own.
-const KINDS: [Kind; 9] = [
+const KINDS: [Kind; 10] = [
     Kind::Command,
     Kind::Branch,
     Kind::File,
@@ -248,6 +255,7 @@ const KINDS: [Kind; 9] = [
     Kind::Parent,
     Kind::Special,
     Kind::Run,
+    Kind::Past,
 ];
 
 /// The glyph `k` wears in `set`.
@@ -265,6 +273,7 @@ fn kind_glyph(set: Set, k: Kind) -> &'static str {
         (Set::Text, Kind::Run) => RUN,
         (Set::Text, Kind::Special) => HOME,
         (Set::Text, Kind::Dir | Kind::Parent) => DIR,
+        (Set::Text, Kind::Past) => PAST,
         (Set::Nerd, Kind::Command) => NF_CMD,
         (Set::Nerd, Kind::Branch) => NF_BRANCH,
         (Set::Nerd, Kind::File | Kind::Path) => NF_PLAIN_FILE,
@@ -272,6 +281,7 @@ fn kind_glyph(set: Set, k: Kind) -> &'static str {
         (Set::Nerd, Kind::Run) => NF_RUN,
         (Set::Nerd, Kind::Special) => NF_HOME,
         (Set::Nerd, Kind::Dir | Kind::Parent) => NF_DIR,
+        (Set::Nerd, Kind::Past) => NF_PAST,
     }
 }
 
@@ -286,6 +296,7 @@ fn kind_fg(k: Kind) -> (&'static str, &'static str) {
         Kind::File | Kind::Path => (FILE_FG, FILE_FG_CHOSEN),
         Kind::Option => (OPTION_FG, OPTION_FG_CHOSEN),
         Kind::Run => (RUN_FG, RUN_FG_CHOSEN),
+        Kind::Past => (PAST_FG, PAST_FG_CHOSEN),
         // The shortcut reaches a directory and wears a directory's colour.
         Kind::Special | Kind::Dir | Kind::Parent => (DIR_FG, DIR_FG_CHOSEN),
     }

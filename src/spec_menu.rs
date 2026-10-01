@@ -1063,6 +1063,7 @@ mod tests {
         histfile::Counts(
             HashMap::from([(first.to_string(), HashMap::from([(second.to_string(), n)]))]),
             Vec::new(),
+            Vec::new(),
         )
     }
 
