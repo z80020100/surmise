@@ -31,7 +31,8 @@ committed specification.
 
 The keys are enabled, icons, match, sort, verbose_names, disabled_commands and
 spec_dirs. A wrong key or a wrong value names what it takes rather than
-writing anything.
+writing anything. The [keys] table that rebinds the menu's keys is written by
+hand.
 ";
 
 /// The zsh widget, compiled in. `cargo install` places a binary and has no

@@ -20,6 +20,7 @@
 use crate::candidates::Sort;
 use crate::fuzzy::Match;
 use crate::icons::Set;
+use crate::keymap::Keymap;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 use std::os::unix::fs::PermissionsExt;
@@ -52,6 +53,8 @@ pub struct Config {
     /// Whether a subcommand or an option shows its longest name where what
     /// was typed does not choose one. `--message` rather than `-m`.
     pub verbose_names: bool,
+    /// Which key does what inside the menu. The `[keys]` table.
+    pub keys: Keymap,
     /// What went wrong reading the file, if anything did. Nothing here
     /// prints it. `surmise doctor` is what a person sees this through.
     pub warning: Option<String>,
@@ -67,6 +70,7 @@ impl Default for Config {
             matching: Match::default(),
             sort: Sort::default(),
             verbose_names: false,
+            keys: Keymap::default(),
             warning: None,
         }
     }
@@ -87,6 +91,7 @@ struct Schema {
     matching: Option<String>,
     sort: Option<String>,
     verbose_names: Option<bool>,
+    keys: Option<toml::Table>,
     #[serde(flatten)]
     extra: BTreeMap<String, toml::Value>,
 }
@@ -165,6 +170,9 @@ impl Config {
                     matching,
                     sort,
                     verbose_names: schema.verbose_names.unwrap_or(false),
+                    keys: schema.keys.as_ref().map_or_else(Keymap::default, |table| {
+                        Keymap::from_table(table, &mut warnings)
+                    }),
                     warning: (!warnings.is_empty()).then(|| warnings.join("; ")),
                 }
             }
@@ -203,6 +211,7 @@ impl Config {
                 .map(|dir| dir.to_string_lossy().into_owned()),
         ));
         doc["verbose_names"] = Item::Value(self.verbose_names.into());
+        doc["keys"] = Item::Table(self.keys.table());
         match &self.warning {
             None => doc.to_string(),
             Some(warning) => format!("{}{doc}", commented(warning)),
@@ -358,6 +367,13 @@ pub fn edit(what: Edit) -> Result<String, String> {
 fn edit_at(path: &Path, what: Edit) -> Result<String, String> {
     let path = &through_links(path);
     let key = what.key();
+    // A table holds more than one value and these commands write one.
+    if key == "keys" || key.starts_with("keys.") {
+        return Err(format!(
+            "keys is a table and this command writes no table. Write [keys] in {} by hand",
+            path.display()
+        ));
+    }
     let shape = KEYS
         .iter()
         .find(|(name, _)| *name == key)
@@ -575,6 +591,37 @@ mod tests {
     }
 
     #[test]
+    fn a_keys_table_rebinds_an_action_and_names_what_it_could_not() {
+        use crate::keymap::Action;
+        use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+        let config = Config::parse("[keys]\ntoggleFuzzySearch = \"ctrl+f\"\njump = \"ctrl+x\"\n");
+        let ctrl_f = KeyEvent::new(KeyCode::Char('f'), KeyModifiers::CONTROL);
+        assert_eq!(config.keys.action(&ctrl_f), Some(Action::ToggleFuzzySearch));
+        assert_eq!(
+            config.warning,
+            Some("keys has no action named jump".to_string())
+        );
+    }
+
+    #[test]
+    fn the_writing_commands_leave_the_keys_table_to_the_person() {
+        let f = Fixture::new(&[]);
+        let path = written(&f, "");
+        for key in ["keys", "keys.navigateDown"] {
+            let said = edit_at(
+                &path,
+                Edit::Set {
+                    key,
+                    value: "ctrl+n",
+                },
+            )
+            .expect_err("a refusal");
+            assert!(said.starts_with("keys is a table"), "{said:?}");
+        }
+        assert_eq!(read(&path), "");
+    }
+
+    #[test]
     fn verbose_names_is_off_unless_the_file_turns_it_on() {
         assert!(!Config::parse("").verbose_names);
         assert!(Config::parse("verbose_names = true").verbose_names);
@@ -657,7 +704,39 @@ mod tests {
         assert!(config.warning.is_some());
     }
 
-    const DEFAULTS: &str = "\
+    /// What `show` prints for a `[keys]` table nobody wrote.
+    macro_rules! default_keys {
+        () => {
+            "
+[keys]
+insertSelected = [\"enter\"]
+insertCommonPrefix = [\"tab\"]
+insertCommonPrefixOrNavigateDown = []
+insertCommonPrefixOrInsertSelected = []
+insertSelectedAndExecute = []
+hideAutocomplete = [\"esc\"]
+navigateUp = [\"up\", \"shift+tab\", \"ctrl+p\"]
+navigateDown = [\"down\", \"ctrl+n\", \"ctrl+j\"]
+selectSuggestion1 = [\"alt+1\"]
+selectSuggestion2 = [\"alt+2\"]
+selectSuggestion3 = [\"alt+3\"]
+selectSuggestion4 = [\"alt+4\"]
+selectSuggestion5 = [\"alt+5\"]
+selectSuggestion6 = [\"alt+6\"]
+selectSuggestion7 = [\"alt+7\"]
+selectSuggestion8 = [\"alt+8\"]
+selectSuggestion9 = [\"alt+9\"]
+selectSuggestion10 = [\"alt+0\"]
+toggleDescription = [\"ctrl+o\"]
+toggleFuzzySearch = []
+acceptRight = [\"right\"]
+cancel = [\"ctrl+c\", \"ctrl+g\"]
+"
+        };
+    }
+
+    const DEFAULTS: &str = concat!(
+        "\
 disabled_commands = []
 enabled = true
 icons = \"text\"
@@ -665,18 +744,26 @@ match = \"fuzzy\"
 sort = \"recent\"
 spec_dirs = []
 verbose_names = false
-";
+",
+        default_keys!()
+    );
 
     #[test]
     fn show_names_every_key_this_build_reads() {
         assert_eq!(Config::default().toml(), DEFAULTS);
         // `KEYS` and this are two lists of the same thing. A key added to
         // one and not the other is a key a person can set and this never
-        // shows, or one this shows and nothing can set.
+        // shows, or one this shows and nothing can set. `[keys]` is the one
+        // table and is written by hand.
         let doc: DocumentMut = DEFAULTS.parse().expect("a document");
-        let printed: Vec<&str> = doc.iter().map(|(key, _)| key).collect();
+        let printed: Vec<&str> = doc
+            .iter()
+            .filter(|(_, item)| !item.is_table())
+            .map(|(key, _)| key)
+            .collect();
         let known: Vec<&str> = KEYS.iter().map(|(name, _)| *name).collect();
         assert_eq!(printed, known);
+        assert!(doc["keys"].is_table());
     }
 
     #[test]
@@ -689,13 +776,16 @@ verbose_names = false
         );
         assert_eq!(
             config.toml(),
-            "disabled_commands = [\"kubectl\", \"helm\"]\n\
+            concat!(
+                "disabled_commands = [\"kubectl\", \"helm\"]\n\
              enabled = false\n\
              icons = \"nerd\"\n\
              match = \"fuzzy\"\n\
              sort = \"recent\"\n\
              spec_dirs = [\"/opt/specs\"]\n\
-             verbose_names = false\n"
+             verbose_names = false\n",
+                default_keys!()
+            )
         );
         assert_eq!(Config::parse(&config.toml()), config);
     }

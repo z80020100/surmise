@@ -21,6 +21,16 @@ fn settings(home: &Path, words: &[&str]) -> Output {
 }
 
 /// Every key this build reads with the value it has where nothing set one.
+/// What `settings show` printed in front of its `[keys]` table. The table
+/// lists every action and `config`'s own tests hold the whole of it. This
+/// says the table is there.
+fn scalars(out: &[u8]) -> String {
+    let out = String::from_utf8(out.to_vec()).unwrap();
+    let (scalars, keys) = out.split_once("\n[keys]\n").expect("a [keys] table");
+    assert!(keys.contains("navigateDown = "), "{keys:?}");
+    scalars.to_string()
+}
+
 const DEFAULTS: &str = "disabled_commands = []\nenabled = true\nicons = \"text\"\nmatch = \"fuzzy\"\nsort = \"recent\"\nspec_dirs = []\nverbose_names = false\n";
 
 fn config(home: &Path) -> String {
@@ -156,7 +166,7 @@ fn settings_show_prints_what_the_writes_before_it_made() {
     let before = settings(&home, &["show"]);
     assert!(before.status.success());
     // No file under this home yet, so every key here is a default.
-    assert_eq!(String::from_utf8(before.stdout).unwrap(), DEFAULTS);
+    assert_eq!(scalars(&before.stdout), DEFAULTS);
     assert!(!home.join(".config/surmise/config.toml").exists());
 
     assert!(settings(&home, &["set", "icons", "nerd"]).status.success());
@@ -167,7 +177,7 @@ fn settings_show_prints_what_the_writes_before_it_made() {
     );
     let after = settings(&home, &["show"]);
     assert_eq!(
-        String::from_utf8(after.stdout).unwrap(),
+        scalars(&after.stdout),
         "disabled_commands = [\"kubectl\"]\nenabled = true\nicons = \"nerd\"\nmatch = \"fuzzy\"\nsort = \"recent\"\nspec_dirs = []\nverbose_names = false\n"
     );
 }
@@ -213,7 +223,7 @@ fn settings_show_answers_where_there_is_no_home_to_put_a_config_under() {
         .output()
         .unwrap();
     assert!(show.status.success());
-    assert_eq!(String::from_utf8(show.stdout).unwrap(), DEFAULTS);
+    assert_eq!(scalars(&show.stdout), DEFAULTS);
     let path = Command::new(env!("CARGO_BIN_EXE_surmise"))
         .args(["settings", "path"])
         .env_clear()

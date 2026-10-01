@@ -326,6 +326,30 @@ fn alt_and_a_digit_takes_the_row_on_screen_and_control_keys_step() {
 }
 
 #[test]
+fn a_keys_table_rebinds_tab_and_binds_the_fuzzy_toggle() {
+    let f = Fixture::new(&["home/alpha", "home/beta", "home/work"]);
+    let home = f.path().join("home");
+    config(
+        &home,
+        "[keys]\ninsertCommonPrefixOrNavigateDown = \"tab\"\ntoggleFuzzySearch = \"ctrl+f\"\n",
+    );
+    // The three names share no prefix and Tab steps down rather than ring.
+    let mut t = opened(&home, "cd ");
+    t.send("\t");
+    t.pump(SETTLE);
+    assert!(edge(&t).contains("2/"), "{:?}", t.lines());
+    // `wk` reaches `work/` only the fuzzy way.
+    let mut t = opened(&home, "cd wk");
+    assert!(names(&t).contains(&"work/".to_string()), "{:?}", t.lines());
+    t.send("\x06");
+    t.pump(SETTLE);
+    assert!(!names(&t).contains(&"work/".to_string()), "{:?}", t.lines());
+    t.send("\x06");
+    t.pump(SETTLE);
+    assert!(names(&t).contains(&"work/".to_string()), "{:?}", t.lines());
+}
+
+#[test]
 fn a_directory_only_the_history_knows_about_does_not_get_in() {
     let f = fixture();
     // `target` is three levels down and the fixture's history visited it.

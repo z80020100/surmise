@@ -684,6 +684,16 @@ impl App {
         true
     }
 
+    /// `toggleFuzzySearch`. The other way of matching for the rest of this
+    /// menu. A specification that names its own strategy still outranks it.
+    pub fn toggle_matching(&mut self) {
+        self.matching = match self.matching {
+            Match::Fuzzy => Match::Prefix,
+            Match::Prefix => Match::Fuzzy,
+        };
+        self.refresh();
+    }
+
     /// Put the highlight on row `i` where the list has one.
     pub fn select(&mut self, i: usize) {
         if i < self.items.len() {
