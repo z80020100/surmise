@@ -836,9 +836,13 @@ reached it. An option there such as `git --version` may be the whole command
 and the specification cannot tell it from `--no-pager`. Both lines lead with
 the row and a subcommand is one Down away. A specification that leaves out an
 argument the command needs offers the row too early and one that leaves out
-`isOptional` never offers it. `docker attach` is the first and `ls` is the
-second. Tab looks past the row. It reads the names of the first kind under it
-and the underline says so.
+`isOptional` never offers it. `docker attach` is the first and `tree` is the
+second. The committed data leaves `isOptional` out of `ls` and `make` as well.
+`ls` lists the directory it is in and `make` builds the makefile's first
+target. `make specs` would overwrite a correction made in `specs/` and surmise
+therefore marks each of their arguments optional by name when it loads the
+specification. Tab looks past the row. It reads the names of the first kind
+under it and the underline says so.
 
 Every accepted row leaves the menu open on the word behind it. That holds for
 a row that brings the same list back as well: `cp `'s source takes as many

@@ -1471,7 +1471,7 @@ mod tests {
         let f = Fixture::new(&["assets/inner", "readme*"]);
         // A name still being typed, an empty argument and a word for a
         // directory that is not there. None of the three is an answer.
-        for line in ["ls read", "ls ", "ls nowhere/"] {
+        for line in ["ls read", "cat ", "ls nowhere/"] {
             let rows = rows_in(f.path(), line);
             assert!(rows.iter().all(|r| r.kind != Kind::Run), "{line}");
         }
@@ -1713,6 +1713,16 @@ mod tests {
         let names = names(&rows);
         assert!(names.contains(&"sample-build"), "{names:?}");
         assert!(names.contains(&"sample-check"), "{names:?}");
+    }
+
+    #[test]
+    fn ls_and_make_lead_with_the_row_that_runs_them_bare() {
+        // The committed data marks neither argument optional and
+        // `spec::load` corrects both.
+        let f = make_fixture();
+        for line in ["ls ", "make "] {
+            assert_eq!(rows_in(f.path(), line)[0].kind, Kind::Run, "{line}");
+        }
     }
 
     #[test]

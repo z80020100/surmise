@@ -380,6 +380,12 @@ pub fn load_configured(name: &str) -> Result<Subcommand, SpecError> {
     load_with(name, read_raw_configured)
 }
 
+/// Arguments the committed data leaves mandatory that the command runs
+/// without, by command and by index into the root's own `args`. `ls` lists
+/// the directory it is in and `make` builds the makefile's first target.
+/// `make specs` overwrites `specs/` and the correction therefore lives here.
+const OPTIONAL_ARGS: &[(&str, usize)] = &[("ls", 0), ("make", 0)];
+
 /// The two entry points differ only in where the bytes come from. A pointer
 /// is followed with the same reader that found it, once and no further.
 fn load_with(
@@ -392,7 +398,15 @@ fn load_with(
         None => raw,
     };
     let mut stats = Stats::default();
-    Ok(normalize_subcommand(raw, None, &mut stats))
+    let mut spec = normalize_subcommand(raw, None, &mut stats);
+    for &(command, index) in OPTIONAL_ARGS {
+        if command == name
+            && let Some(arg) = spec.args.get_mut(index)
+        {
+            arg.is_optional = Some(true);
+        }
+    }
+    Ok(spec)
 }
 
 fn read_raw(name: &str, spec_dirs: &[PathBuf]) -> Result<RawSubcommand, SpecError> {
@@ -1208,6 +1222,20 @@ mod tests {
             9,
             "7 options, two of them with one alias each"
         );
+    }
+
+    /// Each entry still has something to correct. A corpus that has since
+    /// learned the `isOptional` leaves the entry doing nothing and this says
+    /// so.
+    #[test]
+    fn every_optional_arg_entry_corrects_a_mandatory_argument() {
+        for &(command, index) in OPTIONAL_ARGS {
+            let raw = read_raw(command, &[]).expect("a committed spec");
+            let as_written = normalize_subcommand(raw, None, &mut Stats::default());
+            assert_ne!(as_written.args[index].is_optional, Some(true), "{command}");
+            let spec = load(command, &[]).expect("a committed spec");
+            assert_eq!(spec.args[index].is_optional, Some(true), "{command}");
+        }
     }
 
     #[test]
