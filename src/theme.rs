@@ -205,6 +205,71 @@ impl Theme {
     }
 }
 
+/// The `[theme]` table a theme file the other engine reads asks for. That
+/// file is JSON in one of two shapes. A `version: "1.0"` one names the eight
+/// colours under `theme`. A base16 one names `shade0` to `shade7` and
+/// `accent0` to `accent7` and the eight come from those the way that engine
+/// takes them, with its own dark shades for any the file leaves out. A
+/// colour the file leaves out of the first shape is left out of the table
+/// and the default stands for it.
+pub fn import(json: &str) -> Result<toml_edit::Table, String> {
+    let file: serde_json::Value =
+        serde_json::from_str(json).map_err(|e| format!("not a theme file: {e}"))?;
+    let at = |path: &[&str]| -> Option<String> {
+        path.iter()
+            .try_fold(&file, |v, key| v.get(key))
+            .and_then(|v| v.as_str())
+            .map(str::to_string)
+    };
+    let picked: [Option<String>; 8] = if file.get("version").and_then(|v| v.as_str()) == Some("1.0")
+        && file.get("theme").is_some()
+    {
+        [
+            at(&["theme", "backgroundColor"]),
+            at(&["theme", "textColor"]),
+            at(&["theme", "matchBackgroundColor"]),
+            at(&["theme", "description", "textColor"]),
+            at(&["theme", "description", "borderColor"]),
+            at(&["theme", "selection", "backgroundColor"]),
+            at(&["theme", "selection", "textColor"]),
+            at(&["theme", "selection", "matchBackgroundColor"]),
+        ]
+    } else {
+        // A file that names no shade at all is no theme and the fillers alone
+        // would write one nobody chose.
+        let named = (0..8).any(|n| {
+            at(&[&format!("shade{n}")]).is_some() || at(&[&format!("accent{n}")]).is_some()
+        });
+        if !named {
+            return Err("the file names none of the colours a theme holds".to_string());
+        }
+        let shade = |name: &str, filler: &str| Some(at(&[name]).unwrap_or_else(|| filler.into()));
+        [
+            shade("shade0", "#181818"),
+            shade("shade6", "#e8e8e8"),
+            shade("shade1", "#282828"),
+            shade("shade5", "#d8d8d8"),
+            shade("shade1", "#282828"),
+            shade("shade2", "#383838"),
+            shade("shade7", "#f8f8f8"),
+            shade("accent6", "#ba8baf"),
+        ]
+    };
+    let mut table = toml_edit::Table::new();
+    for (name, text) in NAMES.iter().zip(picked) {
+        let Some(text) = text else {
+            continue;
+        };
+        let colour = Colour::parse_text(&text)
+            .ok_or_else(|| format!("{name} is not a colour: {}", crate::ui::printable(&text)))?;
+        table[name] = toml_edit::value(colour.value());
+    }
+    if table.is_empty() {
+        return Err("the file names none of the colours a theme holds".to_string());
+    }
+    Ok(table)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -248,6 +313,40 @@ mod tests {
         let (theme, warnings) = theme("ground = 1\ntext = \"blue\"\n");
         assert_eq!(theme, Theme::default());
         assert_eq!(warnings.len(), 2, "{warnings:?}");
+    }
+
+    #[test]
+    fn a_version_one_file_names_its_colours_and_leaves_the_rest_out() {
+        let table = import(
+            r##"{"version": "1.0", "theme": {
+                "backgroundColor": "rgb(48,48,48)", "textColor": "#b4b4b4",
+                "matchBackgroundColor": "#5f5938",
+                "selection": {"textColor": "#fdfdfd", "backgroundColor": "#1e5ac7"},
+                "description": {"textColor": "#b4b4b4", "borderColor": "#414141"}}}"##,
+        )
+        .unwrap();
+        assert_eq!(table["background"].as_str(), Some("#303030"));
+        assert_eq!(table["selected_background"].as_str(), Some("#1e5ac7"));
+        assert!(!table.contains_key("selected_match_background"));
+    }
+
+    #[test]
+    fn a_base16_file_reads_through_its_shades() {
+        let table = import(r##"{"shade0": "#101010", "shade6": "#e0e0e0", "accent6": "#aa00aa"}"##)
+            .unwrap();
+        assert_eq!(table["background"].as_str(), Some("#101010"));
+        assert_eq!(table["text"].as_str(), Some("#e0e0e0"));
+        assert_eq!(table["selected_match_background"].as_str(), Some("#aa00aa"));
+        // A shade the file leaves out is the dark one the other engine fills.
+        assert_eq!(table["selected_background"].as_str(), Some("#383838"));
+    }
+
+    #[test]
+    fn a_file_that_is_no_theme_is_refused() {
+        assert!(import("not json").is_err());
+        assert!(import(r#"{"version": "1.0", "theme": {"textColor": "blue"}}"#).is_err());
+        assert!(import(r#"{"version": "1.0", "theme": {}}"#).is_err());
+        assert!(import(r#"{"name": "sample"}"#).is_err());
     }
 
     #[test]

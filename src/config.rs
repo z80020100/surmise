@@ -417,6 +417,37 @@ fn edit_at(path: &Path, what: Edit) -> Result<String, String> {
                 names.join(", ")
             )
         })?;
+    rewrite(path, |doc| apply(doc, &what, shape))
+}
+
+/// Put the `[theme]` table the theme file at `file` asks for into the file
+/// at [`path`], in place of whatever `[theme]` the file held. Every other
+/// line of it stays where it was. A person running this is naming the change
+/// the way a `settings` write does.
+pub fn import_theme(file: &Path) -> Result<String, String> {
+    let path = path().ok_or("no home directory to place a config under")?;
+    import_theme_at(file, &path)
+}
+
+/// [`import_theme`], over a config path this build already resolved.
+fn import_theme_at(file: &Path, path: &Path) -> Result<String, String> {
+    let json = crate::path::regular(file)
+        .and_then(|()| std::fs::read_to_string(file))
+        .map_err(|e| format!("{} could not be read: {e}", file.display()))?;
+    let table = crate::theme::import(&json)?;
+    rewrite(&through_links(path), |doc| {
+        doc["theme"] = Item::Table(table);
+        Ok(Some(format!("theme from {}", file.display())))
+    })
+}
+
+/// Read the file at `path`, hand it to `change` and write back what that
+/// left. `None` from `change` says the file already held it and nothing is
+/// written.
+fn rewrite(
+    path: &Path,
+    change: impl FnOnce(&mut DocumentMut) -> Result<Option<String>, String>,
+) -> Result<String, String> {
     // A file that will not parse is one a person wrote and is still owed. A
     // document this cannot read is a document it cannot put back either, and
     // writing anyway would hand them an empty file where their own work was.
@@ -435,7 +466,7 @@ fn edit_at(path: &Path, what: Edit) -> Result<String, String> {
     let mut doc: DocumentMut = text
         .parse()
         .map_err(|e| format!("{} did not parse and was left alone: {e}", path.display()))?;
-    let Some(done) = apply(&mut doc, &what, shape)? else {
+    let Some(done) = change(&mut doc)? else {
         return Ok(format!("nothing to change in {}", path.display()));
     };
     // The file was a person's before surmise ever wrote to it and keeps
@@ -642,6 +673,25 @@ mod tests {
             config.warning,
             Some("theme has no colour named glow".to_string())
         );
+    }
+
+    #[test]
+    fn a_theme_import_replaces_the_theme_table_and_keeps_the_rest() {
+        let f = Fixture::new(&[]);
+        let path = written(&f, "# mine\nicons = \"nerd\"\n\n[theme]\ntext = 1\n");
+        let file = f.path().join("sample-theme.json");
+        std::fs::write(&file, r##"{"shade0": "#101010"}"##).unwrap();
+        let said = import_theme_at(&file, &path).expect("an import");
+        assert!(said.starts_with("theme from "), "{said:?}");
+        let back = read(&path);
+        assert!(back.starts_with("# mine\nicons = \"nerd\"\n"), "{back:?}");
+        let config = Config::load_from(&path);
+        assert_eq!(config.theme.background(), "\x1b[48;2;16;16;16m");
+        assert_eq!(config.warning, None);
+        // A file that is no theme writes nothing.
+        std::fs::write(&file, "not json").unwrap();
+        assert!(import_theme_at(&file, &path).is_err());
+        assert_eq!(read(&path), back);
     }
 
     #[test]

@@ -1216,13 +1216,14 @@ file earned leads that output as a comment, and a parse error carries the line
 and the caret under it there. A file nothing could read otherwise leaves every
 value below it a default it never asked for, printed as though it had.
 
-Four commands write that file:
+Five commands write that file:
 
 ```sh
 surmise settings set icons nerd              # one value
 surmise settings unset icons                 # drop it and let the default stand
 surmise settings add disabled_commands kubectl    # one entry of a list
 surmise settings remove disabled_commands kubectl # one entry back out
+surmise theme import sample-theme.json       # a theme file's [theme] table
 ```
 
 `set` and `unset` answer for `enabled`, `history_mode`, `icons`, `match`,
@@ -1233,7 +1234,7 @@ so does a key or a value this build does not read. A value the picker would
 silently ignore is the one thing a person typing a command must not be handed,
 because nothing prints a warning at the prompt.
 
-Only these four write there, and each of them is a person naming the change.
+Only these five write there, and each of them is a person naming the change.
 Nothing surmise decides for itself touches this file: a menu reads it and
 leaves it where it found it. That is the whole of the difference between this
 and `state.toml` above.
@@ -1344,7 +1345,10 @@ Eight keys and two tables have a reader today.
   keeps the colour of its own sort, because that colour is what says what
   the row is. A name no colour answers to and a value no colour reads as are
   each a warning and leave that colour as it was. `settings show` prints
-  every colour as the menu draws it.
+  every colour as the menu draws it. `surmise theme import FILE` writes the
+  table from a theme file the other engine reads, in either of its two
+  shapes, and replaces whatever `[theme]` the file held. A colour that file
+  leaves out keeps the default here.
 
 `spec_menu` is the menu that calls `spec_store::get_configured`, once per
 command name it asks for, so three of the eight keys now reach what a person

@@ -28,11 +28,13 @@ committed specification.
   surmise settings add KEY VALUE     put one entry into a list the config holds
   surmise settings remove KEY VALUE  take one entry back out of that list
   surmise specs names                every command with a specification, one per line
+  surmise theme import FILE          a theme file's colours into the config's [theme]
 
 The keys are enabled, history_mode, icons, match, sort, verbose_names,
-disabled_commands and spec_dirs. A wrong key or a wrong value names what it takes rather than
-writing anything. The [keys] table that rebinds the menu's keys and the
-[theme] table that colours it are written by hand.
+disabled_commands and spec_dirs. A wrong key or a wrong value names what it
+takes rather than writing anything. The [keys] table that rebinds the menu's
+keys and the [theme] table that colours it are written by hand or by theme
+import.
 ";
 
 /// The zsh widget, compiled in. `cargo install` places a binary and has no
@@ -52,6 +54,8 @@ enum Mode<'a> {
     Settings(&'a [String]),
     /// A `specs` subcommand. An empty name is no name.
     Specs(&'a str),
+    /// `theme import` and the file it reads.
+    ThemeImport(&'a str),
     /// The demo shell. It takes no word of its own.
     Demo,
     /// The checks. They take no word of their own either.
@@ -87,6 +91,15 @@ fn mode(args: &[String]) -> Mode<'_> {
         Some("specs") => match args.get(2) {
             Some(extra) => Mode::Unknown(extra),
             None => Mode::Specs(args.get(1).map_or("", String::as_str)),
+        },
+        // `theme` does one thing and takes one file. Anything else is a typo
+        // and the arm that reports an unknown argument says so.
+        Some("theme") => match &args[1..] {
+            [verb, file] if verb == "import" => Mode::ThemeImport(file),
+            [verb] if verb == "import" => Mode::ThemeImport(""),
+            [verb, _, extra, ..] if verb == "import" => Mode::Unknown(extra),
+            [other, ..] => Mode::Unknown(other),
+            [] => Mode::Unknown("theme"),
         },
         // `demo` names one thing to do and takes no word of its own. A
         // second argument is a typo and the arm below already reports one.
@@ -255,6 +268,14 @@ fn main() -> ExitCode {
             ui::printable(shell)
         )),
         Mode::Settings(words) => settings(words),
+        Mode::ThemeImport("") => refuse("theme import takes the theme file to read"),
+        Mode::ThemeImport(file) => match config::import_theme(Path::new(file)) {
+            Ok(said) => {
+                println!("{said}");
+                ExitCode::SUCCESS
+            }
+            Err(complaint) => refuse(&complaint),
+        },
         // One name per line: the compiled-in list plus whatever `spec_dirs`
         // adds. `_surmise_specs` in the widget is this output, split on
         // newlines into an associative array's keys.
@@ -477,6 +498,26 @@ mod tests {
             complaint.starts_with("no config key named insert_space."),
             "{complaint:?}"
         );
+    }
+
+    #[test]
+    fn theme_import_takes_one_file() {
+        assert!(matches!(
+            mode(&args(&["theme", "import", "sample.json"])),
+            Mode::ThemeImport("sample.json")
+        ));
+        assert!(matches!(
+            mode(&args(&["theme", "import"])),
+            Mode::ThemeImport("")
+        ));
+        assert!(matches!(
+            mode(&args(&["theme", "import", "a", "b"])),
+            Mode::Unknown("b")
+        ));
+        assert!(matches!(
+            mode(&args(&["theme", "export"])),
+            Mode::Unknown("export")
+        ));
     }
 
     #[test]
