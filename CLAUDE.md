@@ -885,14 +885,18 @@ offers `fnm`'s own subcommands rather than `help`'s, which has none of its
 own.
 
 `history` offers what the same argument took before. `ssh ` and `mosh ` offer
-the hosts a past `ssh` or `mosh` line was given, newest first. `ssh ` shows
-them beside the hosts the SSH files name. Each past command of the same specification is walked
-the way the line is, a word at a time, and a word counts where that walk ends
-on the same node and asks for the same argument. An option on a past line is
-therefore never offered as a host and nor is the value an option took. The
-commands are the ones the `$HISTFILE` reading above already holds for the
-menu. A past line whose first word is another command, such as `sudo ssh`, is
-not read. Ten arguments in the corpus name the template.
+the hosts a past `ssh` or `mosh` line was given. `ssh ` shows them beside the
+hosts the SSH files name. The newest use leads inside its match tier whatever
+was typed. A visit leads in `cd`'s own menu the same way. A past word another
+row already shows lifts that row rather than showing a second time:
+`rsync -a ` puts the file it was given last ahead of the other files. Each
+past command of the same specification is walked the way the line is, a word
+at a time, and a word counts where that walk ends on the same node and asks
+for the same argument. An option on a past line is therefore never offered as a host and
+nor is the value an option took. The commands are the ones the `$HISTFILE`
+reading above already holds for the menu. A past line whose first word is
+another command, such as `sudo ssh`, is not read. 29 arguments in the corpus
+name the template.
 
 An argument one of those two templates fills also gets `cd`'s own row that
 runs the line, at the top of the menu and under the highlight, whenever what

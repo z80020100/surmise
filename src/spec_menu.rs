@@ -105,6 +105,13 @@ pub(crate) const SUGGESTION_LABEL: &str = "value";
 /// number its own specification wrote stands.
 const WANTED_PRIORITY: u8 = 75;
 
+/// What one use of a past word is worth over the use before it, folded into
+/// the score the way [`history_bonus`] folds a visit and for the same
+/// reason. A typed character scores 40 at most and a word would need about
+/// 250 of them to close the gap. A newer use therefore leads whatever was
+/// typed and the tier still decides first.
+const RECENT_BONUS: i32 = 10_000;
+
 /// Loads and walks specs for one menu. `App` keeps this behind the same
 /// field for the life of a menu that `crate::git::Completions` is kept
 /// behind, so a spec is read from disk once regardless of how many keys
@@ -247,8 +254,7 @@ impl Completions {
                 let mut rows =
                     build_rows(&walk, enclosing, &line, cwd, history, scan, &mut self.runs);
                 if has_template(&walk, "history") {
-                    let past = self.past_rows(&walk, &rows);
-                    rows.extend(past);
+                    self.past_rows(&walk, &mut rows);
                 }
                 // Two words means the one being replaced is the command's
                 // own second, which is the only word `cmd_history` counted.
@@ -282,30 +288,32 @@ impl Completions {
     /// against the specification the way this one is, one word at a time,
     /// and a word counts when the walk that ends on it ends on the same node
     /// and asks for the same argument. `ssh ` therefore offers the hosts
-    /// `ssh` was given before and not the options it was given. The newest
-    /// use leads and each word shows once. A word a row in `rows` already
-    /// holds shows no second time.
-    fn past_rows(&self, walk: &Walk, rows: &[Candidate]) -> Vec<Candidate> {
+    /// `ssh` was given before and not the options it was given. Each word
+    /// shows once. A word a row in `rows` already holds lifts that row
+    /// rather than showing a second time. The newest use leads inside its
+    /// tier whatever was typed. A visit leads in `cd`'s own menu the same
+    /// way and [`RECENT_BONUS`] is how.
+    fn past_rows(&self, walk: &Walk, rows: &mut Vec<Candidate>) {
         let (Some(command), Some(arg)) = (walk.root.name.first(), walk.current_arg.as_ref()) else {
-            return Vec::new();
+            return;
         };
         let load = |name: &str| self.specs.get(name).and_then(|found| found.as_deref());
-        let mut seen: HashSet<String> = rows.iter().map(|row| row.insert.clone()).collect();
-        let mut rows = Vec::new();
-        for past in self.cmd_history.commands().iter().rev() {
-            if past.words.first().is_none_or(|w| &w.inner_text != command) {
+        let mut seen: HashSet<&str> = HashSet::new();
+        let mut past: Vec<&str> = Vec::new();
+        for line in self.cmd_history.commands().iter().rev() {
+            if line.words.first().is_none_or(|w| &w.inner_text != command) {
                 continue;
             }
-            for end in 1..past.words.len() {
-                let mut prefix = words_only(past.words[..=end].to_vec());
+            for end in 1..line.words.len() {
+                let mut prefix = words_only(line.words[..=end].to_vec());
                 let then = argwalk::walk(&prefix, walk.root, load);
                 // The walk only reads the word it ends on. A word it would
                 // take as an option once another word follows is no value.
-                let mut gap = past.words[end].clone();
+                let mut gap = line.words[end].clone();
                 gap.inner_text.clear();
                 prefix.words.push(gap);
                 let after = argwalk::walk(&prefix, walk.root, load);
-                let value = &past.words[end].inner_text;
+                let value = line.words[end].inner_text.as_str();
                 if after.passed_options.len() == then.passed_options.len()
                     && std::ptr::eq(then.node, walk.node)
                     && then.search_lead.is_empty()
@@ -315,24 +323,40 @@ impl Completions {
                         .is_some_and(|a| a.name == arg.name)
                     && !value.is_empty()
                     && !value.chars().any(char::is_control)
-                    && seen.insert(value.clone())
-                    && let Some(score) = fuzzy::score(&walk.search_term, value)
+                    && seen.insert(value)
                 {
-                    rows.push(Candidate {
-                        display: value.clone(),
-                        insert: value.clone(),
-                        label: Cow::Borrowed(PAST_LABEL),
-                        hint: Vec::new(),
-                        kind: Kind::Path,
-                        score,
-                        priority: DEFAULT_PRIORITY,
-                        cursor: None,
-                        verbatim: false,
-                    });
+                    past.push(value);
                 }
             }
         }
-        rows
+        if past.is_empty() {
+            return;
+        }
+        // A folder row wears a slash the word it was typed as may not.
+        let held: HashMap<String, usize> = rows
+            .iter()
+            .enumerate()
+            .map(|(i, row)| (row.insert.trim_end_matches('/').to_string(), i))
+            .collect();
+        let newest = past.len() as i32;
+        for (age, value) in (0..).zip(past) {
+            let bonus = RECENT_BONUS * (newest - age);
+            if let Some(&i) = held.get(value.trim_end_matches('/')) {
+                rows[i].score += bonus;
+            } else if let Some(score) = fuzzy::score(&walk.search_term, value) {
+                rows.push(Candidate {
+                    display: value.to_string(),
+                    insert: value.to_string(),
+                    label: Cow::Borrowed(PAST_LABEL),
+                    hint: Vec::new(),
+                    kind: Kind::Path,
+                    score: score + bonus,
+                    priority: DEFAULT_PRIORITY,
+                    cursor: None,
+                    verbatim: false,
+                });
+            }
+        }
     }
 
     fn spec_for(&mut self, name: &str) -> Option<Rc<Subcommand>> {
@@ -1400,19 +1424,22 @@ mod tests {
         assert!(names(&rows).contains(&"sample-crate"), "{:?}", names(&rows));
     }
 
+    fn past(f: &Fixture, text: &str) -> Completions {
+        let path = f.path().join("histfile");
+        std::fs::write(&path, text).unwrap();
+        Completions {
+            cmd_history: histfile::read(path.to_str().unwrap(), &HashMap::new()),
+            ..Default::default()
+        }
+    }
+
     #[test]
     fn the_history_template_offers_what_the_same_argument_took_before() {
         let f = Fixture::new(&[]);
-        let path = f.path().join("histfile");
-        std::fs::write(
-            &path,
+        let mut c = past(
+            &f,
             "mosh sample-host\nmosh --family=inet other-host\nmosh -4 sample-host\nls sample-file\n",
-        )
-        .unwrap();
-        let mut c = Completions {
-            cmd_history: histfile::read(path.to_str().unwrap(), &HashMap::new()),
-            ..Default::default()
-        };
+        );
         let rows = complete(&mut c, &target("mosh "));
         let past: Vec<&str> = rows
             .iter()
@@ -1422,6 +1449,32 @@ mod tests {
         // The newest use leads and shows once. The options were words of
         // their own and `sample-file` was another command's.
         assert_eq!(past, ["sample-host", "other-host"]);
+    }
+
+    #[test]
+    fn the_newest_use_leads_whatever_was_typed() {
+        // `s1` is the closer match on its length alone and the older one.
+        let f = Fixture::new(&[]);
+        let mut c = past(&f, "mosh s1\nmosh sample-host\n");
+        let rows = complete(&mut c, &target("mosh s"));
+        assert_eq!(names(&rows)[..2], ["sample-host", "s1"]);
+    }
+
+    #[test]
+    fn a_word_a_row_already_holds_lifts_that_row() {
+        // The word sits behind an option, where no count reaches it.
+        let f = Fixture::new(&["aa-file*", "zz-file*"]);
+        let mut c = past(&f, "rsync -a zz-file\n");
+        let rows = c.complete(
+            &target("rsync -a "),
+            f.path(),
+            &History::default(),
+            &mut Scan::default(),
+        );
+        let names = names(&rows);
+        let at = |name: &str| names.iter().position(|n| *n == name).unwrap();
+        assert!(at("zz-file") < at("aa-file"), "{names:?}");
+        assert_eq!(names.iter().filter(|n| **n == "zz-file").count(), 1);
     }
 
     #[test]
