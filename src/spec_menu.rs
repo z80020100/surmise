@@ -950,6 +950,24 @@ mod tests {
     }
 
     #[test]
+    fn a_path_leading_with_what_was_typed_beats_a_used_one_that_does_not() {
+        // The row shows the leaf and the word holds the directory. The
+        // match is read off the whole path the row inserts.
+        let f = Fixture::new(&["src/xma", "src/main.rs*"]);
+        let mut c = Completions {
+            cmd_history: counts("cat", "src/xma", 100),
+            ..Default::default()
+        };
+        let rows = c.complete(
+            &target("cat src/ma"),
+            f.path(),
+            &History::default(),
+            &mut Scan::default(),
+        );
+        assert_eq!(names(&rows)[0], "main.rs", "{:?}", names(&rows));
+    }
+
+    #[test]
     fn a_typed_prefix_still_beats_a_used_row_that_does_not_match_it() {
         // `read` fuzzy-matches `ad` without leading with it. History never
         // moves it ahead of a name the typed prefix does lead with.
