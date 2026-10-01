@@ -189,6 +189,14 @@ else on the line. When the character to its right is not a space or a tab,
 Tab hands the key to the shell's own completion instead, because completing
 there would split a word still being typed.
 
+A command inside `$(…)`, backticks or a subshell's `(` is the one Tab
+completes while the cursor is still inside it. `echo $(git sw` offers Git's
+subcommands and `` ls `cd sam `` offers directories. A closed one is a word of
+the command around it. Single quotes open nothing and neither does `$((…))`,
+which holds arithmetic rather than a command. A `(` opens a subshell only
+where a command could start, so a glob qualifier such as `*(.` stays part of
+its word.
+
 A line that already names a directory gets a row of its own at the top of the
 menu. That row runs the line rather than growing it. A `↵` in a colour of its
 own is the whole row: the line is on the screen already and a name there would

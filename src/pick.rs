@@ -219,8 +219,9 @@ pub fn run(seed: &str) -> io::Result<u8> {
     // `left_of_cursor` and `right_of_cursor` are `seed` and the empty string
     // here: the cursor sits at the end of what the widget handed over and
     // `RBUFFER`, read above, is what would sit to its right.
-    let completes_git = crate::git::parse(seed).is_some();
-    let completes_spec = crate::spec_menu::parse(seed, "", &input.aliases).is_some();
+    let inner = &seed[crate::shellparse::innermost(seed)..];
+    let completes_git = crate::git::parse(inner).is_some();
+    let completes_spec = crate::spec_menu::parse(inner, "", &input.aliases).is_some();
     // Both are true of a line Git's own menu claims, since the spec menu
     // reads a `git` line as well and `App::reader` is what holds it to the
     // ones Git's own declined. Nothing but these two menus reads the command
