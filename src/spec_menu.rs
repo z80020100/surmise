@@ -1842,9 +1842,10 @@ mod tests {
     #[test]
     fn ls_and_make_lead_with_the_row_that_runs_them_bare() {
         // The committed data marks neither argument optional and
-        // `spec::load` corrects both.
+        // `spec::load` corrects both. `pass` and `tmux` have subcommands as
+        // well and want none of them bare.
         let f = make_fixture();
-        for line in ["ls ", "make "] {
+        for line in ["ls ", "make ", "pass ", "tmux "] {
             assert_eq!(rows_in(f.path(), line)[0].kind, Kind::Run, "{line}");
         }
     }
