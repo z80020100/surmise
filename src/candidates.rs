@@ -403,12 +403,17 @@ pub(crate) fn tier(term: &str, name: &str) -> u8 {
 /// `sample/`. The trailing slash a folder row wears comes off, because it
 /// is the menu saying the row is a folder rather than anything a person
 /// typed. `match_rank` takes it off for the same reason. A row whose
-/// `insert` is a specification's own text was typed as its name.
+/// `insert` is a specification's own text was typed as its name and
+/// [`written_as`] gives that name.
 fn typed_as(c: &Candidate) -> &str {
-    if c.verbatim {
-        return &c.display;
-    }
-    c.insert.strip_suffix('/').unwrap_or(&c.insert)
+    let written = written_as(c);
+    written.strip_suffix('/').unwrap_or(written)
+}
+
+/// What a row puts on the line. A row whose text is a specification's own
+/// gives its name instead, because a person types the name.
+fn written_as(c: &Candidate) -> &str {
+    if c.verbatim { &c.display } else { &c.insert }
 }
 
 /// What a row's own name is looked up under: the command the row would
@@ -465,8 +470,10 @@ fn group_rank(kind: Kind) -> u8 {
 ///
 /// The case sits that low on purpose. It says less about a row than any key
 /// above it and its whole job is to replace the byte order that put `-L`
-/// ahead of `-l` under `ls -l`. It reads a row's `insert` for the reason
+/// ahead of `-l` under `ls -l`. It reads [`written_as`] for the reason
 /// [`typed_as`] does: a path row shows a leaf and inserts the whole word.
+/// The first key reads it too and keeps the slash. `ls src/ma` therefore
+/// puts `main.rs` in the tier of names leading with what was typed.
 ///
 /// `priority` sits above the group and under the score for the reason the
 /// corpus's own engine puts it there. A number a specification wrote down
@@ -499,12 +506,12 @@ fn group_rank(kind: Kind) -> u8 {
 pub(crate) fn rank(rows: &mut [Candidate], term: &str, used_after: Option<UsedAfter>) {
     rows.sort_by_cached_key(|c| {
         (
-            Reverse(tier(term, &c.display)),
+            Reverse(tier(term, written_as(c))),
             Reverse(used_after.map_or(0, |h| h.counts.count(h.command, typed_as(c)))),
             Reverse(c.score),
             Reverse(c.priority),
             Reverse(group_rank(c.kind)),
-            Reverse(c.insert.starts_with(term)),
+            Reverse(written_as(c).starts_with(term)),
         )
     });
 }
@@ -665,6 +672,28 @@ mod tests {
 
     fn displays(items: &[Candidate]) -> Vec<&str> {
         items.iter().map(|c| c.display.as_str()).collect()
+    }
+
+    #[test]
+    fn a_row_a_specification_writes_breaks_the_case_tie_by_its_name() {
+        let option = |display: &str, insert: &str, verbatim: bool| Candidate {
+            display: display.to_string(),
+            insert: insert.to_string(),
+            label: Cow::Borrowed("option"),
+            hint: Vec::new(),
+            kind: Kind::Option,
+            score: 0,
+            priority: DEFAULT_PRIORITY,
+            cursor: None,
+            verbatim,
+        };
+        // `-d ''` is the text the row writes. `--data` is the name typed.
+        let mut rows = [
+            option("--DATA", "--DATA", false),
+            option("--data", "-d ''", true),
+        ];
+        rank(&mut rows, "--d", None);
+        assert_eq!(displays(&rows), ["--data", "--DATA"]);
     }
 
     #[test]
