@@ -1,9 +1,10 @@
-//! The person's own shell history, read for one thing: how often a
-//! command's second word followed its first. `git status` teaches the pair
-//! `("git", "status")`; nothing else about that line is kept and the line
-//! itself never leaves [`read`]. `crate::candidates::rank` is the one reader
-//! of what comes back, and it looks up one pair at a time through
-//! [`Counts::count`].
+//! The person's own shell history, read for two things: how often a
+//! command's second word followed its first, and the commands themselves for
+//! an argument whose specification asks for its own past values. `git status`
+//! teaches the pair `("git", "status")`. `crate::candidates::rank` looks up
+//! one pair at a time through [`Counts::count`] and `crate::spec_menu` walks
+//! [`Counts::commands`] for that one template. Both live as long as the menu
+//! that asked for them and no longer.
 //!
 //! Nothing here writes a file, logs, or prints. A missing, unreadable or
 //! empty history answers every lookup with zero, the same as a history that
@@ -36,8 +37,14 @@ use std::path::Path;
 /// words rather than building an owned pair to hash, and
 /// `crate::candidates::rank` makes one lookup per row on a keystroke the
 /// person is waiting through.
+///
+/// The second field is every command the read found, in the file's own order
+/// and with the same aliases resolved.
 #[derive(Clone, Default)]
-pub(crate) struct Counts(pub(crate) HashMap<String, HashMap<String, u32>>);
+pub(crate) struct Counts(
+    pub(crate) HashMap<String, HashMap<String, u32>>,
+    pub(crate) Vec<shellparse::Command>,
+);
 
 impl Counts {
     /// How many times `first second` was typed. Zero for a pair that never
@@ -49,6 +56,11 @@ impl Counts {
             .and_then(|seconds| seconds.get(second))
             .copied()
             .unwrap_or(0)
+    }
+
+    /// Every command the history holds, oldest first.
+    pub(crate) fn commands(&self) -> &[shellparse::Command] {
+        &self.1
     }
 }
 
@@ -75,19 +87,20 @@ pub(crate) fn read(path: &str, aliases: &HashMap<String, String>) -> Counts {
         return Counts::default();
     }
     let mut counts: HashMap<String, HashMap<String, u32>> = HashMap::new();
+    let mut commands = Vec::new();
     for entry in tail_entries(Path::new(path)) {
         for command in shellparse::parse_with_aliases(command_text(&entry), aliases).commands {
-            let mut words = command.words.into_iter();
-            let Some(first) = words.next() else { continue };
-            let Some(second) = words.next() else { continue };
-            *counts
-                .entry(first.inner_text)
-                .or_default()
-                .entry(second.inner_text)
-                .or_default() += 1;
+            if let [first, second, ..] = command.words.as_slice() {
+                *counts
+                    .entry(first.inner_text.clone())
+                    .or_default()
+                    .entry(second.inner_text.clone())
+                    .or_default() += 1;
+            }
+            commands.push(command);
         }
     }
-    Counts(counts)
+    Counts(counts, commands)
 }
 
 /// The last [`READ_LIMIT`] bytes of `path`, and whether the entry the
