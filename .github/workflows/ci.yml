@@ -67,12 +67,13 @@ jobs:
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
       # These go in ahead of the tests rather than ahead of `make shell`. The
-      # pty tests run the widget in a real zsh and a Linux runner has to install
-      # one. macOS ships zsh and needs the other two alone. Each platform gets
-      # its own step so the interface says which install ran.
-      - name: Install the shell tools
+      # pty tests run the widgets in a real zsh and a real bash 4.4 or later. A
+      # Linux runner has to install zsh and already has that bash. macOS ships
+      # zsh and a bash 3.2 and needs a newer bash beside the other two. Each
+      # platform gets its own step so the interface says which install ran.
+      - name: Install the shell tools and bash
         if: runner.os == 'macOS'
-        run: brew install shellcheck shfmt
+        run: brew install shellcheck shfmt bash
       - name: Install the shell tools and zsh
         if: runner.os == 'Linux'
         run: |

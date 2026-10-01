@@ -17,6 +17,7 @@ surmise — complete cd directories, Git subcommands, and any command with a
 committed specification.
 
   surmise init zsh                   the shell widget, for `eval \"$(surmise init zsh)\"`
+  surmise init bash                  the same for bash 4.4 or later
   surmise demo                       a clean interactive zsh on your own files
   surmise doctor                     what stands between this shell and a menu
   surmise --pick LINE                the picker that widget calls, result on stdout
@@ -41,6 +42,17 @@ import.
 /// mechanism for anything beside it. A widget that lived only in the
 /// repository would therefore never reach an installed surmise.
 const ZSH: &str = include_str!("../shell/surmise.zsh");
+/// The same for bash.
+const BASH: &str = include_str!("../shell/surmise.bash");
+
+/// Every shell `init` has a widget for, by the name it answers to.
+const WIDGETS: [(&str, &str); 2] = [("zsh", ZSH), ("bash", BASH)];
+
+/// The shells `init` names, the way a refusal lists them.
+fn shells() -> String {
+    let names: Vec<&str> = WIDGETS.iter().map(|(name, _)| *name).collect();
+    names.join(" and ")
+}
 
 /// What the arguments ask for.
 enum Mode<'a> {
@@ -252,21 +264,24 @@ fn main() -> ExitCode {
         // failed therefore cannot report success. `eval "$(surmise init zsh)"`
         // would otherwise evaluate a truncated widget or nothing at all and
         // say nothing about either.
-        Mode::Init("zsh") => {
-            let mut out = io::stdout().lock();
-            match out.write_all(ZSH.as_bytes()).and_then(|()| out.flush()) {
-                Ok(()) => ExitCode::SUCCESS,
-                Err(e) => {
-                    eprintln!("surmise: cannot write the zsh widget: {e}");
-                    ExitCode::FAILURE
+        Mode::Init(shell) => match WIDGETS.iter().find(|(name, _)| *name == shell) {
+            Some((name, widget)) => {
+                let mut out = io::stdout().lock();
+                match out.write_all(widget.as_bytes()).and_then(|()| out.flush()) {
+                    Ok(()) => ExitCode::SUCCESS,
+                    Err(e) => {
+                        eprintln!("surmise: cannot write the {name} widget: {e}");
+                        ExitCode::FAILURE
+                    }
                 }
             }
-        }
-        Mode::Init("") => refuse("init takes a shell. zsh is the only one this build has."),
-        Mode::Init(shell) => refuse(&format!(
-            "no widget for {}. zsh is the only shell this build has.",
-            ui::printable(shell)
-        )),
+            None if shell.is_empty() => refuse(&format!("init takes a shell: {}.", shells())),
+            None => refuse(&format!(
+                "no widget for {}. This build has one for {}.",
+                ui::printable(shell),
+                shells()
+            )),
+        },
         Mode::Settings(words) => settings(words),
         Mode::ThemeImport("") => refuse("theme import takes the theme file to read"),
         Mode::ThemeImport(file) => match config::import_theme(Path::new(file)) {
