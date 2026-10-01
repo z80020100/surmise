@@ -17,6 +17,7 @@
 //! surmise writes without being asked and it is kept somewhere else for
 //! exactly that reason.
 
+use crate::candidates::Sort;
 use crate::fuzzy::Match;
 use crate::icons::Set;
 use serde::Deserialize;
@@ -45,6 +46,9 @@ pub struct Config {
     /// How what was typed has to reach a row. A specification's own
     /// `filterStrategy` outranks it for the argument or the node it names.
     pub matching: Match,
+    /// What orders the rows a match leaves level. `"alphabetical"` keeps
+    /// the directory history and `$HISTFILE` out of the order.
+    pub sort: Sort,
     /// What went wrong reading the file, if anything did. Nothing here
     /// prints it. `surmise doctor` is what a person sees this through.
     pub warning: Option<String>,
@@ -58,6 +62,7 @@ impl Default for Config {
             spec_dirs: Vec::new(),
             icons: Set::default(),
             matching: Match::default(),
+            sort: Sort::default(),
             warning: None,
         }
     }
@@ -76,6 +81,7 @@ struct Schema {
     icons: Option<String>,
     #[serde(rename = "match")]
     matching: Option<String>,
+    sort: Option<String>,
     #[serde(flatten)]
     extra: BTreeMap<String, toml::Value>,
 }
@@ -139,12 +145,20 @@ impl Config {
                     Match::from_word,
                     &mut warnings,
                 );
+                let sort = word(
+                    "sort",
+                    schema.sort.as_deref(),
+                    &Sort::WORDS,
+                    Sort::from_word,
+                    &mut warnings,
+                );
                 Config {
                     enabled: schema.enabled.unwrap_or(true),
                     disabled_commands: schema.disabled_commands.unwrap_or_default(),
                     spec_dirs: schema.spec_dirs.unwrap_or_default(),
                     icons,
                     matching,
+                    sort,
                     warning: (!warnings.is_empty()).then(|| warnings.join("; ")),
                 }
             }
@@ -174,6 +188,7 @@ impl Config {
         doc["enabled"] = Item::Value(self.enabled.into());
         doc["icons"] = Item::Value(self.icons.word().into());
         doc["match"] = Item::Value(self.matching.word().into());
+        doc["sort"] = Item::Value(self.sort.word().into());
         // A path here came out of the file and TOML is UTF-8, so there is
         // nothing for this conversion to lose.
         doc["spec_dirs"] = Item::Value(array_of(
@@ -291,6 +306,7 @@ const KEYS: &[(&str, Shape)] = &[
     ("enabled", Shape::Bool),
     ("icons", Shape::Word(&Set::WORDS)),
     ("match", Shape::Word(&Match::WORDS)),
+    ("sort", Shape::Word(&Sort::WORDS)),
     ("spec_dirs", Shape::List),
 ];
 
@@ -551,6 +567,21 @@ mod tests {
     }
 
     #[test]
+    fn the_order_is_recent_unless_the_file_names_alphabetical() {
+        assert_eq!(Config::parse("").sort, Sort::Recent);
+        assert_eq!(
+            Config::parse("sort = \"alphabetical\"").sort,
+            Sort::Alphabetical
+        );
+        let config = Config::parse("sort = \"oldest\"");
+        assert_eq!(config.sort, Sort::Recent);
+        assert_eq!(
+            config.warning,
+            Some("sort is not recent or alphabetical: \"oldest\"".to_string())
+        );
+    }
+
+    #[test]
     fn matching_is_fuzzy_unless_the_file_names_prefix() {
         assert_eq!(Config::parse("").matching, Match::Fuzzy);
         assert_eq!(Config::parse("match = \"prefix\"").matching, Match::Prefix);
@@ -617,6 +648,7 @@ disabled_commands = []
 enabled = true
 icons = \"text\"
 match = \"fuzzy\"
+sort = \"recent\"
 spec_dirs = []
 ";
 
@@ -646,6 +678,7 @@ spec_dirs = []
              enabled = false\n\
              icons = \"nerd\"\n\
              match = \"fuzzy\"\n\
+             sort = \"recent\"\n\
              spec_dirs = [\"/opt/specs\"]\n"
         );
         assert_eq!(Config::parse(&config.toml()), config);
@@ -840,7 +873,7 @@ spec_dirs = []
             "{said:?}"
         );
         assert!(
-            said.contains("disabled_commands, enabled, icons, match, spec_dirs"),
+            said.contains("disabled_commands, enabled, icons, match, sort, spec_dirs"),
             "{said:?}"
         );
         // A value with no reader would be one the picker silently ignores,
@@ -906,6 +939,7 @@ spec_dirs = []
                 "enabled",
                 "icons",
                 "match",
+                "sort",
                 "spec_dirs"
             ]
         );

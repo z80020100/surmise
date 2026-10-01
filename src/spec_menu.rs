@@ -136,6 +136,9 @@ pub(crate) struct Completions {
     /// How the last list wants what was typed to reach a row, where its
     /// specification says. See [`Completions::matching`].
     matching: Option<Match>,
+    /// `sort = "alphabetical"`. A past word then lifts nothing and the words
+    /// the `history` template offers go in the order of their names.
+    pub(crate) alphabetical: bool,
 }
 
 impl Completions {
@@ -345,12 +348,17 @@ impl Completions {
             .map(|(i, row)| (row.insert.trim_end_matches('/').to_string(), i))
             .collect();
         let newest = past.len() as i32;
+        let mut fresh = Vec::new();
         for (age, value) in (0..).zip(past) {
-            let bonus = RECENT_BONUS * (newest - age);
+            let bonus = if self.alphabetical {
+                0
+            } else {
+                RECENT_BONUS * (newest - age)
+            };
             if let Some(&i) = held.get(value.trim_end_matches('/')) {
                 rows[i].score += bonus;
             } else if let Some(score) = fuzzy::score(&walk.search_term, value) {
-                rows.push(Candidate {
+                fresh.push(Candidate {
                     display: value.to_string(),
                     insert: value.to_string(),
                     label: Cow::Borrowed(PAST_LABEL),
@@ -363,6 +371,10 @@ impl Completions {
                 });
             }
         }
+        if self.alphabetical {
+            in_name_order(&mut fresh);
+        }
+        rows.append(&mut fresh);
     }
 
     fn spec_for(&mut self, name: &str) -> Option<Rc<Subcommand>> {
@@ -1495,6 +1507,21 @@ mod tests {
         // The newest use leads and shows once. The options were words of
         // their own and `sample-file` was another command's.
         assert_eq!(past, ["sample-host", "other-host"]);
+    }
+
+    #[test]
+    fn an_alphabetical_order_leaves_past_words_to_their_names() {
+        let f = Fixture::new(&[]);
+        // `sample-host` is the newer of the two.
+        let mut c = past(&f, "mosh other-host\nmosh sample-host\n");
+        c.alphabetical = true;
+        let rows = complete(&mut c, &target("mosh "));
+        let past: Vec<&str> = rows
+            .iter()
+            .filter(|r| r.label == PAST_LABEL)
+            .map(|r| r.insert.as_str())
+            .collect();
+        assert_eq!(past, ["other-host", "sample-host"]);
     }
 
     #[test]
