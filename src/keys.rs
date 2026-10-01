@@ -1,8 +1,7 @@
 //! The line editing.
 //!
-//! Only the keys that change the line or move the highlight are here. Enter,
-//! Tab and Escape answer for the menu as a whole rather than for the line and
-//! the picker therefore holds those itself.
+//! Only the keys that change the line are here. A key `crate::keymap` binds
+//! is an action and never reaches [`edit`]. The picker answers those itself.
 
 use crate::app::App;
 use crate::ui;
@@ -37,10 +36,6 @@ pub fn edit(app: &mut App, k: KeyEvent) {
             app.line.kill_word_back();
             app.edited();
         }
-        // The highlight's own pair. Ctrl-K is the shell's kill-line here and
-        // moves nothing.
-        KeyCode::Char('n' | 'j') if ctrl => app.step(1),
-        KeyCode::Char('p') if ctrl => app.step(-1),
         // Shift is part of typing a character. Every other modifier makes the
         // key a command and the character commands are the arms above. Alt
         // and a letter is a word motion in most editors and typing the letter
@@ -60,19 +55,20 @@ pub fn edit(app: &mut App, k: KeyEvent) {
         KeyCode::Left => app.line.left(),
         KeyCode::Home => app.line.home(),
         KeyCode::End => app.line.end(),
-        KeyCode::Up | KeyCode::BackTab => app.step(-1),
-        KeyCode::Down => app.step(1),
-        KeyCode::Right => {
-            // At the end of the line the right arrow takes the completion.
-            // `adds_to_the_line` rather than the ghost. The ghost shows
-            // nothing when the name corrects the case of what was typed.
-            if app.line.at_end() && app.adds_to_the_line() {
-                app.accept();
-            } else {
-                app.line.right();
-            }
-        }
+        KeyCode::Right => app.line.right(),
         _ => {}
+    }
+}
+
+/// `acceptRight`. At the end of the line the key takes what the highlighted
+/// row adds and anywhere else it moves the cursor right. `adds_to_the_line`
+/// rather than the ghost. The ghost shows nothing when the name corrects the
+/// case of what was typed.
+pub fn accept_right(app: &mut App) {
+    if app.line.at_end() && app.adds_to_the_line() {
+        app.accept();
+    } else {
+        app.line.right();
     }
 }
 
@@ -202,32 +198,11 @@ mod tests {
     }
 
     #[test]
-    fn up_and_down_move_the_highlight() {
-        let f = Fixture::new(&["work", "worse"]);
-        let mut a = App::over(f.path(), "cd wor");
-        assert_eq!(a.items.len(), 2);
-        press(&mut a, KeyCode::Down);
-        assert_eq!(a.selected, 1);
-        press(&mut a, KeyCode::Down);
-        assert_eq!(a.selected, 0);
-        press(&mut a, KeyCode::Up);
-        assert_eq!(a.selected, 1);
-    }
-
-    #[test]
-    fn shift_tab_moves_the_highlight_back() {
-        let f = Fixture::new(&["work", "worse"]);
-        let mut a = App::over(f.path(), "cd wor");
-        press(&mut a, KeyCode::BackTab);
-        assert_eq!(a.selected, 1);
-    }
-
-    #[test]
     fn the_right_arrow_at_the_end_takes_the_completion() {
         let f = Fixture::new(&["work"]);
         let mut a = App::over(f.path(), "cd wor");
         assert_eq!(a.ghost(), "k/");
-        press(&mut a, KeyCode::Right);
+        accept_right(&mut a);
         assert_eq!(a.line.text(), "cd work/");
     }
 
@@ -236,7 +211,7 @@ mod tests {
         let f = Fixture::new(&["other"]);
         let mut a = App::over(f.path(), "cd wor");
         assert_eq!(a.ghost(), "");
-        press(&mut a, KeyCode::Right);
+        accept_right(&mut a);
         assert_eq!(a.line.text(), "cd wor");
     }
 

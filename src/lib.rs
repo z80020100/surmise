@@ -21,6 +21,7 @@ pub mod git;
 pub mod histfile;
 pub mod history;
 pub mod icons;
+pub mod keymap;
 pub mod keys;
 pub mod line;
 pub mod native;

@@ -13,11 +13,12 @@ use crate::candidates::Sort;
 use crate::config::Config;
 use crate::histfile;
 use crate::history::History;
+use crate::keymap::Action;
 use crate::keys;
 use crate::state::State;
 use crate::tty;
 use crate::ui;
-use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
+use crossterm::event::{self, Event, KeyEventKind};
 use std::collections::HashMap;
 use std::io::{self, Read, Write};
 use std::path::Path;
@@ -304,89 +305,8 @@ pub fn run(seed: &str) -> io::Result<u8> {
                 app.edited();
             }
             Event::Key(k) if matches!(k.kind, KeyEventKind::Press | KeyEventKind::Repeat) => {
-                let ctrl = k.modifiers.contains(KeyModifiers::CONTROL);
-                let alt = k.modifiers.contains(KeyModifiers::ALT);
-                match k.code {
-                    // Escape hands the line back as it stands. Anything typed
-                    // in here is the person's work and must survive.
-                    KeyCode::Esc => break ACCEPTED,
-                    KeyCode::Char('c' | 'g') if ctrl => break CANCELLED,
-                    // The word under the list takes one row on its own and
-                    // a sentence longer than that loses its tail. This
-                    // opens the whole of it and closes it again. It opens
-                    // beside the list where the terminal has room for both.
-                    // The key is not Ctrl-K because surmise keeps Ctrl-K as
-                    // the shell's own kill-line.
-                    //
-                    // The answer outlives this menu. Every later one opens
-                    // the way this key last left it. How the menu it was
-                    // pressed in ended makes no difference.
-                    //
-                    // The key answers for a menu and there has to be one to
-                    // answer for. A line with no rows draws no panel, no
-                    // word under it and no badge naming this key, and a
-                    // press there would set every later menu from a screen
-                    // that showed none of it. `keys::edit` leaves a ctrl
-                    // character alone, so nothing else takes the key.
-                    KeyCode::Char('o') if ctrl && app.menu_open() => {
-                        app.whole_word = !app.whole_word;
-                        State {
-                            whole_word: app.whole_word,
-                        }
-                        .save();
-                    }
-                    // Alt and a digit puts the highlight on that row of the
-                    // ones on screen. Alt-0 is the tenth. A terminal delivers
-                    // Alt and a digit where it delivers no Ctrl-digit at all.
-                    KeyCode::Char(digit @ '0'..='9') if alt && app.menu_open() => {
-                        let nth = (digit as usize - '0' as usize + 9) % 10;
-                        app.select(ui.top() + nth);
-                    }
-                    // Nothing to take is an answer of its own and the line
-                    // cannot show it. The bell is what says it instead.
-                    KeyCode::Tab => {
-                        if !app.accept_common() {
-                            ui.bell()?;
-                        } else if !app.menu_open() {
-                            // A whole name went in and left nothing behind to
-                            // answer the next press with. The Enter arm below
-                            // ends the same way and says why.
-                            break ACCEPTED;
-                        }
-                    }
-                    // A directory row is one to go into and the menu stays
-                    // open on what is inside it. The row that runs the line
-                    // ends the run and so does a row with nothing left to
-                    // take. The second of those is what keeps Enter working
-                    // once the cursor has moved off the argument the menu
-                    // answers for.
-                    KeyCode::Enter => {
-                        // Every exit takes the row first. The line the shell is
-                        // handed has to name the directory surmise resolved and
-                        // a bare `it's` or `~root` names something else.
-                        //
-                        // The row that runs the line runs it on a Git line
-                        // too. A Git line with no row left to take goes back
-                        // to the shell instead.
-                        if app.runs_the_line() {
-                            break if app.accept() || !completing_git {
-                                RUN
-                            } else {
-                                ACCEPTED
-                            };
-                        }
-                        if !app.accept() {
-                            break if completing_git { ACCEPTED } else { RUN };
-                        }
-                        // The descent landed somewhere with nothing to show
-                        // and nothing to go on into. A directory nobody may
-                        // read does that. Hand the line to the shell's own
-                        // editor rather than hold a frame with no menu on it.
-                        if !app.menu_open() {
-                            break ACCEPTED;
-                        }
-                    }
-                    _ => {
+                match config.keys.action(&k) {
+                    None => {
                         keys::edit(&mut app, k);
                         // An empty line is the plainest way to say "not this".
                         // Leave it empty and give the terminal back.
@@ -400,6 +320,108 @@ pub fn run(seed: &str) -> io::Result<u8> {
                             break ACCEPTED;
                         }
                     }
+                    Some(action) => match action {
+                        // Escape hands the line back as it stands. Anything typed
+                        // in here is the person's work and must survive.
+                        Action::HideAutocomplete => break ACCEPTED,
+                        Action::Cancel => break CANCELLED,
+                        // The word under the list takes one row on its own and
+                        // a sentence longer than that loses its tail. This
+                        // opens the whole of it and closes it again. It opens
+                        // beside the list where the terminal has room for both.
+                        // The key is not Ctrl-K because surmise keeps Ctrl-K as
+                        // the shell's own kill-line.
+                        //
+                        // The answer outlives this menu. Every later one opens
+                        // the way this key last left it. How the menu it was
+                        // pressed in ended makes no difference.
+                        //
+                        // The key answers for a menu and there has to be one to
+                        // answer for. A line with no rows draws no panel, no
+                        // word under it and no badge naming this key, and a
+                        // press there would set every later menu from a screen
+                        // that showed none of it.
+                        Action::ToggleDescription => {
+                            if app.menu_open() {
+                                app.whole_word = !app.whole_word;
+                                State {
+                                    whole_word: app.whole_word,
+                                }
+                                .save();
+                            }
+                        }
+                        // The digit counts the rows on screen. Alt and a digit is
+                        // the default because a terminal delivers it where it
+                        // delivers no Ctrl-digit at all.
+                        Action::SelectSuggestion(nth) => {
+                            if app.menu_open() {
+                                app.select(ui.top() + usize::from(nth) - 1);
+                            }
+                        }
+                        Action::NavigateUp => app.step(-1),
+                        Action::NavigateDown => app.step(1),
+                        Action::AcceptRight => keys::accept_right(&mut app),
+                        Action::ToggleFuzzySearch => app.toggle_matching(),
+                        // Nothing to take is an answer of its own and the line
+                        // cannot show it. The bell is what says it instead. The
+                        // two others ask for something else where nothing is
+                        // shared: the next row, or the highlighted one.
+                        Action::InsertCommonPrefix
+                        | Action::InsertCommonPrefixOrNavigateDown
+                        | Action::InsertCommonPrefixOrInsertSelected => {
+                            if !app.accept_common() {
+                                match action {
+                                    Action::InsertCommonPrefixOrNavigateDown => app.step(1),
+                                    Action::InsertCommonPrefixOrInsertSelected if app.accept() => {}
+                                    _ => ui.bell()?,
+                                }
+                            }
+                            // A whole name went in and left nothing behind to
+                            // answer the next press with. The Enter arm below
+                            // ends the same way and says why.
+                            if !app.menu_open() {
+                                break ACCEPTED;
+                            }
+                        }
+                        // Whatever the row is, the line runs behind it. The shell
+                        // is handed the line the row left and runs that.
+                        Action::InsertSelectedAndExecute => {
+                            app.accept();
+                            break RUN;
+                        }
+                        // A directory row is one to go into and the menu stays
+                        // open on what is inside it. The row that runs the line
+                        // ends the run and so does a row with nothing left to
+                        // take. The second of those is what keeps Enter working
+                        // once the cursor has moved off the argument the menu
+                        // answers for.
+                        Action::InsertSelected => {
+                            // Every exit takes the row first. The line the shell is
+                            // handed has to name the directory surmise resolved and
+                            // a bare `it's` or `~root` names something else.
+                            //
+                            // The row that runs the line runs it on a Git line
+                            // too. A Git line with no row left to take goes back
+                            // to the shell instead.
+                            if app.runs_the_line() {
+                                break if app.accept() || !completing_git {
+                                    RUN
+                                } else {
+                                    ACCEPTED
+                                };
+                            }
+                            if !app.accept() {
+                                break if completing_git { ACCEPTED } else { RUN };
+                            }
+                            // The descent landed somewhere with nothing to show
+                            // and nothing to go on into. A directory nobody may
+                            // read does that. Hand the line to the shell's own
+                            // editor rather than hold a frame with no menu on it.
+                            if !app.menu_open() {
+                                break ACCEPTED;
+                            }
+                        }
+                    },
                 }
             }
             // A resize needs no answer of its own. The next frame measures the

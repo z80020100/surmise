@@ -187,6 +187,10 @@ Without spare rows the menu shows only the list and its label.
 | Ctrl-O | Open the whole of the word, beside the list where it fits |
 | Ctrl-C and Ctrl-G | Leave and restore the line you started with |
 
+Every key in that table is one the `[keys]` table in the configuration can
+move. The line editing further down is not. "Configuration" below names the
+actions.
+
 A cursor that sits inside a word narrows Tab before surmise reads anything
 else on the line. When the character to its right is not a space or a tab,
 Tab hands the key to the shell's own completion instead, because completing
@@ -1260,7 +1264,7 @@ earns is kept rather
 than the first of them, because a person sent back twice for one file has
 been told half of what the reader already knew.
 
-Seven keys have a reader today.
+Seven keys and one table have a reader today.
 
 - `enabled` turns the picker off. `pick::run` checks it before it opens the
   terminal, so `false` answers every key with `PASS` and the shell's own
@@ -1297,6 +1301,22 @@ Seven keys have a reader today.
   open. `git commit -` then shows `--message` rather than `-m`.
   `git commit -m` still shows `-m` because that name is typed whole. A value
   a specification lists keeps its first name.
+- `[keys]` is a table rather than a value. Each key in it names an action by
+  the name the other engine's own settings give it and each value lists the
+  keys that take it, such as `navigateDown = ["down", "ctrl+n"]`. A key is
+  spelled the way those settings spell one: `ctrl+n`, `alt+1`, `shift+tab`,
+  `up`, `esc`. An action the table names loses its own keys to the ones listed
+  and no key listed there takes any other action. An empty list leaves an
+  action unbound. `settings show` prints every action with the keys it takes.
+  Four actions have no key until a person gives them one.
+  `insertCommonPrefixOrNavigateDown` steps down where Tab would ring and
+  `insertCommonPrefixOrInsertSelected` takes the highlighted row there.
+  `insertSelectedAndExecute` takes the row and runs the line.
+  `toggleFuzzySearch` swaps `match` for the rest of one menu. A name no action
+  answers to and a key no spelling reaches are each a warning and change
+  nothing. A binding that takes a character, Backspace or Left away from the
+  line is a warning too and stands. The writing commands leave the table alone
+  and a person writes it by hand.
 
 `spec_menu` is the menu that calls `spec_store::get_configured`, once per
 command name it asks for, so three of the seven keys now reach what a person
