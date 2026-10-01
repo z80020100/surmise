@@ -10,7 +10,7 @@ use std::ffi::OsString;
 use std::io::{self, Write};
 use std::path::Path;
 use std::process::ExitCode;
-use surmise::{config, demo, pick, spec_store, ui};
+use surmise::{config, demo, doctor, pick, spec_store, ui};
 
 const USAGE: &str = "\
 surmise — complete cd directories, Git subcommands, and any command with a
@@ -18,6 +18,7 @@ committed specification.
 
   surmise init zsh                   the shell widget, for `eval \"$(surmise init zsh)\"`
   surmise demo                       a clean interactive zsh on your own files
+  surmise doctor                     what stands between this shell and a menu
   surmise --pick LINE                the picker that widget calls, result on stdout
   surmise --record SOURCE TARGET     record a successful directory change
   surmise settings path              the config path, whether it exists yet or not
@@ -51,6 +52,8 @@ enum Mode<'a> {
     Specs(&'a str),
     /// The demo shell. It takes no word of its own.
     Demo,
+    /// The checks. They take no word of their own either.
+    Doctor,
     /// The usage.
     Help,
     /// An argument this build does not know.
@@ -88,6 +91,10 @@ fn mode(args: &[String]) -> Mode<'_> {
         Some("demo") => match args.get(1) {
             Some(extra) => Mode::Unknown(extra),
             None => Mode::Demo,
+        },
+        Some("doctor") => match args.get(1) {
+            Some(extra) => Mode::Unknown(extra),
+            None => Mode::Doctor,
         },
         // Without an argument there is no line to complete. The usage is the
         // whole of what this build can say on its own.
@@ -275,6 +282,17 @@ fn main() -> ExitCode {
                 ExitCode::FAILURE
             }
         },
+        // Every check prints whatever the others found. A `fail` is what
+        // makes the status say so.
+        Mode::Doctor => {
+            let (report, failed) = doctor::report(&doctor::checks(&doctor::Facts::here()));
+            print!("{report}");
+            if failed {
+                ExitCode::FAILURE
+            } else {
+                ExitCode::SUCCESS
+            }
+        }
         Mode::Help => {
             usage(io::stdout());
             ExitCode::SUCCESS
@@ -292,6 +310,15 @@ mod tests {
     /// An argument list as `main` collects it.
     fn args(list: &[&str]) -> Vec<String> {
         list.iter().copied().map(String::from).collect()
+    }
+
+    #[test]
+    fn doctor_takes_no_word_of_its_own() {
+        assert!(matches!(mode(&args(&["doctor"])), Mode::Doctor));
+        assert!(matches!(
+            mode(&args(&["doctor", "extra"])),
+            Mode::Unknown("extra")
+        ));
     }
 
     #[test]

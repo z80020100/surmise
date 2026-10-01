@@ -14,6 +14,7 @@ pub mod atomic;
 pub mod candidates;
 pub mod config;
 pub mod demo;
+pub mod doctor;
 pub mod fixture;
 pub mod fuzzy;
 pub mod git;

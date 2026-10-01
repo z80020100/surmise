@@ -317,6 +317,19 @@ fn a_whole_subcommand_gives_the_keys_back_to_the_shell() {
 }
 
 #[test]
+fn doctor_finds_the_widget_this_shell_loaded() {
+    let f = home("", "");
+    let mut t = ready(f.path());
+    t.send("$SURMISE_BIN doctor\r");
+    assert!(t.wait_line("loaded in zsh", WAIT), "{:?}", t.lines());
+    assert!(
+        t.lines().iter().any(|l| l.starts_with("ok    widget")),
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
 fn git_tab_opens_the_menu_and_cancel_restores_the_seed() {
     let f = home("", "bindkey ' ' $_surmise_space");
     let mut t = ready(f.path());
