@@ -19,15 +19,16 @@ const POLL: Duration = Duration::from_millis(20);
 /// How long a hangup gets before the child is killed outright.
 const REAP: Duration = Duration::from_secs(2);
 
-/// A screen that answers a cursor-position report and counts the bell.
+/// A screen that answers a cursor-position report and a device-attributes
+/// query and counts the bell.
 ///
 /// surmise asks where the cursor is so it can draw on the shell's own prompt
 /// row. A screen that stays silent sends it down the fallback path and the
 /// path a person actually gets would then go untested.
 ///
-/// vt100 implements no CSI `n`. The query therefore arrives here instead and
-/// the reply waits in the buffer until `Term` sends it, because a callback
-/// holds the screen rather than the device.
+/// vt100 implements neither CSI `n` nor CSI `c`. A query therefore arrives here
+/// instead and the reply waits in the buffer until `Term` sends it, because a
+/// callback holds the screen rather than the device.
 #[derive(Default)]
 struct Answering {
     /// What the screen owes the program.
@@ -52,12 +53,19 @@ impl vt100::Callbacks for Answering {
     ) {
         // A private marker arrives as the first intermediate. `\x1b[?6n` is
         // DECXCPR and wants a reply of its own rather than this one.
-        if i1.is_some() || c != 'n' || !matches!(params, [[6]]) {
+        if i1.is_some() {
             return;
         }
-        // The report is one-based and `cursor_position` is not.
-        let (row, col) = screen.cursor_position();
-        let reply = format!("\x1b[{};{}R", row + 1, col + 1);
+        let reply = match (c, params) {
+            // The report is one-based and `cursor_position` is not.
+            ('n', [[6]]) => {
+                let (row, col) = screen.cursor_position();
+                format!("\x1b[{};{}R", row + 1, col + 1)
+            }
+            // fish 4 waits up to 10 seconds for this before its first prompt.
+            ('c', [] | [[0]]) => "\x1b[?1;2c".to_string(),
+            _ => return,
+        };
         self.reply.extend_from_slice(reply.as_bytes());
     }
 }
@@ -135,8 +143,7 @@ impl Term {
         }
     }
 
-    /// Send whatever the screen owes the program. A cursor-position report is
-    /// the only answer it has so far.
+    /// Send whatever the screen owes the program.
     fn answer(&mut self) {
         let reply = std::mem::take(&mut self.parser.callbacks_mut().reply);
         if !reply.is_empty() {
