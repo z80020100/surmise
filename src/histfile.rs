@@ -72,9 +72,9 @@ impl Counts {
 }
 
 /// The most of a history file a read looks at, from its tail. `crate::native`
-/// caps a file it reads at 64 KiB for the same reason this does: a prompt is
-/// waiting on the read and what sits past the cap is worth nothing beside
-/// making it wait longer.
+/// caps every file but Homebrew's API lists at 64 KiB for the same reason
+/// this does: a prompt is waiting on the read and what sits past the cap is
+/// worth nothing beside making it wait longer.
 const READ_LIMIT: u64 = 64 * 1024;
 
 /// The most entries a read keeps, again from the tail. A history of ordinary

@@ -17,15 +17,21 @@
 //! argument whose generator carries no command line, and for one whose line
 //! cannot say what to read. `npm run`'s argument keeps the line that walks
 //! up to a `package.json`. `pnpm remove` and `pnpm run` keep that same line
-//! and read opposite halves of the file.
+//! and read opposite halves of the file. `brew install` keeps two lines that
+//! print past the cap a line's output carries. Its reader reads both lists
+//! from Homebrew's own files at once and leaves out a name already typed. An
+//! entry keyed by one line sees neither the other list nor the words in front
+//! of the one being typed.
 
 use crate::candidates::{Candidate, DEFAULT_PRIORITY, Kind, SCAN_LIMIT};
 use crate::fuzzy;
 use serde_json::{Map, Value};
 use std::borrow::Cow;
+use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::Read;
+use std::os::unix::fs::OpenOptionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -80,7 +86,7 @@ fn unlabelled(names: Vec<String>) -> Vec<Found> {
         .collect()
 }
 
-const READERS: &[Reader] = &[
+static READERS: &[Reader] = &[
     Reader {
         command: "make",
         owners: &["make"],
@@ -200,6 +206,13 @@ const READERS: &[Reader] = &[
         label: "project",
         read: rush_projects,
     },
+    Reader {
+        command: "brew",
+        owners: &["install", "abv", "edit", "home"],
+        arg: "formula",
+        label: "formula",
+        read: brew_names,
+    },
 ];
 
 /// A reader for every argument whose generator runs one command line.
@@ -221,7 +234,7 @@ struct Script {
 /// `cargo metadata` without `--no-deps` can fetch an index to resolve the
 /// dependencies and has none either. A line the corpus reads two ways has
 /// its entries in [`BY_ARGUMENT`] instead, one for each way.
-const SCRIPTS: &[Script] = &[
+static SCRIPTS: &[Script] = &[
     Script {
         line: &["git", "--no-optional-locks", "log", "--oneline"],
         label: "commit",
@@ -629,13 +642,23 @@ const SCRIPTS: &[Script] = &[
     },
 ];
 
-/// What each command line answered, for the life of one menu. A line runs
-/// once however many keys follow, the way Git's own readers and the
-/// directory scan already do. A line that failed stays an empty answer.
+/// What each command line answered and each reader found in one menu. Both
+/// maps key on an entry's address. A `const` table can give one entry two
+/// addresses and the tables are therefore `static`.
 ///
-/// An entry is its own key. Two that read one line two ways each run it.
+/// Under `lines` a line runs once however many keys follow. Git's own
+/// readers and the directory scan do the same. Two entries that read one
+/// line two ways each run it. A line that failed stays an empty answer.
+///
+/// Under `reads` a reader keeps one answer. Some readers leave out a name
+/// the line already holds. A reader therefore reads its files again once
+/// the words in front of the one being typed change. An empty answer is not
+/// kept and the next key reads again.
 #[derive(Default)]
-pub(crate) struct Runs(HashMap<*const Script, Vec<Found>>);
+pub(crate) struct Runs {
+    lines: HashMap<*const Script, Vec<Found>>,
+    reads: HashMap<(*const Reader, Vec<String>), Vec<Found>>,
+}
 
 /// The lines the corpus reads two ways, each way under the names of the
 /// arguments that read it that way. [`script_rows`] asks this before
@@ -645,7 +668,7 @@ pub(crate) struct Runs(HashMap<*const Script, Vec<Found>>);
 /// one argument and the device under it such as `en0` for another. An
 /// argument that takes only the wireless one is answered with every device,
 /// because its name does not say which it is.
-const BY_ARGUMENT: &[(&[&str], Script)] = &[
+static BY_ARGUMENT: &[(&[&str], Script)] = &[
     (
         &["FQBN"],
         Script {
@@ -703,7 +726,7 @@ pub(crate) fn script_rows(
         return Vec::new();
     };
     let found = runs
-        .0
+        .lines
         .entry(std::ptr::from_ref(entry))
         .or_insert_with(|| run(entry, cwd));
     to_rows(found.iter(), entry.label, term)
@@ -1082,6 +1105,9 @@ struct Sources<'a> {
     home: &'a Path,
     /// The system-wide SSH configuration.
     ssh_config: &'a Path,
+    /// Where Homebrew keeps its cache. `None` means its name lists are not to
+    /// be read and [`homebrew_cache`] says when.
+    homebrew_cache: Option<&'a Path>,
 }
 
 const SYSTEM_SSH_CONFIG: &str = "/etc/ssh/ssh_config";
@@ -1090,7 +1116,8 @@ const SYSTEM_SSH_CONFIG: &str = "/etc/ssh/ssh_config";
 /// table has no reader for it. `command` is the first name of the
 /// specification the walk ended in, `owner` is the name of the node it
 /// ended on and `arg` is the argument's own first name. `line` is every word
-/// in front of the one being typed.
+/// in front of the one being typed. `runs` keeps a non-empty answer until
+/// `line` changes.
 pub(crate) fn rows(
     command: &str,
     owner: &str,
@@ -1098,28 +1125,56 @@ pub(crate) fn rows(
     term: &str,
     cwd: &Path,
     line: &[&str],
+    runs: &mut Runs,
 ) -> Vec<Candidate> {
     let Some(reader) = reader(command, owner, arg) else {
         return Vec::new();
     };
-    let home = std::env::var("HOME").unwrap_or_default();
+    let key = (
+        std::ptr::from_ref(reader),
+        line.iter().map(|word| word.to_string()).collect::<Vec<_>>(),
+    );
+    runs.reads.retain(|kept, _| kept.0 != key.0 || *kept == key);
+    let found = match runs.reads.entry(key) {
+        Entry::Occupied(kept) => kept.into_mut(),
+        // An empty answer is often a file caught while it is rewritten.
+        // Keeping it would keep it for the whole word.
+        Entry::Vacant(slot) => {
+            let found = read(reader, cwd, line);
+            if found.is_empty() {
+                return Vec::new();
+            }
+            slot.insert(found)
+        }
+    };
+    to_rows(found.iter(), reader.label, term)
+}
+
+/// What `reader` finds for `line` in `cwd`. The environment is read here and
+/// nowhere below it.
+fn read(reader: &Reader, cwd: &Path, line: &[&str]) -> Vec<Found> {
+    let var = |name: &str| std::env::var_os(name).map(PathBuf::from);
+    let home = var("HOME").unwrap_or_default();
+    let homebrew_cache = homebrew_cache(
+        std::env::var_os("HOMEBREW_NO_INSTALL_FROM_API").is_some_and(|value| !value.is_empty()),
+        var("HOMEBREW_CACHE"),
+        var("XDG_CACHE_HOME"),
+        &home,
+    );
     let sources = Sources {
         cwd,
         line,
-        home: Path::new(&home),
+        home: &home,
         ssh_config: Path::new(SYSTEM_SSH_CONFIG),
+        homebrew_cache: homebrew_cache.as_deref(),
     };
-    candidates(reader, &sources, term)
+    (reader.read)(&sources)
 }
 
 fn reader(command: &str, owner: &str, arg: &str) -> Option<&'static Reader> {
     READERS.iter().find(|r| {
         r.command == command && r.arg == arg && (r.owners.is_empty() || r.owners.contains(&owner))
     })
-}
-
-fn candidates(reader: &Reader, sources: &Sources, term: &str) -> Vec<Candidate> {
-    to_rows((reader.read)(sources).iter(), reader.label, term)
 }
 
 /// One row per name `term` reaches, under `label` where the name brought
@@ -1132,8 +1187,9 @@ fn to_rows<'a>(
     found
         .filter_map(|Found { name, label: own }| {
             // The row would show such a name with the character stripped and
-            // insert it whole. Git's own readers leave one out too.
-            if name.chars().any(char::is_control) {
+            // insert it whole. An empty one inserts nothing. Git's own readers
+            // leave both out too.
+            if name.is_empty() || name.chars().any(char::is_control) {
                 return None;
             }
             let score = fuzzy::score(term, name)?;
@@ -1156,37 +1212,49 @@ fn to_rows<'a>(
         .collect()
 }
 
-/// How much of any one file a reader reads. The 64 KiB `git.rs` already caps
+/// How much of one file a reader reads. The 64 KiB `git.rs` already caps
 /// a Git query's output at, for the same reason: a prompt is waiting on
 /// this, and a makefile or an SSH configuration past that size is generated
 /// rather than written. What sits past the limit is dropped and the file is
 /// still read up to it.
 const READ_LIMIT: u64 = 64 * 1024;
 
-/// The first [`READ_LIMIT`] bytes of `path`. `None` for a file that is
-/// absent, that will not read or that is not a regular one.
+/// The first `limit` bytes of `path` and whether the file holds more than
+/// was read. A file still being written can hold more as well. `None` for a
+/// file that is absent, that will not read or that is not a regular one.
 /// [`crate::path::regular`] says why.
-fn read_capped(path: &Path) -> Option<Vec<u8>> {
+fn read_capped(path: &Path, limit: u64) -> Option<(Vec<u8>, bool)> {
     crate::path::regular(path).ok()?;
-    let file = File::open(path).ok()?;
+    // A FIFO that took the file's place since the check above would hold a
+    // plain open until somebody wrote to it. `O_NONBLOCK` returns at once and
+    // the handle's own `stat` refuses it.
+    let file = File::options()
+        .read(true)
+        .custom_flags(libc::O_NONBLOCK)
+        .open(path)
+        .ok()?;
+    if !file.metadata().ok()?.is_file() {
+        return None;
+    }
     let mut bytes = Vec::new();
-    file.take(READ_LIMIT).read_to_end(&mut bytes).ok()?;
-    Some(bytes)
+    let mut capped = file.take(limit);
+    capped.read_to_end(&mut bytes).ok()?;
+    let more = capped.into_inner().metadata().ok()?.len() > bytes.len() as u64;
+    Some((bytes, more))
 }
 
-/// The first [`READ_LIMIT`] bytes of `path`, as whole lines. A read that
-/// stops at the limit stops in the middle of a line as often as not, and
-/// that last partial line is dropped, because half a name is worse than a
-/// missing one. An absent or unreadable file gives nothing and never an
-/// error. This runs at a prompt and an error has nowhere to go.
-fn read_lines(path: &Path) -> Vec<String> {
-    let Some(bytes) = read_capped(path) else {
+/// The first `limit` bytes of `path`, as whole lines. A read that stops
+/// short of the file's end stops in the middle of a line as often as not.
+/// That last partial line is dropped. Half a name is worse than a missing
+/// one. An absent or unreadable file gives nothing and never an error. This
+/// runs at a prompt and an error has nowhere to go.
+fn read_lines(path: &Path, limit: u64) -> Vec<String> {
+    let Some((bytes, more)) = read_capped(path, limit) else {
         return Vec::new();
     };
-    let truncated = bytes.len() as u64 == READ_LIMIT;
     let text = String::from_utf8_lossy(&bytes);
     let mut lines: Vec<String> = text.lines().map(str::to_string).collect();
-    if truncated && !text.ends_with('\n') {
+    if more && !text.ends_with('\n') {
         lines.pop();
     }
     lines
@@ -1248,7 +1316,7 @@ fn make_targets(sources: &Sources) -> Vec<String> {
     };
     let mut seen = HashSet::new();
     let mut out = Vec::new();
-    for line in read_lines(&path) {
+    for line in read_lines(&path, READ_LIMIT) {
         let Some((head, rest)) = rule_halves(&line) else {
             continue;
         };
@@ -1318,9 +1386,18 @@ const HASHED: &str = "|1|";
 fn ssh_hosts(sources: &Sources) -> Vec<String> {
     let mut seen = HashSet::new();
     let mut out = Vec::new();
-    let user_config = sources.home.join(".ssh").join("config");
-    for path in [user_config.as_path(), sources.ssh_config] {
-        for line in read_lines(path) {
+    // A relative home would be read against the line's directory.
+    let user = sources
+        .home
+        .is_absolute()
+        .then(|| sources.home.join(".ssh"));
+    let user_config = user.as_ref().map(|dir| dir.join("config"));
+    for path in user_config
+        .as_deref()
+        .into_iter()
+        .chain([sources.ssh_config])
+    {
+        for line in read_lines(path, READ_LIMIT) {
             for name in host_line_names(&line) {
                 if !is_pattern(name) {
                     push_unique(name, &mut seen, &mut out);
@@ -1332,8 +1409,11 @@ fn ssh_hosts(sources: &Sources) -> Vec<String> {
     // `known_hosts` lists them in the order ssh first met them and that says
     // nothing.
     let configured = out.len();
-    let known_hosts = sources.home.join(".ssh").join("known_hosts");
-    for line in read_lines(&known_hosts) {
+    let known_hosts = user.map(|dir| dir.join("known_hosts"));
+    for line in known_hosts
+        .iter()
+        .flat_map(|path| read_lines(path, READ_LIMIT))
+    {
         for name in known_hosts_names(&line) {
             if !is_pattern(name) {
                 push_unique(name, &mut seen, &mut out);
@@ -1414,7 +1494,7 @@ fn nearest(cwd: &Path, name: &str) -> Option<(PathBuf, Vec<u8>)> {
         .ancestors()
         .map(|dir| (dir, dir.join(name)))
         .find(|(_, path)| path.is_file())?;
-    Some((dir.to_path_buf(), read_capped(&path)?))
+    Some((dir.to_path_buf(), read_capped(&path, READ_LIMIT)?.0))
 }
 
 /// The projects the nearest `rush.json` names, each by its package name and
@@ -1624,6 +1704,118 @@ fn workspace_dirs(dir: &Path) -> Vec<String> {
     names
 }
 
+/// Where Homebrew keeps its cache. `brew` itself resolves it this way and
+/// takes each path as it stands. `cache` is `HOMEBREW_CACHE` and names it
+/// outright. Without one it sits under `home` on macOS and under `xdg_cache`
+/// or `home`'s `.cache` everywhere else. An empty `home` gives none whatever
+/// `cache` says. `brew` refuses to run without a `HOME`. `no_api` is
+/// `HOMEBREW_NO_INSTALL_FROM_API` and gives none even where `cache` names
+/// one. Homebrew then reads its taps and leaves the name lists to go stale.
+/// A `brew.env` file can set any `HOMEBREW_` variable and is not read.
+fn homebrew_cache(
+    no_api: bool,
+    cache: Option<PathBuf>,
+    xdg_cache: Option<PathBuf>,
+    home: &Path,
+) -> Option<PathBuf> {
+    if no_api || home.as_os_str().is_empty() {
+        return None;
+    }
+    let given = |dir: Option<PathBuf>| dir.filter(|dir| !dir.as_os_str().is_empty());
+    if let Some(cache) = given(cache) {
+        return Some(cache);
+    }
+    if cfg!(target_os = "macos") {
+        return Some(home.join("Library/Caches/Homebrew"));
+    }
+    Some(
+        given(xdg_cache)
+            .unwrap_or_else(|| home.join(".cache"))
+            .join("Homebrew"),
+    )
+}
+
+/// How much of one Homebrew API list a reader reads in place of
+/// [`READ_LIMIT`]. The formula and cask lists name every formula in
+/// `homebrew/core` or every cask in `homebrew/cask` and each is already past
+/// [`READ_LIMIT`]. Homebrew writes them rather than a person.
+const BREW_NAMES_LIMIT: u64 = 1024 * 1024;
+
+/// The formulae, their aliases and the casks a `brew install` can name, less
+/// the ones already on the line.
+///
+/// The specification keeps `brew formulae` and `brew casks` and each prints
+/// past the cap a line's output carries. Homebrew keeps those names one to a
+/// line in `api/formula_names.txt` and `api/cask_names.txt` under its cache
+/// and rewrites them when it refreshes its API data. Reading them runs
+/// nothing. Another tap's formulae and casks are in neither file.
+/// `api/formula_aliases.txt` beside them holds `alias|formula` lines. An
+/// alias row sorts among the formulae and says the formula it stands for.
+/// Without one a person who typed `python` whole would get the nearest
+/// formula in its place. A name two lists hold is the formula's. The formula
+/// is what `brew install` takes. `--cask` keeps the casks alone and
+/// `--formula` the formulae and their aliases. Homebrew reads a name in any
+/// case and an alias on the line puts the formula it stands for there too.
+/// Homebrew unlinks a list before it writes it again and can leave one absent
+/// for a while. The others still give their rows and an answer missing one
+/// is kept for the rest of the word.
+fn brew_names(sources: &Sources) -> Vec<Found> {
+    let Some(cache) = sources.homebrew_cache else {
+        return Vec::new();
+    };
+    let on_line = |flags: [&str; 2]| sources.line.iter().any(|word| flags.contains(word));
+    let no_formulae = on_line(["--cask", "--casks"]);
+    let no_casks = on_line(["--formula", "--formulae"]);
+    let api = cache.join("api");
+    let list = |file: &str, ruled_out: bool| {
+        if ruled_out {
+            Vec::new()
+        } else {
+            read_lines(&api.join(file), BREW_NAMES_LIMIT)
+        }
+    };
+    let aliases: Vec<(String, String)> = list("formula_aliases.txt", no_formulae)
+        .into_iter()
+        .filter_map(|line| {
+            let (alias, formula) = line.split_once('|')?;
+            Some((alias.to_string(), formula.to_string()))
+        })
+        .collect();
+    let mut taken: HashSet<String> = sources.line.iter().map(|w| w.to_lowercase()).collect();
+    let stood_for: Vec<String> = aliases
+        .iter()
+        .filter(|(alias, _)| taken.contains(alias))
+        .map(|(_, formula)| formula.clone())
+        .collect();
+    taken.extend(stood_for);
+    let mut formulae: Vec<(String, Cow<'static, str>)> = list("formula_names.txt", no_formulae)
+        .into_iter()
+        .filter(|name| !taken.contains(name))
+        .map(|name| (name, Cow::Borrowed("formula")))
+        .chain(
+            aliases
+                .into_iter()
+                .filter(|(alias, formula)| !taken.contains(alias) && !taken.contains(formula))
+                .map(|(alias, formula)| (alias, Cow::Owned(format!("alias of {formula}")))),
+        )
+        .collect();
+    formulae.sort_by(|a, b| a.0.cmp(&b.0));
+    let casks = list("cask_names.txt", no_casks)
+        .into_iter()
+        .filter(|name| !taken.contains(name))
+        .map(|name| (name, Cow::Borrowed("cask")));
+    let mut seen = HashSet::new();
+    formulae
+        .into_iter()
+        .chain(casks)
+        .filter(|(name, _)| seen.insert(name.clone()))
+        .map(|(name, label)| Found {
+            name,
+            label: Some(label),
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1639,7 +1831,12 @@ mod tests {
             line: &[],
             home,
             ssh_config,
+            homebrew_cache: None,
         }
+    }
+
+    fn candidates(reader: &Reader, sources: &Sources, term: &str) -> Vec<Candidate> {
+        to_rows((reader.read)(sources).iter(), reader.label, term)
     }
 
     /// A path that cannot exist, for a source a test does not use.
@@ -1998,7 +2195,7 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         let f = Fixture::new(&[]);
         assert!(script_rows(&line, "", "", f.path(), &mut runs).is_empty());
         assert!(!f.path().join("sample").exists());
-        assert!(runs.0.is_empty());
+        assert!(runs.lines.is_empty());
         // Only the list form names its words without a shell between them.
         let text = serde_json::json!("git --no-optional-locks log --oneline");
         assert!(script_rows(&text, "", "", f.path(), &mut runs).is_empty());
@@ -2236,6 +2433,7 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
             "",
             &f.path().join("apps/sample"),
             &[],
+            &mut Runs::default(),
         );
         let names: Vec<&str> = rows.iter().map(|r| r.insert.as_str()).collect();
         assert_eq!(names, ["sample-app", "//not-a-comment"]);
@@ -2263,7 +2461,18 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
 
     #[test]
     fn an_argument_with_no_reader_gives_no_rows() {
-        assert!(rows("chown", "chown", "owner", "", nowhere(), &[]).is_empty());
+        assert!(
+            rows(
+                "chown",
+                "chown",
+                "owner",
+                "",
+                nowhere(),
+                &[],
+                &mut Runs::default()
+            )
+            .is_empty()
+        );
     }
 
     /// A project directory holding `package` as its `package.json`. Every
@@ -2444,7 +2653,15 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         let f = project(
             r#"{"scripts": {"sample-build": "sample-tool build", "sample\u001b-bad": "sample-tool"}}"#,
         );
-        let rows = rows("npm", "run", "script", "", f.path(), &[]);
+        let rows = rows(
+            "npm",
+            "run",
+            "script",
+            "",
+            f.path(),
+            &[],
+            &mut Runs::default(),
+        );
         let names: Vec<&str> = rows.iter().map(|r| r.display.as_str()).collect();
         assert_eq!(names, ["sample-build"]);
     }
@@ -2465,9 +2682,25 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         let f = project(
             r#"{"scripts": {"sample-build": "sample-tool build"}, "workspaces": ["tools/sample-cli"]}"#,
         );
-        let script = rows("npm", "run", "script", "", f.path(), &[]);
+        let script = rows(
+            "npm",
+            "run",
+            "script",
+            "",
+            f.path(),
+            &[],
+            &mut Runs::default(),
+        );
         assert_eq!(script[0].label, "sample-tool build");
-        let workspace = rows("npm", "run", "workspace", "", f.path(), &[]);
+        let workspace = rows(
+            "npm",
+            "run",
+            "workspace",
+            "",
+            f.path(),
+            &[],
+            &mut Runs::default(),
+        );
         assert_eq!(workspace[0].label, "workspace");
     }
 
@@ -2490,5 +2723,231 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         let s = sources(nowhere(), f.path(), nowhere());
         let reader = reader("ssh", "ssh", "user@hostname").expect("ssh has a reader");
         assert!(candidates(reader, &s, "zzzz").is_empty());
+    }
+
+    /// A Homebrew cache holding the two name lists a test writes into it.
+    /// Homebrew writes each without a newline after its last name. Every name
+    /// in one is invented.
+    fn homebrew(formulae: &str, casks: &str) -> Fixture {
+        let f = Fixture::new(&["api"]);
+        std::fs::write(f.path().join("api/formula_names.txt"), formulae).unwrap();
+        std::fs::write(f.path().join("api/cask_names.txt"), casks).unwrap();
+        f
+    }
+
+    fn brew_sources<'a>(cache: &'a Path, line: &'a [&'a str]) -> Sources<'a> {
+        Sources {
+            line,
+            homebrew_cache: Some(cache),
+            ..sources(nowhere(), nowhere(), nowhere())
+        }
+    }
+
+    #[test]
+    fn brew_names_its_formulae_then_its_casks_and_a_shared_name_once() {
+        let f = homebrew("sample-shared\nsample-tool", "sample-app\nsample-shared");
+        let found = brew_names(&brew_sources(f.path(), &[]));
+        assert_eq!(
+            found_names(&found),
+            ["sample-shared", "sample-tool", "sample-app"]
+        );
+        assert_eq!(found[0].label.as_deref(), Some("formula"));
+        assert_eq!(found[2].label.as_deref(), Some("cask"));
+    }
+
+    #[test]
+    fn brew_leaves_out_a_name_on_the_line_and_the_list_a_flag_rules_out() {
+        let f = homebrew("sample-other\nsample-tool", "sample-app");
+        let line = ["brew", "install", "sample-tool"];
+        let found = brew_names(&brew_sources(f.path(), &line));
+        assert_eq!(found_names(&found), ["sample-other", "sample-app"]);
+        for flag in ["--cask", "--casks"] {
+            let line = ["brew", "install", flag];
+            let found = brew_names(&brew_sources(f.path(), &line));
+            assert_eq!(found_names(&found), ["sample-app"], "{flag}");
+        }
+        for flag in ["--formula", "--formulae"] {
+            let line = ["brew", "install", flag];
+            let found = brew_names(&brew_sources(f.path(), &line));
+            assert_eq!(
+                found_names(&found),
+                ["sample-other", "sample-tool"],
+                "{flag}"
+            );
+        }
+    }
+
+    #[test]
+    fn a_brew_list_past_the_read_limit_is_read_whole() {
+        let (mut names, mut size) = (Vec::new(), 0);
+        while size < READ_LIMIT as usize + 4096 {
+            let name = format!("cask-{}", names.len());
+            size += name.len() + 1;
+            names.push(name);
+        }
+        let f = homebrew("sample-tool", &names.join("\n"));
+        let found = brew_names(&brew_sources(f.path(), &[]));
+        assert_eq!(found.len(), names.len() + 1);
+    }
+
+    #[test]
+    fn no_homebrew_cache_gives_no_names() {
+        assert!(brew_names(&brew_sources(nowhere(), &[])).is_empty());
+        let s = sources(nowhere(), nowhere(), nowhere());
+        assert!(brew_names(&s).is_empty());
+    }
+
+    /// A cache whose formula `sample-tool@2` has the aliases `sample-tool`
+    /// and `sample-tool2`. Homebrew sorts the alias file by whole lines.
+    fn aliased() -> Fixture {
+        let f = homebrew("sample-tool@2\nsample-top", "sample-app");
+        std::fs::write(
+            f.path().join("api/formula_aliases.txt"),
+            "sample-tool2|sample-tool@2\nsample-tool|sample-tool@2\nno-separator",
+        )
+        .unwrap();
+        f
+    }
+
+    #[test]
+    fn an_alias_sorts_among_the_formulae_and_says_what_it_stands_for() {
+        let f = aliased();
+        let found = brew_names(&brew_sources(f.path(), &[]));
+        assert_eq!(
+            found_names(&found),
+            [
+                "sample-tool",
+                "sample-tool2",
+                "sample-tool@2",
+                "sample-top",
+                "sample-app"
+            ]
+        );
+        assert_eq!(found[0].label.as_deref(), Some("alias of sample-tool@2"));
+        let line = ["brew", "install", "--cask"];
+        let found = brew_names(&brew_sources(f.path(), &line));
+        assert_eq!(found_names(&found), ["sample-app"]);
+    }
+
+    #[test]
+    fn a_formula_on_the_line_under_any_name_or_case_is_left_out() {
+        let f = aliased();
+        for typed in ["sample-tool@2", "Sample-Tool", "sample-tool2"] {
+            let line = ["brew", "install", typed];
+            let found = brew_names(&brew_sources(f.path(), &line));
+            assert_eq!(found_names(&found), ["sample-top", "sample-app"], "{typed}");
+        }
+    }
+
+    #[test]
+    fn the_homebrew_cache_is_where_brew_itself_looks() {
+        let home = Path::new("/home/sample-user");
+        let path = |s: &str| Some(PathBuf::from(s));
+        assert_eq!(
+            homebrew_cache(false, path("/sample/cache"), path("/sample/xdg"), home),
+            path("/sample/cache")
+        );
+        let (default, xdg) = if cfg!(target_os = "macos") {
+            let default = "/home/sample-user/Library/Caches/Homebrew";
+            (default, default)
+        } else {
+            ("/home/sample-user/.cache/Homebrew", "/sample/xdg/Homebrew")
+        };
+        assert_eq!(homebrew_cache(false, path(""), None, home), path(default));
+        assert_eq!(
+            homebrew_cache(false, None, path("/sample/xdg"), home),
+            path(xdg)
+        );
+    }
+
+    #[test]
+    fn no_api_data_and_no_home_give_no_homebrew_cache() {
+        let home = Path::new("/home/sample-user");
+        let cache = Some(PathBuf::from("/sample/cache"));
+        assert_eq!(homebrew_cache(true, cache, None, home), None);
+        let cache = Some(PathBuf::from("/sample/cache"));
+        assert_eq!(homebrew_cache(false, cache, None, Path::new("")), None);
+    }
+
+    #[test]
+    fn a_missing_list_leaves_the_others_their_rows() {
+        let f = Fixture::new(&["api"]);
+        std::fs::write(f.path().join("api/formula_names.txt"), "sample-tool").unwrap();
+        let found = brew_names(&brew_sources(f.path(), &[]));
+        assert_eq!(found_names(&found), ["sample-tool"]);
+    }
+
+    #[test]
+    fn brew_answers_the_subcommands_that_name_any_formula_or_cask() {
+        for owner in ["install", "abv", "edit", "home"] {
+            assert!(reader("brew", owner, "formula").is_some(), "{owner}");
+        }
+        // `brew uninstall` names what is installed and a line answers it.
+        assert!(reader("brew", "uninstall", "formula").is_none());
+    }
+
+    #[test]
+    fn a_limit_drops_only_the_line_it_cuts() {
+        let f = Fixture::new(&[]);
+        let path = f.path().join("names");
+        std::fs::write(&path, "sample-a\nsample-b").unwrap();
+        assert_eq!(read_lines(&path, 17), ["sample-a", "sample-b"]);
+        // A cut at a newline keeps the line in front of it and a cut inside
+        // a line drops that line.
+        assert_eq!(read_lines(&path, 9), ["sample-a"]);
+        assert_eq!(read_lines(&path, 12), ["sample-a"]);
+    }
+
+    #[test]
+    fn an_empty_name_gets_no_row() {
+        let found = unlabelled(vec![String::new(), "sample-a".to_string()]);
+        let rows = to_rows(found.iter(), "value", "");
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].insert, "sample-a");
+    }
+
+    #[test]
+    fn a_reader_keeps_one_answer_for_the_words_in_front_of_the_one_typed() {
+        let f = Fixture::new(&[]);
+        let mut runs = Runs::default();
+        let mut ask = |line: &[&str]| -> Vec<String> {
+            rows("make", "make", "target", "", f.path(), line, &mut runs)
+                .into_iter()
+                .map(|r| r.insert)
+                .collect()
+        };
+        // An empty answer is not kept.
+        assert!(ask(&["make"]).is_empty());
+        let makefile = f.path().join("Makefile");
+        std::fs::write(&makefile, "sample-build:\n").unwrap();
+        assert_eq!(ask(&["make"]), ["sample-build"]);
+        std::fs::write(&makefile, "sample-test:\n").unwrap();
+        assert_eq!(ask(&["make"]), ["sample-build"]);
+        assert_eq!(ask(&["make", "sample-build"]), ["sample-test"]);
+        // The answer for the shorter line was let go.
+        std::fs::write(&makefile, "sample-last:\n").unwrap();
+        assert_eq!(ask(&["make"]), ["sample-last"]);
+        assert_eq!(runs.reads.len(), 1);
+    }
+
+    #[test]
+    fn a_relative_home_reads_no_user_ssh_file() {
+        let home = ssh_home(
+            Some("Host sample-user-host\n"),
+            Some("sample-known ssh-ed25519 AAAASAMPLE\n"),
+        );
+        let system = Fixture::new(&[]);
+        let path = system.path().join("ssh_config");
+        std::fs::write(&path, "Host sample-host\n").unwrap();
+        // As many `..` as the process's own directory is deep reach `/` and
+        // the rest names the fixture. The relative home still reaches that
+        // `.ssh` and `ssh_hosts` must not read it.
+        let up = std::env::current_dir().unwrap().components().count();
+        let relative = std::iter::repeat_n("..", up)
+            .collect::<PathBuf>()
+            .join(home.path().strip_prefix("/").unwrap());
+        assert!(relative.join(".ssh/config").is_file());
+        let s = sources(nowhere(), &relative, &path);
+        assert_eq!(ssh_hosts(&s), ["sample-host"]);
     }
 }
