@@ -992,8 +992,9 @@ targets of the makefile beside the line and the same argument behind `-j`,
 files and neither runs a program. The targets come from `GNUmakefile`,
 `makefile` or `Makefile`, whichever of make's own three names is there first.
 The hosts come from `~/.ssh/config`, `/etc/ssh/ssh_config` and
-`~/.ssh/known_hosts`. The configured hosts keep the order a person wrote
-them in and the names only `known_hosts` holds follow in alphabetical order.
+`~/.ssh/known_hosts`. A `HOME` that is not absolute leaves the two under `~`
+unread. The configured hosts keep the order a person wrote them in and the
+names only `known_hosts` holds follow in alphabetical order.
 That file lists a host when ssh first meets it and its order says nothing.
 `make -qp` would give the thorough answer and it expands
 the makefile to do it. Completing a line would then run whatever
@@ -1019,8 +1020,8 @@ and only when it is a regular file.
 `npm uninstall -g` gets nothing. The packages it would name belong to the
 machine rather than to the project and only running npm can say where those
 live. `npm install ` gets nothing either. Its argument searches the registry
-and nothing here reaches a network. Every reader here leaves out a name that
-holds a control character. Git's own readers do the same.
+and nothing here reaches a network. Every reader here leaves out an empty name
+and a name that holds a control character. Git's own readers do the same.
 
 `pnpm`, `yarn`, `bun`, `nr` and `rushx` read the same file. `pnpm run `, a
 bare `pnpm `, `yarn run `, a bare `yarn `, `bun run `, a bare `bun `, a bare
@@ -1038,6 +1039,36 @@ line's directory. Each of `install`, `build` and `rebuild` takes a project
 behind six options of its own and all 18 offer the projects that file names.
 Each row says the folder the project lives in. Rush writes comments into that
 file and the reader takes them out before it reads the rest.
+
+`brew install `, `brew info `, `brew edit ` and `brew home ` offer every
+formula in `homebrew/core` and every cask in `homebrew/cask`. The specification
+keeps `brew formulae` and `brew casks` for them and each prints past the 64 KiB
+cap. Homebrew keeps those names one to a line in `api/formula_names.txt` and
+`api/cask_names.txt` under its cache and the reader reads those instead.
+`api/formula_aliases.txt` beside them names the aliases such as `python` and
+the old names of renamed formulae. An alias row sorts among the formulae and
+says `alias of` and the formula it stands for. Without that row a person who
+typed `python` whole would get the nearest formula in its place.
+`HOMEBREW_CACHE` names that cache. Without it the cache is
+`~/Library/Caches/Homebrew` on macOS and `$XDG_CACHE_HOME/Homebrew` or
+`~/.cache/Homebrew` elsewhere. An empty or unset `HOME` gives none even where
+`HOMEBREW_CACHE` names one and so does `HOMEBREW_NO_INSTALL_FROM_API`. Homebrew
+then reads its taps and leaves the files to go stale. A `brew.env` file can set
+any `HOMEBREW_` variable and is not read. Each file is read up to 1 MiB and only
+when it is a regular file. A formula row says `formula` and a cask row `cask`.
+A cask that shares its name with a formula or an alias gets no row of its own.
+The formula is what `brew install` takes. `--cask` keeps the casks alone and
+`--formula` the formulae and their aliases. A name already on the line is left
+out whatever case it is typed in and so is every other name of the same
+formula. Another tap's formulae and casks are in neither file. Homebrew
+rewrites the files when it refreshes its API data and a cache it never filled
+gives nothing. Homebrew can leave one list absent for a while and the others
+still give their rows. The files hold about 16 400 names and 470 aliases and
+old names in October 2026. Matching them costs a key about 3 ms in a release
+build.
+
+Each of the file readers above reads its files once for each word of the line
+rather than once for each key. An empty answer is read again at the next key.
 
 A generator that kept its command line is the larger half. One line is
 shared by many arguments. `git`'s branch list is behind 20 of them and one
@@ -1090,8 +1121,8 @@ person pointed it somewhere else.
 
 An argument that needs anything else — another native reader, a line that
 asks a server, anything else `specs/dynamic.txt` names — still offers no rows
-rather than guessing at one. The readers answer 776 of the 4854 arguments that
-file lists and the other 4078 show nothing.
+rather than guessing at one. The readers answer 780 of the 4854 arguments that
+file lists and the other 4074 show nothing.
 
 A space opens the menu here too, the way a bare `cd ` or `git ` already did:
 `docker ` and `docker container ` both reach it, because the widget checks

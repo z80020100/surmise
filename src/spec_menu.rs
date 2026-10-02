@@ -131,7 +131,7 @@ pub(crate) struct Completions {
     /// The option and separator in front of the value the last list
     /// answered, or empty. See [`Walk::search_lead`].
     lead: String,
-    /// What each command line a reader ran answered in this menu.
+    /// What each command line answered and each reader found in this menu.
     runs: native::Runs,
     /// How the last list wants what was typed to reach a row, where its
     /// specification says. See [`Completions::matching`].
@@ -533,7 +533,8 @@ fn with_insert_value(mut c: Candidate, value: Option<&str>) -> Candidate {
 
 /// What [`build_rows`] reads besides the walk: the directory the line is
 /// typed in, the history a folder is weighed by and the scan that lists one,
-/// the command lines this menu already ran and the `verbose_names` setting.
+/// what this menu's command lines and readers already found and the
+/// `verbose_names` setting.
 struct Context<'a> {
     cwd: &'a Path,
     history: &'a History,
@@ -692,7 +693,7 @@ fn build_rows(
             && let Some(owner) = walk.node.name.first()
         {
             let name = arg.name.first().map_or("", String::as_str);
-            found.extend(native::rows(command, owner, name, term, cwd, line));
+            found.extend(native::rows(command, owner, name, term, cwd, line, runs));
         }
         rows.extend(values(listed, found, arg.suggestions.len()));
         // What a template lists follows both. Any file or folder is a
