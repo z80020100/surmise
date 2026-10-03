@@ -22,6 +22,16 @@ pub(crate) fn regular(path: &Path) -> std::io::Result<()> {
     }
 }
 
+/// Whether `path` is a file this user may run. The shell passes over one
+/// that cannot be run.
+pub(crate) fn runnable(path: &Path) -> bool {
+    let Ok(c_path) = std::ffi::CString::new(path.as_os_str().as_encoded_bytes()) else {
+        return false;
+    };
+    // SAFETY: the path is a terminated string that lives for the call.
+    path.is_file() && unsafe { libc::access(c_path.as_ptr(), libc::X_OK) == 0 }
+}
+
 /// Drop a trailing separator from `$HOME`. A value made only of separators
 /// keeps them, because `$HOME` set to `/` is still a home rather than an
 /// absent one.
