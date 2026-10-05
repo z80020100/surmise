@@ -11,7 +11,6 @@
 //! it from opening at all. Any `fail` makes the exit status 1.
 
 use crate::{config, history, pick, spec_store};
-use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
@@ -94,10 +93,7 @@ fn find(bin: &str) -> Option<PathBuf> {
     }
     std::env::split_paths(&std::env::var_os("PATH")?)
         .map(|dir| dir.join(bin))
-        .find(|path| {
-            path.metadata()
-                .is_ok_and(|m| m.is_file() && m.permissions().mode() & 0o111 != 0)
-        })
+        .find(|path| crate::path::runnable(path))
         .and_then(|path| path.canonicalize().ok())
 }
 

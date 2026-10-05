@@ -1067,6 +1067,59 @@ still give their rows. The files hold about 16 400 names and 470 aliases and
 old names in October 2026. Matching them costs a key about 3 ms in a release
 build.
 
+`brew upgrade ` offers the formulae and casks installed here. The specification
+keeps `brew outdated -q` for it. `brew outdated` can update Homebrew before it
+answers and that reaches a network. Homebrew tells an out-of-date formula or
+cask by its version and keeps the latest versions in a file it does not
+document. The reader therefore offers the ones already up to date as well.
+`brew upgrade` given a name already up to date says so and leaves that formula
+or cask as it is. A formula is a directory in the `Cellar` that holds a version
+of it and a cask is a directory in the `Caskroom`. A formula row says
+`installed` and a cask row `installed cask`. A cask named for an installed
+formula gets no row and the formula keeps its own. A cask named for a formula in
+`homebrew/core`, for one of its aliases or for the old name of a renamed one
+gets no row either. `brew upgrade` reads such a name as the formula whether or
+not the formula is installed. Those names come from `api/formula_names.txt` and
+`api/formula_aliases.txt` in the cache the `brew install ` menu reads. Without
+the files or under `HOMEBREW_NO_INSTALL_FROM_API` only an installed formula
+rules a cask out. `--cask` and `--formula` work the way they do for
+`brew install` and `--cask` therefore gives each of those casks a row. A name
+already on the line is left out whatever case it is typed in.
+
+`brew services start `, `stop `, `restart ` and `run ` offer the installed
+formulae that run as a service. The specification pipes `brew services list`
+through a shell and that takes about half a second. Homebrew writes a launchd
+file for a formula's service into its keg as it installs it. It does so on
+Linux as well. A newer keg names it `sh.brew.<name>.plist` and an older one
+`homebrew.mxcl.<name>.plist`. The reader takes the formulae from the `Cellar`
+and looks for that file in each one's keg under `opt`. A service that names
+itself some other way is not found. A name already on the line is left out.
+`--all` on the line names every service already and the line then gets no rows.
+No row says whether a service is running. Only `launchctl` or `systemctl` can
+say that.
+
+The upgrade and services readers find Homebrew where `brew` itself does. The
+`brew` they look at is the first on `PATH` that this user may run. The prefix
+is the directory above the physical path of the `PATH` entry that holds that
+`brew`. A link at the `brew` file itself is not followed for the prefix.
+`HOMEBREW_PREFIX` plays no part. A relative entry on `PATH` is read from the
+directory the line is typed in and zsh reads it the same way. The `brew` that
+is found runs from Homebrew's repository. For a `brew` that is no link the
+repository is the prefix. For a link it is the directory above the one that
+holds what the link names. A `/usr/local/bin/brew` that links into the same
+repository moves the prefix to `/usr/local` unless the prefix's own `Cellar` is
+a link. After that a `Cellar` is chosen. The one in the repository comes first
+and the one under the prefix is the fallback. The `Caskroom` and `opt` are
+under the prefix. Neither reader runs a program.
+
+The `brew` found gives no rows where its entry on `PATH` is exactly `.` or
+empty. zsh runs it by its bare name and it cannot find itself. An empty or
+unset `HOME` gives none and neither does a repository without
+`Library/Homebrew/brew.sh`. Homebrew's own `brew` cannot start without either.
+A script that runs another `brew` has no such file in its repository and gives
+no rows as well. `brew` refuses to start in some other states too, such as when
+it cannot read the line's directory. The readers still offer their rows there.
+
 Each of the file readers above reads its files once for each word of the line
 rather than once for each key. An empty answer is read again at the next key.
 
@@ -1110,19 +1163,20 @@ commands.
 the repository and a line typed in a subdirectory would get the wrong file.
 `brew formulae` and `brew casks` print past the 64 KiB cap and are left out as
 well. So is `cargo metadata` without `--no-deps`. It can fetch an index to
-resolve the dependencies. `task export` is left out. `task` names two tools
-and the corpus picks between them with code it could not keep. No argument
-under it is ever reached. `podman`'s images and secrets are left out as well.
-The corpus's own readers disagree on how their fields are spelt. `pbpaste` is
-left out because a clipboard can hold a password. A line that asks a server,
-such as `gh pr list` or `kubectl get`, has no entry. A `docker` line asks the
-daemon docker's own context names. That is a socket on this machine unless a
-person pointed it somewhere else.
+resolve the dependencies. `brew outdated` is left out for the same reason. It
+can update Homebrew before it answers. `task export` is left out. `task` names
+two tools and the corpus picks between them with code it could not keep. No
+argument under it is ever reached. `podman`'s images and secrets are left out
+as well. The corpus's own readers disagree on how their fields are spelt.
+`pbpaste` is left out because a clipboard can hold a password. A line that
+asks a server, such as `gh pr list` or `kubectl get`, has no entry. A `docker`
+line asks the daemon docker's own context names. That is a socket on this
+machine unless a person pointed it somewhere else.
 
 An argument that needs anything else — another native reader, a line that
 asks a server, anything else `specs/dynamic.txt` names — still offers no rows
-rather than guessing at one. The readers answer 780 of the 4854 arguments that
-file lists and the other 4074 show nothing.
+rather than guessing at one. The readers answer 785 of the 4854 arguments that
+file lists and the other 4069 show nothing.
 
 A space opens the menu here too, the way a bare `cd ` or `git ` already did:
 `docker ` and `docker container ` both reach it, because the widget checks

@@ -14,14 +14,16 @@
 //! its own copy of a line it has a reader for and nothing a specification
 //! carries runs at all. [`READERS`] is keyed by the argument's own identity
 //! and reads the files the lost code would have read. It is the door for an
-//! argument whose generator carries no command line, and for one whose line
-//! cannot say what to read. `npm run`'s argument keeps the line that walks
-//! up to a `package.json`. `pnpm remove` and `pnpm run` keep that same line
-//! and read opposite halves of the file. `brew install` keeps two lines that
-//! print past the cap a line's output carries. Its reader reads both lists
-//! from Homebrew's own files at once and leaves out a name already typed. An
-//! entry keyed by one line sees neither the other list nor the words in front
-//! of the one being typed.
+//! argument whose generator carries no command line, for one whose line
+//! cannot say what to read and for one whose line must not run. `npm run`'s
+//! argument keeps the line that walks up to a `package.json`. `pnpm remove`
+//! and `pnpm run` keep that same line and read opposite halves of the file.
+//! `brew install` keeps two lines that print past the cap a line's output
+//! carries. Its reader reads both lists from Homebrew's own files at once and
+//! leaves out a name already typed. An entry keyed by one line sees neither
+//! the other list nor the words in front of the one being typed. `brew
+//! upgrade` and `brew services` keep lines that must not run. `brew outdated`
+//! can reach a network and `brew services list` takes about half a second.
 
 use crate::candidates::{Candidate, DEFAULT_PRIORITY, Kind, SCAN_LIMIT};
 use crate::fuzzy;
@@ -29,6 +31,7 @@ use serde_json::{Map, Value};
 use std::borrow::Cow;
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
+use std::ffi::OsStr;
 use std::fs::File;
 use std::io::Read;
 use std::os::unix::fs::OpenOptionsExt;
@@ -212,6 +215,21 @@ static READERS: &[Reader] = &[
         arg: "formula",
         label: "formula",
         read: brew_names,
+    },
+    Reader {
+        command: "brew",
+        owners: &["upgrade"],
+        arg: "outdated_formula|outdated_cask",
+        label: "installed",
+        read: brew_installed,
+    },
+    // `brew services`'s own subcommands. Their argument carries no name.
+    Reader {
+        command: "brew",
+        owners: &["start", "stop", "restart", "run"],
+        arg: "",
+        label: "service",
+        read: brew_services,
     },
 ];
 
@@ -1093,8 +1111,8 @@ fn labelled(name: &str, label: String) -> Found {
 
 /// Where a reader is allowed to look. The environment is read at one edge
 /// and every reader takes its paths from here, which is what lets a test
-/// hand one a temporary home rather than the person's own. `path` keeps
-/// `$HOME` behind a twin for that same reason.
+/// hand one a temporary home rather than the person's own. [`crate::path`]
+/// keeps `$HOME` behind a twin for that same reason.
 struct Sources<'a> {
     /// The directory the line is being typed in.
     cwd: &'a Path,
@@ -1108,9 +1126,15 @@ struct Sources<'a> {
     /// Where Homebrew keeps its cache. `None` means its name lists are not to
     /// be read and [`homebrew_cache`] says when.
     homebrew_cache: Option<&'a Path>,
+    /// `$PATH`. It is empty when the environment says nothing and
+    /// [`find_homebrew`] then finds no Homebrew.
+    path: &'a OsStr,
+    /// Where an Intel Mac keeps Homebrew. `brew` looks at the `brew` there.
+    usr_local: &'a Path,
 }
 
 const SYSTEM_SSH_CONFIG: &str = "/etc/ssh/ssh_config";
+const USR_LOCAL: &str = "/usr/local";
 
 /// The rows a native reader offers for one `dyn` argument, or none where the
 /// table has no reader for it. `command` is the first name of the
@@ -1161,12 +1185,15 @@ fn read(reader: &Reader, cwd: &Path, line: &[&str]) -> Vec<Found> {
         var("XDG_CACHE_HOME"),
         &home,
     );
+    let path = std::env::var_os("PATH").unwrap_or_default();
     let sources = Sources {
         cwd,
         line,
         home: &home,
         ssh_config: Path::new(SYSTEM_SSH_CONFIG),
         homebrew_cache: homebrew_cache.as_deref(),
+        path: &path,
+        usr_local: Path::new(USR_LOCAL),
     };
     (reader.read)(&sources)
 }
@@ -1735,6 +1762,73 @@ fn homebrew_cache(
     )
 }
 
+/// Where Homebrew is installed and where it keeps its formulae.
+struct Homebrew {
+    prefix: PathBuf,
+    cellar: PathBuf,
+}
+
+/// Homebrew as the first `brew` on `$PATH` that this user may run finds itself.
+/// `brew` pays no heed to `HOMEBREW_PREFIX`. A relative entry on `$PATH` is
+/// read from the line's directory and zsh reads it the same way. The prefix is
+/// the directory above the physical path of the entry that holds the found
+/// `brew`. A link at the `brew` file itself is not followed for the prefix. A
+/// `brew` link that sits in `/usr/local/bin` therefore gives `/usr/local`.
+/// `brew` drops a `..` in the entry before it resolves a link and this resolves
+/// the link first. [`brew_repository`] says where the found `brew` runs from. A
+/// `/usr/local/bin/brew` that links into the same repository moves the prefix
+/// to `/usr/local` unless the prefix's own `Cellar` is a link. After that
+/// `brew` chooses a `Cellar`. The one in the repository comes first and the one
+/// under the prefix is the fallback.
+///
+/// The found `brew` gives nothing where its entry is exactly `.` or empty. zsh
+/// runs it by its bare name and it cannot find itself. An empty `HOME` gives
+/// nothing and neither does a repository without `Library/Homebrew/brew.sh`.
+/// Homebrew's own `brew` cannot start without either. A script that runs
+/// another `brew` has no such file in its repository and gives nothing as well.
+/// `brew` refuses to start in some other states too, such as when it cannot
+/// read the line's directory. This looks for none of them.
+fn find_homebrew(sources: &Sources) -> Option<Homebrew> {
+    if sources.home.as_os_str().is_empty() {
+        return None;
+    }
+    let entry = std::env::split_paths(sources.path)
+        .find(|entry| crate::path::runnable(&sources.cwd.join(entry).join("brew")))?;
+    if matches!(entry.as_os_str().as_encoded_bytes(), b"" | b".") {
+        return None;
+    }
+    let dir = sources.cwd.join(entry);
+    let mut prefix = dir.canonicalize().ok()?.parent()?.to_path_buf();
+    let repository = brew_repository(&dir.join("brew"))?;
+    if !repository.join("Library/Homebrew/brew.sh").is_file() {
+        return None;
+    }
+    let usr_local_brew = sources.usr_local.join("bin/brew");
+    if usr_local_brew.is_symlink()
+        && !prefix.join("Cellar").is_symlink()
+        && brew_repository(&usr_local_brew).as_ref() == Some(&repository)
+    {
+        prefix = sources.usr_local.to_path_buf();
+    }
+    let cellar = Some(repository.join("Cellar"))
+        .filter(|cellar| cellar.is_dir())
+        .unwrap_or_else(|| prefix.join("Cellar"));
+    Some(Homebrew { prefix, cellar })
+}
+
+/// The repository a `brew` file runs from. That is the directory above the
+/// file's own for a file that is no link. For a link it is the directory
+/// above the one that holds what the link names. `brew` reads one link and
+/// no more and so does this.
+fn brew_repository(brew: &Path) -> Option<PathBuf> {
+    let dir = brew.parent()?;
+    let bin = match std::fs::read_link(brew) {
+        Ok(target) => dir.join(target.parent()?),
+        Err(_) => dir.to_path_buf(),
+    };
+    Some(bin.canonicalize().ok()?.parent()?.to_path_buf())
+}
+
 /// How much of one Homebrew API list a reader reads in place of
 /// [`READ_LIMIT`]. The formula and cask lists name every formula in
 /// `homebrew/core` or every cask in `homebrew/cask` and each is already past
@@ -1763,9 +1857,7 @@ fn brew_names(sources: &Sources) -> Vec<Found> {
     let Some(cache) = sources.homebrew_cache else {
         return Vec::new();
     };
-    let on_line = |flags: [&str; 2]| sources.line.iter().any(|word| flags.contains(word));
-    let no_formulae = on_line(["--cask", "--casks"]);
-    let no_casks = on_line(["--formula", "--formulae"]);
+    let (no_formulae, no_casks) = kinds_ruled_out(sources.line);
     let api = cache.join("api");
     let list = |file: &str, ruled_out: bool| {
         if ruled_out {
@@ -1781,7 +1873,7 @@ fn brew_names(sources: &Sources) -> Vec<Found> {
             Some((alias.to_string(), formula.to_string()))
         })
         .collect();
-    let mut taken: HashSet<String> = sources.line.iter().map(|w| w.to_lowercase()).collect();
+    let mut taken = lowercased(sources.line);
     let stood_for: Vec<String> = aliases
         .iter()
         .filter(|(alias, _)| taken.contains(alias))
@@ -1816,11 +1908,149 @@ fn brew_names(sources: &Sources) -> Vec<Found> {
         .collect()
 }
 
+/// Whether a `brew` line rules out the formulae and whether it rules out the
+/// casks. `--cask` keeps the casks alone and `--formula` the formulae.
+fn kinds_ruled_out(line: &[&str]) -> (bool, bool) {
+    let on_line = |flags: [&str; 2]| line.iter().any(|word| flags.contains(word));
+    (
+        on_line(["--cask", "--casks"]),
+        on_line(["--formula", "--formulae"]),
+    )
+}
+
+/// The words of `line` in lower case. Homebrew reads a name in any case.
+fn lowercased(line: &[&str]) -> HashSet<String> {
+    line.iter().map(|word| word.to_lowercase()).collect()
+}
+
+/// The installed formulae and casks a `brew upgrade` can name, less the ones
+/// already on the line.
+///
+/// The specification keeps `brew outdated -q` for `brew upgrade`.
+/// `brew outdated` can update Homebrew before it answers and that reaches a
+/// network. Homebrew tells an out-of-date formula or cask by its version and
+/// keeps the latest versions in a file it does not document. The ones already
+/// up to date are therefore rows as well. `brew upgrade` given a name that is
+/// up to date says so and leaves that formula or cask as it is. A formula is a
+/// directory in the `Cellar` that holds a version of it and a cask is a
+/// directory in the `Caskroom`. A cask named for an installed formula gets no
+/// row and the formula keeps its own. A cask named for a formula in
+/// `homebrew/core`, for one of its aliases or for the old name of a renamed one
+/// gets no row either. `brew upgrade` reads such a name as the formula whether
+/// or not the formula is installed. Those names come from the lists
+/// [`brew_names`] reads. Without them or under `HOMEBREW_NO_INSTALL_FROM_API`
+/// only an installed formula rules a cask out. `--cask` and `--formula` work as
+/// they do for [`brew_names`] and `--cask` therefore gives each of those casks
+/// a row.
+fn brew_installed(sources: &Sources) -> Vec<Found> {
+    let Some(homebrew) = find_homebrew(sources) else {
+        return Vec::new();
+    };
+    let (no_formulae, no_casks) = kinds_ruled_out(sources.line);
+    let formulae = if no_formulae {
+        Vec::new()
+    } else {
+        subdirs(&homebrew.cellar)
+    };
+    let formulae = formulae
+        .into_iter()
+        .filter(|rack| !subdirs(&homebrew.cellar.join(rack)).is_empty())
+        .map(|name| (name, "installed"));
+    let casks = if no_casks {
+        Vec::new()
+    } else {
+        let core = core_formula_names(sources, no_formulae);
+        subdirs(&homebrew.prefix.join("Caskroom"))
+            .into_iter()
+            .filter(|name| !core.contains(name))
+            .collect()
+    };
+    let casks = casks.into_iter().map(|name| (name, "installed cask"));
+    // A name on the line is taken already and so is a formula's name by the
+    // time a cask comes to it.
+    let mut taken = lowercased(sources.line);
+    formulae
+        .chain(casks)
+        .filter(|(name, _)| taken.insert(name.clone()))
+        .map(|(name, label)| Found {
+            name,
+            label: Some(Cow::Borrowed(label)),
+        })
+        .collect()
+}
+
+/// Every formula name in `homebrew/core`, every alias and every old name of a
+/// renamed formula, or none where `--cask` is on the line or Homebrew's name
+/// lists are not to be read.
+fn core_formula_names(sources: &Sources, no_formulae: bool) -> HashSet<String> {
+    let Some(cache) = sources.homebrew_cache.filter(|_| !no_formulae) else {
+        return HashSet::new();
+    };
+    ["formula_names.txt", "formula_aliases.txt"]
+        .iter()
+        .flat_map(|file| read_lines(&cache.join("api").join(file), BREW_NAMES_LIMIT))
+        .map(|line| line.split('|').next().unwrap_or_default().to_string())
+        .collect()
+}
+
+/// The installed formulae whose keg holds a service file, less the ones
+/// already on the line.
+///
+/// The specification pipes `brew services list` through a shell and that
+/// takes about half a second. Homebrew writes a launchd file for a formula's
+/// service into its keg as it installs it. It does so on Linux as well. A
+/// newer keg names it `sh.brew.<name>.plist` and an older one
+/// `homebrew.mxcl.<name>.plist`. The formulae come from the `Cellar` and the
+/// file is looked for in the keg `opt` links to. A service that names itself
+/// some other way is not found. No row says whether a service is running.
+/// Only `launchctl` or `systemctl` can say that. `--all` on the line names
+/// every service already and the line then gets no rows.
+fn brew_services(sources: &Sources) -> Vec<Found> {
+    if sources.line.contains(&"--all") {
+        return Vec::new();
+    }
+    let Some(homebrew) = find_homebrew(sources) else {
+        return Vec::new();
+    };
+    let taken = lowercased(sources.line);
+    let opt = homebrew.prefix.join("opt");
+    let names = subdirs(&homebrew.cellar)
+        .into_iter()
+        .filter(|name| {
+            !taken.contains(name)
+                && ["sh.brew", "homebrew.mxcl"].iter().any(|stem| {
+                    opt.join(name)
+                        .join(format!("{stem}.{name}.plist"))
+                        .is_file()
+                })
+        })
+        .collect();
+    unlabelled(names)
+}
+
+/// The directories in `dir` in the order of their names. A link and a name
+/// that starts with a dot are left out. Homebrew counts neither as a formula
+/// and no link as a cask.
+fn subdirs(dir: &Path) -> Vec<String> {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut names: Vec<String> = entries
+        .flatten()
+        .filter(|entry| entry.file_type().is_ok_and(|kind| kind.is_dir()))
+        .filter_map(|entry| entry.file_name().into_string().ok())
+        .filter(|name| !name.starts_with('.'))
+        .collect();
+    names.sort();
+    names
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::fixture::{Fixture, soon};
     use crate::spec::Subcommand;
+    use std::os::unix::fs::PermissionsExt;
 
     /// Every host name below is invented. A test that read the real
     /// `~/.ssh` would put a person's own hosts into the suite's output, so
@@ -1832,6 +2062,8 @@ mod tests {
             home,
             ssh_config,
             homebrew_cache: None,
+            path: OsStr::new(""),
+            usr_local: nowhere(),
         }
     }
 
@@ -2884,6 +3116,312 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         }
         // `brew uninstall` names what is installed and a line answers it.
         assert!(reader("brew", "uninstall", "formula").is_none());
+    }
+
+    /// A Homebrew prefix holding `entries` and a `bin/brew` that runs.
+    fn homebrew_prefix_fixture(entries: &[&str]) -> Fixture {
+        let f = Fixture::new(&[&["bin", "bin/brew*"], entries].concat());
+        make_runnable(&f.path().join("bin/brew"));
+        give_brew_sh(f.path());
+        f
+    }
+
+    /// Puts in `repository` the file a `brew` there runs.
+    fn give_brew_sh(repository: &Path) {
+        let library = repository.join("Library/Homebrew");
+        std::fs::create_dir_all(&library).unwrap();
+        std::fs::write(library.join("brew.sh"), "").unwrap();
+    }
+
+    fn prefix_sources<'a>(path: &'a OsStr, line: &'a [&'a str]) -> Sources<'a> {
+        Sources {
+            line,
+            path,
+            ..sources(nowhere(), nowhere(), nowhere())
+        }
+    }
+
+    #[test]
+    fn brew_upgrade_offers_the_installed_formulae_then_the_casks() {
+        let f = homebrew_prefix_fixture(&[
+            "Cellar/sample-tool/1.0",
+            "Cellar/sample-other/2.0",
+            "Cellar/.sample-hidden/1.0",
+            "Cellar/sample-empty",
+            "Caskroom/sample-app/3.0",
+            "Caskroom/sample-tool/1.0",
+        ]);
+        std::os::unix::fs::symlink("sample-tool", f.path().join("Cellar/sample-link")).unwrap();
+        let path = f.path().join("bin").into_os_string();
+        let found = brew_installed(&prefix_sources(&path, &[]));
+        assert_eq!(
+            found_names(&found),
+            ["sample-other", "sample-tool", "sample-app"]
+        );
+        assert_eq!(found[0].label.as_deref(), Some("installed"));
+        assert_eq!(found[2].label.as_deref(), Some("installed cask"));
+        let line = ["brew", "upgrade", "Sample-Other"];
+        let found = brew_installed(&prefix_sources(&path, &line));
+        assert_eq!(found_names(&found), ["sample-tool", "sample-app"]);
+        let line = ["brew", "upgrade", "--cask"];
+        let found = brew_installed(&prefix_sources(&path, &line));
+        assert_eq!(found_names(&found), ["sample-app", "sample-tool"]);
+        let line = ["brew", "upgrade", "--formula"];
+        let found = brew_installed(&prefix_sources(&path, &line));
+        assert_eq!(found_names(&found), ["sample-other", "sample-tool"]);
+    }
+
+    #[test]
+    fn brew_upgrade_leaves_a_cask_named_for_a_core_formula_or_alias_out() {
+        let f = homebrew_prefix_fixture(&[
+            "Caskroom/sample-alias/1.0",
+            "Caskroom/sample-app/1.0",
+            "Caskroom/sample-core/1.0",
+        ]);
+        let cache = homebrew("sample-core\nsample-formula", "");
+        let aliases = cache.path().join("api/formula_aliases.txt");
+        std::fs::write(aliases, "sample-alias|sample-formula").unwrap();
+        let path = f.path().join("bin").into_os_string();
+        let found = |line: &'static [&'static str]| {
+            let s = Sources {
+                homebrew_cache: Some(cache.path()),
+                ..prefix_sources(&path, line)
+            };
+            brew_installed(&s)
+        };
+        assert_eq!(found_names(&found(&[])), ["sample-app"]);
+        // `--cask` reaches the cask and so does a line read without the lists.
+        let all = ["sample-alias", "sample-app", "sample-core"];
+        assert_eq!(found_names(&found(&["brew", "upgrade", "--cask"])), all);
+        assert_eq!(
+            found_names(&brew_installed(&prefix_sources(&path, &[]))),
+            all
+        );
+    }
+
+    #[test]
+    fn brew_services_offers_the_kegs_that_carry_a_service_file() {
+        let f = homebrew_prefix_fixture(&[
+            "Cellar/sample-db@2",
+            "Cellar/sample-new",
+            "Cellar/sample-older",
+            "Cellar/sample-cli",
+            "Cellar/sample-named",
+            "opt/sample-db@2",
+            "opt/sample-new",
+            "opt/sample-older",
+            "opt/sample-cli/bin",
+            "opt/sample-named",
+            "opt/sample-db@2/sh.brew.sample-db@2.plist*",
+            "opt/sample-new/sh.brew.sample-new.plist*",
+            "opt/sample-older/homebrew.mxcl.sample-older.plist*",
+            "opt/sample-named/sh.brew.sample-other.plist*",
+        ]);
+        let path = f.path().join("bin").into_os_string();
+        let found = brew_services(&prefix_sources(&path, &[]));
+        assert_eq!(
+            found_names(&found),
+            ["sample-db@2", "sample-new", "sample-older"]
+        );
+        let line = ["brew", "services", "start", "sample-new"];
+        let found = brew_services(&prefix_sources(&path, &line));
+        assert_eq!(found_names(&found), ["sample-db@2", "sample-older"]);
+        let line = ["brew", "services", "stop", "--all"];
+        assert!(brew_services(&prefix_sources(&path, &line)).is_empty());
+    }
+
+    #[test]
+    fn no_homebrew_prefix_gives_no_installed_names_or_services() {
+        let s = sources(nowhere(), nowhere(), nowhere());
+        assert!(brew_installed(&s).is_empty());
+        assert!(brew_services(&s).is_empty());
+    }
+
+    fn make_runnable(path: &Path) {
+        std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o755)).unwrap();
+    }
+
+    /// The prefix and the `Cellar` that `path` reaches from `cwd`. `usr_local`
+    /// stands in for `/usr/local`.
+    fn located(path: &OsStr, cwd: &Path, usr_local: &Path) -> Option<(PathBuf, PathBuf)> {
+        let s = Sources {
+            path,
+            cwd,
+            usr_local,
+            ..sources(nowhere(), nowhere(), nowhere())
+        };
+        find_homebrew(&s).map(|h| (h.prefix, h.cellar))
+    }
+
+    #[test]
+    fn homebrew_is_where_the_first_brew_on_path_that_runs_finds_itself() {
+        let f = homebrew_prefix_fixture(&[
+            "idle",
+            "idle/brew*",
+            "local/bin",
+            "deep",
+            "later/bin",
+            "later/bin/brew*",
+        ]);
+        make_runnable(&f.path().join("later/bin/brew"));
+        let brew = f.path().join("bin/brew");
+        std::os::unix::fs::symlink(&brew, f.path().join("local/bin/brew")).unwrap();
+        std::os::unix::fs::symlink("../bin", f.path().join("deep/linked")).unwrap();
+        let root = f.path().canonicalize().unwrap();
+        let on_path = |dirs: &[&str]| {
+            let dirs = dirs.iter().map(|dir| f.path().join(dir));
+            located(&std::env::join_paths(dirs).unwrap(), nowhere(), nowhere())
+        };
+        let local = (root.join("local"), root.join("local/Cellar"));
+        // A `brew` that does not run is passed over and the first that does
+        // wins.
+        assert_eq!(
+            on_path(&["idle", "bin", "later/bin"]),
+            Some((root.clone(), root.join("Cellar")))
+        );
+        assert_eq!(on_path(&["idle"]), None);
+        // A linked directory resolves and a linked `brew` does not.
+        assert_eq!(on_path(&["deep/linked"]).map(|h| h.0), Some(root.clone()));
+        assert_eq!(on_path(&["local/bin"]), Some(local.clone()));
+        // A `Cellar` in the repository a linked `brew` runs from comes first.
+        std::fs::create_dir(f.path().join("Cellar")).unwrap();
+        std::fs::create_dir(f.path().join("local/Cellar")).unwrap();
+        assert_eq!(
+            on_path(&["local/bin"]),
+            Some((local.0, root.join("Cellar")))
+        );
+        // A relative entry is read from the line's directory. A `brew` in an
+        // entry that is exactly `.` or empty gives nothing.
+        let bin = f.path().join("bin");
+        let prefix =
+            |path: &str, cwd: &Path| located(OsStr::new(path), cwd, nowhere()).map(|h| h.0);
+        assert_eq!(prefix("bin", f.path()), Some(root.clone()));
+        assert_eq!(prefix("./", &bin), Some(root.clone()));
+        for path in ["", ":", ".", ".:"] {
+            assert_eq!(prefix(path, &bin), None, "{path:?}");
+        }
+        // The shell goes no further than that `brew`. Where none runs there
+        // the search goes on.
+        let later = format!(":{}", bin.display());
+        assert_eq!(prefix(&later, &bin), None);
+        assert_eq!(prefix(&later, &f.path().join("idle")), Some(root.clone()));
+    }
+
+    #[test]
+    fn a_brew_that_cannot_start_finds_no_homebrew() {
+        let f = homebrew_prefix_fixture(&["later/bin", "later/bin/brew*"]);
+        make_runnable(&f.path().join("later/bin/brew"));
+        let bin = f.path().join("bin").into_os_string();
+        let found = |home: &Path| {
+            let s = Sources {
+                path: &bin,
+                ..sources(nowhere(), home, nowhere())
+            };
+            find_homebrew(&s).is_some()
+        };
+        assert!(found(nowhere()));
+        // `brew` refuses to run without a `HOME`.
+        assert!(!found(Path::new("")));
+        // Nor does it run without a `brew.sh` in its repository. The shell
+        // starts the first `brew` it finds and goes no further.
+        let dirs = [f.path().join("later/bin"), f.path().join("bin")];
+        let path = std::env::join_paths(dirs).unwrap();
+        assert_eq!(located(&path, nowhere(), nowhere()), None);
+    }
+
+    #[test]
+    fn a_usr_local_brew_into_the_same_repository_moves_the_prefix() {
+        // The fixture's own `bin/brew` is the repository's.
+        let f = homebrew_prefix_fixture(&[
+            "usr/local/bin",
+            "home/bin",
+            "other/bin",
+            "other/bin/brew*",
+            "away/bin",
+        ]);
+        let brew = f.path().join("bin/brew");
+        let usr_local = f.path().join("usr/local");
+        let usr_local_brew = usr_local.join("bin/brew");
+        std::os::unix::fs::symlink(&brew, f.path().join("home/bin/brew")).unwrap();
+        let home = f.path().join("home/bin").into_os_string();
+        let home_prefix = f.path().join("home").canonicalize().unwrap();
+        let prefix = || located(&home, nowhere(), &usr_local).map(|h| h.0);
+        // A file that is no link moves nothing. That holds for a `brew` that
+        // links to it as well. A link into another repository moves nothing
+        // either.
+        std::fs::write(&usr_local_brew, "").unwrap();
+        make_runnable(&usr_local_brew);
+        give_brew_sh(&usr_local);
+        std::os::unix::fs::symlink(&usr_local_brew, f.path().join("away/bin/brew")).unwrap();
+        let away = f.path().join("away/bin").into_os_string();
+        let away_prefix = f.path().join("away").canonicalize().unwrap();
+        assert_eq!(
+            located(&away, nowhere(), &usr_local).map(|h| h.0),
+            Some(away_prefix)
+        );
+        assert_eq!(prefix(), Some(home_prefix.clone()));
+        std::fs::remove_file(&usr_local_brew).unwrap();
+        std::os::unix::fs::symlink(f.path().join("other/bin/brew"), &usr_local_brew).unwrap();
+        assert_eq!(prefix(), Some(home_prefix.clone()));
+        std::fs::remove_file(&usr_local_brew).unwrap();
+        std::os::unix::fs::symlink(&brew, &usr_local_brew).unwrap();
+        assert_eq!(
+            located(&home, nowhere(), &usr_local),
+            Some((usr_local.clone(), usr_local.join("Cellar")))
+        );
+        // Not where the prefix's own `Cellar` is a link.
+        std::os::unix::fs::symlink("elsewhere", f.path().join("home/Cellar")).unwrap();
+        assert_eq!(prefix(), Some(home_prefix));
+    }
+
+    #[test]
+    fn brew_reads_one_link_to_find_its_repository() {
+        // `hb/bin/brew` links into `hb/Homebrew` the way Homebrew installs
+        // itself. `usr/local/bin/brew` links to that link.
+        let f = Fixture::new(&[
+            "hb/Homebrew/bin",
+            "hb/Homebrew/bin/brew*",
+            "hb/bin",
+            "usr/local/bin",
+        ]);
+        make_runnable(&f.path().join("hb/Homebrew/bin/brew"));
+        give_brew_sh(&f.path().join("hb/Homebrew"));
+        std::os::unix::fs::symlink("../Homebrew/bin/brew", f.path().join("hb/bin/brew")).unwrap();
+        let usr_local = f.path().join("usr/local");
+        std::os::unix::fs::symlink(f.path().join("hb/bin/brew"), usr_local.join("bin/brew"))
+            .unwrap();
+        let root = f.path().canonicalize().unwrap();
+        let path = f.path().join("hb/bin").into_os_string();
+        // One link from `usr/local/bin/brew` reaches `hb` and `hb/bin/brew`
+        // runs from `hb/Homebrew`. The prefix therefore stays.
+        assert_eq!(
+            located(&path, nowhere(), &usr_local),
+            Some((root.join("hb"), root.join("hb/Cellar")))
+        );
+    }
+
+    #[test]
+    fn the_caskroom_and_opt_stay_under_the_prefix_when_the_cellar_does_not() {
+        let f = Fixture::new(&[
+            "repo/bin",
+            "repo/bin/brew*",
+            "repo/Cellar/sample-tool/1.0",
+            "repo/Caskroom/sample-decoy",
+            "repo/opt/sample-tool",
+            "prefix/bin",
+            "prefix/Caskroom/sample-app",
+            "prefix/opt/sample-tool",
+            "prefix/opt/sample-tool/sh.brew.sample-tool.plist*",
+        ]);
+        let brew = f.path().join("repo/bin/brew");
+        make_runnable(&brew);
+        give_brew_sh(&f.path().join("repo"));
+        std::os::unix::fs::symlink(&brew, f.path().join("prefix/bin/brew")).unwrap();
+        let path = f.path().join("prefix/bin").into_os_string();
+        let found = brew_installed(&prefix_sources(&path, &[]));
+        assert_eq!(found_names(&found), ["sample-tool", "sample-app"]);
+        let found = brew_services(&prefix_sources(&path, &[]));
+        assert_eq!(found_names(&found), ["sample-tool"]);
     }
 
     #[test]
