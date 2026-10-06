@@ -153,6 +153,10 @@ pub struct Walk<'a> {
     pub offers_options: bool,
     /// Whether [`Walk::current_arg`] is set.
     pub offers_args: bool,
+    /// Whether [`Walk::current_arg`] is an option's own and has taken no
+    /// word yet. The option the line just named is what the next word most
+    /// likely fills.
+    pub awaits_option_value: bool,
     /// Whether the command cannot run without another word: an argument
     /// that is not optional and has no word yet, the option's own or the
     /// node's, or a subcommand the node wants. `requiresSubcommand` answers
@@ -662,6 +666,7 @@ pub fn walk<'a>(
         options: state.options(),
         subcommands: state.subcommands(),
         offers_args: current_arg.is_some(),
+        awaits_option_value: !stray && state.option_arg.is_some_and(|(_, _, filled)| !filled),
         current_arg,
         needs_word,
         offers_subcommands: !stray && !state.entered_subcommand_args && !forced,
@@ -1269,6 +1274,18 @@ mod tests {
         let switch = git.subcommands.get("switch").unwrap();
         let walk = walk(&command("git switch "), &git, |_| None);
         assert!(std::ptr::eq(walk.node, switch.as_ref()));
+    }
+
+    #[test]
+    fn an_option_just_named_awaits_its_value_until_a_word_fills_it() {
+        let pm2 = spec::load("pm2", &[]).unwrap();
+        let named = walk(&command("pm2 -l "), &pm2, |_| None);
+        assert!(named.awaits_option_value);
+        assert!(named.offers_subcommands);
+        let filled = walk(&command("pm2 -l sample.log "), &pm2, |_| None);
+        assert!(!filled.awaits_option_value);
+        let bare = walk(&command("pm2 "), &pm2, |_| None);
+        assert!(!bare.awaits_option_value);
     }
 
     #[test]

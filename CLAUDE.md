@@ -818,9 +818,12 @@ equally well. The name alone decided before it and `-` sorts under every
 letter. A bare `cargo ` therefore opened on `--color` and left all 38 of
 its subcommands under the fold. 323 of the 715 specifications at the top of
 `specs/` carry both a subcommand and an option at their root. Typing a `-`
-is how a person asks for the options instead. A row the argument leads with
-outranks the group it came from and so does a row the argument reaches
-better.
+is how a person asks for the options instead. An option the line has just
+named puts the values ahead of the subcommands. Its argument wants the word in
+hand and `pm2 -l ` offers the files and folders before `pm2`'s 67
+subcommands. Once the option has its value the subcommands lead again. A row
+the argument leads with outranks the group it came from and so does a row the
+argument reaches better.
 
 `priority` is a number from 0 to 100 that a specification writes against a
 subcommand, an option or a listed value. A row whose specification says

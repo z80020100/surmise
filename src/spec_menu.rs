@@ -280,7 +280,12 @@ impl Completions {
                     command: target.command.words[0].inner_text.as_str(),
                     counts: &self.cmd_history,
                 });
-                rank(&mut rows, walk.search_term.as_str(), used_after);
+                rank(
+                    &mut rows,
+                    walk.search_term.as_str(),
+                    used_after,
+                    walk.awaits_option_value,
+                );
                 // In front of that order rather than into it, the way `cd`'s
                 // own menu puts its row there. A line that already names a
                 // path is the one most often meant and a score would leave
@@ -1184,6 +1189,7 @@ mod tests {
                 command: "docker",
                 counts: &cmd_history,
             }),
+            false,
         );
         assert_eq!(names(&rows), ["add", "read"]);
     }
@@ -1210,7 +1216,7 @@ mod tests {
                 )
             })
             .collect();
-        rank(&mut rows, term, None);
+        rank(&mut rows, term, None, false);
         rows.into_iter().map(|c| c.display).collect()
     }
 
@@ -1459,6 +1465,7 @@ mod tests {
                 command: "sample",
                 counts: &cmd_history,
             }),
+            false,
         );
         assert_eq!(names(&rows), ["pager", "alpha"]);
     }
@@ -1497,6 +1504,24 @@ mod tests {
         assert_eq!((word.start, word.arg.as_str()), (3, "--colo"));
         // An option inside a quote it opened gets no rows at all.
         assert!(complete(&mut c, &target("ls '--color=")).is_empty());
+    }
+
+    #[test]
+    fn an_option_just_named_offers_its_values_ahead_of_the_subcommands() {
+        let f = Fixture::new(&["sample.log*"]);
+        let rows = rows_in(f.path(), "pm2 -l ");
+        let names = names(&rows);
+        let at = |name: &str| names.iter().position(|n| *n == name);
+        assert!(
+            at("sample.log").unwrap() < at("start").unwrap(),
+            "{names:?}"
+        );
+        // Once the option has its value the subcommands lead again.
+        let rows = rows_in(f.path(), "pm2 -l sample.log ");
+        assert_eq!(
+            rows.iter().find(|r| r.kind != Kind::Run).unwrap().kind,
+            Kind::Command
+        );
     }
 
     #[test]

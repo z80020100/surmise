@@ -894,7 +894,7 @@ impl Completions {
                 Value::File => self.path_arguments(&arg, lead, cwd),
             };
             in_name_order(&mut out);
-            rank(&mut out, &arg, None);
+            rank(&mut out, &arg, None, false);
             return out;
         }
         let mut out = Vec::new();
@@ -973,7 +973,7 @@ impl Completions {
             }
         }
         in_name_order(&mut out);
-        rank(&mut out, &arg, None);
+        rank(&mut out, &arg, None, false);
         if target.runs_as_it_stands() && !out.is_empty() {
             out.insert(0, run_row(String::new()));
         }
@@ -1126,7 +1126,7 @@ impl Completions {
             counts: &self.cmd_history,
         });
         in_name_order(&mut out);
-        rank(&mut out, arg, used_after);
+        rank(&mut out, arg, used_after, false);
         // The name query prints a name and nothing else, so the label and the
         // hint both come from the specification instead. A word no name
         // reached keeps the spec unread.
