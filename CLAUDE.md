@@ -1227,8 +1227,8 @@ those. It is 1481 JSON files plus an index and it is committed. Nothing
 downloads it, nothing generates it during a build and it needs no network.
 `build.rs` reads that whole tree at build time and `spec_store` is the
 byte-level lookup the binary carries: `get(name)` decompresses one spec and
-`commands()` returns the compiled-in list of 731 names, the 727 here and the
-four `extra-specs/` adds. `spec` parses what
+`commands()` returns the compiled-in list of 732 names, the 727 here and the
+five `extra-specs/` adds. `spec` parses what
 comes back into the shape `argwalk` walks, and "Other commands" above says
 what a menu does with one. Git's own menu is the second reader of this data
 and it takes three things from it: the description a subcommand row shows where
@@ -1284,23 +1284,34 @@ code that parsed the output.
 the upstream's own text and the licence travels with them.
 
 `extra-specs/` holds the specifications surmise writes for itself, for
-commands the corpus has none for: `claude`, `codex`, `mise` and `tig`. They
+commands the corpus has none for: `claude`, `codex`, `mise`, `rtk` and `tig`. They
 take the shape the files in `specs/` take and reach a menu the same way. `make
 specs` never touches the directory and a name it shares with `specs/` fails the
 build rather than shadow the corpus. Each one was read off the installed
-tool's own `--help`: Claude Code 2.1.286, codex-cli 0.159.2, mise 2026.8.14
-and tig 2.6.0. A tool that grows a subcommand after those releases gets no row
-for it until its file is written again.
+tool's own `--help`: Claude Code 2.1.286, codex-cli 0.159.2, mise 2026.8.14,
+rtk 0.51.0 and tig 2.6.0. A tool that grows a subcommand after those releases
+gets no row for it until its file is written again.
+
+The `rtk` specification defines RTK's own commands and options. Proxy command
+nodes use `loadSpec` to read the target command's specification. A target needs
+a specification for its own completion rows.
+
+A pointer keeps inherited persistent options. Its own options and subcommands
+override matching names in the target. An object such as
+`"loadSpec": {"name": "npm", "subcommands": ["run"]}` selects an existing
+node instead of the target's root. The native readers still see the target's
+root identity. `rtk npm` therefore reads the same scripts as `npm run`.
+An `isCommand` argument starts a separate command and clears the outer options.
 
 Every file under `specs/` except the top-level `index.json`, and every file
 under `extra-specs/`, compresses on its own into one blob, so
 `spec_store::get` decompresses the one spec a menu needs and leaves the rest
 of the corpus alone. `flate2` with the `rust_backend` feature does both ends
-and neither of them reaches for a C library. The blob is 9 132 546 bytes.
+and neither of them reaches for a C library. The blob is 9 138 419 bytes.
 
 The binary carries that weight now. `spec_menu` reaches
 `spec_store::get_configured` for any command besides `cd`, so a linker keeps
-the corpus rather than dropping it and a release build measures 13 295 920
+the corpus rather than dropping it and a release build measures 13 641 312
 bytes.
 
 ## Configuration

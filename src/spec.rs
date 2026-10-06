@@ -28,9 +28,9 @@
 //!   and the data disagrees for [8 arguments](Arg) out of 235 174.
 //! - A generator whose template names `folders` or `filepaths` gets
 //!   `trigger` and `get_query_term` of `/` unless the spec set them.
-//! - `loadSpec` as a string becomes one [`LoadSpec`] of kind `"global"`. The
-//!   committed data never uses the object or array forms the public type
-//!   also allows, so this module does not model them.
+//! - `loadSpec` as a string becomes one [`LoadSpec`] of kind `"global"`. An
+//!   object with `name` and `subcommands` selects a path through that spec.
+//!   The extra specifications use this form for wrapper commands.
 //!
 //! What surmise does not carry forward: `Callable(Handle)` is gone (no
 //! runtime exists to call), a [`Generator`] holds data alone with no
@@ -332,13 +332,12 @@ pub struct ParserDirectives {
     pub extra: Extra,
 }
 
-/// One location `loadSpec` names. `kind` is always `"global"`: that is what
-/// `initializeDefault` gives a string-form `loadSpec`, and the corpus never
-/// uses the object or array forms that could carry a different one.
+/// One global specification and an optional path through its subcommands.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LoadSpec {
     pub name: String,
     pub kind: String,
+    pub subcommands: Vec<String>,
 }
 
 /// Counts a normalization pass measured, so a test can assert them against
@@ -708,13 +707,31 @@ fn normalize_parser_directives(raw: RawParserDirectives) -> ParserDirectives {
     }
 }
 
-fn normalize_load_spec(raw: Option<String>) -> Vec<LoadSpec> {
+fn normalize_load_spec(raw: Option<RawLoadSpec>) -> Vec<LoadSpec> {
     raw.into_iter()
-        .map(|name| LoadSpec {
-            name,
-            kind: "global".to_string(),
+        .map(|raw| {
+            let (name, subcommands) = match raw {
+                RawLoadSpec::Name(name) => (name, Vec::new()),
+                RawLoadSpec::Node { name, subcommands } => (name, subcommands),
+            };
+            LoadSpec {
+                name,
+                kind: "global".to_string(),
+                subcommands,
+            }
         })
         .collect()
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(untagged)]
+enum RawLoadSpec {
+    Name(String),
+    Node {
+        name: String,
+        #[serde(default)]
+        subcommands: Vec<String>,
+    },
 }
 
 // --- The raw shape, exactly as a spec author wrote it. ---
@@ -737,7 +754,7 @@ struct RawSubcommand {
     #[serde(default)]
     parser_directives: Option<RawParserDirectives>,
     #[serde(default)]
-    load_spec: Option<String>,
+    load_spec: Option<RawLoadSpec>,
     #[serde(default)]
     versioned_spec_path: Option<String>,
     #[serde(default)]
@@ -819,7 +836,7 @@ struct RawArg {
     #[serde(default, rename = "dyn")]
     dynamic: bool,
     #[serde(default)]
-    load_spec: Option<String>,
+    load_spec: Option<RawLoadSpec>,
     #[serde(default)]
     default: Option<Value>,
     #[serde(default)]
@@ -1229,6 +1246,7 @@ mod tests {
             vec![LoadSpec {
                 name: "create-react-native-app".to_string(),
                 kind: "global".to_string(),
+                subcommands: Vec::new(),
             }]
         );
     }
@@ -1253,6 +1271,7 @@ mod tests {
             vec![LoadSpec {
                 name: "php".to_string(),
                 kind: "global".to_string(),
+                subcommands: Vec::new(),
             }]
         );
     }

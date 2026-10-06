@@ -94,11 +94,13 @@
 //! `php/bin-console`; nothing else gets special treatment, so a local
 //! script path is simply asked for and gets nothing back — which is what
 //! "local" reduces to in this module. A successful re-root replaces the
-//! current node with the loaded one, moves [`Walk::command_index`] to the
-//! word that named it, and resets every other piece of state, since
-//! nothing about the command so far belonged to this new spec. This is the
-//! mechanism that makes `sudo git switch` walk `git`'s own spec from `git`
-//! onward. `walk`'s `load_spec` parameter takes `impl Fn(&str) ->
+//! current node with the loaded one and moves [`Walk::command_index`] to
+//! the word that named it. An argument re-root resets the other state.
+//! A node pointer keeps inherited persistent options and their consumed uses.
+//! Its own options and subcommands override the target's matching names.
+//! An object-form pointer can select a path through the target's subcommands.
+//! The target's root identity remains available to native readers.
+//! `walk`'s `load_spec` parameter takes `impl Fn(&str) ->
 //! Option<&'a Subcommand>` rather than an owned `Subcommand`, so a caller
 //! holding a cache of already-loaded specs can simply hand out references
 //! into it; this module never owns a node it did not receive as `root`.
@@ -112,7 +114,7 @@
 //! either.
 
 use crate::shellparse;
-use crate::spec::{Arg, Opt, Repeatable, Separator, Subcommand};
+use crate::spec::{Arg, LoadSpec, Opt, Repeatable, Separator, Subcommand};
 use std::collections::HashMap;
 
 /// An option's own arguments, mid-consumption: the option, the index of the
@@ -122,12 +124,17 @@ type OptionArg<'a> = (&'a Opt, usize, bool);
 
 /// What the walk found once it read every word but the last.
 pub struct Walk<'a> {
-    /// The node the walk ended on. Its own `subcommands` and `options` are
-    /// what a menu reads to build its rows.
+    /// The node the walk ended on. Its arguments and parser directives
+    /// answer the next word.
     pub node: &'a Subcommand,
     /// The specification `node` belongs to: the one the walk started on, or
     /// the last one a re-root moved it to. `sudo npm run ` ends in `npm`'s.
     pub root: &'a Subcommand,
+    /// The options in scope with local declarations ahead of inherited ones.
+    pub options: HashMap<&'a str, &'a Opt>,
+    /// The current subcommands with pointer-local declarations ahead of the
+    /// target's.
+    pub subcommands: HashMap<&'a str, &'a Subcommand>,
     /// The argument the final word would fill, if any is pending: an
     /// option's own, or the current node's.
     pub current_arg: Option<Arg>,
@@ -158,6 +165,8 @@ pub struct Walk<'a> {
     /// Index into the command's `words` of the word that named `node`. `0`
     /// means the walk never left the command name itself.
     pub command_index: usize,
+    /// Index into the command's `words` of the word that named `root`.
+    pub root_index: usize,
     /// Whether a bare `--` has already been read.
     pub end_of_options: bool,
 }
@@ -167,7 +176,11 @@ pub struct Walk<'a> {
 struct State<'a> {
     node: &'a Subcommand,
     root: &'a Subcommand,
+    /// The `loadSpec` pointer `node` was reached through. Its own options and
+    /// subcommands sit over `node`'s.
+    overlay: Option<&'a Subcommand>,
     command_index: usize,
+    root_index: usize,
     end_of_options: bool,
     seen_non_option: bool,
     passed_options: Vec<&'a Opt>,
@@ -189,7 +202,9 @@ impl<'a> State<'a> {
         let mut state = State {
             node: root,
             root,
+            overlay: None,
             command_index: 0,
+            root_index: 0,
             end_of_options: false,
             seen_non_option: false,
             passed_options: Vec::new(),
@@ -212,6 +227,7 @@ impl<'a> State<'a> {
     /// Descends into `child`, the subcommand the word at `index` named.
     fn descend(&mut self, child: &'a Subcommand, index: usize) {
         self.node = child;
+        self.overlay = None;
         self.command_index = index;
         self.entered_subcommand_args = false;
         self.subcommand_arg_index = 0;
@@ -225,7 +241,9 @@ impl<'a> State<'a> {
     fn reroot(&mut self, new_root: &'a Subcommand, index: usize) {
         self.node = new_root;
         self.root = new_root;
+        self.overlay = None;
         self.command_index = index;
+        self.root_index = index;
         self.end_of_options = false;
         self.seen_non_option = false;
         self.passed_options.clear();
@@ -237,9 +255,81 @@ impl<'a> State<'a> {
         self.absorb_persistent(new_root);
     }
 
+    fn follow_pointer(
+        &mut self,
+        pointer: &'a Subcommand,
+        index: usize,
+        load_spec: &impl Fn(&str) -> Option<&'a Subcommand>,
+    ) -> bool {
+        let Some(target) = pointer.load_spec.first() else {
+            return false;
+        };
+        let Some((root, path)) = resolve_target(target, load_spec) else {
+            return false;
+        };
+        let inherited = std::mem::take(&mut self.ancestor_persistent);
+        let passed: Vec<_> = self
+            .passed_options
+            .iter()
+            .copied()
+            .filter(|opt| inherited.values().any(|held| std::ptr::eq(*held, *opt)))
+            .collect();
+        self.reroot(root, index);
+        for child in path {
+            self.descend(child, index);
+        }
+        for (name, opt) in inherited {
+            self.ancestor_persistent.entry(name).or_insert(opt);
+        }
+        self.overlay = Some(pointer);
+        self.absorb_persistent(pointer);
+        self.passed_options.extend(passed);
+        true
+    }
+
+    fn options(&self) -> HashMap<&'a str, &'a Opt> {
+        let mut options = self.ancestor_persistent.clone();
+        let own = self
+            .overlay
+            .into_iter()
+            .flat_map(|node| [&node.options, &node.persistent_options]);
+        for map in std::iter::once(&self.node.options).chain(own) {
+            options.extend(map.iter().map(|(name, opt)| (name.as_str(), opt.as_ref())));
+        }
+        options
+    }
+
+    fn subcommands(&self) -> HashMap<&'a str, &'a Subcommand> {
+        let mut subcommands = HashMap::new();
+        for node in std::iter::once(self.node).chain(self.overlay) {
+            subcommands.extend(
+                node.subcommands
+                    .iter()
+                    .map(|(name, child)| (name.as_str(), child.as_ref())),
+            );
+        }
+        subcommands
+    }
+
+    fn subcommand(&self, name: &str) -> Option<&'a Subcommand> {
+        self.overlay
+            .and_then(|node| node.subcommands.get(name))
+            .or_else(|| self.node.subcommands.get(name))
+            .map(|node| node.as_ref())
+    }
+
+    fn has_subcommands(&self) -> bool {
+        !self.node.subcommands.is_empty()
+            || self
+                .overlay
+                .is_some_and(|node| !node.subcommands.is_empty())
+    }
+
     /// Checks whether `arg`, about to be filled by `text`, re-roots the
     /// walk, and does so if it does. `index` is `text`'s own position,
-    /// since a re-root always moves `command_index` there.
+    /// since a re-root always moves `command_index` there. A fixed
+    /// `loadSpec` pointer is read regardless of what `text` says, since the
+    /// corpus's one example is a straight redirect.
     fn maybe_reroot(
         &mut self,
         arg: &Arg,
@@ -247,6 +337,16 @@ impl<'a> State<'a> {
         index: usize,
         load_spec: &impl Fn(&str) -> Option<&'a Subcommand>,
     ) -> bool {
+        if let Some(target) = arg.load_spec.first() {
+            let Some((root, path)) = resolve_target(target, load_spec) else {
+                return false;
+            };
+            self.reroot(root, index);
+            for child in path {
+                self.descend(child, index);
+            }
+            return true;
+        }
         let Some(name) = arg_reroot_name(arg, text) else {
             return false;
         };
@@ -257,10 +357,15 @@ impl<'a> State<'a> {
         true
     }
 
-    /// An option by exact name, `node`'s own first and every ancestor's
-    /// persistent option after.
+    /// An option by exact name: a pointer's own first, then `node`'s own and
+    /// every ancestor's persistent option after.
     fn lookup_option(&self, name: &str) -> Option<&'a Opt> {
-        if let Some(opt) = self.node.options.get(name) {
+        let own = self.overlay.and_then(|node| {
+            node.options
+                .get(name)
+                .or_else(|| node.persistent_options.get(name))
+        });
+        if let Some(opt) = own.or_else(|| self.node.options.get(name)) {
             return Some(opt.as_ref());
         }
         self.ancestor_persistent.get(name).copied()
@@ -303,7 +408,7 @@ impl<'a> State<'a> {
         // refuses. A node with no subcommand of its own has no such line to
         // sit behind and goes on offering its options after its arguments,
         // which is what `git add <file> -n` and `svn commit -m` both want.
-        if self.entered_subcommand_args && !self.node.subcommands.is_empty() {
+        if self.entered_subcommand_args && self.has_subcommands() {
             return false;
         }
         let must_precede_arguments = self
@@ -354,18 +459,12 @@ impl<'a> State<'a> {
     /// name with one of them, matching `lookup_option`. The length covers
     /// the name and the separator. The value starts there.
     fn attached_option(&self, text: &str) -> Option<(&'a Opt, usize)> {
-        let mut candidates: Vec<&'a Opt> =
-            self.node.options.values().map(|opt| opt.as_ref()).collect();
-        for (name, opt) in &self.ancestor_persistent {
-            if !self.node.options.contains_key(*name) {
-                candidates.push(*opt);
-            }
-        }
-        for opt in candidates {
-            let Some(name) = opt.name.iter().find(|name| text.starts_with(name.as_str())) else {
+        let mut candidates: Vec<_> = self.options().into_iter().collect();
+        candidates.sort_unstable_by_key(|(name, _)| std::cmp::Reverse(name.len()));
+        for (name, opt) in candidates {
+            let Some(rest) = text.strip_prefix(name) else {
                 continue;
             };
-            let rest = &text[name.len()..];
             if let Some(separator) = candidate_separators(self.node, opt)
                 .into_iter()
                 .find(|separator| rest.starts_with(separator.as_str()))
@@ -420,11 +519,7 @@ pub fn walk<'a>(
 ) -> Walk<'a> {
     let words = &command.words;
     let mut state = State::new(root);
-    if let Some(target) = root.load_spec.first()
-        && let Some(new_root) = load_spec(&target.name)
-    {
-        state.reroot(new_root, 0);
-    }
+    state.follow_pointer(root, 0, &load_spec);
     let mut search_term = String::new();
     let mut stray = false;
 
@@ -450,16 +545,10 @@ pub fn walk<'a>(
             // The subcommand consumer. A child that is itself a `loadSpec`
             // pointer re-roots instead of being descended into.
             if !state.entered_subcommand_args
-                && let Some(child) = state.node.subcommands.get(text)
+                && let Some(child) = state.subcommand(text)
             {
-                let child = child.as_ref();
-                let target = child
-                    .load_spec
-                    .first()
-                    .and_then(|target| load_spec(&target.name));
-                match target {
-                    Some(new_root) => state.reroot(new_root, index),
-                    None => state.descend(child, index),
+                if !state.follow_pointer(child, index, &load_spec) {
+                    state.descend(child, index);
                 }
                 continue;
             }
@@ -560,18 +649,25 @@ pub fn walk<'a>(
             state.subcommand_arg_index,
             state.subcommand_arg_words,
         ) || (state.command_index + 2 == words.len()
-            && !state.node.subcommands.is_empty()
-            && state.node.requires_subcommand != Some(false)));
+            && state.has_subcommands()
+            && state
+                .overlay
+                .and_then(|node| node.requires_subcommand)
+                .or(state.node.requires_subcommand)
+                != Some(false)));
 
     Walk {
         node: state.node,
         root: state.root,
+        options: state.options(),
+        subcommands: state.subcommands(),
         offers_args: current_arg.is_some(),
         current_arg,
         needs_word,
         offers_subcommands: !stray && !state.entered_subcommand_args && !forced,
         offers_options: !stray && !forced && state.can_consume_options(),
         command_index: state.command_index,
+        root_index: state.root_index,
         end_of_options: state.end_of_options,
         search_term,
         search_lead,
@@ -579,15 +675,25 @@ pub fn walk<'a>(
     }
 }
 
-/// The name to ask the loader for when `text` fills `arg`, if `arg` is one
-/// of the kinds that re-roots the walk: a fixed `loadSpec` pointer — read
-/// regardless of what `text` says, since the corpus's one example is a
-/// straight redirect — an `isCommand` or `isScript` argument naming the
-/// word itself, or an `isModule` argument prepending its own prefix to it.
-fn arg_reroot_name(arg: &Arg, text: &str) -> Option<String> {
-    if let Some(target) = arg.load_spec.first() {
-        return Some(target.name.clone());
+fn resolve_target<'a>(
+    target: &LoadSpec,
+    load_spec: &impl Fn(&str) -> Option<&'a Subcommand>,
+) -> Option<(&'a Subcommand, Vec<&'a Subcommand>)> {
+    let root = load_spec(&target.name)?;
+    let mut node = root;
+    let mut path = Vec::with_capacity(target.subcommands.len());
+    for name in &target.subcommands {
+        node = node.subcommands.get(name)?.as_ref();
+        path.push(node);
     }
+    Some((root, path))
+}
+
+/// The name to ask the loader for when `text` fills `arg`, if `arg` is one
+/// of the kinds that re-roots the walk by its word: an `isCommand` or
+/// `isScript` argument naming the word itself, or an `isModule` argument
+/// prepending its own prefix to it.
+fn arg_reroot_name(arg: &Arg, text: &str) -> Option<String> {
     if arg.is_command == Some(true) || arg.is_script == Some(true) {
         return Some(command_lookup_name(text).to_string());
     }
@@ -1383,6 +1489,7 @@ mod tests {
             load_spec: vec![LoadSpec {
                 name: "docker".to_string(),
                 kind: "global".to_string(),
+                subcommands: Vec::new(),
             }],
             ..Arg::default()
         }];
@@ -1391,6 +1498,220 @@ mod tests {
         });
         assert!(std::ptr::eq(walk.node, &docker));
         assert_eq!(walk.command_index, 1);
+    }
+
+    fn pointer_specs() -> (Subcommand, Subcommand) {
+        let f = crate::fixture::Fixture::new(&[]);
+        for (name, json) in [
+            (
+                "sample-wrapper",
+                r#"{
+                    "name": "sample-wrapper",
+                    "options": [
+                        {"name": "--wrapper-global", "isPersistent": true},
+                        {"name": "--wrapper-only"}
+                    ],
+                    "subcommands": [
+                        {
+                            "name": "wrapped",
+                            "loadSpec": "sample-base",
+                            "options": [
+                                {"name": ["--wrapper-mode", "-m"], "args": {"name": "WRAPPER_MODE"}},
+                                {"name": "--wrapper-local"},
+                                {"name": "--shared", "isPersistent": true, "args": {"name": "WRAPPER_SHARED"}}
+                            ],
+                            "subcommands": [
+                                {"name": ["run", "r"], "args": {"name": "WRAPPER_TARGET"}},
+                                {"name": "wrapper-child"}
+                            ]
+                        },
+                        {
+                            "name": "scripts",
+                            "loadSpec": {"name": "sample-base", "subcommands": ["run"]}
+                        },
+                        {
+                            "name": "missing",
+                            "loadSpec": {"name": "sample-base", "subcommands": ["run", "not-present"]},
+                            "options": [{"name": "--fallback"}]
+                        },
+                        {"name": "command", "args": {"name": "COMMAND", "isCommand": true}}
+                    ]
+                }"#,
+            ),
+            (
+                "sample-base",
+                r#"{
+                    "name": "sample-base",
+                    "options": [
+                        {"name": ["--base-mode", "-m"], "args": {"name": "BASE_MODE"}},
+                        {"name": "--base-only"},
+                        {"name": "--base-global", "isPersistent": true},
+                        {"name": "--shared", "args": {"name": "BASE_SHARED"}}
+                    ],
+                    "subcommands": [
+                        {"name": ["run", "r"], "args": {"name": "script", "dyn": true}},
+                        {"name": "base-child"}
+                    ]
+                }"#,
+            ),
+        ] {
+            std::fs::write(f.path().join(format!("{name}.json")), json).unwrap();
+        }
+        let dirs = [f.path().to_path_buf()];
+        (
+            spec::load("sample-wrapper", &dirs).unwrap(),
+            spec::load("sample-base", &dirs).unwrap(),
+        )
+    }
+
+    #[test]
+    fn a_load_spec_pointer_keeps_wrapper_options_and_their_alias_precedence() {
+        let (wrapper, base) = pointer_specs();
+        let pointer = wrapper.subcommands.get("wrapped").unwrap();
+        let mode = pointer.options.get("-m").unwrap();
+        let local = pointer.options.get("--wrapper-local").unwrap();
+        let base_only = base.options.get("--base-only").unwrap();
+        let walk = walk(
+            &command("sample-wrapper wrapped -m sample --base-only --wrapper-local "),
+            &wrapper,
+            |name| (name == "sample-base").then_some(&base),
+        );
+        assert_eq!(walk.passed_options.len(), 3);
+        assert!(std::ptr::eq(walk.passed_options[0], mode.as_ref()));
+        assert!(std::ptr::eq(walk.passed_options[1], base_only.as_ref()));
+        assert!(std::ptr::eq(walk.passed_options[2], local.as_ref()));
+        assert_eq!(walk.options["-m"].args[0].name, ["WRAPPER_MODE"]);
+        assert_eq!(walk.options["--base-mode"].args[0].name, ["BASE_MODE"]);
+        assert!(walk.options.contains_key("--wrapper-mode"));
+        assert!(!walk.options.contains_key("--wrapper-only"));
+    }
+
+    #[test]
+    fn a_load_spec_pointer_keeps_its_persistent_option_ahead_of_the_target() {
+        let (wrapper, base) = pointer_specs();
+        for line in [
+            "sample-wrapper wrapped --shared ",
+            "sample-wrapper wrapped --shared=",
+        ] {
+            let walk = walk(&command(line), &wrapper, |name| {
+                (name == "sample-base").then_some(&base)
+            });
+            assert_eq!(walk.options["--shared"].args[0].name, ["WRAPPER_SHARED"]);
+            assert_eq!(walk.current_arg.unwrap().name, ["WRAPPER_SHARED"], "{line}");
+        }
+    }
+
+    #[test]
+    fn a_load_spec_pointer_keeps_wrapper_subcommands_and_their_alias_precedence() {
+        let (wrapper, base) = pointer_specs();
+        let pointer = wrapper.subcommands.get("wrapped").unwrap();
+        let offered = walk(&command("sample-wrapper wrapped "), &wrapper, |name| {
+            (name == "sample-base").then_some(&base)
+        });
+        assert!(offered.subcommands.contains_key("wrapper-child"));
+        assert!(offered.subcommands.contains_key("base-child"));
+        for name in ["run", "r"] {
+            let walk = walk(
+                &command(&format!("sample-wrapper wrapped {name} ")),
+                &wrapper,
+                |name| (name == "sample-base").then_some(&base),
+            );
+            assert!(std::ptr::eq(
+                walk.node,
+                pointer.subcommands.get(name).unwrap().as_ref()
+            ));
+            assert_eq!(walk.current_arg.unwrap().name, ["WRAPPER_TARGET"]);
+            assert!(!walk.options.contains_key("--wrapper-local"));
+        }
+    }
+
+    #[test]
+    fn a_load_spec_pointer_keeps_persistent_flags_through_another_descent() {
+        let (wrapper, base) = pointer_specs();
+        let wrapper_global = wrapper.persistent_options.get("--wrapper-global").unwrap();
+        let base_global = base.persistent_options.get("--base-global").unwrap();
+        let child = base.subcommands.get("base-child").unwrap();
+        let walk = walk(
+            &command("sample-wrapper wrapped base-child --wrapper-global --base-global "),
+            &wrapper,
+            |name| (name == "sample-base").then_some(&base),
+        );
+        assert!(std::ptr::eq(walk.node, child.as_ref()));
+        assert_eq!(walk.passed_options.len(), 2);
+        assert!(std::ptr::eq(
+            walk.passed_options[0],
+            wrapper_global.as_ref()
+        ));
+        assert!(std::ptr::eq(walk.passed_options[1], base_global.as_ref()));
+        assert!(walk.options.contains_key("--wrapper-global"));
+        assert!(walk.options.contains_key("--base-global"));
+        assert!(!walk.options.contains_key("--wrapper-local"));
+        assert!(!walk.options.contains_key("--base-only"));
+    }
+
+    #[test]
+    fn a_load_spec_pointer_keeps_the_identity_of_an_already_consumed_persistent_flag() {
+        let (wrapper, base) = pointer_specs();
+        let global = wrapper.persistent_options.get("--wrapper-global").unwrap();
+        let walk = walk(
+            &command("sample-wrapper --wrapper-global wrapped "),
+            &wrapper,
+            |name| (name == "sample-base").then_some(&base),
+        );
+        assert!(std::ptr::eq(walk.node, &base));
+        assert_eq!(walk.passed_options.len(), 1);
+        assert!(std::ptr::eq(walk.passed_options[0], global.as_ref()));
+        assert!(!is_available(global, &walk.passed_options));
+        assert!(walk.options.contains_key("--wrapper-global"));
+    }
+
+    #[test]
+    fn is_command_rerooting_clears_wrapper_flags_and_their_consumed_state() {
+        let (wrapper, base) = pointer_specs();
+        let child = base.subcommands.get("base-child").unwrap();
+        let walk = walk(
+            &command("sample-wrapper --wrapper-global command sample-base base-child "),
+            &wrapper,
+            |name| (name == "sample-base").then_some(&base),
+        );
+        assert!(std::ptr::eq(walk.node, child.as_ref()));
+        assert!(std::ptr::eq(walk.root, &base));
+        assert!(walk.passed_options.is_empty());
+        assert!(!walk.options.contains_key("--wrapper-global"));
+        assert!(!walk.options.contains_key("--wrapper-only"));
+        assert!(walk.options.contains_key("--base-global"));
+    }
+
+    #[test]
+    fn a_load_spec_selector_keeps_the_selected_nodes_native_reader_identity() {
+        let (wrapper, base) = pointer_specs();
+        let run = base.subcommands.get("run").unwrap();
+        let walk = walk(&command("sample-wrapper scripts "), &wrapper, |name| {
+            (name == "sample-base").then_some(&base)
+        });
+        assert!(std::ptr::eq(walk.node, run.as_ref()));
+        assert!(std::ptr::eq(walk.root, &base));
+        assert_eq!(walk.command_index, 1);
+        assert_eq!(walk.root.name, ["sample-base"]);
+        assert_eq!(walk.node.name[0], "run");
+        let arg = walk.current_arg.unwrap();
+        assert_eq!(arg.name, ["script"]);
+        assert!(arg.dynamic);
+    }
+
+    #[test]
+    fn a_missing_load_spec_selector_leaves_the_pointer_node_in_place() {
+        let (wrapper, base) = pointer_specs();
+        let pointer = wrapper.subcommands.get("missing").unwrap();
+        let walk = walk(&command("sample-wrapper missing "), &wrapper, |name| {
+            (name == "sample-base").then_some(&base)
+        });
+        assert!(std::ptr::eq(walk.node, pointer.as_ref()));
+        assert!(std::ptr::eq(walk.root, &wrapper));
+        assert_eq!(walk.command_index, 1);
+        assert!(walk.options.contains_key("--fallback"));
+        assert!(!walk.options.contains_key("--base-only"));
+        assert!(walk.current_arg.is_none());
     }
 
     #[test]
