@@ -1227,15 +1227,35 @@ fn docker_container_also_opens_the_menu_on_its_own_space() {
 
 #[test]
 fn keys_typed_before_the_menu_draws_still_reach_it() {
-    // The whole line lands in the terminal's queue at once. Everything
-    // behind the first space is in it ahead of the terminal's answer about
-    // where the cursor is. It reaches the menu as though typed into it.
+    // The space goes alone and opens the menu. The harness answers where the
+    // cursor is only when it reads the screen. Sleeping rather than reading
+    // therefore puts the rest of the line in the terminal's queue ahead of
+    // that answer. It reaches the menu as though typed into it. No space
+    // follows `stat` and a menu on the screen is therefore the one the first
+    // space opened.
     let f = home("", "");
     let mut t = ready(f.path());
-    t.send("git status ");
+    t.send("git ");
+    std::thread::sleep(SETTLE);
+    t.send("stat");
     assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
     t.pump(SETTLE);
-    assert_eq!(line(&t).trim(), "❯ git status", "{:?}", t.lines());
+    assert!(line(&t).starts_with("❯ git stat"), "{:?}", t.lines());
+}
+
+#[test]
+fn a_line_sent_whole_with_its_enter_runs() {
+    // A program that restores a session types its command and Enter in one
+    // write. The terminal turns that Enter into a newline while it waits in
+    // the queue and a menu would read the newline as Ctrl-J.
+    let f = home("", "");
+    let mut t = ready(f.path());
+    t.send("cd work\r");
+    assert!(
+        t.wait_line(&format!("{MOVED}:work"), WAIT),
+        "{:?}",
+        t.lines()
+    );
 }
 
 #[test]
@@ -1339,8 +1359,8 @@ fn the_specs_array_answers_a_second_trigger_in_the_same_session() {
 
 #[test]
 fn tab_on_a_line_surmise_passes_on_reaches_the_shells_own_completion() {
-    // `zzzz` rather than `ls`: `ls` has a specification and the space this
-    // line types before the filename would open its own menu first.
+    // `zzzz` rather than `ls`: `ls` has a specification and a space typed on
+    // its own before the filename would open its own menu first.
     let f = home("", "");
     let mut t = ready(f.path());
     typed(&mut t, "zzzz .zsh");
@@ -1370,12 +1390,15 @@ fn tab_asks_surmise_about_a_line_already_typed() {
     // way in and a line can reach `cd wo` without a bare `cd ` on the way.
     let f = home("", "bindkey ' ' $_surmise_space");
     let mut t = ready(f.path());
-    typed(&mut t, "cd wo");
+    // Keys queued behind the space would keep the menu shut whatever the
+    // space is bound to.
+    typed(&mut t, "cd ");
     assert!(
         t.panel().is_empty(),
         "the space opened it anyway: {:?}",
         t.lines()
     );
+    typed(&mut t, "wo");
     t.send("\t");
     assert!(t.wait_panel(WAIT), "Tab opened nothing: {:?}", t.lines());
     t.pump(SETTLE);
@@ -1384,8 +1407,9 @@ fn tab_asks_surmise_about_a_line_already_typed() {
 
 #[test]
 fn tab_inside_a_word_reaches_the_shells_own_completion() {
-    // The space key still wraps `cd work` itself into the menu, so the space
-    // trigger is given back to the shell here and Tab is the only way in.
+    // The space key still wraps `cd work` itself into the menu when it is
+    // typed a key at a time. The space trigger is therefore given back to the
+    // shell here and Tab is the only way in.
     // Stepping the cursor back into `work` then leaves a real `RBUFFER`
     // behind it. surmise reads that off stdin now and answers `PASS` before
     // it ever looks at `cd wo`, exactly as it would for a finished word.

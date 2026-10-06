@@ -178,6 +178,12 @@ surmise-space() {
   zle $_surmise_space
   emulate -L zsh
   [[ -z $RBUFFER ]] || return
+  # Keys still queued behind this space came in one write rather than from a
+  # person answering a menu. A program that restores a session sends its
+  # command and Enter that way. The terminal has already turned that Enter
+  # into a newline and the menu reads a newline as Ctrl-J. The shell keeps
+  # such a line and runs it itself.
+  (( PENDING + KEYS_QUEUED_COUNT )) && return
   _surmise_fill_specs
   # `[1]` on `${(z)...}` inline reads as a string index rather than an array
   # one when the split leaves a single word, which a bare `cd ` always does.
