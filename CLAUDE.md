@@ -1288,9 +1288,16 @@ commands the corpus has none for: `claude`, `codex`, `mise`, `rtk` and `tig`. Th
 take the shape the files in `specs/` take and reach a menu the same way. `make
 specs` never touches the directory and a name it shares with `specs/` fails the
 build rather than shadow the corpus. Each one was read off the installed
-tool's own `--help`: Claude Code 2.1.286, codex-cli 0.159.2, mise 2026.8.14,
+tool's own `--help`: Claude Code 2.1.291, codex-cli 0.160.1, mise 2026.8.14,
 rtk 0.51.0 and tig 2.6.0. A tool that grows a subcommand after those releases
 gets no row for it until its file is written again.
+
+The `claude` and `codex` specifications reach every subcommand but `help` that
+their `--help` lists at any depth. An option whose help lists a fixed set of
+values offers that set. `codex sandbox` and `codex mcp add` take a command and
+`codex sandbox git ` offers Git's own rows. `claude rm`, `claude purge`, `codex
+delete` and the options that skip permission checks are marked dangerous. A
+line that holds one gets no row that runs it.
 
 The `rtk` specification defines RTK's own commands and options. Proxy command
 nodes use `loadSpec` to read the target command's specification. A target needs
@@ -1307,7 +1314,7 @@ Every file under `specs/` except the top-level `index.json`, and every file
 under `extra-specs/`, compresses on its own into one blob, so
 `spec_store::get` decompresses the one spec a menu needs and leaves the rest
 of the corpus alone. `flate2` with the `rust_backend` feature does both ends
-and neither of them reaches for a C library. The blob is 9 138 419 bytes.
+and neither of them reaches for a C library. The blob is 9 148 798 bytes.
 
 The binary carries that weight now. `spec_menu` reaches
 `spec_store::get_configured` for any command besides `cd`, so a linker keeps

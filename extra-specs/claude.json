@@ -95,13 +95,6 @@
     },
     {
       "args": {
-        "name": "url"
-      },
-      "description": "URL for a signed configuration document. Claude Code exits if it cannot load it or it does not cover the selected model. Setting CLAUDE_CODE_CLIENT_DATA_URL instead keeps the URL out of the process list",
-      "name": "--client-data-url"
-    },
-    {
-      "args": {
         "isOptional": true,
         "name": "description|session_id|url"
       },
@@ -117,6 +110,7 @@
     },
     {
       "description": "Bypass all permission checks. Recommended only for sandboxes with no internet access.",
+      "isDangerous": true,
       "name": "--dangerously-skip-permissions"
     },
     {
@@ -159,7 +153,14 @@
     },
     {
       "args": {
-        "name": "level"
+        "name": "level",
+        "suggestions": [
+          "low",
+          "medium",
+          "high",
+          "xhigh",
+          "max"
+        ]
       },
       "description": "Effort level for the current session (low, medium, high, xhigh, max)",
       "name": "--effort"
@@ -220,7 +221,11 @@
     },
     {
       "args": {
-        "name": "format"
+        "name": "format",
+        "suggestions": [
+          "text",
+          "stream-json"
+        ]
       },
       "description": "Input format (only works with --print): \"text\" (default), or \"stream-json\" (realtime streaming input)",
       "name": "--input-format"
@@ -242,7 +247,8 @@
     {
       "args": {
         "isVariadic": true,
-        "name": "configs"
+        "name": "configs",
+        "template": "filepaths"
       },
       "description": "Load MCP servers from JSON files or strings (space-separated)",
       "name": "--mcp-config"
@@ -274,21 +280,38 @@
     },
     {
       "args": {
-        "name": "format"
+        "name": "format",
+        "suggestions": [
+          "text",
+          "json",
+          "stream-json"
+        ]
       },
       "description": "Output format (only works with --print): \"text\" (default), \"json\" (single result), or \"stream-json\" (realtime streaming)",
       "name": "--output-format"
     },
     {
       "args": {
-        "name": "mode"
+        "name": "mode",
+        "suggestions": [
+          "acceptEdits",
+          "auto",
+          "bypassPermissions",
+          "manual",
+          "dontAsk",
+          "plan"
+        ]
       },
       "description": "Permission mode to use for the session",
       "name": "--permission-mode"
     },
     {
       "args": {
-        "name": "target"
+        "name": "target",
+        "suggestions": [
+          "host",
+          "none"
+        ]
       },
       "description": "Who answers permission prompts with --print: \"host\" (the SDK host or --permission-prompt-tool) or \"none\" (nobody: anything that would prompt is denied automatically; the permission mode still decides everything else)",
       "name": "--permission-prompts"
@@ -318,7 +341,17 @@
     {
       "args": {
         "isOptional": true,
-        "name": "value"
+        "name": "value",
+        "suggestions": [
+          "true",
+          "false",
+          "1",
+          "0",
+          "yes",
+          "no",
+          "on",
+          "off"
+        ]
       },
       "description": "Enable prompt suggestions. In print/SDK mode, emits a prompt_suggestion message after each turn with a predicted next user prompt",
       "name": "--prompt-suggestions"
@@ -370,7 +403,12 @@
     },
     {
       "args": {
-        "name": "sources"
+        "name": "sources",
+        "suggestions": [
+          "user",
+          "project",
+          "local"
+        ]
       },
       "description": "Comma-separated list of setting sources to load (user, project, local).",
       "name": "--setting-sources"
@@ -396,7 +434,11 @@
     },
     {
       "args": {
-        "name": "on|off"
+        "name": "on|off",
+        "suggestions": [
+          "on",
+          "off"
+        ]
       },
       "description": "Record the system prompt once per conversation and reuse it verbatim on every request and resume. on (the default): the prompt is rendered on the conversation's first request — a --system-prompt or --append-system-prompt included — sent, and recorded; every later request and resume sends the record as-is, even when a later launch passes different text, until the conversation is compacted. off: never record; the prompt is rendered fresh every request (for iterating on prompt text). No effect where system-prompt recording is not yet enabled.",
       "name": "--system-prompt-snapshot"
@@ -442,8 +484,17 @@
         "-w",
         "--worktree"
       ]
+    },
+    {
+      "description": "Show help",
+      "isPersistent": true,
+      "name": [
+        "-h",
+        "--help"
+      ]
     }
   ],
+  "requiresSubcommand": false,
   "subcommands": [
     {
       "description": "Manage background agents",
@@ -475,18 +526,26 @@
         {
           "args": {
             "name": "path",
-            "template": "filepaths"
+            "template": "folders"
           },
           "description": "Show only background sessions started under <path>",
           "name": "--cwd"
         },
         {
           "description": "Alias for --permission-mode bypassPermissions",
+          "isDangerous": true,
           "name": "--dangerously-skip-permissions"
         },
         {
           "args": {
-            "name": "level"
+            "name": "level",
+            "suggestions": [
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ]
           },
           "description": "Default effort level for sessions dispatched from agent view",
           "name": "--effort"
@@ -497,7 +556,8 @@
         },
         {
           "args": {
-            "name": "config"
+            "name": "config",
+            "template": "filepaths"
           },
           "description": "MCP server configuration to apply to dispatched sessions (repeatable)",
           "name": "--mcp-config"
@@ -511,7 +571,15 @@
         },
         {
           "args": {
-            "name": "mode"
+            "name": "mode",
+            "suggestions": [
+              "acceptEdits",
+              "auto",
+              "bypassPermissions",
+              "manual",
+              "dontAsk",
+              "plan"
+            ]
           },
           "description": "Default permission mode for sessions dispatched from agent view",
           "name": "--permission-mode"
@@ -530,7 +598,12 @@
         },
         {
           "args": {
-            "name": "sources"
+            "name": "sources",
+            "suggestions": [
+              "user",
+              "project",
+              "local"
+            ]
           },
           "description": "Comma-separated list of setting sources to load (user, project, local).",
           "name": "--setting-sources"
@@ -552,10 +625,10 @@
     {
       "args": [
         {
-          "name": "id"
+          "name": "id|name"
         }
       ],
-      "description": "Open a background session in this terminal. <id> is the short id that `claude --bg` prints and `claude agents` lists",
+      "description": "Open a background session in this terminal. <id> is the short id that `claude --bg` prints and `claude agents` lists. Part of the session name works too",
       "name": "attach"
     },
     {
@@ -564,7 +637,28 @@
       "subcommands": [
         {
           "description": "Sign in to your Anthropic account",
-          "name": "login"
+          "name": "login",
+          "options": [
+            {
+              "description": "Use Claude subscription (default)",
+              "name": "--claudeai"
+            },
+            {
+              "description": "Use Anthropic Console (API usage billing) instead of Claude subscription",
+              "name": "--console"
+            },
+            {
+              "args": {
+                "name": "email"
+              },
+              "description": "Pre-populate email address on the login page",
+              "name": "--email"
+            },
+            {
+              "description": "Force SSO login flow",
+              "name": "--sso"
+            }
+          ]
         },
         {
           "description": "Log out from your Anthropic account",
@@ -572,7 +666,17 @@
         },
         {
           "description": "Show authentication status",
-          "name": "status"
+          "name": "status",
+          "options": [
+            {
+              "description": "Output as JSON (default)",
+              "name": "--json"
+            },
+            {
+              "description": "Output as human-readable text",
+              "name": "--text"
+            }
+          ]
         }
       ]
     },
@@ -586,15 +690,42 @@
         },
         {
           "description": "Get AI feedback on your custom auto mode rules",
-          "name": "critique"
+          "name": "critique",
+          "options": [
+            {
+              "args": {
+                "name": "model"
+              },
+              "description": "Override which model is used",
+              "name": "--model"
+            }
+          ]
         },
         {
           "description": "Print the default auto mode environment, allow, soft_deny, and hard_deny rules as JSON",
-          "name": "defaults"
+          "name": "defaults",
+          "options": [
+            {
+              "args": {
+                "name": "prefix"
+              },
+              "description": "Show only rules whose label starts with this prefix (case-insensitive)",
+              "name": "--label"
+            }
+          ]
         },
         {
           "description": "Reset auto mode configuration to the shipped defaults by removing the autoMode section from your user settings file",
-          "name": "reset"
+          "name": "reset",
+          "options": [
+            {
+              "description": "Skip the confirmation prompt",
+              "name": [
+                "-y",
+                "--yes"
+              ]
+            }
+          ]
         }
       ]
     },
@@ -621,7 +752,12 @@
         {
           "description": "Which agent to import from (codex, gemini, cursor)",
           "isOptional": true,
-          "name": "source"
+          "name": "source",
+          "suggestions": [
+            "codex",
+            "gemini",
+            "cursor"
+          ]
         }
       ],
       "description": "Import config from another AI coding agent into Claude Code",
@@ -641,7 +777,11 @@
       "args": [
         {
           "isOptional": true,
-          "name": "target"
+          "name": "target",
+          "suggestions": [
+            "stable",
+            "latest"
+          ]
         }
       ],
       "description": "Install Claude Code native build. Use [target] to specify version (stable, latest, or specific version)",
@@ -656,7 +796,7 @@
     {
       "args": [
         {
-          "name": "id"
+          "name": "id|name"
         }
       ],
       "description": "Print a background session's recent terminal output",
@@ -681,11 +821,100 @@
             }
           ],
           "description": "Add an MCP server to Claude Code.",
-          "name": "add"
+          "name": "add",
+          "options": [
+            {
+              "args": {
+                "name": "port"
+              },
+              "description": "Fixed port for OAuth callback (for servers requiring pre-registered redirect URIs)",
+              "name": "--callback-port"
+            },
+            {
+              "args": {
+                "name": "clientId"
+              },
+              "description": "OAuth client ID for HTTP/SSE servers",
+              "name": "--client-id"
+            },
+            {
+              "description": "Prompt for OAuth client secret (or set MCP_CLIENT_SECRET env var)",
+              "name": "--client-secret"
+            },
+            {
+              "args": {
+                "isVariadic": true,
+                "name": "env"
+              },
+              "description": "Set environment variables (e.g. -e KEY=value)",
+              "name": [
+                "-e",
+                "--env"
+              ]
+            },
+            {
+              "args": {
+                "isVariadic": true,
+                "name": "header"
+              },
+              "description": "Set headers for HTTP/SSE servers (e.g. -H \"X-Api-Key: abc123\" -H \"X-Custom: value\")",
+              "name": [
+                "-H",
+                "--header"
+              ]
+            },
+            {
+              "args": {
+                "name": "scope",
+                "suggestions": [
+                  "local",
+                  "user",
+                  "project"
+                ]
+              },
+              "description": "Configuration scope (local, user, or project) (default: \"local\")",
+              "name": [
+                "-s",
+                "--scope"
+              ]
+            },
+            {
+              "args": {
+                "name": "transport",
+                "suggestions": [
+                  "stdio",
+                  "sse",
+                  "http"
+                ]
+              },
+              "description": "Transport type (stdio, sse, http). Defaults to stdio if not specified.",
+              "name": [
+                "-t",
+                "--transport"
+              ]
+            }
+          ]
         },
         {
           "description": "Import MCP servers from Claude Desktop (Mac and WSL only)",
-          "name": "add-from-claude-desktop"
+          "name": "add-from-claude-desktop",
+          "options": [
+            {
+              "args": {
+                "name": "scope",
+                "suggestions": [
+                  "local",
+                  "user",
+                  "project"
+                ]
+              },
+              "description": "Configuration scope (local, user, or project) (default: \"local\")",
+              "name": [
+                "-s",
+                "--scope"
+              ]
+            }
+          ]
         },
         {
           "args": [
@@ -697,7 +926,28 @@
             }
           ],
           "description": "Add an MCP server (stdio, SSE, HTTP, or WebSocket) with a JSON string",
-          "name": "add-json"
+          "name": "add-json",
+          "options": [
+            {
+              "description": "Prompt for OAuth client secret (or set MCP_CLIENT_SECRET env var)",
+              "name": "--client-secret"
+            },
+            {
+              "args": {
+                "name": "scope",
+                "suggestions": [
+                  "local",
+                  "user",
+                  "project"
+                ]
+              },
+              "description": "Configuration scope (local, user, or project) (default: \"local\")",
+              "name": [
+                "-s",
+                "--scope"
+              ]
+            }
+          ]
         },
         {
           "args": [
@@ -719,7 +969,13 @@
             }
           ],
           "description": "Authenticate with an MCP server (HTTP, SSE, or claude.ai connector)",
-          "name": "login"
+          "name": "login",
+          "options": [
+            {
+              "description": "Print the authorization URL instead of opening a browser (for SSH/headless sessions — paste the redirect URL back when prompted)",
+              "name": "--no-browser"
+            }
+          ]
         },
         {
           "args": [
@@ -737,7 +993,24 @@
             }
           ],
           "description": "Remove an MCP server",
-          "name": "remove"
+          "name": "remove",
+          "options": [
+            {
+              "args": {
+                "name": "scope",
+                "suggestions": [
+                  "local",
+                  "user",
+                  "project"
+                ]
+              },
+              "description": "Configuration scope (local, user, or project) - if not specified, removes from whichever scope it exists in",
+              "name": [
+                "-s",
+                "--scope"
+              ]
+            }
+          ]
         },
         {
           "description": "Reset all approved and rejected project-scoped (.mcp.json) servers within this project",
@@ -745,7 +1018,20 @@
         },
         {
           "description": "Start the Claude Code MCP server",
-          "name": "serve"
+          "name": "serve",
+          "options": [
+            {
+              "description": "Enable debug mode",
+              "name": [
+                "-d",
+                "--debug"
+              ]
+            },
+            {
+              "description": "Override verbose mode setting from config",
+              "name": "--verbose"
+            }
+          ]
         }
       ]
     },
@@ -763,7 +1049,17 @@
             }
           ],
           "description": "Show a plugin's options and which are unset, or save values from stdin with --values-stdin",
-          "name": "configure"
+          "name": "configure",
+          "options": [
+            {
+              "description": "Output as JSON",
+              "name": "--json"
+            },
+            {
+              "description": "Read option values from stdin as a JSON object of single-line strings; options left out keep their values",
+              "name": "--values-stdin"
+            }
+          ]
         },
         {
           "args": [
@@ -782,7 +1078,35 @@
             }
           ],
           "description": "Disable an enabled plugin",
-          "name": "disable"
+          "name": "disable",
+          "options": [
+            {
+              "description": "Disable all enabled plugins",
+              "name": [
+                "-a",
+                "--all"
+              ]
+            },
+            {
+              "description": "Print one machine-readable result line on stdout instead of the human message (same exit codes)",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "scope",
+                "suggestions": [
+                  "user",
+                  "project",
+                  "local"
+                ]
+              },
+              "description": "Installation scope: user, project, local (default: auto-detect)",
+              "name": [
+                "-s",
+                "--scope"
+              ]
+            }
+          ]
         },
         {
           "args": [
@@ -791,7 +1115,28 @@
             }
           ],
           "description": "Enable a disabled plugin",
-          "name": "enable"
+          "name": "enable",
+          "options": [
+            {
+              "description": "Print one machine-readable result line on stdout instead of the human message (same exit codes)",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "scope",
+                "suggestions": [
+                  "user",
+                  "project",
+                  "local"
+                ]
+              },
+              "description": "Installation scope: user, project, local (default: auto-detect)",
+              "name": [
+                "-s",
+                "--scope"
+              ]
+            }
+          ]
         },
         {
           "args": [
@@ -801,7 +1146,195 @@
             }
           ],
           "description": "Run eval cases (<eval dir>/**/case.yaml or prompt.md + graders/*.md; the eval dir is evals/ unless --eval-dir or the manifest says otherwise) against a plugin and report scored results. Target is a path, a plugin name, or a `plugin@marketplace` id — installed and skills-dir plugins both resolve (and add a no-plugin baseline arm). It loads the plugin and runs its eval suite (prompts, graders; scaffold scripts and real MCP servers only when you opt in) on your machine, as you: only evaluate plugins you trust — the run's sandboxing limits what a malicious plugin can reach but is not a guarantee, and a bundled suite passing is not a security vetting. The first run in an untrusted plugin directory asks you to confirm (--trust-plugin answers for CI)",
-          "name": "eval"
+          "name": "eval",
+          "options": [
+            {
+              "args": {
+                "name": "mode",
+                "suggestions": [
+                  "none",
+                  "with-without"
+                ]
+              },
+              "description": "Run a no-plugin baseline arm and report the score delta (none | with-without; default: with-without whenever a plugin resolves — by name, or from the target path — and none when nothing does; under with-without, graders marked with-only, incl. `tool_used: Skill`, are a plugin-fired indicator rather than part of the score)",
+              "name": "--ablation"
+            },
+            {
+              "description": "With --mocks record: also start the plugin's REAL MCP server processes for servers that have no mock (they run as you, outside the OS sandbox that confines shell tools; use only on plugins you trust)",
+              "name": "--allow-real-servers"
+            },
+            {
+              "args": {
+                "isVariadic": true,
+                "name": "tools"
+              },
+              "description": "Operator grant for gated tools (Bash, Write, Edit, WebFetch, mcp__*). Supports Tool(pattern:*) syntax",
+              "name": "--allow-tools"
+            },
+            {
+              "args": {
+                "name": "glob"
+              },
+              "description": "Filter cases by name glob",
+              "name": "--case"
+            },
+            {
+              "args": {
+                "name": "n"
+              },
+              "description": "Run up to <n> agent runs at once (1-8; default 1). Each run is a full claude child on your own credential, so they share one rate limit; results and the report keep case order",
+              "name": [
+                "-j",
+                "--concurrency"
+              ]
+            },
+            {
+              "args": {
+                "name": "dir"
+              },
+              "description": "Directory name (below the plugin) that holds the eval cases; results go to <plugin>/<dir>/results/ — for an installed-plugin target, ./<dir>/results/ with this flag, else ./evals/results/ (default dir: the manifest's experimental.evals value, else evals/)",
+              "name": "--eval-dir"
+            },
+            {
+              "args": {
+                "isOptional": true,
+                "name": "path",
+                "template": "filepaths"
+              },
+              "description": "Print the full run result (prompts, graders, per-run scores) as JSON to stdout, or write it to this .json file",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "model"
+              },
+              "description": "Override LLM-grader model (default: haiku)",
+              "name": "--judge-model"
+            },
+            {
+              "description": "Preserve scaffold dirs for debugging",
+              "name": "--keep-temp"
+            },
+            {
+              "args": {
+                "name": "usd"
+              },
+              "description": "Optional hard cost ceiling; abort and report partial results if hit (exit 2). The ceiling is checked before each run launches, so overrun is bounded to the runs in flight (one, or up to --concurrency) — when a run breaches, paid graders (llm/baseline) are skipped while free graders still score it. Runs are already bounded by max_turns and timeout_seconds — only set this when you need a strict budget",
+              "name": "--max-cost-usd"
+            },
+            {
+              "args": {
+                "name": "mode",
+                "suggestions": [
+                  "record",
+                  "off"
+                ]
+              },
+              "description": "Mock stand-ins for MCP servers, from <eval dir>/mocks/ (record | off; default: record). record: a plugin server with no mock is NOT started (see --allow-real-servers); off: no stand-ins, every real server starts (as you, outside the OS sandbox), its tools gated by --allow-tools",
+              "name": "--mocks"
+            },
+            {
+              "args": {
+                "name": "model"
+              },
+              "description": "Override model for all cases",
+              "name": "--model"
+            },
+            {
+              "description": "Keep the HTML report local only; skip publishing it to claude.ai",
+              "name": "--no-publish"
+            },
+            {
+              "description": "Explicitly skip scaffold_script",
+              "name": "--no-scaffold"
+            },
+            {
+              "args": {
+                "name": "dir",
+                "template": "folders"
+              },
+              "description": "Directory for aggregate-result.json (default: ./<eval dir>/results/<timestamp>/)",
+              "name": "--output-dir"
+            },
+            {
+              "description": "Also require publishing the report to claude.ai (already the default when your account supports it); explains why if unavailable",
+              "name": "--publish-report"
+            },
+            {
+              "args": {
+                "name": "path",
+                "template": "filepaths"
+              },
+              "description": "Write the self-contained HTML report (scores, prompts, grader verdicts) to <path> instead of the results dir",
+              "name": "--report"
+            },
+            {
+              "args": {
+                "name": "n"
+              },
+              "description": "Override per-case runs (default: case.runs ?? 3)",
+              "name": "--runs"
+            },
+            {
+              "description": "Run each case's scaffold_script (runs author-supplied bash as you; off by default — only use on case files you authored)",
+              "name": "--scaffold"
+            },
+            {
+              "args": {
+                "isVariadic": true,
+                "name": "tag"
+              },
+              "description": "Filter cases by tag (repeatable)",
+              "name": "--tag"
+            },
+            {
+              "args": {
+                "name": "0..1"
+              },
+              "description": "Exit 1 if any case score is below this threshold (default: 1.0)",
+              "name": "--threshold"
+            },
+            {
+              "description": "Assert that you trust this plugin's code and eval suite, and skip the first-run trust prompt (for CI; like --dangerously-skip-permissions, only pass it for plugins you would run yourself). Does not imply --scaffold, --allow-tools or --mocks off",
+              "name": "--trust-plugin"
+            },
+            {
+              "description": "Log per-message trace events to the debug log (use --debug-file to read them)",
+              "name": "--verbose"
+            }
+          ],
+          "subcommands": [
+            {
+              "args": [
+                {
+                  "isOptional": true,
+                  "name": "name"
+                }
+              ],
+              "description": "Author an eval suite under the eval dir (evals/ unless --eval-dir or the manifest says otherwise) via an interview that sources inputs and designs graders. Use --bare <name> for a blank single-case template.",
+              "name": "init",
+              "options": [
+                {
+                  "description": "Write a blank template (prompt.md + graders/criteria.md) instead of running the interview",
+                  "name": "--bare"
+                },
+                {
+                  "args": {
+                    "name": "dir"
+                  },
+                  "description": "Directory (below the current directory) to write cases into (default: experimental.evals from the plugin.json in the current directory, else evals/)",
+                  "name": "--eval-dir"
+                },
+                {
+                  "description": "Run the authoring interview (already the default in a terminal); requires an interactive terminal",
+                  "name": [
+                    "-i",
+                    "--interactive"
+                  ]
+                }
+              ]
+            }
+          ]
         },
         {
           "args": [
@@ -813,6 +1346,53 @@
           "name": [
             "init",
             "new"
+          ],
+          "options": [
+            {
+              "args": {
+                "name": "name"
+              },
+              "description": "Author name (default: git config user.name)",
+              "name": "--author"
+            },
+            {
+              "args": {
+                "name": "email"
+              },
+              "description": "Author email (default: git config user.email)",
+              "name": "--author-email"
+            },
+            {
+              "args": {
+                "name": "text"
+              },
+              "description": "Manifest description",
+              "name": "--description"
+            },
+            {
+              "description": "Overwrite an existing .claude-plugin/ at the target",
+              "name": [
+                "-f",
+                "--force"
+              ]
+            },
+            {
+              "args": {
+                "isVariadic": true,
+                "name": "components",
+                "suggestions": [
+                  "skills",
+                  "agents",
+                  "hooks",
+                  "mcp",
+                  "lsp",
+                  "output-style",
+                  "channel"
+                ]
+              },
+              "description": "Also scaffold: skills, agents, hooks, mcp, lsp, output-style, channel",
+              "name": "--with"
+            }
           ]
         },
         {
@@ -825,21 +1405,213 @@
           "name": [
             "install",
             "i"
+          ],
+          "options": [
+            {
+              "args": {
+                "name": "sha256"
+              },
+              "description": "Accept the marketplace-declared command (a command-source install, or the headersHelper that fetches the archive) whose sha256 a previous --json run reported as shownCommand.sha256; counts as -y for exactly that command, for that plugin and marketplace catalog, and nothing else. If either changed (a refresh that moved the catalog counts), the run refuses and reports the command again, to be shown to a person again",
+              "name": "--accept-command"
+            },
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Set a userConfig option declared in the plugin's manifest, or a bundled .mcpb server's own user_config field as <server>.<key>=<value> (a bare key works when only one bundled server declares it). Repeatable. Values are validated against the schema and stored via the same path as the interactive /plugin configure flow.",
+              "name": "--config"
+            },
+            {
+              "description": "Print one machine-readable result line on stdout instead of the human message (same exit codes; a marketplace-declared command is still shown and must be confirmed — pass -y when not interactive)",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "url"
+              },
+              "description": "For a <package>@npm install: resolve and download from this npm registry instead of the one your npm configuration selects",
+              "name": "--registry"
+            },
+            {
+              "args": {
+                "name": "scope",
+                "suggestions": [
+                  "user",
+                  "project",
+                  "local"
+                ]
+              },
+              "description": "Installation scope: user, project, or local (default: \"user\")",
+              "name": [
+                "-s",
+                "--scope"
+              ]
+            },
+            {
+              "description": "Accept the displayed marketplace-declared command without the confirmation prompt — a plugin installed by running a command, or one whose archive is fetched through a headersHelper command (required when stdin or stdout is not a TTY)",
+              "name": [
+                "-y",
+                "--yes"
+              ]
+            }
           ]
         },
         {
           "description": "List installed plugins",
-          "name": "list"
+          "name": "list",
+          "options": [
+            {
+              "description": "Include available plugins from marketplaces (requires --json)",
+              "name": "--available"
+            },
+            {
+              "args": {
+                "isOptional": true,
+                "name": "plugin"
+              },
+              "description": "Measure each installed plugin's saved data directory, or only the named plugin's (requires --json)",
+              "name": "--data-size"
+            },
+            {
+              "description": "Output as JSON",
+              "name": "--json"
+            }
+          ]
         },
         {
           "description": "Manage Claude Code marketplaces",
-          "name": "marketplace"
+          "name": "marketplace",
+          "subcommands": [
+            {
+              "args": [
+                {
+                  "name": "source"
+                }
+              ],
+              "description": "Add a marketplace from a URL, path, or GitHub repo",
+              "name": "add",
+              "options": [
+                {
+                  "description": "Add the marketplace of this name that claude.ai hosts for you, by its listed name or its local name (see: claude plugin marketplace list)",
+                  "name": "--claudeai"
+                },
+                {
+                  "description": "Print one machine-readable result line as the last line on stdout (same exit codes)",
+                  "name": "--json"
+                },
+                {
+                  "args": {
+                    "name": "scope",
+                    "suggestions": [
+                      "user",
+                      "project",
+                      "local"
+                    ]
+                  },
+                  "description": "Where to declare the marketplace: user (default), project, or local",
+                  "name": "--scope"
+                },
+                {
+                  "args": {
+                    "isVariadic": true,
+                    "name": "paths"
+                  },
+                  "description": "Limit checkout to specific directories via git sparse-checkout (for monorepos). Example: --sparse .claude-plugin plugins",
+                  "name": "--sparse"
+                }
+              ]
+            },
+            {
+              "description": "List all configured marketplaces",
+              "name": "list",
+              "options": [
+                {
+                  "description": "Output as JSON",
+                  "name": "--json"
+                }
+              ]
+            },
+            {
+              "args": [
+                {
+                  "name": "name"
+                }
+              ],
+              "description": "Remove a configured marketplace",
+              "name": [
+                "remove",
+                "rm"
+              ],
+              "options": [
+                {
+                  "description": "Print one machine-readable result line as the last line on stdout (same exit codes)",
+                  "name": "--json"
+                },
+                {
+                  "args": {
+                    "name": "scope",
+                    "suggestions": [
+                      "user",
+                      "project",
+                      "local"
+                    ]
+                  },
+                  "description": "Remove the marketplace declaration from a specific settings scope: user, project, or local. Omit to remove it from every scope.",
+                  "name": "--scope"
+                }
+              ]
+            },
+            {
+              "args": [
+                {
+                  "isOptional": true,
+                  "name": "name"
+                }
+              ],
+              "description": "Update marketplace(s) from their source - updates all if no name specified",
+              "name": "update",
+              "options": [
+                {
+                  "description": "With a marketplace name: print one machine-readable result line as the last line on stdout (same exit codes)",
+                  "name": "--json"
+                }
+              ]
+            }
+          ]
         },
         {
           "description": "Remove auto-installed dependencies that are no longer needed",
           "name": [
             "prune",
             "autoremove"
+          ],
+          "options": [
+            {
+              "description": "List what would be removed without removing",
+              "name": "--dry-run"
+            },
+            {
+              "args": {
+                "name": "scope",
+                "suggestions": [
+                  "user",
+                  "project",
+                  "local"
+                ]
+              },
+              "description": "Prune at scope: user, project, or local (default: \"user\")",
+              "name": [
+                "-s",
+                "--scope"
+              ]
+            },
+            {
+              "description": "Skip the confirmation prompt (required when stdin or stdout is not a TTY)",
+              "name": [
+                "-y",
+                "--yes"
+              ]
+            }
           ]
         },
         {
@@ -851,11 +1623,46 @@
             }
           ],
           "description": "Create a {name}--v{version} git tag for a plugin release, validating that plugin.json and any enclosing marketplace entry agree",
-          "name": "tag"
+          "name": "tag",
+          "options": [
+            {
+              "description": "Print what would be tagged without creating it",
+              "name": "--dry-run"
+            },
+            {
+              "description": "Skip the dirty-working-tree and tag-already-exists checks",
+              "name": [
+                "-f",
+                "--force"
+              ]
+            },
+            {
+              "args": {
+                "name": "msg"
+              },
+              "description": "Tag annotation message (use %s for the version)",
+              "name": [
+                "-m",
+                "--message"
+              ]
+            },
+            {
+              "description": "Push the tag to --remote after creating it",
+              "name": "--push"
+            },
+            {
+              "args": {
+                "name": "name"
+              },
+              "description": "Remote to push to with --push (default: \"origin\")",
+              "name": "--remote"
+            }
+          ]
         },
         {
           "args": [
             {
+              "description": "The mod's folder (default: the current folder)",
               "isOptional": true,
               "name": "dir",
               "template": "folders"
@@ -874,6 +1681,42 @@
           "name": [
             "uninstall",
             "remove"
+          ],
+          "options": [
+            {
+              "description": "Print one machine-readable result line on stdout instead of the human message (same exit codes; not with --prune)",
+              "name": "--json"
+            },
+            {
+              "description": "Preserve the plugin's persistent data directory (~/.claude/plugins/data/{id}/)",
+              "name": "--keep-data"
+            },
+            {
+              "description": "Also remove auto-installed dependencies that are no longer needed (requires -y in non-interactive contexts)",
+              "name": "--prune"
+            },
+            {
+              "args": {
+                "name": "scope",
+                "suggestions": [
+                  "user",
+                  "project",
+                  "local"
+                ]
+              },
+              "description": "Uninstall from scope: user, project, or local (default: \"user\")",
+              "name": [
+                "-s",
+                "--scope"
+              ]
+            },
+            {
+              "description": "Skip the --prune confirmation prompt (required when stdin or stdout is not a TTY)",
+              "name": [
+                "-y",
+                "--yes"
+              ]
+            }
           ]
         },
         {
@@ -883,7 +1726,43 @@
             }
           ],
           "description": "Update a plugin to the latest version (restart required to apply)",
-          "name": "update"
+          "name": "update",
+          "options": [
+            {
+              "args": {
+                "name": "sha256"
+              },
+              "description": "Accept the marketplace-declared command (a command-source install, or the headersHelper that fetches the archive) whose sha256 a previous --json run reported as shownCommand.sha256; counts as -y for exactly that command, for that plugin and marketplace catalog, and nothing else. If either changed (a refresh that moved the catalog counts), the run refuses and reports the command again, to be shown to a person again",
+              "name": "--accept-command"
+            },
+            {
+              "description": "Print one machine-readable result line on stdout instead of the human message (same exit codes; a marketplace-declared command is still shown and must be confirmed — pass -y when not interactive)",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "scope",
+                "suggestions": [
+                  "user",
+                  "project",
+                  "local",
+                  "managed"
+                ]
+              },
+              "description": "Installation scope: user, project, local, managed (default: auto-detect)",
+              "name": [
+                "-s",
+                "--scope"
+              ]
+            },
+            {
+              "description": "Accept the displayed marketplace-declared command without the confirmation prompt — a changed install command, or the headersHelper command that fetches its archive (required when stdin or stdout is not a TTY)",
+              "name": [
+                "-y",
+                "--yes"
+              ]
+            }
+          ]
         },
         {
           "args": [
@@ -893,24 +1772,53 @@
             }
           ],
           "description": "Validate a plugin or marketplace manifest, or the skills, agents, and commands in a directory",
-          "name": "validate"
+          "name": "validate",
+          "options": [
+            {
+              "description": "Output the validation report as JSON (same exit codes)",
+              "name": "--json"
+            },
+            {
+              "description": "Treat warnings as errors (exit 1). Use in CI to fail on unrecognized fields, missing metadata, and other issues that the runtime tolerates.",
+              "name": "--strict"
+            }
+          ]
         }
       ]
     },
     {
-      "description": "Manage Claude Code project state",
-      "name": "project",
-      "subcommands": [
+      "args": [
         {
-          "args": [
-            {
-              "isOptional": true,
-              "name": "path",
-              "template": "filepaths"
-            }
-          ],
-          "description": "Delete all Claude Code state for a project (transcripts, tasks, file history, config entry)",
-          "name": "purge"
+          "isOptional": true,
+          "name": "path",
+          "template": "folders"
+        }
+      ],
+      "description": "Delete all Claude Code state for a project (transcripts, tasks, file history, config entry)",
+      "isDangerous": true,
+      "name": "purge",
+      "options": [
+        {
+          "description": "Purge state for every project (mutually exclusive with [path])",
+          "name": "--all"
+        },
+        {
+          "description": "List what would be deleted without deleting anything",
+          "name": "--dry-run"
+        },
+        {
+          "description": "Prompt for each item before deleting",
+          "name": [
+            "-i",
+            "--interactive"
+          ]
+        },
+        {
+          "description": "Skip confirmation prompt",
+          "name": [
+            "-y",
+            "--yes"
+          ]
         }
       ]
     },
@@ -922,7 +1830,13 @@
         }
       ],
       "description": "Restart a background session, or all of them with --all, so it runs the current Claude Code version",
-      "name": "respawn"
+      "name": "respawn",
+      "options": [
+        {
+          "description": "Restart every background session",
+          "name": "--all"
+        }
+      ]
     },
     {
       "args": [
@@ -931,7 +1845,24 @@
         }
       ],
       "description": "Delete a background session, and its worktree when that is safe. Works on sessions that have already exited",
-      "name": "rm"
+      "isDangerous": true,
+      "name": "rm",
+      "options": [
+        {
+          "args": {
+            "name": "commit@worktree-id"
+          },
+          "description": "Also discard the worktree's unpushed commits and any uncommitted changes. Pass the value a previous 'claude rm <id>' reported",
+          "name": "--discard-unpushed"
+        },
+        {
+          "args": {
+            "name": "worktree-id"
+          },
+          "description": "Delete the worktree directory even though the WorktreeRemove hook or git could not remove it. Pass the value a previous 'claude rm <id>' reported",
+          "name": "--force-remove-worktree"
+        }
+      ]
     },
     {
       "description": "Set up a long-lived authentication token (requires Claude subscription)",

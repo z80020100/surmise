@@ -53,6 +53,7 @@
     },
     {
       "args": {
+        "isVariadic": true,
         "name": "FILE",
         "template": "filepaths"
       },
@@ -78,15 +79,18 @@
     },
     {
       "args": {
-        "name": "OSS_PROVIDER"
+        "name": "OSS_PROVIDER",
+        "suggestions": [
+          "lmstudio",
+          "ollama"
+        ]
       },
       "description": "Specify which local provider to use (lmstudio or ollama). If not specified with --oss, will use config default or show selection",
       "name": "--local-provider"
     },
     {
       "args": {
-        "name": "CONFIG_PROFILE_V2",
-        "template": "filepaths"
+        "name": "CONFIG_PROFILE_V2"
       },
       "description": "Layer $CODEX_HOME/<name>.config.toml on top of the base user config",
       "name": [
@@ -96,7 +100,12 @@
     },
     {
       "args": {
-        "name": "SANDBOX_MODE"
+        "name": "SANDBOX_MODE",
+        "suggestions": [
+          "read-only",
+          "workspace-write",
+          "danger-full-access"
+        ]
       },
       "description": "Select the sandbox policy to use when executing model-generated shell commands",
       "name": [
@@ -110,10 +119,12 @@
     },
     {
       "description": "Skip all confirmation prompts and execute commands without sandboxing. EXTREMELY DANGEROUS. Intended solely for running in environments that are externally sandboxed",
+      "isDangerous": true,
       "name": "--dangerously-bypass-approvals-and-sandbox"
     },
     {
       "description": "Run enabled hooks without requiring persisted hook trust for this invocation. DANGEROUS. Intended only for automation that already vets hook sources",
+      "isDangerous": true,
       "name": "--dangerously-bypass-hook-trust"
     },
     {
@@ -141,7 +152,17 @@
     },
     {
       "args": {
-        "name": "APPROVAL_POLICY"
+        "name": "APPROVAL_POLICY",
+        "suggestions": [
+          {
+            "description": "The model decides when to ask the user for approval",
+            "name": "on-request"
+          },
+          {
+            "description": "Never ask for user approval Execution failures are immediately returned to the model",
+            "name": "never"
+          }
+        ]
       },
       "description": "Configure when the model requires human approval before executing a command",
       "name": [
@@ -167,8 +188,17 @@
         "-V",
         "--version"
       ]
+    },
+    {
+      "description": "Show help",
+      "isPersistent": true,
+      "name": [
+        "-h",
+        "--help"
+      ]
     }
   ],
+  "requiresSubcommand": false,
   "subcommands": [
     {
       "description": "Browse all agent sessions on the shared local app-server daemon",
@@ -273,6 +303,7 @@
         },
         {
           "args": {
+            "isVariadic": true,
             "name": "FILE",
             "template": "filepaths"
           },
@@ -298,15 +329,18 @@
         },
         {
           "args": {
-            "name": "OSS_PROVIDER"
+            "name": "OSS_PROVIDER",
+            "suggestions": [
+              "lmstudio",
+              "ollama"
+            ]
           },
           "description": "Specify which local provider to use (lmstudio or ollama). If not specified with --oss, will use config default or show selection",
           "name": "--local-provider"
         },
         {
           "args": {
-            "name": "CONFIG_PROFILE_V2",
-            "template": "filepaths"
+            "name": "CONFIG_PROFILE_V2"
           },
           "description": "Layer $CODEX_HOME/<name>.config.toml on top of the base user config",
           "name": [
@@ -316,7 +350,12 @@
         },
         {
           "args": {
-            "name": "SANDBOX_MODE"
+            "name": "SANDBOX_MODE",
+            "suggestions": [
+              "read-only",
+              "workspace-write",
+              "danger-full-access"
+            ]
           },
           "description": "Select the sandbox policy to use when executing model-generated shell commands",
           "name": [
@@ -330,10 +369,12 @@
         },
         {
           "description": "Skip all confirmation prompts and execute commands without sandboxing. EXTREMELY DANGEROUS. Intended solely for running in environments that are externally sandboxed",
+          "isDangerous": true,
           "name": "--dangerously-bypass-approvals-and-sandbox"
         },
         {
           "description": "Run enabled hooks without requiring persisted hook trust for this invocation. DANGEROUS. Intended only for automation that already vets hook sources",
+          "isDangerous": true,
           "name": "--dangerously-bypass-hook-trust"
         },
         {
@@ -392,7 +433,12 @@
         },
         {
           "args": {
-            "name": "COLOR"
+            "name": "COLOR",
+            "suggestions": [
+              "always",
+              "never",
+              "auto"
+            ]
           },
           "description": "Specifies color settings for use in the output",
           "name": "--color"
@@ -422,16 +468,401 @@
       ],
       "subcommands": [
         {
+          "args": [
+            {
+              "description": "Conversation/session id (UUID) or thread name. UUIDs take precedence if it parses. If omitted, use --last to pick the most recent recorded session",
+              "isOptional": true,
+              "name": "SESSION_ID"
+            },
+            {
+              "description": "Prompt to send after resuming the session. If `-` is used, read from stdin",
+              "isOptional": true,
+              "name": "PROMPT"
+            }
+          ],
           "description": "Resume a previous session by id or pick the most recent with --last",
-          "name": "resume"
+          "name": "resume",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "description": "Resume the most recent recorded session (newest) without specifying an id",
+              "name": "--last"
+            },
+            {
+              "description": "Show all sessions (disables cwd filtering)",
+              "name": "--all"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            },
+            {
+              "args": {
+                "name": "FILE",
+                "template": "filepaths"
+              },
+              "description": "Optional image(s) to attach to the prompt sent after resuming",
+              "name": [
+                "-i",
+                "--image"
+              ]
+            },
+            {
+              "description": "Error out when config.toml contains fields that are not recognized by this version of Codex",
+              "name": "--strict-config"
+            },
+            {
+              "args": {
+                "name": "MODEL"
+              },
+              "description": "Model the agent should use",
+              "name": [
+                "-m",
+                "--model"
+              ]
+            },
+            {
+              "description": "Skip all confirmation prompts and execute commands without sandboxing. EXTREMELY DANGEROUS. Intended solely for running in environments that are externally sandboxed",
+              "isDangerous": true,
+              "name": "--dangerously-bypass-approvals-and-sandbox"
+            },
+            {
+              "description": "Run enabled hooks without requiring persisted hook trust for this invocation. DANGEROUS. Intended only for automation that already vets hook sources",
+              "isDangerous": true,
+              "name": "--dangerously-bypass-hook-trust"
+            },
+            {
+              "description": "Run the session in a new managed Git worktree",
+              "name": "--worktree"
+            },
+            {
+              "args": {
+                "name": "SOURCE"
+              },
+              "description": "Source classification for newly created or forked threads",
+              "name": "--thread-source"
+            },
+            {
+              "description": "Allow running Codex outside a Git repository",
+              "name": "--skip-git-repo-check"
+            },
+            {
+              "description": "Run without persisting session files to disk",
+              "name": "--ephemeral"
+            },
+            {
+              "description": "Do not load `$CODEX_HOME/config.toml`; auth still uses `CODEX_HOME`",
+              "name": "--ignore-user-config"
+            },
+            {
+              "description": "Do not load user or project execpolicy `.rules` files",
+              "name": "--ignore-rules"
+            },
+            {
+              "args": {
+                "name": "FILE",
+                "template": "filepaths"
+              },
+              "description": "Path to a JSON Schema file describing the model's final response shape",
+              "name": "--output-schema"
+            },
+            {
+              "description": "Print events to stdout as JSONL",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "FILE",
+                "template": "filepaths"
+              },
+              "description": "Specifies file where the last message from the agent should be written",
+              "name": [
+                "-o",
+                "--output-last-message"
+              ]
+            }
+          ]
         },
         {
+          "args": [
+            {
+              "description": "Conversation/session id (UUID) or thread name to fork",
+              "name": "SESSION_ID"
+            },
+            {
+              "description": "Optional prompt to send after forking. If `-` is used, read from stdin",
+              "isOptional": true,
+              "name": "PROMPT"
+            }
+          ],
           "description": "Fork a previous session by id into a new session",
-          "name": "fork"
+          "name": "fork",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "FILE",
+                "template": "filepaths"
+              },
+              "description": "Optional image(s) to attach to the prompt sent after forking",
+              "name": [
+                "-i",
+                "--image"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            },
+            {
+              "description": "Error out when config.toml contains fields that are not recognized by this version of Codex",
+              "name": "--strict-config"
+            },
+            {
+              "args": {
+                "name": "MODEL"
+              },
+              "description": "Model the agent should use",
+              "name": [
+                "-m",
+                "--model"
+              ]
+            },
+            {
+              "description": "Skip all confirmation prompts and execute commands without sandboxing. EXTREMELY DANGEROUS. Intended solely for running in environments that are externally sandboxed",
+              "isDangerous": true,
+              "name": "--dangerously-bypass-approvals-and-sandbox"
+            },
+            {
+              "description": "Run enabled hooks without requiring persisted hook trust for this invocation. DANGEROUS. Intended only for automation that already vets hook sources",
+              "isDangerous": true,
+              "name": "--dangerously-bypass-hook-trust"
+            },
+            {
+              "description": "Run the session in a new managed Git worktree",
+              "name": "--worktree"
+            },
+            {
+              "args": {
+                "name": "SOURCE"
+              },
+              "description": "Source classification for newly created or forked threads",
+              "name": "--thread-source"
+            },
+            {
+              "description": "Allow running Codex outside a Git repository",
+              "name": "--skip-git-repo-check"
+            },
+            {
+              "description": "Run without persisting session files to disk",
+              "name": "--ephemeral"
+            },
+            {
+              "description": "Do not load `$CODEX_HOME/config.toml`; auth still uses `CODEX_HOME`",
+              "name": "--ignore-user-config"
+            },
+            {
+              "description": "Do not load user or project execpolicy `.rules` files",
+              "name": "--ignore-rules"
+            },
+            {
+              "args": {
+                "name": "FILE",
+                "template": "filepaths"
+              },
+              "description": "Path to a JSON Schema file describing the model's final response shape",
+              "name": "--output-schema"
+            },
+            {
+              "description": "Print events to stdout as JSONL",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "FILE",
+                "template": "filepaths"
+              },
+              "description": "Specifies file where the last message from the agent should be written",
+              "name": [
+                "-o",
+                "--output-last-message"
+              ]
+            }
+          ]
         },
         {
+          "args": [
+            {
+              "description": "Custom review instructions. If `-` is used, read from stdin",
+              "isOptional": true,
+              "name": "PROMPT"
+            }
+          ],
           "description": "Run a code review against the current repository",
-          "name": "review"
+          "name": "review",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "description": "Review staged, unstaged, and untracked changes",
+              "name": "--uncommitted"
+            },
+            {
+              "args": {
+                "name": "BRANCH"
+              },
+              "description": "Review changes against the given base branch",
+              "name": "--base"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "SHA"
+              },
+              "description": "Review the changes introduced by a commit",
+              "name": "--commit"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            },
+            {
+              "description": "Error out when config.toml contains fields that are not recognized by this version of Codex",
+              "name": "--strict-config"
+            },
+            {
+              "args": {
+                "name": "TITLE"
+              },
+              "description": "Optional commit title to display in the review summary",
+              "name": "--title"
+            },
+            {
+              "args": {
+                "name": "MODEL"
+              },
+              "description": "Model the agent should use",
+              "name": [
+                "-m",
+                "--model"
+              ]
+            },
+            {
+              "description": "Skip all confirmation prompts and execute commands without sandboxing. EXTREMELY DANGEROUS. Intended solely for running in environments that are externally sandboxed",
+              "isDangerous": true,
+              "name": "--dangerously-bypass-approvals-and-sandbox"
+            },
+            {
+              "description": "Run enabled hooks without requiring persisted hook trust for this invocation. DANGEROUS. Intended only for automation that already vets hook sources",
+              "isDangerous": true,
+              "name": "--dangerously-bypass-hook-trust"
+            },
+            {
+              "description": "Run the session in a new managed Git worktree",
+              "name": "--worktree"
+            },
+            {
+              "args": {
+                "name": "SOURCE"
+              },
+              "description": "Source classification for newly created or forked threads",
+              "name": "--thread-source"
+            },
+            {
+              "description": "Allow running Codex outside a Git repository",
+              "name": "--skip-git-repo-check"
+            },
+            {
+              "description": "Run without persisting session files to disk",
+              "name": "--ephemeral"
+            },
+            {
+              "description": "Do not load `$CODEX_HOME/config.toml`; auth still uses `CODEX_HOME`",
+              "name": "--ignore-user-config"
+            },
+            {
+              "description": "Do not load user or project execpolicy `.rules` files",
+              "name": "--ignore-rules"
+            },
+            {
+              "args": {
+                "name": "FILE",
+                "template": "filepaths"
+              },
+              "description": "Path to a JSON Schema file describing the model's final response shape",
+              "name": "--output-schema"
+            },
+            {
+              "description": "Print events to stdout as JSONL",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "FILE",
+                "template": "filepaths"
+              },
+              "description": "Specifies file where the last message from the agent should be written",
+              "name": [
+                "-o",
+                "--output-last-message"
+              ]
+            }
+          ]
         }
       ]
     },
@@ -544,7 +975,33 @@
       "subcommands": [
         {
           "description": "Show login status",
-          "name": "status"
+          "name": "status",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         }
       ]
     },
@@ -607,24 +1064,309 @@
           "name": "--disable"
         }
       ],
+      "requiresSubcommand": true,
       "subcommands": [
         {
-          "name": "list"
+          "description": "List configured MCP servers",
+          "name": "list",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "description": "Output the configured servers as JSON",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         },
         {
-          "name": "get"
+          "args": [
+            {
+              "description": "Name of the MCP server to display",
+              "name": "NAME"
+            }
+          ],
+          "description": "Show the configuration of one MCP server",
+          "name": "get",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "description": "Output the server configuration as JSON",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         },
         {
-          "name": "add"
+          "args": [
+            {
+              "description": "Name for the MCP server configuration",
+              "name": "NAME"
+            },
+            {
+              "description": "Command to launch the MCP server. Use --url for a streamable HTTP server",
+              "isCommand": true,
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "COMMAND"
+            }
+          ],
+          "description": "Add an MCP server",
+          "name": "add",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "KEY=VALUE"
+              },
+              "description": "Environment variables to set when launching the server. Only valid with stdio servers",
+              "name": "--env"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "URL"
+              },
+              "description": "URL for a streamable HTTP MCP server",
+              "name": "--url"
+            },
+            {
+              "args": {
+                "name": "ENV_VAR"
+              },
+              "description": "Optional environment variable to read for a bearer token. Only valid with streamable HTTP servers",
+              "name": "--bearer-token-env-var"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            },
+            {
+              "args": {
+                "name": "CLIENT_ID"
+              },
+              "description": "Optional OAuth client identifier to use for this MCP server",
+              "name": "--oauth-client-id"
+            },
+            {
+              "args": {
+                "name": "CLIENT_SECRET"
+              },
+              "description": "Optional OAuth client secret for the pre-registered client",
+              "name": "--oauth-client-secret"
+            },
+            {
+              "args": {
+                "name": "AUTO|CIMD|DCR",
+                "suggestions": [
+                  "auto",
+                  "cimd",
+                  "dcr"
+                ]
+              },
+              "description": "OAuth client-registration strategy for the immediate login only",
+              "name": "--oauth-client-registration"
+            },
+            {
+              "args": {
+                "name": "RESOURCE"
+              },
+              "description": "Optional OAuth resource parameter to include during MCP login",
+              "name": "--oauth-resource"
+            }
+          ]
         },
         {
-          "name": "remove"
+          "args": [
+            {
+              "description": "Name of the MCP server configuration to remove",
+              "name": "NAME"
+            }
+          ],
+          "description": "Remove an MCP server",
+          "name": "remove",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         },
         {
-          "name": "login"
+          "args": [
+            {
+              "description": "Name of the MCP server to authenticate with oauth",
+              "name": "NAME"
+            }
+          ],
+          "description": "Log in to an MCP server with OAuth",
+          "name": "login",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "description": "Print the authorization URL and accept the callback URL without opening a browser",
+              "name": "--no-browser"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "SCOPE,SCOPE"
+              },
+              "description": "Comma-separated list of OAuth scopes to request",
+              "name": "--scopes"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            },
+            {
+              "args": {
+                "name": "AUTO|CIMD|DCR",
+                "suggestions": [
+                  "auto",
+                  "cimd",
+                  "dcr"
+                ]
+              },
+              "description": "OAuth client-registration strategy for this login only",
+              "name": "--oauth-client-registration"
+            }
+          ]
         },
         {
-          "name": "logout"
+          "args": [
+            {
+              "description": "Name of the MCP server to deauthenticate",
+              "name": "NAME"
+            }
+          ],
+          "description": "Remove the OAuth credentials of an MCP server",
+          "name": "logout",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         }
       ]
     },
@@ -657,22 +1399,357 @@
           "name": "--disable"
         }
       ],
+      "requiresSubcommand": true,
       "subcommands": [
         {
+          "args": [
+            {
+              "description": "Plugin selector to install: either PLUGIN@MARKETPLACE or PLUGIN with --marketplace",
+              "name": "PLUGIN[@MARKETPLACE]"
+            }
+          ],
           "description": "Install a plugin from a configured or remote marketplace",
-          "name": "add"
+          "name": "add",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "MARKETPLACE"
+              },
+              "description": "Marketplace name to use when PLUGIN does not include @MARKETPLACE",
+              "name": [
+                "-m",
+                "--marketplace"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "description": "Output install result as JSON",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         },
         {
           "description": "List plugins available from configured and remote marketplaces",
-          "name": "list"
+          "name": "list",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "MARKETPLACE"
+              },
+              "description": "Only list plugins from this marketplace name",
+              "name": [
+                "-m",
+                "--marketplace"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "description": "Output plugin list as JSON",
+              "name": "--json"
+            },
+            {
+              "description": "Include uninstalled marketplace plugins in the JSON output",
+              "name": "--available"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         },
         {
           "description": "Add, list, upgrade, or remove configured plugin marketplaces",
-          "name": "marketplace"
+          "name": "marketplace",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ],
+          "requiresSubcommand": true,
+          "subcommands": [
+            {
+              "args": [
+                {
+                  "description": "Marketplace source: a local path, owner/repo[@ref], HTTPS Git URL, or SSH Git URL",
+                  "name": "SOURCE"
+                }
+              ],
+              "description": "Add a local or Git marketplace to the configured marketplace sources",
+              "name": "add",
+              "options": [
+                {
+                  "args": {
+                    "name": "key=value"
+                  },
+                  "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+                  "name": [
+                    "-c",
+                    "--config"
+                  ]
+                },
+                {
+                  "args": {
+                    "name": "REF"
+                  },
+                  "description": "Git ref to fetch for Git marketplace sources",
+                  "name": "--ref"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+                  "name": "--enable"
+                },
+                {
+                  "args": {
+                    "name": "PATH"
+                  },
+                  "description": "Sparse checkout path for Git marketplace sources. Can be repeated",
+                  "name": "--sparse"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+                  "name": "--disable"
+                },
+                {
+                  "description": "Output add result as JSON",
+                  "name": "--json"
+                }
+              ]
+            },
+            {
+              "description": "List plugin marketplaces Codex is currently considering and their roots",
+              "name": "list",
+              "options": [
+                {
+                  "args": {
+                    "name": "key=value"
+                  },
+                  "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+                  "name": [
+                    "-c",
+                    "--config"
+                  ]
+                },
+                {
+                  "description": "Output marketplace list as JSON",
+                  "name": "--json"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+                  "name": "--enable"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+                  "name": "--disable"
+                }
+              ]
+            },
+            {
+              "args": [
+                {
+                  "description": "Optional configured marketplace name to upgrade. Omit to upgrade all Git marketplaces",
+                  "isOptional": true,
+                  "name": "MARKETPLACE_NAME"
+                }
+              ],
+              "description": "Refresh configured Git marketplace snapshots",
+              "name": "upgrade",
+              "options": [
+                {
+                  "args": {
+                    "name": "key=value"
+                  },
+                  "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+                  "name": [
+                    "-c",
+                    "--config"
+                  ]
+                },
+                {
+                  "description": "Output upgrade result as JSON",
+                  "name": "--json"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+                  "name": "--enable"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+                  "name": "--disable"
+                }
+              ]
+            },
+            {
+              "args": [
+                {
+                  "description": "Configured marketplace name to remove",
+                  "name": "MARKETPLACE_NAME"
+                }
+              ],
+              "description": "Remove a configured marketplace source by name",
+              "name": "remove",
+              "options": [
+                {
+                  "args": {
+                    "name": "key=value"
+                  },
+                  "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+                  "name": [
+                    "-c",
+                    "--config"
+                  ]
+                },
+                {
+                  "description": "Output remove result as JSON",
+                  "name": "--json"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+                  "name": "--enable"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+                  "name": "--disable"
+                }
+              ]
+            }
+          ]
         },
         {
+          "args": [
+            {
+              "description": "Plugin selector to remove: either PLUGIN@MARKETPLACE or PLUGIN with --marketplace",
+              "name": "PLUGIN[@MARKETPLACE]"
+            }
+          ],
           "description": "Uninstall a plugin and remove its local cache",
-          "name": "remove"
+          "name": "remove",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "MARKETPLACE"
+              },
+              "description": "Marketplace name to use when PLUGIN does not include @MARKETPLACE",
+              "name": [
+                "-m",
+                "--marketplace"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "description": "Output remove result as JSON",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         }
       ]
     },
@@ -732,7 +1809,11 @@
         },
         {
           "args": {
-            "name": "MODE"
+            "name": "MODE",
+            "suggestions": [
+              "capability-token",
+              "signed-bearer-token"
+            ]
           },
           "description": "Authentication mode for incoming WebSocket connections",
           "name": "--ws-auth"
@@ -785,19 +1866,430 @@
       "subcommands": [
         {
           "description": "Manage the local app-server daemon",
-          "name": "daemon"
+          "name": "daemon",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ],
+          "requiresSubcommand": true,
+          "subcommands": [
+            {
+              "description": "Install durable local app-server management for SSH-driven use",
+              "name": "bootstrap",
+              "options": [
+                {
+                  "args": {
+                    "name": "key=value"
+                  },
+                  "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+                  "name": [
+                    "-c",
+                    "--config"
+                  ]
+                },
+                {
+                  "description": "Launch the managed app-server with remote control enabled",
+                  "name": "--remote-control"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+                  "name": "--enable"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+                  "name": "--disable"
+                }
+              ]
+            },
+            {
+              "description": "Start the local app server daemon if it is not already running",
+              "name": "start",
+              "options": [
+                {
+                  "args": {
+                    "name": "key=value"
+                  },
+                  "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+                  "name": [
+                    "-c",
+                    "--config"
+                  ]
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+                  "name": "--enable"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+                  "name": "--disable"
+                }
+              ]
+            },
+            {
+              "description": "Restart the local app server daemon",
+              "name": "restart",
+              "options": [
+                {
+                  "args": {
+                    "name": "key=value"
+                  },
+                  "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+                  "name": [
+                    "-c",
+                    "--config"
+                  ]
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+                  "name": "--enable"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+                  "name": "--disable"
+                }
+              ]
+            },
+            {
+              "description": "Update the daemon package (may interrupt running work)",
+              "name": "update",
+              "options": [
+                {
+                  "args": {
+                    "name": "key=value"
+                  },
+                  "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+                  "name": [
+                    "-c",
+                    "--config"
+                  ]
+                },
+                {
+                  "description": "Copy and pin this CLI package",
+                  "name": "--from-cli"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+                  "name": "--enable"
+                },
+                {
+                  "description": "Confirm replacing the daemon package without an interactive prompt",
+                  "name": [
+                    "-y",
+                    "--yes"
+                  ]
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+                  "name": "--disable"
+                }
+              ]
+            },
+            {
+              "description": "Enable remote control for future starts and a currently running managed daemon",
+              "name": "enable-remote-control",
+              "options": [
+                {
+                  "args": {
+                    "name": "key=value"
+                  },
+                  "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+                  "name": [
+                    "-c",
+                    "--config"
+                  ]
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+                  "name": "--enable"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+                  "name": "--disable"
+                }
+              ]
+            },
+            {
+              "description": "Disable remote control for future starts and a currently running managed daemon",
+              "name": "disable-remote-control",
+              "options": [
+                {
+                  "args": {
+                    "name": "key=value"
+                  },
+                  "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+                  "name": [
+                    "-c",
+                    "--config"
+                  ]
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+                  "name": "--enable"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+                  "name": "--disable"
+                }
+              ]
+            },
+            {
+              "description": "Stop the local app server daemon",
+              "name": "stop",
+              "options": [
+                {
+                  "args": {
+                    "name": "key=value"
+                  },
+                  "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+                  "name": [
+                    "-c",
+                    "--config"
+                  ]
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+                  "name": "--enable"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+                  "name": "--disable"
+                }
+              ]
+            },
+            {
+              "description": "Print local CLI and running app-server versions as JSON",
+              "name": "version",
+              "options": [
+                {
+                  "args": {
+                    "name": "key=value"
+                  },
+                  "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+                  "name": [
+                    "-c",
+                    "--config"
+                  ]
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+                  "name": "--enable"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+                  "name": "--disable"
+                }
+              ]
+            }
+          ]
         },
         {
           "description": "Proxy stdio bytes to the running app-server control socket",
-          "name": "proxy"
+          "name": "proxy",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "SOCKET_PATH",
+                "template": "filepaths"
+              },
+              "description": "Path to the app-server Unix domain socket to connect to",
+              "name": "--sock"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         },
         {
           "description": "[experimental] Generate TypeScript bindings for the app server protocol",
-          "name": "generate-ts"
+          "name": "generate-ts",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "DIR",
+                "template": "folders"
+              },
+              "description": "Output directory where .ts files will be written",
+              "name": [
+                "-o",
+                "--out"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "PRETTIER_BIN",
+                "template": "filepaths"
+              },
+              "description": "Optional path to the Prettier executable to format generated files",
+              "name": [
+                "-p",
+                "--prettier"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            },
+            {
+              "description": "Include experimental methods and fields in the generated output",
+              "name": "--experimental"
+            }
+          ]
         },
         {
           "description": "[experimental] Generate JSON Schema for the app server protocol",
-          "name": "generate-json-schema"
+          "name": "generate-json-schema",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "DIR",
+                "template": "folders"
+              },
+              "description": "Output directory where the schema bundle will be written",
+              "name": [
+                "-o",
+                "--out"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "description": "Include experimental methods and fields in the generated output",
+              "name": "--experimental"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         }
       ]
     },
@@ -837,15 +2329,105 @@
       "subcommands": [
         {
           "description": "Start the app-server daemon with remote control enabled",
-          "name": "start"
+          "name": "start",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "description": "Emit machine-readable JSON",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         },
         {
           "description": "Stop the app-server daemon",
-          "name": "stop"
+          "name": "stop",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "description": "Emit machine-readable JSON",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         },
         {
           "description": "Create and print a short-lived manual pairing code",
-          "name": "pair"
+          "name": "pair",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "description": "Emit machine-readable JSON",
+              "name": "--json"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         }
       ]
     },
@@ -855,7 +2437,7 @@
           "description": "Workspace path to open in the Desktop app",
           "isOptional": true,
           "name": "PATH",
-          "template": "filepaths"
+          "template": "folders"
         }
       ],
       "description": "Launch the Desktop app (opens the app installer if missing)",
@@ -899,7 +2481,14 @@
         {
           "description": "Shell to generate completions for",
           "isOptional": true,
-          "name": "SHELL"
+          "name": "SHELL",
+          "suggestions": [
+            "bash",
+            "elvish",
+            "fish",
+            "powershell",
+            "zsh"
+          ]
         }
       ],
       "description": "Generate shell completion scripts",
@@ -1015,6 +2604,7 @@
       "args": [
         {
           "description": "Full command args to run under seatbelt",
+          "isCommand": true,
           "isOptional": true,
           "isVariadic": true,
           "name": "COMMAND"
@@ -1049,7 +2639,8 @@
         },
         {
           "args": {
-            "name": "SANDBOX_STATE_READABLE_ROOT"
+            "name": "SANDBOX_STATE_READABLE_ROOT",
+            "template": "folders"
           },
           "description": "Add a readable root to the supplied sandbox state. Repeat for multiple roots",
           "name": "--sandbox-state-readable-root"
@@ -1077,8 +2668,7 @@
         },
         {
           "args": {
-            "name": "CONFIG_PROFILE",
-            "template": "filepaths"
+            "name": "CONFIG_PROFILE"
           },
           "description": "Layer $CODEX_HOME/<name>.config.toml on top of the base user config",
           "name": [
@@ -1103,7 +2693,8 @@
         },
         {
           "args": {
-            "name": "ALLOW_UNIX_SOCKETS"
+            "name": "ALLOW_UNIX_SOCKETS",
+            "template": "filepaths"
           },
           "description": "Allow the sandboxed command to bind/connect AF_UNIX sockets rooted at this path. Relative paths are resolved against the current directory. Repeat to allow multiple paths",
           "name": "--allow-unix-socket"
@@ -1143,18 +2734,157 @@
           "name": "--disable"
         }
       ],
+      "requiresSubcommand": true,
       "subcommands": [
         {
           "description": "Render the raw model catalog as JSON",
-          "name": "models"
+          "name": "models",
+          "options": [
+            {
+              "description": "Skip refresh and dump only the bundled catalog shipped with this binary",
+              "name": "--bundled"
+            },
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         },
         {
           "description": "Tooling: helps debug the app server",
-          "name": "app-server"
+          "name": "app-server",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ],
+          "requiresSubcommand": true,
+          "subcommands": [
+            {
+              "args": [
+                {
+                  "name": "USER_MESSAGE"
+                }
+              ],
+              "name": "send-message-v2",
+              "options": [
+                {
+                  "args": {
+                    "name": "key=value"
+                  },
+                  "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+                  "name": [
+                    "-c",
+                    "--config"
+                  ]
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+                  "name": "--enable"
+                },
+                {
+                  "args": {
+                    "name": "FEATURE"
+                  },
+                  "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+                  "name": "--disable"
+                }
+              ]
+            }
+          ]
         },
         {
+          "args": [
+            {
+              "description": "Optional user prompt to append after session context",
+              "isOptional": true,
+              "name": "PROMPT"
+            }
+          ],
           "description": "Render the model-visible prompt input list as JSON",
-          "name": "prompt-input"
+          "name": "prompt-input",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "isVariadic": true,
+                "name": "FILE",
+                "template": "filepaths"
+              },
+              "description": "Optional image(s) to attach to the user prompt",
+              "name": [
+                "-i",
+                "--image"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         }
       ]
     },
@@ -1268,6 +2998,7 @@
         },
         {
           "args": {
+            "isVariadic": true,
             "name": "FILE",
             "template": "filepaths"
           },
@@ -1293,15 +3024,18 @@
         },
         {
           "args": {
-            "name": "OSS_PROVIDER"
+            "name": "OSS_PROVIDER",
+            "suggestions": [
+              "lmstudio",
+              "ollama"
+            ]
           },
           "description": "Specify which local provider to use (lmstudio or ollama). If not specified with --oss, will use config default or show selection",
           "name": "--local-provider"
         },
         {
           "args": {
-            "name": "CONFIG_PROFILE_V2",
-            "template": "filepaths"
+            "name": "CONFIG_PROFILE_V2"
           },
           "description": "Layer $CODEX_HOME/<name>.config.toml on top of the base user config",
           "name": [
@@ -1311,7 +3045,12 @@
         },
         {
           "args": {
-            "name": "SANDBOX_MODE"
+            "name": "SANDBOX_MODE",
+            "suggestions": [
+              "read-only",
+              "workspace-write",
+              "danger-full-access"
+            ]
           },
           "description": "Select the sandbox policy to use when executing model-generated shell commands",
           "name": [
@@ -1325,10 +3064,12 @@
         },
         {
           "description": "Skip all confirmation prompts and execute commands without sandboxing. EXTREMELY DANGEROUS. Intended solely for running in environments that are externally sandboxed",
+          "isDangerous": true,
           "name": "--dangerously-bypass-approvals-and-sandbox"
         },
         {
           "description": "Run enabled hooks without requiring persisted hook trust for this invocation. DANGEROUS. Intended only for automation that already vets hook sources",
+          "isDangerous": true,
           "name": "--dangerously-bypass-hook-trust"
         },
         {
@@ -1356,7 +3097,17 @@
         },
         {
           "args": {
-            "name": "APPROVAL_POLICY"
+            "name": "APPROVAL_POLICY",
+            "suggestions": [
+              {
+                "description": "The model decides when to ask the user for approval",
+                "name": "on-request"
+              },
+              {
+                "description": "Never ask for user approval Execution failures are immediately returned to the model",
+                "name": "never"
+              }
+            ]
           },
           "description": "Configure when the model requires human approval before executing a command",
           "name": [
@@ -1433,6 +3184,7 @@
         },
         {
           "args": {
+            "isVariadic": true,
             "name": "FILE",
             "template": "filepaths"
           },
@@ -1458,15 +3210,18 @@
         },
         {
           "args": {
-            "name": "OSS_PROVIDER"
+            "name": "OSS_PROVIDER",
+            "suggestions": [
+              "lmstudio",
+              "ollama"
+            ]
           },
           "description": "Specify which local provider to use (lmstudio or ollama). If not specified with --oss, will use config default or show selection",
           "name": "--local-provider"
         },
         {
           "args": {
-            "name": "CONFIG_PROFILE_V2",
-            "template": "filepaths"
+            "name": "CONFIG_PROFILE_V2"
           },
           "description": "Layer $CODEX_HOME/<name>.config.toml on top of the base user config",
           "name": [
@@ -1476,7 +3231,12 @@
         },
         {
           "args": {
-            "name": "SANDBOX_MODE"
+            "name": "SANDBOX_MODE",
+            "suggestions": [
+              "read-only",
+              "workspace-write",
+              "danger-full-access"
+            ]
           },
           "description": "Select the sandbox policy to use when executing model-generated shell commands",
           "name": [
@@ -1490,10 +3250,12 @@
         },
         {
           "description": "Skip all confirmation prompts and execute commands without sandboxing. EXTREMELY DANGEROUS. Intended solely for running in environments that are externally sandboxed",
+          "isDangerous": true,
           "name": "--dangerously-bypass-approvals-and-sandbox"
         },
         {
           "description": "Run enabled hooks without requiring persisted hook trust for this invocation. DANGEROUS. Intended only for automation that already vets hook sources",
+          "isDangerous": true,
           "name": "--dangerously-bypass-hook-trust"
         },
         {
@@ -1575,6 +3337,7 @@
         },
         {
           "args": {
+            "isVariadic": true,
             "name": "FILE",
             "template": "filepaths"
           },
@@ -1600,15 +3363,18 @@
         },
         {
           "args": {
-            "name": "OSS_PROVIDER"
+            "name": "OSS_PROVIDER",
+            "suggestions": [
+              "lmstudio",
+              "ollama"
+            ]
           },
           "description": "Specify which local provider to use (lmstudio or ollama). If not specified with --oss, will use config default or show selection",
           "name": "--local-provider"
         },
         {
           "args": {
-            "name": "CONFIG_PROFILE_V2",
-            "template": "filepaths"
+            "name": "CONFIG_PROFILE_V2"
           },
           "description": "Layer $CODEX_HOME/<name>.config.toml on top of the base user config",
           "name": [
@@ -1618,7 +3384,12 @@
         },
         {
           "args": {
-            "name": "SANDBOX_MODE"
+            "name": "SANDBOX_MODE",
+            "suggestions": [
+              "read-only",
+              "workspace-write",
+              "danger-full-access"
+            ]
           },
           "description": "Select the sandbox policy to use when executing model-generated shell commands",
           "name": [
@@ -1632,10 +3403,12 @@
         },
         {
           "description": "Skip all confirmation prompts and execute commands without sandboxing. EXTREMELY DANGEROUS. Intended solely for running in environments that are externally sandboxed",
+          "isDangerous": true,
           "name": "--dangerously-bypass-approvals-and-sandbox"
         },
         {
           "description": "Run enabled hooks without requiring persisted hook trust for this invocation. DANGEROUS. Intended only for automation that already vets hook sources",
+          "isDangerous": true,
           "name": "--dangerously-bypass-hook-trust"
         },
         {
@@ -1685,6 +3458,7 @@
         }
       ],
       "description": "Permanently delete a saved session by id or session name",
+      "isDangerous": true,
       "name": "delete",
       "options": [
         {
@@ -1717,6 +3491,7 @@
         },
         {
           "args": {
+            "isVariadic": true,
             "name": "FILE",
             "template": "filepaths"
           },
@@ -1742,15 +3517,18 @@
         },
         {
           "args": {
-            "name": "OSS_PROVIDER"
+            "name": "OSS_PROVIDER",
+            "suggestions": [
+              "lmstudio",
+              "ollama"
+            ]
           },
           "description": "Specify which local provider to use (lmstudio or ollama). If not specified with --oss, will use config default or show selection",
           "name": "--local-provider"
         },
         {
           "args": {
-            "name": "CONFIG_PROFILE_V2",
-            "template": "filepaths"
+            "name": "CONFIG_PROFILE_V2"
           },
           "description": "Layer $CODEX_HOME/<name>.config.toml on top of the base user config",
           "name": [
@@ -1760,7 +3538,12 @@
         },
         {
           "args": {
-            "name": "SANDBOX_MODE"
+            "name": "SANDBOX_MODE",
+            "suggestions": [
+              "read-only",
+              "workspace-write",
+              "danger-full-access"
+            ]
           },
           "description": "Select the sandbox policy to use when executing model-generated shell commands",
           "name": [
@@ -1774,10 +3557,12 @@
         },
         {
           "description": "Skip all confirmation prompts and execute commands without sandboxing. EXTREMELY DANGEROUS. Intended solely for running in environments that are externally sandboxed",
+          "isDangerous": true,
           "name": "--dangerously-bypass-approvals-and-sandbox"
         },
         {
           "description": "Run enabled hooks without requiring persisted hook trust for this invocation. DANGEROUS. Intended only for automation that already vets hook sources",
+          "isDangerous": true,
           "name": "--dangerously-bypass-hook-trust"
         },
         {
@@ -1919,6 +3704,7 @@
         },
         {
           "args": {
+            "isVariadic": true,
             "name": "FILE",
             "template": "filepaths"
           },
@@ -1944,15 +3730,18 @@
         },
         {
           "args": {
-            "name": "OSS_PROVIDER"
+            "name": "OSS_PROVIDER",
+            "suggestions": [
+              "lmstudio",
+              "ollama"
+            ]
           },
           "description": "Specify which local provider to use (lmstudio or ollama). If not specified with --oss, will use config default or show selection",
           "name": "--local-provider"
         },
         {
           "args": {
-            "name": "CONFIG_PROFILE_V2",
-            "template": "filepaths"
+            "name": "CONFIG_PROFILE_V2"
           },
           "description": "Layer $CODEX_HOME/<name>.config.toml on top of the base user config",
           "name": [
@@ -1962,7 +3751,12 @@
         },
         {
           "args": {
-            "name": "SANDBOX_MODE"
+            "name": "SANDBOX_MODE",
+            "suggestions": [
+              "read-only",
+              "workspace-write",
+              "danger-full-access"
+            ]
           },
           "description": "Select the sandbox policy to use when executing model-generated shell commands",
           "name": [
@@ -1976,10 +3770,12 @@
         },
         {
           "description": "Skip all confirmation prompts and execute commands without sandboxing. EXTREMELY DANGEROUS. Intended solely for running in environments that are externally sandboxed",
+          "isDangerous": true,
           "name": "--dangerously-bypass-approvals-and-sandbox"
         },
         {
           "description": "Run enabled hooks without requiring persisted hook trust for this invocation. DANGEROUS. Intended only for automation that already vets hook sources",
+          "isDangerous": true,
           "name": "--dangerously-bypass-hook-trust"
         },
         {
@@ -2089,6 +3885,7 @@
         },
         {
           "args": {
+            "isVariadic": true,
             "name": "FILE",
             "template": "filepaths"
           },
@@ -2114,15 +3911,18 @@
         },
         {
           "args": {
-            "name": "OSS_PROVIDER"
+            "name": "OSS_PROVIDER",
+            "suggestions": [
+              "lmstudio",
+              "ollama"
+            ]
           },
           "description": "Specify which local provider to use (lmstudio or ollama). If not specified with --oss, will use config default or show selection",
           "name": "--local-provider"
         },
         {
           "args": {
-            "name": "CONFIG_PROFILE_V2",
-            "template": "filepaths"
+            "name": "CONFIG_PROFILE_V2"
           },
           "description": "Layer $CODEX_HOME/<name>.config.toml on top of the base user config",
           "name": [
@@ -2132,7 +3932,12 @@
         },
         {
           "args": {
-            "name": "SANDBOX_MODE"
+            "name": "SANDBOX_MODE",
+            "suggestions": [
+              "read-only",
+              "workspace-write",
+              "danger-full-access"
+            ]
           },
           "description": "Select the sandbox policy to use when executing model-generated shell commands",
           "name": [
@@ -2146,10 +3951,12 @@
         },
         {
           "description": "Skip all confirmation prompts and execute commands without sandboxing. EXTREMELY DANGEROUS. Intended solely for running in environments that are externally sandboxed",
+          "isDangerous": true,
           "name": "--dangerously-bypass-approvals-and-sandbox"
         },
         {
           "description": "Run enabled hooks without requiring persisted hook trust for this invocation. DANGEROUS. Intended only for automation that already vets hook sources",
+          "isDangerous": true,
           "name": "--dangerously-bypass-hook-trust"
         },
         {
@@ -2177,7 +3984,17 @@
         },
         {
           "args": {
-            "name": "APPROVAL_POLICY"
+            "name": "APPROVAL_POLICY",
+            "suggestions": [
+              {
+                "description": "The model decides when to ask the user for approval",
+                "name": "on-request"
+              },
+              {
+                "description": "Never ask for user approval Execution failures are immediately returned to the model",
+                "name": "never"
+              }
+            ]
           },
           "description": "Configure when the model requires human approval before executing a command",
           "name": [
@@ -2244,24 +4061,239 @@
       ],
       "subcommands": [
         {
+          "args": [
+            {
+              "description": "Task prompt to run in Codex Cloud",
+              "isOptional": true,
+              "name": "QUERY"
+            }
+          ],
           "description": "Submit a new Codex Cloud task without launching the TUI",
-          "name": "exec"
+          "name": "exec",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "ENV_ID"
+              },
+              "description": "Target environment identifier (see `codex cloud` to browse)",
+              "name": "--env"
+            },
+            {
+              "args": {
+                "name": "ATTEMPTS"
+              },
+              "description": "Number of assistant attempts (best-of-N)",
+              "name": "--attempts"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "BRANCH"
+              },
+              "description": "Git branch to run in Codex Cloud (defaults to current branch)",
+              "name": "--branch"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         },
         {
+          "args": [
+            {
+              "description": "Codex Cloud task identifier to inspect",
+              "name": "TASK_ID"
+            }
+          ],
           "description": "Show the status of a Codex Cloud task",
-          "name": "status"
+          "name": "status",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         },
         {
           "description": "List Codex Cloud tasks",
-          "name": "list"
+          "name": "list",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "ENV_ID"
+              },
+              "description": "Filter tasks by environment identifier",
+              "name": "--env"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "N"
+              },
+              "description": "Maximum number of tasks to return (1-20)",
+              "name": "--limit"
+            },
+            {
+              "args": {
+                "name": "CURSOR"
+              },
+              "description": "Pagination cursor returned by a previous call",
+              "name": "--cursor"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            },
+            {
+              "description": "Emit JSON instead of plain text",
+              "name": "--json"
+            }
+          ]
         },
         {
+          "args": [
+            {
+              "description": "Codex Cloud task identifier to apply",
+              "name": "TASK_ID"
+            }
+          ],
           "description": "Apply the diff for a Codex Cloud task locally",
-          "name": "apply"
+          "name": "apply",
+          "options": [
+            {
+              "args": {
+                "name": "N"
+              },
+              "description": "Attempt number to apply (1-based)",
+              "name": "--attempt"
+            },
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         },
         {
+          "args": [
+            {
+              "description": "Codex Cloud task identifier to display",
+              "name": "TASK_ID"
+            }
+          ],
           "description": "Show the unified diff for a Codex Cloud task",
-          "name": "diff"
+          "name": "diff",
+          "options": [
+            {
+              "args": {
+                "name": "N"
+              },
+              "description": "Attempt number to display (1-based)",
+              "name": "--attempt"
+            },
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         }
       ]
     },
@@ -2299,7 +4331,11 @@
         },
         {
           "args": {
-            "name": "MODE"
+            "name": "MODE",
+            "suggestions": [
+              "isolate",
+              "inherit"
+            ]
           },
           "description": "Linux PID namespace: isolate (default) or inherit. Inherit allows signals to other same-UID processes; enable only when provisioning a dedicated environment",
           "name": "--linux-sandbox-pid-namespace"
@@ -2324,7 +4360,11 @@
         },
         {
           "args": {
-            "name": "MODE"
+            "name": "MODE",
+            "suggestions": [
+              "capability-token",
+              "signed-bearer-token"
+            ]
           },
           "description": "Authentication mode for incoming WebSocket connections",
           "name": "--ws-auth"
@@ -2382,7 +4422,11 @@
         },
         {
           "args": {
-            "name": "REMOTE_TRANSPORT"
+            "name": "REMOTE_TRANSPORT",
+            "suggestions": [
+              "noise",
+              "direct"
+            ]
           },
           "description": "Transport used for the remote executor connection",
           "name": "--remote-transport"
@@ -2411,8 +4455,7 @@
         },
         {
           "args": {
-            "name": "PROFILE",
-            "template": "filepaths"
+            "name": "PROFILE"
           },
           "description": "AWS profile used for SigV4 authentication",
           "name": "--aws-profile"
@@ -2439,7 +4482,124 @@
       "subcommands": [
         {
           "description": "Register an existing WebSocket exec-server as a remote environment",
-          "name": "forward"
+          "name": "forward",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "URL"
+              },
+              "description": "Destination exec-server WebSocket URL",
+              "name": "--connect"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "description": "Error out when config.toml contains fields that are not recognized by this version of Codex",
+              "name": "--strict-config"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            },
+            {
+              "args": {
+                "name": "MODE",
+                "suggestions": [
+                  "isolate",
+                  "inherit"
+                ]
+              },
+              "description": "Linux PID namespace: isolate (default) or inherit. Inherit allows signals to other same-UID processes; enable only when provisioning a dedicated environment",
+              "name": "--linux-sandbox-pid-namespace"
+            },
+            {
+              "description": "Allow permitted private IP destinations to use the configured upstream proxy. If no valid upstream proxy applies to the request protocol, connect directly. Loopback stays local. This flag does not require upstream routing",
+              "name": "--proxy-private-ips-via-upstream"
+            },
+            {
+              "args": {
+                "name": "URL"
+              },
+              "description": "Register this exec-server as a remote environment using the given base URL",
+              "name": "--remote"
+            },
+            {
+              "args": {
+                "name": "REMOTE_TRANSPORT",
+                "suggestions": [
+                  "noise",
+                  "direct"
+                ]
+              },
+              "description": "Transport used for the remote executor connection",
+              "name": "--remote-transport"
+            },
+            {
+              "args": {
+                "name": "ID"
+              },
+              "description": "Environment id to attach to when registering remotely",
+              "name": "--environment-id"
+            },
+            {
+              "args": {
+                "name": "NAME"
+              },
+              "description": "Human-readable environment name",
+              "name": "--name"
+            },
+            {
+              "description": "Use Agent Identity auth from CODEX_ACCESS_TOKEN for remote registration",
+              "name": "--use-agent-identity-auth"
+            },
+            {
+              "description": "Sign Direct registration and WebSocket handshake requests with AWS SigV4",
+              "name": "--aws-sigv4"
+            },
+            {
+              "args": {
+                "name": "PROFILE"
+              },
+              "description": "AWS profile used for SigV4 authentication",
+              "name": "--aws-profile"
+            },
+            {
+              "args": {
+                "name": "REGION"
+              },
+              "description": "AWS signing region. Uses the SDK region chain when omitted",
+              "name": "--aws-region"
+            },
+            {
+              "args": {
+                "name": "SERVICE"
+              },
+              "description": "AWS signing service",
+              "name": "--aws-service"
+            },
+            {
+              "description": "Exit when the parent-owned standard-input pipe closes",
+              "name": "--exit-on-stdin-close"
+            }
+          ]
         }
       ]
     },
@@ -2472,18 +4632,109 @@
           "name": "--disable"
         }
       ],
+      "requiresSubcommand": true,
       "subcommands": [
         {
           "description": "List known features with their stage and effective state",
-          "name": "list"
+          "name": "list",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         },
         {
+          "args": [
+            {
+              "description": "Feature key to update (for example: unified_exec)",
+              "name": "FEATURE"
+            }
+          ],
           "description": "Enable a feature in config.toml",
-          "name": "enable"
+          "name": "enable",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         },
         {
+          "args": [
+            {
+              "description": "Feature key to update (for example: unified_exec)",
+              "name": "FEATURE"
+            }
+          ],
           "description": "Disable a feature in config.toml",
-          "name": "disable"
+          "name": "disable",
+          "options": [
+            {
+              "args": {
+                "name": "key=value"
+              },
+              "description": "Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`. Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed as TOML. If it fails to parse as TOML, the raw string is used as a literal.",
+              "name": [
+                "-c",
+                "--config"
+              ]
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Enable a feature (repeatable). Equivalent to `-c features.<name>=true`",
+              "name": "--enable"
+            },
+            {
+              "args": {
+                "name": "FEATURE"
+              },
+              "description": "Disable a feature (repeatable). Equivalent to `-c features.<name>=false`",
+              "name": "--disable"
+            }
+          ]
         }
       ]
     }
