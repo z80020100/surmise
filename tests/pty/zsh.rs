@@ -142,6 +142,37 @@ fn typing_a_bare_cd_opens_the_menu() {
 }
 
 #[test]
+fn enter_on_a_tilde_slash_runs_in_the_home_directory() {
+    let f = home(
+        "cd \"$HOME/work\"",
+        "chpwd() { [[ $PWD -ef $HOME ]] && print HOME-REACHED }",
+    );
+    let mut t = opened(f.path());
+    typed(&mut t, "~/");
+    t.send("\r");
+    assert!(
+        t.wait_line("HOME-REACHED", WAIT),
+        "the shell did not reach home: {:?}",
+        t.lines()
+    );
+}
+
+#[test]
+fn a_literal_tilde_directory_stays_quoted_when_it_runs() {
+    let f = home("cd \"$HOME/work\"", "");
+    std::fs::create_dir(f.path().join("work/~")).unwrap();
+    let mut t = opened(f.path());
+    typed(&mut t, "\r");
+    assert_eq!(line(&t).trim(), "❯ cd '~/'", "{:?}", t.lines());
+    t.send("\r");
+    assert!(
+        t.wait_line("MOVED:~", WAIT),
+        "the shell did not reach the literal tilde directory: {:?}",
+        t.lines()
+    );
+}
+
+#[test]
 fn git_subcommands_are_taken_without_running() {
     // The menu stays on the word behind the subcommand. `git status` runs as
     // it stands and the row that runs it leads under the highlight. Enter

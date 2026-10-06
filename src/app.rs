@@ -615,7 +615,10 @@ impl App {
         };
         // The line runs as it stands and nothing was typed to name again. An
         // empty word quoted would hand the command an argument of its own.
-        if pick.kind == Kind::Run && pick.insert.is_empty() {
+        // An unquoted `~/` already names home. Keep its expansion unchanged.
+        if pick.kind == Kind::Run
+            && (pick.insert.is_empty() || (pick.insert == "~/" && q.arg.starts_with("~/")))
+        {
             return true;
         }
         let mut insert = self.quote_row(Some(pick.kind), &pick.insert, pick.verbatim);
