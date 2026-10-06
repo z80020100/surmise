@@ -6,6 +6,7 @@
 
 mod bash;
 mod demo;
+mod fish;
 mod history;
 mod pick;
 mod settings;

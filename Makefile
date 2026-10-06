@@ -37,12 +37,13 @@ test:
 # tool fails rather than skips. `CLAUDE.md` gives the reasoning.
 SH_SCRIPTS := .cargo-husky/hooks/pre-commit shell/surmise.bash
 ZSH_WIDGETS := $(wildcard shell/*.zsh)
+FISH_WIDGETS := $(wildcard shell/*.fish)
 
 # `shell/` is a directory. Without .PHONY make calls this target up to date and
 # runs nothing.
 .PHONY: shell
 shell:
-	@for t in shellcheck shfmt; do \
+	@for t in shellcheck shfmt fish; do \
 	  command -v $$t >/dev/null 2>&1 || { \
 	    echo "shell: $$t not found (brew or apt-get install $$t)" >&2; \
 	    exit 1; \
@@ -54,6 +55,12 @@ shell:
 	@for f in $(ZSH_WIDGETS); do \
 	  echo "zsh -n $$f"; \
 	  zsh -n "$$f" || exit 1; \
+	done
+	@[ -n "$(FISH_WIDGETS)" ] || echo "shell: no fish widgets matched"
+	@for f in $(FISH_WIDGETS); do \
+	  echo "fish --no-execute $$f"; \
+	  fish --no-execute "$$f" || exit 1; \
+	  fish_indent --check "$$f" || exit 1; \
 	done
 
 .PHONY: check

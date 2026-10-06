@@ -18,6 +18,7 @@ committed specification.
 
   surmise init zsh                   the shell widget, for `eval \"$(surmise init zsh)\"`
   surmise init bash                  the same for bash 4.4 or later
+  surmise init fish                  the same for fish, for `surmise init fish | source`
   surmise demo                       a clean interactive zsh on your own files
   surmise doctor                     what stands between this shell and a menu
   surmise --pick LINE                the picker that widget calls, result on stdout
@@ -44,9 +45,11 @@ import.
 const ZSH: &str = include_str!("../shell/surmise.zsh");
 /// The same for bash.
 const BASH: &str = include_str!("../shell/surmise.bash");
+/// The same for fish.
+const FISH: &str = include_str!("../shell/surmise.fish");
 
 /// Every shell `init` has a widget for, by the name it answers to.
-const WIDGETS: [(&str, &str); 2] = [("zsh", ZSH), ("bash", BASH)];
+const WIDGETS: [(&str, &str); 3] = [("zsh", ZSH), ("bash", BASH), ("fish", FISH)];
 
 /// The shells `init` names, the way a refusal lists them.
 fn shells() -> String {

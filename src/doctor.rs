@@ -174,7 +174,7 @@ fn widget(facts: &Facts) -> Check {
         return check(
             Level::Fail,
             "widget",
-            "this shell has not loaded it. Add eval \"$(surmise init zsh)\" to ~/.zshrc or the bash line to ~/.bashrc",
+            "this shell has not loaded it. Add eval \"$(surmise init zsh)\" to ~/.zshrc, the bash line to ~/.bashrc or the fish line to ~/.config/fish/config.fish",
         );
     };
     let mut fields = widget.split(' ');
