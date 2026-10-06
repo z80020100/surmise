@@ -1123,6 +1123,22 @@ A script that runs another `brew` has no such file in its repository and gives
 no rows as well. `brew` refuses to start in some other states too, such as when
 it cannot read the line's directory. The readers still offer their rows there.
 
+`claude --resume ` offers the sessions Claude Code keeps for the line's
+directory, the newest first. A row shows the title Claude's own picker shows
+and goes in by the session's id. `--resume` takes a title as well. Several
+sessions can share one and Claude then opens its picker rather than resume
+any of them. The title a person gave with `/rename` or `-n` leads. The one
+Claude wrote itself follows and the first prompt is the fallback. The label is
+the first eight characters of the id. The sessions are in `projects` under
+`$CLAUDE_CONFIG_DIR` or `~/.claude`. Claude names the directory for the line's
+directory and turns every character but an ASCII letter or digit into `-`.
+Past 200 characters it cuts the name and adds a hash of the whole path. The
+reader reads the first and the last 64 KiB of each file and Claude's picker
+reads the same. A session `claude -p` or the SDK started is not in that picker
+and gets no row here either. A session from another worktree of the same
+repository gets no row. Claude's picker finds those by running Git and this
+reader runs nothing.
+
 Each of the file readers above reads its files once for each word of the line
 rather than once for each key. An empty answer is read again at the next key.
 
@@ -1300,7 +1316,9 @@ their `--help` lists at any depth. An option whose help lists a fixed set of
 values offers that set. `codex sandbox` and `codex mcp add` take a command and
 `codex sandbox git ` offers Git's own rows. `claude rm`, `claude purge`, `codex
 delete` and the options that skip permission checks are marked dangerous. A
-line that holds one gets no row that runs it.
+line that holds one gets no row that runs it. The argument of `claude
+--resume` is named `session` and marked `dyn` by hand. `--help` calls it
+`value` and the reader in "Other commands" above needs a name of its own.
 
 The `rtk` specification defines RTK's own commands and options. Proxy command
 nodes use `loadSpec` to read the target command's specification. A target needs
