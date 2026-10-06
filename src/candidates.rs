@@ -471,9 +471,13 @@ impl Sort {
 /// The sort reads this after the score rather than before. How well what
 /// was typed reaches a name says more than the group that name came from.
 /// Typing a `-` is how a person asks for the options.
-fn group_rank(kind: Kind) -> u8 {
+///
+/// `values_lead` puts the values ahead of the subcommands. An option the
+/// line just named wants its value next and `pm2 -l ` offers the files
+/// ahead of `pm2`'s 67 subcommands.
+fn group_rank(kind: Kind, values_lead: bool) -> u8 {
     match kind {
-        Kind::Command => 2,
+        Kind::Command => 2 - u8::from(values_lead),
         Kind::Option => 0,
         // A branch, a file, a folder and a value a spec lists are one
         // group: what the argument in hand takes. `cd`'s own menu ranks
@@ -486,7 +490,7 @@ fn group_rank(kind: Kind) -> u8 {
         | Kind::Parent
         | Kind::Special
         | Kind::Run
-        | Kind::Past => 1,
+        | Kind::Past => 1 + u8::from(values_lead),
     }
 }
 
@@ -524,6 +528,8 @@ fn group_rank(kind: Kind) -> u8 {
 /// which is `"git"` for Git's own menu and the line's own first word for
 /// the other.
 ///
+/// `values_lead` is [`group_rank`]'s and Git's own menu never sets it.
+///
 /// `sort_by_cached_key` calls its key function once per row rather than
 /// once per comparison a plain `sort_by` would, so the history is read once
 /// for each row instead of on every one of a sort's `O(n log n)`
@@ -534,14 +540,19 @@ fn group_rank(kind: Kind) -> u8 {
 /// stable. A list of values a specification writes says something in its
 /// own order: `npm ci --audit ` offers `true` before `false`. A source with
 /// no order of its own goes through [`in_name_order`] first.
-pub(crate) fn rank(rows: &mut [Candidate], term: &str, used_after: Option<UsedAfter>) {
+pub(crate) fn rank(
+    rows: &mut [Candidate],
+    term: &str,
+    used_after: Option<UsedAfter>,
+    values_lead: bool,
+) {
     rows.sort_by_cached_key(|c| {
         (
             Reverse(tier(term, written_as(c))),
             Reverse(used_after.map_or(0, |h| h.counts.count(h.command, typed_as(c)))),
             Reverse(c.score),
             Reverse(c.priority),
-            Reverse(group_rank(c.kind)),
+            Reverse(group_rank(c.kind, values_lead)),
             Reverse(written_as(c).starts_with(term)),
         )
     });
@@ -723,7 +734,7 @@ mod tests {
             option("--DATA", "--DATA", false),
             option("--data", "-d ''", true),
         ];
-        rank(&mut rows, "--d", None);
+        rank(&mut rows, "--d", None, false);
         assert_eq!(displays(&rows), ["--data", "--DATA"]);
     }
 
