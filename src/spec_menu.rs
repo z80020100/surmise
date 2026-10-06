@@ -1626,8 +1626,15 @@ mod tests {
             ("tig ", "blame"),
             ("claude ", "mcp"),
             ("claude mcp ", "add"),
+            ("claude mcp add --transport ", "http"),
+            ("claude plugin marketplace ", "add"),
+            ("claude --permission-mode ", "plan"),
             ("codex ", "exec"),
             ("codex exec --", "--model"),
+            ("codex mcp add --", "--url"),
+            ("codex completion ", "zsh"),
+            ("codex -s ", "workspace-write"),
+            ("codex sandbox git ", "switch"),
             ("mise ", "use"),
             ("rtk ", "gain"),
             ("rtk gain --", "--graph"),
@@ -1640,6 +1647,28 @@ mod tests {
         ] {
             let rows = complete(&mut Completions::default(), &target(line));
             assert!(names(&rows).contains(&row), "{line}: {:?}", names(&rows));
+        }
+    }
+
+    #[test]
+    fn claude_and_codex_run_bare_and_hold_back_their_dangerous_lines() {
+        let f = Fixture::new(&[]);
+        for line in ["claude ", "codex ", "claude mcp list ", "codex fork "] {
+            assert_eq!(rows_in(f.path(), line)[0].kind, Kind::Run, "{line}");
+        }
+        for line in [
+            "claude --dangerously-skip-permissions ",
+            "claude rm sample-id ",
+            "claude purge ",
+            "codex delete sample-id ",
+            "codex --dangerously-bypass-approvals-and-sandbox ",
+        ] {
+            let rows = rows_in(f.path(), line);
+            assert!(
+                rows.iter().all(|r| r.kind != Kind::Run),
+                "{line}: {:?}",
+                names(&rows)
+            );
         }
     }
 
