@@ -142,6 +142,29 @@ fn typing_a_bare_cd_opens_the_menu() {
 }
 
 #[test]
+fn rtk_opens_on_space_and_keeps_its_prefix_when_a_value_is_accepted() {
+    let f = home("rtk() { print -r -- RTK-RAN \"$@\" }", "");
+    let mut t = ready(f.path());
+    t.send("rtk ");
+    assert!(t.wait_panel(WAIT), "no RTK menu: {:?}", t.lines());
+    typed(&mut t, "gai\t");
+    assert!(line(&t).starts_with("❯ rtk gain"), "{:?}", t.lines());
+    typed(&mut t, "--format js\t");
+    assert!(
+        line(&t).starts_with("❯ rtk gain --format json"),
+        "{:?}",
+        t.lines()
+    );
+    assert!(!t.lines().join("\n").contains("RTK-RAN"));
+    t.send("\r");
+    assert!(
+        t.wait_line("RTK-RAN gain --format json", WAIT),
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
 fn enter_on_a_tilde_slash_runs_in_the_home_directory() {
     let f = home(
         "cd \"$HOME/work\"",

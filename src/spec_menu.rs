@@ -268,7 +268,7 @@ impl Completions {
                     runs: &mut self.runs,
                     verbose: self.verbose,
                 };
-                let mut rows = build_rows(&walk, enclosing, &line, cx);
+                let mut rows = build_rows(&walk, enclosing.as_ref(), &line, cx);
                 if has_template(&walk, "history") {
                     self.past_rows(&walk, &mut rows);
                 }
@@ -412,15 +412,31 @@ fn command_at_cursor(left: &str, aliases: &HashMap<String, String>) -> Option<Co
         .find(|cmd| cmd.start <= cursor && cursor <= cmd.end)
 }
 
-/// Every value in `map` once, by the object it names rather than by the name
+/// Every value once, by the object it names rather than by the name
 /// that reaches it. An alias and the name it stands for share one `Rc` and a
 /// map keyed by name alone would otherwise show the same subcommand or
 /// option once per name it answers to.
-fn unique_targets<T>(map: &HashMap<String, Rc<T>>) -> Vec<&Rc<T>> {
+fn unique_targets<'a, T: 'a>(values: impl IntoIterator<Item = &'a T>) -> Vec<&'a T> {
     let mut seen = HashSet::new();
-    map.values()
-        .filter(|rc| seen.insert(Rc::as_ptr(rc)))
+    values
+        .into_iter()
+        .filter(|value| seen.insert(std::ptr::from_ref(*value)))
         .collect()
+}
+
+/// The names of `target` that still reach it in `active`. A pointer's own
+/// subcommand or option takes a name from the target's and the target keeps
+/// the rest.
+fn active_names<'a, T>(
+    names: &'a [String],
+    active: &HashMap<&str, &T>,
+    target: &T,
+) -> impl Iterator<Item = &'a String> {
+    names.iter().filter(move |name| {
+        active
+            .get(name.as_str())
+            .is_some_and(|found| std::ptr::eq(*found, target))
+    })
 }
 
 fn label(description: &Option<String>, fallback: &'static str) -> Cow<'static, str> {
@@ -547,12 +563,7 @@ struct Context<'a> {
 /// template's rows come from; every other caller passes `None`. `line` is
 /// every word in front of the one being typed.
 /// `walk_resolving` ranks what this returns against [`Walk::search_term`].
-fn build_rows(
-    walk: &Walk,
-    enclosing: Option<&Subcommand>,
-    line: &[&str],
-    cx: Context,
-) -> Vec<Candidate> {
+fn build_rows(walk: &Walk, enclosing: Option<&Walk>, line: &[&str], cx: Context) -> Vec<Candidate> {
     let Context {
         cwd,
         history,
@@ -564,14 +575,17 @@ fn build_rows(
     let mut rows = Vec::new();
 
     if walk.offers_subcommands {
-        for sub in unique_targets(&walk.node.subcommands) {
-            if !shown(sub.hidden, &sub.name, term) {
+        for sub in unique_targets(walk.subcommands.values().copied()) {
+            let names: Vec<_> = active_names(&sub.name, &walk.subcommands, sub)
+                .cloned()
+                .collect();
+            if !shown(sub.hidden, &names, term) {
                 continue;
             }
             rows.extend(
                 row(
                     term,
-                    &sub.name,
+                    &names,
                     label(&sub.description, SUBCOMMAND_LABEL),
                     spec::arg_hints(&sub.args),
                     Kind::Command,
@@ -606,7 +620,7 @@ fn build_rows(
             .flat_map(|opt| opt.depends_on.iter().map(String::as_str))
             .filter(|name| !passed.iter().any(|opt| opt.name.iter().any(|n| n == name)))
             .collect();
-        for opt in unique_targets(&walk.node.options) {
+        for opt in unique_targets(walk.options.values().copied()) {
             if !argwalk::is_available(opt, passed)
                 || opt.name.iter().any(|n| excluded.contains(n.as_str()))
                 || !shown(opt.hidden, &opt.name, term)
@@ -633,10 +647,12 @@ fn build_rows(
             // and the row ends in its name. Neither does a row that waits
             // behind a separator of its own.
             let separator = argwalk::separator(walk.node, opt);
-            let names = match &separator {
-                Some(sep) => Cow::Owned(opt.name.iter().map(|n| format!("{n}{sep}")).collect()),
-                None => Cow::Borrowed(&opt.name),
-            };
+            let names: Vec<_> = active_names(&opt.name, &walk.options, opt)
+                .map(|name| match &separator {
+                    Some(sep) => format!("{name}{sep}"),
+                    None => name.clone(),
+                })
+                .collect();
             let hint = if opt.requires_separator.is_some() || opt.requires_equals == Some(true) {
                 Vec::new()
             } else {
@@ -687,12 +703,14 @@ fn build_rows(
         }
         // An argument the conversion could not keep the code for. `native`
         // has a reader for a few of them and nothing at all for the rest,
-        // which keep offering no rows.
+        // which keep offering no rows. A reader reads its own command's
+        // words. A `sudo` or an `rtk` in front of them names nothing it offers.
         if arg.dynamic
             && let Some(command) = walk.root.name.first()
             && let Some(owner) = walk.node.name.first()
         {
             let name = arg.name.first().map_or("", String::as_str);
+            let line = &line[walk.root_index..];
             found.extend(native::rows(command, owner, name, term, cwd, line, runs));
         }
         rows.extend(values(listed, found, arg.suggestions.len()));
@@ -749,7 +767,7 @@ fn generator_rows(
     cwd: &Path,
     history: &History,
     scan: &mut Scan,
-    enclosing: Option<&Subcommand>,
+    enclosing: Option<&Walk>,
     verbose: bool,
 ) -> Vec<Candidate> {
     let mut rows = if let Some(show_folders) = reads_paths(generator) {
@@ -971,17 +989,22 @@ fn history_bonus(history: &History, target: &Path) -> i32 {
 /// current one, so `fnm help <x>` offers `fnm`'s own subcommands rather than
 /// `help`'s own, which has none. `None` when the walk never left the
 /// command name or found nothing to reach.
-fn help_rows(term: &str, enclosing: Option<&Subcommand>, verbose: bool) -> Vec<Candidate> {
+fn help_rows(term: &str, enclosing: Option<&Walk>, verbose: bool) -> Vec<Candidate> {
     let Some(node) = enclosing else {
         return Vec::new();
     };
-    unique_targets(&node.subcommands)
+    unique_targets(node.subcommands.values().copied())
         .into_iter()
-        .filter(|sub| shown(sub.hidden, &sub.name, term))
         .filter_map(|sub| {
+            let names: Vec<_> = active_names(&sub.name, &node.subcommands, sub)
+                .cloned()
+                .collect();
+            if !shown(sub.hidden, &names, term) {
+                return None;
+            }
             row(
                 term,
-                &sub.name,
+                &names,
                 label(&sub.description, SUBCOMMAND_LABEL),
                 // The row fills `help`'s own argument with this name and
                 // stops there. What the sibling itself takes is never
@@ -1022,13 +1045,14 @@ fn has_template(walk: &Walk, template: &str) -> bool {
 /// node's own subcommands. Every spec this could ask for was already loaded
 /// by the walk `node_index` itself came from, since a prefix of the same
 /// words can only re-tread reroots that walk already resolved, so the
-/// loader here only ever reads the cache.
+/// loader here only ever reads the cache. The result also keeps a pointer's
+/// own subcommands for the help rows.
 fn enclosing_node<'a>(
     specs: &'a HashMap<String, Option<Rc<Subcommand>>>,
     command: &Command,
     root: &'a Subcommand,
     node_index: usize,
-) -> Option<&'a Subcommand> {
+) -> Option<Walk<'a>> {
     if node_index == 0 {
         return None;
     }
@@ -1036,7 +1060,7 @@ fn enclosing_node<'a>(
     let walk = argwalk::walk(&prefix, root, |name| {
         specs.get(name).and_then(|found| found.as_deref())
     });
-    Some(walk.node)
+    Some(walk)
 }
 
 #[cfg(test)]
@@ -1605,9 +1629,306 @@ mod tests {
             ("codex ", "exec"),
             ("codex exec --", "--model"),
             ("mise ", "use"),
+            ("rtk ", "gain"),
+            ("rtk gain --", "--graph"),
+            ("rtk gain --format ", "json"),
+            ("rtk init --agent ", "claude"),
+            ("rtk config recall ", "sqlite"),
+            ("rtk hook ", "codex"),
+            ("rtk read --level ", "minimal"),
+            ("rtk --verbose gain --", "--daily"),
         ] {
             let rows = complete(&mut Completions::default(), &target(line));
             assert!(names(&rows).contains(&row), "{line}: {:?}", names(&rows));
+        }
+    }
+
+    #[test]
+    fn rtk_proxy_commands_use_the_existing_specifications() {
+        for (wrapped, plain) in [
+            ("rtk git ", "git "),
+            ("rtk git stash ", "git stash "),
+            ("rtk cargo build --", "cargo build --"),
+            ("rtk proxy git ", "git "),
+            ("rtk run cargo ", "cargo "),
+            ("rtk lint --", "eslint --"),
+            ("rtk gradlew --", "gradle --"),
+            ("rtk mvnd --", "mvn --"),
+        ] {
+            let rows = complete(&mut Completions::default(), &target(wrapped));
+            let expected = complete(&mut Completions::default(), &target(plain));
+            assert!(!expected.is_empty(), "{plain}");
+            let expected_names = without_rtk_globals(&expected);
+            assert_eq!(
+                without_rtk_globals(&rows)
+                    .into_iter()
+                    .filter(|name| expected_names.contains(name))
+                    .collect::<Vec<_>>(),
+                expected_names,
+                "{wrapped}"
+            );
+        }
+
+        let f = Fixture::new(&["sample-file*"]);
+        f.init_git(&["sample/topic"]);
+        for (wrapped, plain, offered) in [
+            (
+                "rtk git switch sample/",
+                "git switch sample/",
+                "sample/topic",
+            ),
+            ("rtk read sample-", "cat sample-", "sample-file"),
+        ] {
+            let rows = rows_in(f.path(), wrapped);
+            let expected = rows_in(f.path(), plain);
+            assert!(names(&rows).contains(&offered), "{wrapped}");
+            assert_eq!(
+                without_rtk_globals(&rows),
+                without_rtk_globals(&expected),
+                "{wrapped}"
+            );
+        }
+    }
+
+    fn without_rtk_globals(rows: &[Candidate]) -> Vec<&str> {
+        names(rows)
+            .into_iter()
+            .filter(|name| !matches!(*name, "-h" | "--help" | "--skip-env" | "--ultra-compact"))
+            .collect()
+    }
+
+    #[test]
+    fn rtk_npm_offers_the_same_scripts_and_values_as_npm_run() {
+        let f = npm_fixture();
+        for (wrapped, plain, offered) in [
+            ("rtk npm ", "npm run ", "sample-build"),
+            ("rtk npm sample-b", "npm run sample-b", "sample-build"),
+            ("rtk npm -- ", "npm run -- ", "sample-test"),
+            (
+                "rtk npm --workspace ",
+                "npm run --workspace ",
+                "tools/sample-cli",
+            ),
+        ] {
+            let rows = rows_in(f.path(), wrapped);
+            let expected = rows_in(f.path(), plain);
+            assert!(
+                names(&rows).contains(&offered),
+                "{wrapped}: {:?}",
+                names(&rows)
+            );
+            assert_eq!(
+                without_rtk_globals(&rows),
+                without_rtk_globals(&expected),
+                "{wrapped}"
+            );
+            assert!(
+                !rows.iter().any(|row| row.insert == "install"),
+                "{wrapped}: {:?}",
+                names(&rows)
+            );
+        }
+    }
+
+    #[test]
+    fn rtk_globals_are_offered_at_every_depth_and_survive_delegation() {
+        for line in ["rtk --", "rtk gain --", "rtk git --", "rtk git status --"] {
+            let rows = complete(&mut Completions::default(), &target(line));
+            for flag in ["--skip-env", "--ultra-compact"] {
+                assert_eq!(
+                    names(&rows).iter().filter(|name| **name == flag).count(),
+                    1,
+                    "{line}: {:?}",
+                    names(&rows)
+                );
+            }
+        }
+
+        for flag in ["--skip-env", "--ultra-compact"] {
+            for line in [
+                format!("rtk {flag} git status --"),
+                format!("rtk git {flag} status --"),
+                format!("rtk git status {flag} --"),
+            ] {
+                let rows = complete(&mut Completions::default(), &target(&line));
+                assert!(
+                    names(&rows).contains(&"--short"),
+                    "{line}: {:?}",
+                    names(&rows)
+                );
+                assert!(!names(&rows).contains(&flag), "{line}: {:?}", names(&rows));
+            }
+        }
+
+        let rows = complete(
+            &mut Completions::default(),
+            &target("rtk --skip-env git --ultra-compact status --"),
+        );
+        assert!(names(&rows).contains(&"--short"), "{:?}", names(&rows));
+        assert!(!names(&rows).contains(&"--skip-env"));
+        assert!(!names(&rows).contains(&"--ultra-compact"));
+    }
+
+    #[test]
+    fn rtk_globals_do_not_reach_a_command_argument() {
+        for (line, offered) in [
+            ("rtk proxy git --", "--git-dir"),
+            ("rtk run cargo --", "--color"),
+            ("rtk --skip-env proxy git --", "--git-dir"),
+        ] {
+            let rows = complete(&mut Completions::default(), &target(line));
+            assert!(
+                names(&rows).contains(&offered),
+                "{line}: {:?}",
+                names(&rows)
+            );
+            assert!(!names(&rows).contains(&"--skip-env"), "{line}");
+            assert!(!names(&rows).contains(&"--ultra-compact"), "{line}");
+        }
+    }
+
+    #[test]
+    fn rtk_literal_arguments_after_an_unknown_command_do_not_delegate() {
+        let f = Fixture::new(&[]);
+        for command in [
+            "proxy",
+            "run",
+            "err",
+            "test",
+            "summary",
+            "rewrite",
+            "hook check",
+        ] {
+            for argument in ["git ", "cargo ", "git sw", "cargo bu"] {
+                let line = format!("rtk {command} sample-tool {argument}");
+                let rows = rows_in(f.path(), &line);
+                assert!(
+                    rows.iter().all(|row| row.kind != Kind::Command),
+                    "{line}: {:?}",
+                    names(&rows)
+                );
+                for native in ["switch", "build", "--git-dir", "--color"] {
+                    assert!(
+                        !names(&rows).contains(&native),
+                        "{line}: {:?}",
+                        names(&rows)
+                    );
+                }
+                let mut app = crate::app::App::over(f.path(), &line);
+                assert!(!app.accept_common(), "{line}");
+                assert_eq!(app.line.text(), line, "{line}");
+            }
+            let line = format!("rtk {command} sample-tool --");
+            let rows = rows_in(f.path(), &line);
+            assert!(
+                rows.iter().all(|row| row.kind != Kind::Option),
+                "{line}: {:?}",
+                names(&rows)
+            );
+        }
+        // `glab` has no specification of its own and its first word is free.
+        let rows = rows_in(f.path(), "rtk glab --");
+        assert!(names(&rows).contains(&"--repo"), "{:?}", names(&rows));
+        let rows = rows_in(f.path(), "rtk glab sample-sub --");
+        assert!(
+            rows.iter().all(|row| row.kind != Kind::Option),
+            "{:?}",
+            names(&rows)
+        );
+    }
+
+    #[test]
+    fn rtk_help_rows_offer_an_overridden_subcommand_once() {
+        let rows = complete(&mut Completions::default(), &target("rtk pnpm help "));
+        assert_eq!(
+            rows.iter().filter(|row| row.insert == "list").count(),
+            1,
+            "{:?}",
+            names(&rows)
+        );
+        assert!(names(&rows).contains(&"ls"), "{:?}", names(&rows));
+    }
+
+    #[test]
+    fn a_reader_does_not_read_the_words_in_front_of_its_command() {
+        let f = Fixture::new(&["rtk", "sample-space"]);
+        std::fs::write(
+            f.path().join("package.json"),
+            r#"{"dependencies": {"rtk": "^1.0.0", "sample-lib": "^1.0.0"},
+                "workspaces": ["rtk", "sample-space"]}"#,
+        )
+        .unwrap();
+        for dir in ["rtk", "sample-space"] {
+            std::fs::write(f.path().join(dir).join("package.json"), "{}").unwrap();
+        }
+        for line in [
+            "pnpm remove ",
+            "rtk pnpm remove ",
+            "sudo pnpm remove ",
+            "npm run --workspace ",
+            "rtk npm --workspace ",
+        ] {
+            let rows = rows_in(f.path(), line);
+            assert!(names(&rows).contains(&"rtk"), "{line}: {:?}", names(&rows));
+        }
+        let rows = rows_in(f.path(), "rtk pnpm remove rtk ");
+        assert!(!names(&rows).contains(&"rtk"), "{:?}", names(&rows));
+    }
+
+    #[test]
+    fn rtk_grep_offers_its_options_beside_native_options() {
+        let rows = complete(&mut Completions::default(), &target("rtk grep --"));
+        for option in [
+            "--max-len",
+            "--max",
+            "--context-only",
+            "--max-count",
+            "--ignore-case",
+        ] {
+            assert!(names(&rows).contains(&option), "{:?}", names(&rows));
+        }
+        let rows = complete(
+            &mut Completions::default(),
+            &target("rtk grep --context-on"),
+        );
+        assert_eq!(names(&rows), ["--context-only"]);
+
+        let native = complete(&mut Completions::default(), &target("grep --help"));
+        let wrapped = complete(&mut Completions::default(), &target("rtk grep --help"));
+        let label = |rows: &[Candidate]| {
+            rows.iter()
+                .find(|row| row.insert == "--help")
+                .unwrap()
+                .label
+                .to_string()
+        };
+        assert_eq!(label(&wrapped), label(&native));
+    }
+
+    #[test]
+    fn rtk_grep_tab_keeps_its_exact_max_option() {
+        let f = Fixture::new(&[]);
+        let mut app = crate::app::App::over(f.path(), "rtk grep --max");
+        assert_eq!(app.items[0].insert, "--max");
+        app.accept_common();
+        assert_eq!(app.line.text().trim_end(), "rtk grep --max");
+    }
+
+    #[test]
+    fn rtk_owned_subcommands_are_offered_beside_native_subcommands() {
+        for (line, offered) in [
+            ("rtk prisma ", vec!["db-push", "generate", "studio"]),
+            ("rtk prisma db-p", vec!["db-push"]),
+            ("rtk kubectl ", vec!["pods", "services", "get", "config"]),
+            ("rtk kubectl po", vec!["pods", "port-forward"]),
+            ("rtk kubectl serv", vec!["services"]),
+            ("rtk pnpm ", vec!["typecheck", "add", "run"]),
+            ("rtk pnpm typech", vec!["typecheck"]),
+        ] {
+            let rows = complete(&mut Completions::default(), &target(line));
+            for name in offered {
+                assert!(names(&rows).contains(&name), "{line}: {:?}", names(&rows));
+            }
         }
     }
 

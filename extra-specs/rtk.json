@@ -1,0 +1,1926 @@
+{
+  "description": "Filter command output and track token savings",
+  "name": "rtk",
+  "options": [
+    {
+      "description": "Increase verbosity before the subcommand",
+      "isRepeatable": true,
+      "name": [
+        "-v",
+        "--verbose"
+      ]
+    },
+    {
+      "description": "Use compact output with ASCII icons",
+      "isPersistent": true,
+      "name": "--ultra-compact"
+    },
+    {
+      "description": "Skip environment validation for child processes",
+      "isPersistent": true,
+      "name": "--skip-env"
+    },
+    {
+      "description": "Show help",
+      "isPersistent": true,
+      "name": [
+        "-h",
+        "--help"
+      ]
+    },
+    {
+      "description": "Show the version",
+      "name": [
+        "-V",
+        "--version"
+      ]
+    }
+  ],
+  "requiresSubcommand": true,
+  "subcommands": [
+    {
+      "description": "List directory contents with token-optimized output",
+      "loadSpec": "ls",
+      "name": "ls"
+    },
+    {
+      "description": "Directory tree with token-optimized output",
+      "loadSpec": "tree",
+      "name": "tree"
+    },
+    {
+      "args": [
+        {
+          "description": "Files to read",
+          "isVariadic": true,
+          "name": "FILES",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Read files with optional output filtering",
+      "name": "read",
+      "options": [
+        {
+          "args": {
+            "name": "LEVEL",
+            "suggestions": [
+              "none",
+              "minimal",
+              "aggressive"
+            ]
+          },
+          "description": "Select the output filter level",
+          "name": [
+            "-l",
+            "--level"
+          ]
+        },
+        {
+          "args": {
+            "name": "MAX_LINES"
+          },
+          "description": "Structural preview capped at N lines",
+          "exclusiveOn": [
+            "--head-lines",
+            "--tail-lines"
+          ],
+          "name": [
+            "-m",
+            "--max-lines"
+          ]
+        },
+        {
+          "args": {
+            "name": "HEAD_LINES"
+          },
+          "description": "Keep only the first N lines",
+          "exclusiveOn": [
+            "--max-lines",
+            "--tail-lines"
+          ],
+          "name": "--head-lines"
+        },
+        {
+          "args": {
+            "name": "TAIL_LINES"
+          },
+          "description": "Keep only last N lines",
+          "exclusiveOn": [
+            "--max-lines",
+            "--head-lines"
+          ],
+          "name": "--tail-lines"
+        },
+        {
+          "description": "Show line numbers",
+          "name": [
+            "-n",
+            "--line-numbers"
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "File to analyze",
+          "name": "FILE",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Show a two-line file summary",
+      "name": "smart",
+      "options": [
+        {
+          "args": {
+            "name": "MODEL",
+            "suggestions": [
+              "heuristic"
+            ]
+          },
+          "description": "Model: heuristic",
+          "name": [
+            "-m",
+            "--model"
+          ]
+        },
+        {
+          "description": "Force model download",
+          "name": "--force-download"
+        }
+      ]
+    },
+    {
+      "description": "Git commands with compact output",
+      "loadSpec": "git",
+      "name": "git",
+      "options": [
+        {
+          "description": "Treat pathspecs as literal paths",
+          "name": "--literal-pathspecs"
+        }
+      ],
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Command to describe",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "COMMAND",
+              "template": "help"
+            }
+          ],
+          "description": "Show help for a command",
+          "name": "help"
+        }
+      ]
+    },
+    {
+      "description": "GitHub CLI commands with token-optimized output",
+      "loadSpec": "gh",
+      "name": "gh"
+    },
+    {
+      "args": [
+        {
+          "description": "GitLab command",
+          "name": "SUBCOMMAND"
+        },
+        {
+          "description": "Arguments to pass to the command",
+          "isOptional": true,
+          "isVariadic": true,
+          "name": "ARGS"
+        }
+      ],
+      "description": "GitLab CLI commands with token-optimized output",
+      "loadSpec": "glab",
+      "name": "glab",
+      "options": [
+        {
+          "args": {
+            "name": "REPO"
+          },
+          "description": "Select a repository",
+          "name": [
+            "-R",
+            "--repo"
+          ]
+        },
+        {
+          "args": {
+            "name": "GROUP"
+          },
+          "description": "Select a group",
+          "name": [
+            "-g",
+            "--group"
+          ]
+        }
+      ],
+      "parserDirectives": {
+        "optionsMustPrecedeArguments": true
+      }
+    },
+    {
+      "description": "AWS CLI with compact output",
+      "loadSpec": "aws",
+      "name": "aws"
+    },
+    {
+      "description": "PostgreSQL client with compact output",
+      "loadSpec": "psql",
+      "name": "psql"
+    },
+    {
+      "description": "pnpm commands with ultra-compact output",
+      "loadSpec": "pnpm",
+      "name": "pnpm",
+      "options": [
+        {
+          "args": {
+            "name": "FILTER"
+          },
+          "description": "Select workspace packages",
+          "isRepeatable": true,
+          "name": [
+            "-F",
+            "--filter"
+          ]
+        },
+        {
+          "description": "Run across workspace packages",
+          "name": [
+            "-r",
+            "--recursive"
+          ]
+        }
+      ],
+      "subcommands": [
+        {
+          "description": "List installed packages",
+          "loadSpec": {
+            "name": "pnpm",
+            "subcommands": [
+              "list"
+            ]
+          },
+          "name": "list",
+          "options": [
+            {
+              "args": {
+                "name": "DEPTH"
+              },
+              "description": "Set the dependency depth",
+              "name": [
+                "-d",
+                "--depth"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Arguments to pass to the command",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "ARGS",
+              "optionsCanBreakVariadicArg": false
+            }
+          ],
+          "description": "Run the typecheck command",
+          "name": "typecheck"
+        },
+        {
+          "args": [
+            {
+              "description": "Command to describe",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "COMMAND",
+              "template": "help"
+            }
+          ],
+          "description": "Show help for a command",
+          "name": "help"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Command to run",
+          "isCommand": true,
+          "name": "COMMAND"
+        },
+        {
+          "description": "Arguments to pass to the command",
+          "isOptional": true,
+          "isVariadic": true,
+          "name": "ARGS"
+        }
+      ],
+      "description": "Run a command and show errors and warnings",
+      "name": "err",
+      "options": [
+        {
+          "args": {
+            "name": "SHELL"
+          },
+          "description": "Execute one quoted command string with this shell instead of direct argv execution",
+          "name": "--shell"
+        }
+      ],
+      "parserDirectives": {
+        "optionsMustPrecedeArguments": true
+      }
+    },
+    {
+      "args": [
+        {
+          "description": "Command to run",
+          "isCommand": true,
+          "isOptional": true,
+          "name": "COMMAND"
+        },
+        {
+          "description": "Arguments to pass to the command",
+          "isOptional": true,
+          "isVariadic": true,
+          "name": "ARGS"
+        }
+      ],
+      "description": "Run tests and show failures",
+      "name": "test",
+      "options": [
+        {
+          "args": {
+            "name": "SHELL"
+          },
+          "description": "Execute one quoted command string with this shell instead of direct argv execution",
+          "name": "--shell"
+        }
+      ],
+      "parserDirectives": {
+        "optionsMustPrecedeArguments": true
+      }
+    },
+    {
+      "args": [
+        {
+          "description": "JSON file",
+          "name": "FILE",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Show compact JSON values or keys",
+      "name": "json",
+      "options": [
+        {
+          "args": {
+            "name": "DEPTH"
+          },
+          "description": "Max depth",
+          "name": [
+            "-d",
+            "--depth"
+          ]
+        },
+        {
+          "description": "Show keys only",
+          "name": "--keys-only"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Project path",
+          "isOptional": true,
+          "name": "PATH",
+          "template": "folders"
+        }
+      ],
+      "description": "Show project dependencies",
+      "name": "deps"
+    },
+    {
+      "description": "Show filtered environment variables",
+      "name": "env",
+      "options": [
+        {
+          "args": {
+            "name": "FILTER"
+          },
+          "description": "Filter by name",
+          "name": [
+            "-f",
+            "--filter"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Find files with compact tree output",
+      "loadSpec": "find",
+      "name": "find"
+    },
+    {
+      "args": [
+        {
+          "description": "First file or - for stdin",
+          "name": "FILE1",
+          "template": "filepaths"
+        },
+        {
+          "description": "Second file",
+          "isOptional": true,
+          "name": "FILE2",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Compare files or filter a diff from stdin",
+      "name": "diff"
+    },
+    {
+      "args": [
+        {
+          "description": "Log file",
+          "isOptional": true,
+          "name": "FILE",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Filter log output and remove repeated lines",
+      "name": "log"
+    },
+    {
+      "description": ".NET commands with compact output",
+      "loadSpec": "dotnet",
+      "name": "dotnet",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Command to describe",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "COMMAND",
+              "template": "help"
+            }
+          ],
+          "description": "Show help for a command",
+          "name": "help"
+        }
+      ]
+    },
+    {
+      "description": "Docker commands with compact output",
+      "loadSpec": "docker",
+      "name": "docker",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Command to describe",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "COMMAND",
+              "template": "help"
+            }
+          ],
+          "description": "Show help for a command",
+          "name": "help"
+        },
+        {
+          "description": "Docker Compose commands with compact output",
+          "loadSpec": "docker-compose",
+          "name": "compose",
+          "subcommands": [
+            {
+              "args": [
+                {
+                  "description": "Command to describe",
+                  "isOptional": true,
+                  "isVariadic": true,
+                  "name": "COMMAND",
+                  "template": "help"
+                }
+              ],
+              "description": "Show help for a command",
+              "name": "help"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Kubectl commands with compact output",
+      "loadSpec": "kubectl",
+      "name": "kubectl",
+      "subcommands": [
+        {
+          "description": "List pods",
+          "name": "pods",
+          "options": [
+            {
+              "args": {
+                "name": "NAMESPACE"
+              },
+              "description": "Select a namespace",
+              "name": [
+                "-n",
+                "--namespace"
+              ]
+            },
+            {
+              "description": "Use all namespaces",
+              "name": [
+                "-A",
+                "--all"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List services",
+          "name": "services",
+          "options": [
+            {
+              "args": {
+                "name": "NAMESPACE"
+              },
+              "description": "Select a namespace",
+              "name": [
+                "-n",
+                "--namespace"
+              ]
+            },
+            {
+              "description": "Use all namespaces",
+              "name": [
+                "-A",
+                "--all"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Command to describe",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "COMMAND",
+              "template": "help"
+            }
+          ],
+          "description": "Show help for a command",
+          "name": "help"
+        }
+      ]
+    },
+    {
+      "description": "OpenShift CLI commands with compact output",
+      "loadSpec": "oc",
+      "name": "oc",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Arguments to pass to the command",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "ARGS",
+              "optionsCanBreakVariadicArg": false
+            }
+          ],
+          "description": "Get OpenShift resources",
+          "name": "get"
+        },
+        {
+          "description": "List pods",
+          "name": "pods",
+          "options": [
+            {
+              "args": {
+                "name": "NAMESPACE"
+              },
+              "description": "Select a namespace",
+              "name": [
+                "-n",
+                "--namespace"
+              ]
+            },
+            {
+              "description": "Use all namespaces",
+              "name": [
+                "-A",
+                "--all"
+              ]
+            }
+          ]
+        },
+        {
+          "description": "List services",
+          "name": "services",
+          "options": [
+            {
+              "args": {
+                "name": "NAMESPACE"
+              },
+              "description": "Select a namespace",
+              "name": [
+                "-n",
+                "--namespace"
+              ]
+            },
+            {
+              "description": "Use all namespaces",
+              "name": [
+                "-A",
+                "--all"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Pod name",
+              "name": "POD"
+            }
+          ],
+          "description": "Show pod logs",
+          "name": "logs",
+          "options": [
+            {
+              "args": {
+                "name": "CONTAINER"
+              },
+              "description": "Select a container",
+              "name": [
+                "-c",
+                "--container"
+              ]
+            }
+          ]
+        },
+        {
+          "args": [
+            {
+              "description": "Command to describe",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "COMMAND",
+              "template": "help"
+            }
+          ],
+          "description": "Show help for a command",
+          "name": "help"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Command to run",
+          "isCommand": true,
+          "name": "COMMAND"
+        },
+        {
+          "description": "Arguments to pass to the command",
+          "isOptional": true,
+          "isVariadic": true,
+          "name": "ARGS"
+        }
+      ],
+      "description": "Run a command and summarize its output",
+      "name": "summary",
+      "options": [
+        {
+          "args": {
+            "name": "SHELL"
+          },
+          "description": "Execute one quoted command string with this shell instead of direct argv execution",
+          "name": "--shell"
+        }
+      ],
+      "parserDirectives": {
+        "optionsMustPrecedeArguments": true
+      }
+    },
+    {
+      "description": "Compact grep - strips whitespace",
+      "loadSpec": "grep",
+      "name": "grep",
+      "options": [
+        {
+          "args": {
+            "name": "MAX_LEN"
+          },
+          "description": "Limit the length of each output line",
+          "name": "--max-len"
+        },
+        {
+          "args": {
+            "name": "MAX"
+          },
+          "description": "Limit the number of output results",
+          "name": "--max"
+        },
+        {
+          "description": "Show only the match context",
+          "name": "--context-only"
+        }
+      ]
+    },
+    {
+      "description": "Compact ripgrep - runs rg natively",
+      "loadSpec": "rg",
+      "name": "rg"
+    },
+    {
+      "description": "Compact ast-grep - runs ast-grep natively",
+      "loadSpec": "ast-grep",
+      "name": "ast-grep"
+    },
+    {
+      "description": "Install RTK integration for an assistant",
+      "name": "init",
+      "options": [
+        {
+          "description": "Add to global assistant config directory instead of local project file",
+          "name": [
+            "-g",
+            "--global"
+          ]
+        },
+        {
+          "description": "Install OpenCode plugin",
+          "name": "--opencode"
+        },
+        {
+          "description": "Initialize for Gemini CLI instead of Claude Code",
+          "name": "--gemini"
+        },
+        {
+          "args": {
+            "name": "AGENT",
+            "suggestions": [
+              "claude",
+              "cursor",
+              "trae",
+              "windsurf",
+              "cline",
+              "kilocode",
+              "antigravity",
+              "kimi",
+              "pi",
+              "hermes",
+              "droid",
+              "vibe",
+              "omp"
+            ]
+          },
+          "description": "Target agent to install hooks for",
+          "name": "--agent"
+        },
+        {
+          "description": "Show current configuration",
+          "name": "--show"
+        },
+        {
+          "description": "Inject full instructions into CLAUDE.md",
+          "name": "--claude-md"
+        },
+        {
+          "description": "Hook only",
+          "name": "--hook-only"
+        },
+        {
+          "description": "Apply supported init changes without prompting",
+          "name": "--auto-patch"
+        },
+        {
+          "description": "Skip optional init prompts and leave protected content unchanged",
+          "name": "--no-patch"
+        },
+        {
+          "description": "Trust and enable detected custom filters without prompting",
+          "name": "--trust-filters"
+        },
+        {
+          "description": "Leave detected custom filters disabled without prompting",
+          "name": "--no-trust-filters"
+        },
+        {
+          "description": "Remove RTK artifacts for the selected assistant mode",
+          "name": "--uninstall"
+        },
+        {
+          "description": "Target Codex CLI",
+          "name": "--codex"
+        },
+        {
+          "description": "Install GitHub Copilot integration",
+          "name": "--copilot"
+        },
+        {
+          "description": "Preview changes without writing any files",
+          "name": "--dry-run"
+        }
+      ]
+    },
+    {
+      "description": "Download with compact output",
+      "loadSpec": "wget",
+      "name": "wget",
+      "options": [
+        {
+          "args": {
+            "name": "OUTPUT",
+            "suggestions": [
+              "-"
+            ],
+            "template": "filepaths"
+          },
+          "description": "Write output to a file or standard output",
+          "name": [
+            "-O",
+            "--output-document"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Word/line/byte count with compact output",
+      "loadSpec": "wc",
+      "name": "wc"
+    },
+    {
+      "description": "Show token savings and command history",
+      "name": "gain",
+      "options": [
+        {
+          "description": "Filter statistics to current project",
+          "name": [
+            "-p",
+            "--project"
+          ]
+        },
+        {
+          "description": "Show ASCII graph of daily savings",
+          "name": [
+            "-g",
+            "--graph"
+          ]
+        },
+        {
+          "description": "Show recent command history",
+          "name": [
+            "-H",
+            "--history"
+          ]
+        },
+        {
+          "description": "Show monthly quota savings estimate",
+          "name": [
+            "-q",
+            "--quota"
+          ]
+        },
+        {
+          "args": {
+            "name": "TIER",
+            "suggestions": [
+              "pro",
+              "5x",
+              "20x"
+            ]
+          },
+          "description": "Select the subscription tier for quota calculation",
+          "name": [
+            "-t",
+            "--tier"
+          ]
+        },
+        {
+          "description": "Show detailed daily breakdown",
+          "name": [
+            "-d",
+            "--daily"
+          ]
+        },
+        {
+          "description": "Show weekly breakdown",
+          "name": [
+            "-w",
+            "--weekly"
+          ]
+        },
+        {
+          "description": "Show monthly breakdown",
+          "name": [
+            "-m",
+            "--monthly"
+          ]
+        },
+        {
+          "description": "Show all time breakdowns",
+          "name": [
+            "-a",
+            "--all"
+          ]
+        },
+        {
+          "args": {
+            "name": "FORMAT",
+            "suggestions": [
+              "text",
+              "json",
+              "csv"
+            ]
+          },
+          "description": "Select the output format",
+          "name": [
+            "-f",
+            "--format"
+          ]
+        },
+        {
+          "description": "Show parse failure log",
+          "name": [
+            "-F",
+            "--failures"
+          ]
+        },
+        {
+          "description": "Show recall efficiency per filter",
+          "name": "--recalls"
+        },
+        {
+          "description": "Reset token savings and recall stats to zero",
+          "name": "--reset"
+        },
+        {
+          "description": "Skip confirmation prompt when resetting",
+          "name": "--yes"
+        }
+      ]
+    },
+    {
+      "description": "Compare Claude Code spending with RTK savings",
+      "name": "cc-economics",
+      "options": [
+        {
+          "description": "Show detailed daily breakdown",
+          "name": [
+            "-d",
+            "--daily"
+          ]
+        },
+        {
+          "description": "Show weekly breakdown",
+          "name": [
+            "-w",
+            "--weekly"
+          ]
+        },
+        {
+          "description": "Show monthly breakdown",
+          "name": [
+            "-m",
+            "--monthly"
+          ]
+        },
+        {
+          "description": "Show all time breakdowns",
+          "name": [
+            "-a",
+            "--all"
+          ]
+        },
+        {
+          "args": {
+            "name": "FORMAT",
+            "suggestions": [
+              "text",
+              "json",
+              "csv"
+            ]
+          },
+          "description": "Select the output format",
+          "name": [
+            "-f",
+            "--format"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Show or change RTK configuration",
+      "name": "config",
+      "options": [
+        {
+          "description": "Create default config file",
+          "name": "--create"
+        }
+      ],
+      "requiresSubcommand": false,
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "New mode",
+              "isOptional": true,
+              "name": "MODE",
+              "suggestions": [
+                "sqlite",
+                "tee",
+                "disabled"
+              ]
+            }
+          ],
+          "description": "Show or set the recovery mode",
+          "name": "recall"
+        }
+      ]
+    },
+    {
+      "description": "Jest commands with compact output",
+      "loadSpec": "jest",
+      "name": "jest"
+    },
+    {
+      "description": "Vitest commands with compact output",
+      "loadSpec": "vitest",
+      "name": "vitest"
+    },
+    {
+      "description": "CTest with compact output",
+      "loadSpec": "ctest",
+      "name": "ctest"
+    },
+    {
+      "description": "Prisma commands with compact output",
+      "loadSpec": "prisma",
+      "name": "prisma",
+      "subcommands": [
+        {
+          "description": "Manage migrations",
+          "loadSpec": {
+            "name": "prisma",
+            "subcommands": [
+              "migrate"
+            ]
+          },
+          "name": "migrate",
+          "subcommands": [
+            {
+              "args": [
+                {
+                  "description": "Command to describe",
+                  "isOptional": true,
+                  "isVariadic": true,
+                  "name": "COMMAND",
+                  "template": "help"
+                }
+              ],
+              "description": "Show help for a command",
+              "name": "help"
+            }
+          ]
+        },
+        {
+          "description": "Push the schema to the database",
+          "loadSpec": {
+            "name": "prisma",
+            "subcommands": [
+              "db",
+              "push"
+            ]
+          },
+          "name": "db-push"
+        },
+        {
+          "args": [
+            {
+              "description": "Command to describe",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "COMMAND",
+              "template": "help"
+            }
+          ],
+          "description": "Show help for a command",
+          "name": "help"
+        }
+      ]
+    },
+    {
+      "description": "TypeScript compiler with grouped error output",
+      "loadSpec": "tsc",
+      "name": "tsc"
+    },
+    {
+      "description": "Next.js build with compact output",
+      "loadSpec": {
+        "name": "next",
+        "subcommands": [
+          "build"
+        ]
+      },
+      "name": "next"
+    },
+    {
+      "description": "ESLint with grouped rule violations",
+      "loadSpec": "eslint",
+      "name": "lint"
+    },
+    {
+      "description": "Prettier format checker with compact output",
+      "loadSpec": "prettier",
+      "name": "prettier"
+    },
+    {
+      "args": [
+        {
+          "description": "Formatter arguments",
+          "isOptional": true,
+          "isVariadic": true,
+          "name": "ARGS",
+          "template": "filepaths"
+        }
+      ],
+      "description": "Check formatting with the project formatter",
+      "name": "format"
+    },
+    {
+      "description": "Playwright E2E tests with compact output",
+      "loadSpec": "playwright",
+      "name": "playwright"
+    },
+    {
+      "description": "Cargo commands with compact output",
+      "loadSpec": "cargo",
+      "name": "cargo",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Arguments to pass to the command",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "ARGS",
+              "optionsCanBreakVariadicArg": false
+            }
+          ],
+          "description": "Run Clippy with compact output",
+          "name": "clippy"
+        },
+        {
+          "args": [
+            {
+              "description": "Arguments to pass to the command",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "ARGS",
+              "optionsCanBreakVariadicArg": false
+            }
+          ],
+          "description": "Run Nextest with compact output",
+          "name": "nextest"
+        }
+      ]
+    },
+    {
+      "description": "npm run with filtered output",
+      "loadSpec": {
+        "name": "npm",
+        "subcommands": [
+          "run"
+        ]
+      },
+      "name": "npm"
+    },
+    {
+      "description": "npx with intelligent routing",
+      "loadSpec": "npx",
+      "name": "npx"
+    },
+    {
+      "description": "Bun runtime commands with compact output",
+      "loadSpec": "bun",
+      "name": "bun",
+      "subcommands": [
+        {
+          "description": "Bun package manager commands",
+          "loadSpec": {
+            "name": "bun",
+            "subcommands": [
+              "pm"
+            ]
+          },
+          "name": "pm",
+          "subcommands": [
+            {
+              "args": [
+                {
+                  "description": "Command to describe",
+                  "isOptional": true,
+                  "isVariadic": true,
+                  "name": "COMMAND",
+                  "template": "help"
+                }
+              ],
+              "description": "Show help for a command",
+              "name": "help"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "bunx with passthrough + auto-filter",
+      "loadSpec": "bunx",
+      "name": "bunx"
+    },
+    {
+      "description": "Curl with auto-JSON detection and schema output",
+      "loadSpec": "curl",
+      "name": "curl"
+    },
+    {
+      "description": "Find commands that could save tokens with RTK",
+      "name": "discover",
+      "options": [
+        {
+          "args": {
+            "name": "PROJECT"
+          },
+          "description": "Filter by project path",
+          "name": [
+            "-p",
+            "--project"
+          ]
+        },
+        {
+          "args": {
+            "name": "LIMIT"
+          },
+          "description": "Max commands per section",
+          "name": [
+            "-l",
+            "--limit"
+          ]
+        },
+        {
+          "description": "Scan all projects",
+          "name": [
+            "-a",
+            "--all"
+          ]
+        },
+        {
+          "args": {
+            "name": "SINCE"
+          },
+          "description": "Limit to sessions from last N days",
+          "name": [
+            "-s",
+            "--since"
+          ]
+        },
+        {
+          "args": {
+            "name": "FORMAT",
+            "suggestions": [
+              "text",
+              "json"
+            ]
+          },
+          "description": "Select the output format",
+          "name": [
+            "-f",
+            "--format"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Show RTK use across assistant sessions",
+      "name": "session"
+    },
+    {
+      "description": "Manage telemetry consent and data",
+      "name": "telemetry",
+      "requiresSubcommand": true,
+      "subcommands": [
+        {
+          "description": "Show telemetry consent",
+          "name": "status"
+        },
+        {
+          "description": "Enable telemetry",
+          "name": "enable"
+        },
+        {
+          "description": "Disable telemetry",
+          "name": "disable"
+        },
+        {
+          "description": "Delete stored telemetry data",
+          "name": "forget"
+        }
+      ]
+    },
+    {
+      "description": "Find command corrections in assistant history",
+      "name": "learn",
+      "options": [
+        {
+          "args": {
+            "name": "PROJECT"
+          },
+          "description": "Filter by project path",
+          "name": [
+            "-p",
+            "--project"
+          ]
+        },
+        {
+          "description": "Scan all projects",
+          "name": [
+            "-a",
+            "--all"
+          ]
+        },
+        {
+          "args": {
+            "name": "SINCE"
+          },
+          "description": "Limit to sessions from last N days",
+          "name": [
+            "-s",
+            "--since"
+          ]
+        },
+        {
+          "args": {
+            "name": "FORMAT",
+            "suggestions": [
+              "text",
+              "json"
+            ]
+          },
+          "description": "Select the output format",
+          "name": [
+            "-f",
+            "--format"
+          ]
+        },
+        {
+          "description": "Generate .claude/rules/cli-corrections.md file",
+          "name": [
+            "-w",
+            "--write-rules"
+          ]
+        },
+        {
+          "args": {
+            "name": "MIN_CONFIDENCE"
+          },
+          "description": "Minimum confidence threshold",
+          "name": "--min-confidence"
+        },
+        {
+          "args": {
+            "name": "MIN_OCCURRENCES"
+          },
+          "description": "Minimum occurrences to include in report",
+          "name": "--min-occurrences"
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Command to run",
+          "isCommand": true,
+          "isOptional": true,
+          "name": "COMMAND"
+        },
+        {
+          "description": "Arguments to pass to the command",
+          "isOptional": true,
+          "isVariadic": true,
+          "name": "ARGS"
+        }
+      ],
+      "description": "Run a program or an explicit shell command",
+      "name": "run",
+      "options": [
+        {
+          "args": {
+            "name": "COMMAND"
+          },
+          "description": "Command string to execute through a shell",
+          "name": [
+            "-c",
+            "--command"
+          ]
+        },
+        {
+          "args": {
+            "name": "SHELL"
+          },
+          "description": "Shell used with -c",
+          "name": "--shell"
+        }
+      ],
+      "parserDirectives": {
+        "optionsMustPrecedeArguments": true
+      }
+    },
+    {
+      "args": [
+        {
+          "description": "Command to run",
+          "isCommand": true,
+          "isOptional": true,
+          "name": "COMMAND"
+        },
+        {
+          "description": "Arguments to pass to the command",
+          "isOptional": true,
+          "isVariadic": true,
+          "name": "ARGS"
+        }
+      ],
+      "description": "Run a command without filtering and record its use",
+      "name": "proxy",
+      "parserDirectives": {
+        "optionsMustPrecedeArguments": true
+      }
+    },
+    {
+      "args": [
+        {
+          "description": "Hash from a recovery hint",
+          "isOptional": true,
+          "name": "HASH"
+        }
+      ],
+      "description": "Read output that a filter omitted",
+      "name": "recall",
+      "options": [
+        {
+          "description": "Return the complete output",
+          "name": "--full"
+        },
+        {
+          "args": {
+            "name": "FROM"
+          },
+          "description": "Start from this 1-based line of the full output",
+          "name": "--from"
+        },
+        {
+          "args": {
+            "name": "LINES"
+          },
+          "description": "Return only the first N lines of the full output",
+          "name": "--lines"
+        },
+        {
+          "args": {
+            "name": "GREP"
+          },
+          "description": "Filter recalled lines by regex",
+          "name": "--grep"
+        },
+        {
+          "description": "List stored entries",
+          "name": "--list"
+        }
+      ]
+    },
+    {
+      "description": "Filter input from stdin",
+      "name": "pipe",
+      "options": [
+        {
+          "args": {
+            "name": "FILTER"
+          },
+          "description": "Filter name",
+          "name": [
+            "-f",
+            "--filter"
+          ]
+        },
+        {
+          "description": "Pass stdin through without filtering",
+          "name": "--passthrough"
+        }
+      ]
+    },
+    {
+      "description": "Trust filter files in the current project",
+      "name": "trust",
+      "options": [
+        {
+          "description": "List all trusted filter files",
+          "name": "--list"
+        },
+        {
+          "description": "Trust without prompting",
+          "name": [
+            "-y",
+            "--yes"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Remove trust for filter files in the current project",
+      "name": "untrust"
+    },
+    {
+      "description": "Check hooks and test filter definitions",
+      "name": "verify",
+      "options": [
+        {
+          "args": {
+            "name": "FILTER"
+          },
+          "description": "Run tests only for this filter name",
+          "name": "--filter"
+        },
+        {
+          "description": "Fail if any filter has no inline tests",
+          "name": "--require-all"
+        }
+      ]
+    },
+    {
+      "description": "Ruff linter/formatter with compact output",
+      "loadSpec": "ruff",
+      "name": "ruff"
+    },
+    {
+      "description": "SQLFluff SQL linter with compact output",
+      "loadSpec": "sqlfluff",
+      "name": "sqlfluff"
+    },
+    {
+      "description": "Pytest test runner with compact output",
+      "loadSpec": "pytest",
+      "name": "pytest"
+    },
+    {
+      "description": "Mypy type checker with grouped error output",
+      "loadSpec": "mypy",
+      "name": "mypy"
+    },
+    {
+      "description": "PHP command runner with compact output for artisan and syntax checks",
+      "loadSpec": "php",
+      "name": "php"
+    },
+    {
+      "description": "PHPUnit test runner with compact output",
+      "loadSpec": "phpunit",
+      "name": "phpunit"
+    },
+    {
+      "description": "PHPStan analyzer with compact output",
+      "loadSpec": "phpstan",
+      "name": "phpstan"
+    },
+    {
+      "description": "Pest test runner with compact output",
+      "loadSpec": "pest",
+      "name": "pest"
+    },
+    {
+      "description": "ParaTest parallel test runner with compact output",
+      "loadSpec": "paratest",
+      "name": "paratest"
+    },
+    {
+      "description": "EasyCodingStandard code style fixer with compact output",
+      "loadSpec": "ecs",
+      "name": "ecs"
+    },
+    {
+      "description": "Laravel Pint code style fixer with compact output",
+      "loadSpec": "pint",
+      "name": "pint"
+    },
+    {
+      "description": "PHP run-tests.php with compact summary and failure diffs",
+      "loadSpec": "phpt",
+      "name": "phpt"
+    },
+    {
+      "description": "Rake/Rails test with compact Minitest output",
+      "loadSpec": "rake",
+      "name": "rake"
+    },
+    {
+      "description": "RuboCop linter with compact output",
+      "loadSpec": "rubocop",
+      "name": "rubocop"
+    },
+    {
+      "description": "RSpec test runner with compact output",
+      "loadSpec": "rspec",
+      "name": "rspec"
+    },
+    {
+      "description": "Pip package manager with compact output",
+      "loadSpec": "pip",
+      "name": "pip"
+    },
+    {
+      "description": "uv run with compact output while preserving uv-managed environment semantics",
+      "loadSpec": "uv",
+      "name": "uv"
+    },
+    {
+      "description": "Deno runtime commands with compact output",
+      "loadSpec": "deno",
+      "name": "deno"
+    },
+    {
+      "description": "Go commands with compact output",
+      "loadSpec": "go",
+      "name": "go",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Command to describe",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "COMMAND",
+              "template": "help"
+            }
+          ],
+          "description": "Show help for a command",
+          "name": "help"
+        }
+      ]
+    },
+    {
+      "description": "SBT commands with compact output",
+      "loadSpec": "sbt",
+      "name": "sbt",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Arguments to pass to the command",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "ARGS",
+              "optionsCanBreakVariadicArg": false
+            }
+          ],
+          "description": "Run tests with compact output",
+          "name": "test"
+        },
+        {
+          "args": [
+            {
+              "description": "Arguments to pass to the command",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "ARGS",
+              "optionsCanBreakVariadicArg": false
+            }
+          ],
+          "description": "Compile with compact output",
+          "name": "compile"
+        },
+        {
+          "args": [
+            {
+              "description": "Arguments to pass to the command",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "ARGS",
+              "optionsCanBreakVariadicArg": false
+            }
+          ],
+          "description": "Run the application with compact output",
+          "name": "run"
+        },
+        {
+          "args": [
+            {
+              "description": "Command to describe",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "COMMAND",
+              "template": "help"
+            }
+          ],
+          "description": "Show help for a command",
+          "name": "help"
+        }
+      ]
+    },
+    {
+      "description": "Graphite stacked PR commands with compact output",
+      "loadSpec": "gt",
+      "name": "gt",
+      "subcommands": [
+        {
+          "args": [
+            {
+              "description": "Arguments to pass to the command",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "ARGS",
+              "optionsCanBreakVariadicArg": false
+            }
+          ],
+          "description": "Show or manage branches",
+          "name": "branch"
+        },
+        {
+          "args": [
+            {
+              "description": "Command to describe",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "COMMAND",
+              "template": "help"
+            }
+          ],
+          "description": "Show help for a command",
+          "name": "help"
+        }
+      ]
+    },
+    {
+      "description": "golangci-lint wrapper with compact `run` support and passthrough for other invocations",
+      "loadSpec": "golangci-lint",
+      "name": "golangci-lint"
+    },
+    {
+      "description": "Android Gradle wrapper with compact output",
+      "loadSpec": "gradle",
+      "name": "gradlew"
+    },
+    {
+      "description": "Apache Maven wrapper with compact output",
+      "loadSpec": "mvn",
+      "name": "mvn"
+    },
+    {
+      "description": "Maven Daemon with compact output",
+      "loadSpec": "mvn",
+      "name": "mvnd"
+    },
+    {
+      "description": "Show command rewrite statistics",
+      "name": "hook-audit",
+      "options": [
+        {
+          "args": {
+            "name": "SINCE"
+          },
+          "description": "Show entries from last N days",
+          "name": [
+            "-s",
+            "--since"
+          ]
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Command to convert",
+          "isCommand": true,
+          "isOptional": true,
+          "name": "COMMAND"
+        },
+        {
+          "description": "Arguments to pass to the command",
+          "isOptional": true,
+          "isVariadic": true,
+          "name": "ARGS"
+        }
+      ],
+      "description": "Convert a command to its RTK equivalent",
+      "name": "rewrite",
+      "parserDirectives": {
+        "optionsMustPrecedeArguments": true
+      }
+    },
+    {
+      "description": "Process assistant hooks",
+      "name": "hook",
+      "requiresSubcommand": true,
+      "subcommands": [
+        {
+          "description": "Process Claude Code PreToolUse hook",
+          "name": "claude"
+        },
+        {
+          "description": "Process Trae PreToolUse hook",
+          "name": "trae"
+        },
+        {
+          "description": "Process Codex CLI PreToolUse hook",
+          "name": "codex"
+        },
+        {
+          "description": "Process Cursor Agent hook",
+          "name": "cursor"
+        },
+        {
+          "description": "Process Gemini CLI BeforeTool hook",
+          "name": "gemini"
+        },
+        {
+          "description": "Process Copilot preToolUse hook",
+          "name": "copilot"
+        },
+        {
+          "description": "Process Factory Droid PreToolUse hook",
+          "name": "droid"
+        },
+        {
+          "description": "Process Google Antigravity PreToolUse hook",
+          "name": "antigravity"
+        },
+        {
+          "description": "Process Mistral Vibe CLI pre_tool hook",
+          "name": "vibe"
+        },
+        {
+          "args": [
+            {
+              "description": "Command to check",
+              "isCommand": true,
+              "isOptional": true,
+              "name": "COMMAND"
+            },
+            {
+              "description": "Arguments to pass to the command",
+              "isOptional": true,
+              "isVariadic": true,
+              "name": "ARGS"
+            }
+          ],
+          "description": "Check how a command would be rewritten by the hook engine",
+          "name": "check",
+          "options": [
+            {
+              "args": {
+                "name": "AGENT",
+                "suggestions": [
+                  "claude",
+                  "trae",
+                  "codex",
+                  "cursor",
+                  "gemini",
+                  "copilot",
+                  "droid",
+                  "antigravity",
+                  "vibe"
+                ]
+              },
+              "description": "Target agent",
+              "name": "--agent"
+            }
+          ],
+          "parserDirectives": {
+            "optionsMustPrecedeArguments": true
+          }
+        }
+      ]
+    },
+    {
+      "args": [
+        {
+          "description": "Print help for the subcommand",
+          "isOptional": true,
+          "isVariadic": true,
+          "name": "COMMAND",
+          "template": "help"
+        }
+      ],
+      "description": "Show help for a command",
+      "name": "help"
+    }
+  ]
+}
