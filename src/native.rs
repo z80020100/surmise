@@ -33,10 +33,11 @@ use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, Seek, SeekFrom};
 use std::os::unix::fs::OpenOptionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::time::SystemTime;
 
 /// One reader and the argument it answers for.
 ///
@@ -75,17 +76,24 @@ struct Reader {
 
 /// One name a reader found. `label` is what the row says of itself where
 /// the reader's own label would say less. A script's body is the case.
+/// `insert` is what goes on the line where the name is not. A Claude
+/// session shows its title and goes in by its id.
 #[derive(Clone)]
 struct Found {
     name: String,
     label: Option<Cow<'static, str>>,
+    insert: Option<String>,
 }
 
 /// Names that say nothing of themselves beyond the reader's own label.
 fn unlabelled(names: Vec<String>) -> Vec<Found> {
     names
         .into_iter()
-        .map(|name| Found { name, label: None })
+        .map(|name| Found {
+            name,
+            label: None,
+            insert: None,
+        })
         .collect()
 }
 
@@ -230,6 +238,13 @@ static READERS: &[Reader] = &[
         arg: "",
         label: "service",
         read: brew_services,
+    },
+    Reader {
+        command: "claude",
+        owners: &["claude"],
+        arg: "session",
+        label: "session",
+        read: claude_sessions,
     },
 ];
 
@@ -782,6 +797,7 @@ fn oneline(out: &str) -> Vec<Found> {
             (!hash.is_empty()).then(|| Found {
                 name: hash.to_string(),
                 label: (!subject.is_empty()).then(|| Cow::Owned(subject.to_string())),
+                insert: None,
             })
         })
         .collect()
@@ -813,6 +829,7 @@ fn remotes(out: &str) -> Vec<Found> {
             seen.insert(name.to_string()).then(|| Found {
                 name: name.to_string(),
                 label: (!url.is_empty()).then(|| Cow::Owned(url.to_string())),
+                insert: None,
             })
         })
         .collect()
@@ -841,6 +858,7 @@ fn aliases(out: &str) -> Vec<Found> {
             Some(Found {
                 name: name.to_string(),
                 label: (!value.is_empty()).then(|| Cow::Owned(value.to_string())),
+                insert: None,
             })
         })
         .collect()
@@ -877,6 +895,7 @@ fn json_lines(out: &str, name: &str, about: &str) -> Vec<Found> {
             Some(Found {
                 name: found.to_string(),
                 label: text_field(&object, about).map(|t| Cow::Owned(t.to_string())),
+                insert: None,
             })
         })
         .collect()
@@ -915,6 +934,7 @@ fn containers(out: &str) -> Vec<Found> {
             Some(Found {
                 name: name.to_string(),
                 label: Some(Cow::Owned(format!("{image} {status}").trim().to_string())),
+                insert: None,
             })
         })
         .collect()
@@ -942,6 +962,7 @@ fn image(repository: &str, tag: &str, size: Option<&str>) -> Option<Found> {
     Some(Found {
         name: format!("{repository}:{tag}"),
         label: size.map(|size| Cow::Owned(size.to_string())),
+        insert: None,
     })
 }
 
@@ -958,6 +979,7 @@ fn named_lines(out: &str) -> Vec<Found> {
             Some(Found {
                 name: name.to_string(),
                 label: Some(Cow::Owned(rest.to_string())),
+                insert: None,
             })
         })
         .collect()
@@ -984,6 +1006,7 @@ fn multipass_instances(out: &str) -> Vec<Found> {
             Some(Found {
                 name: name.to_string(),
                 label: (!about.is_empty()).then_some(Cow::Owned(about)),
+                insert: None,
             })
         })
         .collect()
@@ -1060,6 +1083,7 @@ fn network_services(out: &str) -> Vec<Found> {
             Some(name) => Found {
                 name: name.to_string(),
                 label: Some(Cow::Borrowed("disabled network service")),
+                insert: None,
             },
             None => name_only(line),
         })
@@ -1099,6 +1123,7 @@ fn name_only(name: &str) -> Found {
     Found {
         name: name.to_string(),
         label: None,
+        insert: None,
     }
 }
 
@@ -1106,6 +1131,7 @@ fn labelled(name: &str, label: String) -> Found {
     Found {
         name: name.to_string(),
         label: Some(Cow::Owned(label)),
+        insert: None,
     }
 }
 
@@ -1131,6 +1157,9 @@ struct Sources<'a> {
     path: &'a OsStr,
     /// Where an Intel Mac keeps Homebrew. `brew` looks at the `brew` there.
     usr_local: &'a Path,
+    /// Where Claude Code keeps its sessions. `None` means there is nowhere
+    /// to look and [`claude_config`] says when.
+    claude_config: Option<&'a Path>,
 }
 
 const SYSTEM_SSH_CONFIG: &str = "/etc/ssh/ssh_config";
@@ -1186,6 +1215,7 @@ fn read(reader: &Reader, cwd: &Path, line: &[&str]) -> Vec<Found> {
         &home,
     );
     let path = std::env::var_os("PATH").unwrap_or_default();
+    let claude_config = claude_config(var("CLAUDE_CONFIG_DIR"), &home);
     let sources = Sources {
         cwd,
         line,
@@ -1194,6 +1224,7 @@ fn read(reader: &Reader, cwd: &Path, line: &[&str]) -> Vec<Found> {
         homebrew_cache: homebrew_cache.as_deref(),
         path: &path,
         usr_local: Path::new(USR_LOCAL),
+        claude_config: claude_config.as_deref(),
     };
     (reader.read)(&sources)
 }
@@ -1212,7 +1243,8 @@ fn to_rows<'a>(
     term: &str,
 ) -> Vec<Candidate> {
     found
-        .filter_map(|Found { name, label: own }| {
+        .filter_map(|found| {
+            let name = &found.name;
             // The row would show such a name with the character stripped and
             // insert it whole. An empty one inserts nothing. Git's own readers
             // leave both out too.
@@ -1222,13 +1254,13 @@ fn to_rows<'a>(
             let score = fuzzy::score(term, name)?;
             Some(Candidate {
                 display: name.clone(),
-                insert: name.clone(),
+                insert: found.insert.clone().unwrap_or_else(|| name.clone()),
                 // A target and a host are both flat values rather than paths
                 // on disk, which is what `spec_menu` already gives a
                 // specification's own fixed suggestions: no folder glyph, no
                 // trailing slash and plain shell quoting.
                 kind: Kind::Path,
-                label: own.clone().unwrap_or(Cow::Borrowed(label)),
+                label: found.label.clone().unwrap_or(Cow::Borrowed(label)),
                 hint: Vec::new(),
                 score,
                 priority: DEFAULT_PRIORITY,
@@ -1251,6 +1283,16 @@ const READ_LIMIT: u64 = 64 * 1024;
 /// file that is absent, that will not read or that is not a regular one.
 /// [`crate::path::regular`] says why.
 fn read_capped(path: &Path, limit: u64) -> Option<(Vec<u8>, bool)> {
+    let file = open_regular(path)?;
+    let mut bytes = Vec::new();
+    let mut capped = file.take(limit);
+    capped.read_to_end(&mut bytes).ok()?;
+    let more = capped.into_inner().metadata().ok()?.len() > bytes.len() as u64;
+    Some((bytes, more))
+}
+
+/// `path` open for reading, or `None` where [`read_capped`] would give none.
+fn open_regular(path: &Path) -> Option<File> {
     crate::path::regular(path).ok()?;
     // A FIFO that took the file's place since the check above would hold a
     // plain open until somebody wrote to it. `O_NONBLOCK` returns at once and
@@ -1260,14 +1302,7 @@ fn read_capped(path: &Path, limit: u64) -> Option<(Vec<u8>, bool)> {
         .custom_flags(libc::O_NONBLOCK)
         .open(path)
         .ok()?;
-    if !file.metadata().ok()?.is_file() {
-        return None;
-    }
-    let mut bytes = Vec::new();
-    let mut capped = file.take(limit);
-    capped.read_to_end(&mut bytes).ok()?;
-    let more = capped.into_inner().metadata().ok()?.len() > bytes.len() as u64;
-    Some((bytes, more))
+    file.metadata().ok()?.is_file().then_some(file)
 }
 
 /// The first `limit` bytes of `path`, as whole lines. A read that stops
@@ -1545,6 +1580,7 @@ fn rush_projects(sources: &Sources) -> Vec<Found> {
                 label: project["projectFolder"]
                     .as_str()
                     .map(|folder| Cow::Owned(folder.to_string())),
+                insert: None,
             })
         })
         .collect()
@@ -1597,6 +1633,7 @@ fn npm_scripts(sources: &Sources) -> Vec<Found> {
             Some(Found {
                 name: name.clone(),
                 label: Some(Cow::Owned(body.as_str()?.to_string())),
+                insert: None,
             })
         })
         .collect()
@@ -1633,6 +1670,7 @@ fn npm_dependencies(sources: &Sources) -> Vec<Found> {
                 out.push(Found {
                     name: name.clone(),
                     label: Some(Cow::Borrowed(label)),
+                    insert: None,
                 });
             }
         }
@@ -1904,6 +1942,7 @@ fn brew_names(sources: &Sources) -> Vec<Found> {
         .map(|(name, label)| Found {
             name,
             label: Some(label),
+            insert: None,
         })
         .collect()
 }
@@ -1975,6 +2014,7 @@ fn brew_installed(sources: &Sources) -> Vec<Found> {
         .map(|(name, label)| Found {
             name,
             label: Some(Cow::Borrowed(label)),
+            insert: None,
         })
         .collect()
 }
@@ -2045,6 +2085,228 @@ fn subdirs(dir: &Path) -> Vec<String> {
     names
 }
 
+/// Where Claude Code keeps its state. `$CLAUDE_CONFIG_DIR` moves it and
+/// `~/.claude` is where it is otherwise. A relative home names nowhere.
+fn claude_config(dir: Option<PathBuf>, home: &Path) -> Option<PathBuf> {
+    dir.filter(|dir| !dir.as_os_str().is_empty())
+        .or_else(|| home.is_absolute().then(|| home.join(".claude")))
+}
+
+/// The sessions Claude Code keeps for the line's directory, the newest
+/// first. Each shows the title Claude's own picker shows and goes in by its
+/// id. `--resume` also takes a title. Several sessions can share one and
+/// Claude then opens its picker rather than resume any of them.
+///
+/// The picker reads the first and the last 64 KiB of each file and so does
+/// this. A title the person gave with `/rename` leads. The one Claude wrote
+/// itself follows and the first prompt is what is left. A session `claude
+/// -p` or the SDK started is not in the picker and is not here either.
+fn claude_sessions(sources: &Sources) -> Vec<Found> {
+    let (Some(config), Some(cwd)) = (sources.claude_config, sources.cwd.to_str()) else {
+        return Vec::new();
+    };
+    let dir = config.join("projects").join(claude_project(cwd));
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut sessions: Vec<(SystemTime, Found)> = entries
+        .flatten()
+        .filter_map(|entry| {
+            let file = entry.file_name();
+            let id = file.to_str()?.strip_suffix(".jsonl")?;
+            if !is_uuid(id) {
+                return None;
+            }
+            let (head, tail, modified) = read_ends(&entry.path(), READ_LIMIT)?;
+            let found = Found {
+                name: claude_title(&head, &tail)?,
+                label: Some(Cow::Owned(id[..8].to_string())),
+                insert: Some(id.to_string()),
+            };
+            Some((modified, found))
+        })
+        .collect();
+    sessions.sort_by_key(|(modified, _)| std::cmp::Reverse(*modified));
+    sessions.into_iter().map(|(_, found)| found).collect()
+}
+
+/// How long a directory name Claude Code gives a project before it cuts it.
+const CLAUDE_PROJECT_LIMIT: usize = 200;
+
+/// The directory Claude Code keeps `cwd`'s sessions in. Every UTF-16 unit
+/// but an ASCII letter or digit becomes `-`. A longer name is cut and ends
+/// in Claude's own hash of the whole path. That hash is JavaScript's
+/// `(h << 5) - h + unit` in 32 bits and then base 36.
+fn claude_project(cwd: &str) -> String {
+    let name: String = cwd
+        .encode_utf16()
+        .map(|unit| match u8::try_from(unit) {
+            Ok(byte) if byte.is_ascii_alphanumeric() => char::from(byte),
+            _ => '-',
+        })
+        .collect();
+    if name.len() <= CLAUDE_PROJECT_LIMIT {
+        return name;
+    }
+    let hash = cwd.encode_utf16().fold(0i32, |h, unit| {
+        h.wrapping_shl(5)
+            .wrapping_sub(h)
+            .wrapping_add(i32::from(unit))
+    });
+    let digits: Vec<char> =
+        std::iter::successors(Some(hash.unsigned_abs()), |n| (*n >= 36).then_some(n / 36))
+            .filter_map(|n| char::from_digit(n % 36, 36))
+            .collect();
+    let digits: String = digits.iter().rev().collect();
+    format!("{}-{digits}", &name[..CLAUDE_PROJECT_LIMIT])
+}
+
+/// Whether `id` is a UUID in the shape Claude Code names its sessions.
+fn is_uuid(id: &str) -> bool {
+    id.split('-').map(str::len).eq([8, 4, 4, 4, 12])
+        && id.bytes().all(|b| b == b'-' || b.is_ascii_hexdigit())
+}
+
+/// The first and the last `limit` bytes of `path` and when it last changed.
+/// A file no longer than `limit` is both. Either end can cut a line short
+/// and no reader below takes a line that does not parse.
+fn read_ends(path: &Path, limit: u64) -> Option<(String, String, SystemTime)> {
+    let mut file = open_regular(path)?;
+    let meta = file.metadata().ok()?;
+    let mut head = Vec::new();
+    file.by_ref().take(limit).read_to_end(&mut head).ok()?;
+    let tail = if meta.len() > limit {
+        file.seek(SeekFrom::Start(meta.len() - limit)).ok()?;
+        let mut tail = Vec::new();
+        file.take(limit).read_to_end(&mut tail).ok()?;
+        tail
+    } else {
+        head.clone()
+    };
+    let text = |bytes: &[u8]| String::from_utf8_lossy(bytes).into_owned();
+    Some((text(&head), text(&tail), meta.modified().ok()?))
+}
+
+/// The title Claude Code's own picker shows for one session, or `None` for a
+/// session the picker leaves out. A line break or any other control
+/// character in it shows as a space.
+fn claude_title(head: &str, tail: &str) -> Option<String> {
+    let entrypoint = record_field(head.lines(), "entrypoint")
+        .or_else(|| record_field(tail.lines().rev(), "entrypoint"));
+    if matches!(entrypoint.as_deref(), Some("sdk-cli" | "sdk-ts" | "sdk-py")) {
+        return None;
+    }
+    let first = head.lines().filter(|line| line.contains("\"parentUuid\":"));
+    if matches!(
+        record_field(first.take(1), "sessionKind").as_deref(),
+        Some("daemon" | "daemon-worker")
+    ) {
+        return None;
+    }
+    let given =
+        |key| record_field(tail.lines().rev(), key).filter(|title| !title.trim().is_empty());
+    let title = given("customTitle")
+        .or_else(|| given("aiTitle"))
+        .or_else(|| first_prompt(head))?;
+    let title = title.replace(char::is_control, " ");
+    let title = title.split_whitespace().collect::<Vec<_>>().join(" ");
+    (!title.is_empty()).then_some(title)
+}
+
+/// The string `key` holds in the first of `lines` that is a JSON object
+/// holding one.
+fn record_field<'a>(mut lines: impl Iterator<Item = &'a str>, key: &str) -> Option<String> {
+    let probe = format!("\"{key}\":");
+    lines.find_map(|line| {
+        if !line.contains(&probe) {
+            return None;
+        }
+        let record: Value = serde_json::from_str(line).ok()?;
+        record[key].as_str().map(str::to_string)
+    })
+}
+
+/// How many UTF-16 units of a first prompt Claude Code's picker keeps.
+const PROMPT_LIMIT: usize = 200;
+
+/// The first thing a person typed into a session, found the way Claude
+/// Code's picker finds it. A tool's answer, a note Claude adds itself and
+/// text that opens with a tag are passed over. A slash command stands in
+/// where nothing else was typed and a `!` command shows behind a `!`.
+fn first_prompt(head: &str) -> Option<String> {
+    let mut command = None;
+    for line in head.lines() {
+        if !line.contains("\"type\":\"user\"") || line.contains("\"tool_result\"") {
+            continue;
+        }
+        let Ok(record) = serde_json::from_str::<Value>(line) else {
+            continue;
+        };
+        if record["type"] != "user"
+            || record["isMeta"] == true
+            || record["isCompactSummary"] == true
+        {
+            continue;
+        }
+        let texts: Vec<&str> = match &record["message"]["content"] {
+            Value::String(text) => vec![text],
+            Value::Array(blocks) => blocks
+                .iter()
+                .filter(|block| block["type"] == "text")
+                .filter_map(|block| block["text"].as_str())
+                .collect(),
+            _ => continue,
+        };
+        for text in texts {
+            let text = text.replace('\n', " ");
+            let text = text.trim();
+            if text.is_empty() {
+                continue;
+            }
+            if let Some(name) = between(text, "<command-name>", "</command-name>") {
+                command.get_or_insert_with(|| name.to_string());
+                continue;
+            }
+            if let Some(input) = between(text, "<bash-input>", "</bash-input>") {
+                return Some(format!("! {}", input.trim()));
+            }
+            if opens_with_tag(text) || text.starts_with("[Request interrupted by user") {
+                continue;
+            }
+            // Claude cuts at UTF-16 units and drops a character the limit splits.
+            let mut units = 0;
+            let cut = text.char_indices().find(|(_, c)| {
+                units += c.len_utf16();
+                units > PROMPT_LIMIT
+            });
+            return Some(match cut {
+                Some((at, _)) => format!("{}…", text[..at].trim_end()),
+                None => text.to_string(),
+            });
+        }
+    }
+    command
+}
+
+/// The text between the first `open` in `text` and the `close` after it.
+fn between<'a>(text: &'a str, open: &str, close: &str) -> Option<&'a str> {
+    let start = text.find(open)? + open.len();
+    let len = text[start..].find(close)?;
+    Some(&text[start..start + len])
+}
+
+/// Whether `text` opens with a tag such as `<local-command-stdout>`.
+fn opens_with_tag(text: &str) -> bool {
+    let Some(rest) = text.strip_prefix('<') else {
+        return false;
+    };
+    let len = rest
+        .find(|c: char| !(c.is_ascii_alphanumeric() || c == '_' || c == '-'))
+        .unwrap_or(rest.len());
+    rest.starts_with(|c: char| c.is_ascii_lowercase())
+        && rest[len..].starts_with(|c: char| c.is_whitespace() || c == '>')
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -2064,6 +2326,7 @@ mod tests {
             homebrew_cache: None,
             path: OsStr::new(""),
             usr_local: nowhere(),
+            claude_config: None,
         }
     }
 
@@ -3487,5 +3750,206 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         assert!(relative.join(".ssh/config").is_file());
         let s = sources(nowhere(), &relative, &path);
         assert_eq!(ssh_hosts(&s), ["sample-host"]);
+    }
+
+    const SESSION_ONE: &str = "00000000-0000-4000-8000-000000000001";
+    const SESSION_TWO: &str = "00000000-0000-4000-8000-000000000002";
+    const SESSION_THREE: &str = "00000000-0000-4000-8000-000000000003";
+
+    /// The record Claude Code writes for a prompt a person typed. Every prompt
+    /// and title below is invented.
+    fn prompt(text: &str) -> Value {
+        serde_json::json!({
+            "type": "user",
+            "parentUuid": null,
+            "entrypoint": "cli",
+            "message": {"role": "user", "content": text},
+        })
+    }
+
+    /// A Claude Code configuration directory and the directory in it that
+    /// holds `cwd`'s sessions.
+    fn claude_home(cwd: &Path) -> (Fixture, PathBuf) {
+        let f = Fixture::new(&[]);
+        let dir = f
+            .path()
+            .join("projects")
+            .join(claude_project(cwd.to_str().unwrap()));
+        std::fs::create_dir_all(&dir).unwrap();
+        (f, dir)
+    }
+
+    /// A session holding `records`, last changed `age` seconds ago.
+    fn claude_session(dir: &Path, id: &str, records: &[Value], age: u64) {
+        let path = dir.join(format!("{id}.jsonl"));
+        let body: String = records.iter().map(|r| format!("{r}\n")).collect();
+        std::fs::write(&path, body).unwrap();
+        let when = SystemTime::now() - std::time::Duration::from_secs(age);
+        File::options()
+            .write(true)
+            .open(&path)
+            .unwrap()
+            .set_modified(when)
+            .unwrap();
+    }
+
+    fn claude_sources<'a>(cwd: &'a Path, config: &'a Path) -> Sources<'a> {
+        Sources {
+            claude_config: Some(config),
+            ..sources(cwd, nowhere(), nowhere())
+        }
+    }
+
+    #[test]
+    fn claude_names_a_directory_the_way_claude_does() {
+        assert_eq!(
+            claude_project("/Users/sample/my.project_one"),
+            "-Users-sample-my-project-one"
+        );
+        // Node gives `wacs1q` for this path's hash.
+        let long = format!("/sample-{}/日本", "a".repeat(210));
+        assert_eq!(
+            claude_project(&long),
+            format!("-sample-{}-wacs1q", "a".repeat(192))
+        );
+    }
+
+    #[test]
+    fn claude_sessions_show_their_titles_newest_first_and_go_in_by_id() {
+        let cwd = Path::new("/sample/work");
+        let (f, dir) = claude_home(cwd);
+        claude_session(
+            &dir,
+            SESSION_ONE,
+            &[
+                prompt("sample first prompt"),
+                serde_json::json!({"type": "ai-title", "aiTitle": "Sample older title"}),
+                serde_json::json!({"type": "ai-title", "aiTitle": "Sample ai title"}),
+                serde_json::json!({"type": "custom-title", "customTitle": "sample\nrenamed"}),
+            ],
+            30,
+        );
+        claude_session(
+            &dir,
+            SESSION_TWO,
+            &[
+                prompt("sample prompt"),
+                serde_json::json!({"type": "ai-title", "aiTitle": "Sample ai title"}),
+            ],
+            10,
+        );
+        claude_session(&dir, SESSION_THREE, &[prompt("sample  only\tprompt")], 20);
+        let s = claude_sources(cwd, f.path());
+        let reader = reader("claude", "claude", "session").unwrap();
+        let rows = candidates(reader, &s, "");
+        let shown: Vec<(&str, &str, &str)> = rows
+            .iter()
+            .map(|r| (r.display.as_str(), r.insert.as_str(), r.label.as_ref()))
+            .collect();
+        assert_eq!(
+            shown,
+            [
+                ("Sample ai title", SESSION_TWO, "00000000"),
+                ("sample only prompt", SESSION_THREE, "00000000"),
+                ("sample renamed", SESSION_ONE, "00000000"),
+            ]
+        );
+        // A word of the title finds the row and the id is what goes in.
+        let rows = candidates(reader, &s, "renamed");
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].insert, SESSION_ONE);
+    }
+
+    #[test]
+    fn claude_sessions_leave_out_what_its_own_picker_leaves_out() {
+        let cwd = Path::new("/sample/work");
+        let (f, dir) = claude_home(cwd);
+        let print = serde_json::json!({
+            "type": "user",
+            "parentUuid": null,
+            "entrypoint": "sdk-cli",
+            "message": {"content": "sample print prompt"},
+        });
+        claude_session(&dir, SESSION_ONE, &[print], 0);
+        let daemon = serde_json::json!({
+            "type": "user",
+            "parentUuid": null,
+            "sessionKind": "daemon",
+            "message": {"content": "sample daemon prompt"},
+        });
+        claude_session(&dir, SESSION_TWO, &[daemon], 0);
+        // Nothing was typed into this one.
+        claude_session(
+            &dir,
+            SESSION_THREE,
+            &[serde_json::json!({"type": "mode", "mode": "normal"})],
+            0,
+        );
+        claude_session(&dir, "sample-notes", &[prompt("sample notes")], 0);
+        std::fs::create_dir(dir.join("00000000-0000-4000-8000-000000000004.jsonl")).unwrap();
+        let s = claude_sources(cwd, f.path());
+        assert!(claude_sessions(&s).is_empty());
+        // Another directory's sessions are not this one's.
+        let s = claude_sources(Path::new("/sample/other"), f.path());
+        assert!(claude_sessions(&s).is_empty());
+    }
+
+    #[test]
+    fn a_first_prompt_is_what_a_person_typed() {
+        let lines =
+            |records: &[Value]| -> String { records.iter().map(|r| format!("{r}\n")).collect() };
+        let meta = serde_json::json!({
+            "type": "user",
+            "isMeta": true,
+            "message": {"content": "sample skill body"},
+        });
+        let result = serde_json::json!({
+            "type": "user",
+            "message": {"content": [{"type": "tool_result", "content": "sample"}]},
+        });
+        let command = prompt("<command-name>/clear</command-name>");
+        let stdout = prompt("<local-command-stdout></local-command-stdout>");
+        let typed = serde_json::json!({
+            "type": "user",
+            "message": {"content": [{"type": "text", "text": "sample\ntyped"}]},
+        });
+        let head = lines(&[meta.clone(), command.clone(), stdout.clone(), result, typed]);
+        assert_eq!(first_prompt(&head).as_deref(), Some("sample typed"));
+        // A slash command stands in where nothing else was typed.
+        let head = lines(&[meta, command, stdout]);
+        assert_eq!(first_prompt(&head).as_deref(), Some("/clear"));
+        let head = lines(&[prompt("<bash-input> ls sample </bash-input>")]);
+        assert_eq!(first_prompt(&head).as_deref(), Some("! ls sample"));
+        let head = lines(&[prompt(&"a".repeat(300))]);
+        assert_eq!(first_prompt(&head), Some(format!("{}…", "a".repeat(200))));
+        // An emoji is two UTF-16 units and the limit falls between them.
+        let head = lines(&[prompt(&format!("{}😀b", "a".repeat(199)))]);
+        assert_eq!(first_prompt(&head), Some(format!("{}…", "a".repeat(199))));
+        assert_eq!(first_prompt(""), None);
+    }
+
+    #[test]
+    fn claude_reads_the_two_ends_of_a_long_session() {
+        let f = Fixture::new(&[]);
+        let path = f.path().join("sample.jsonl");
+        std::fs::write(&path, "head\nmiddle\ntail\n").unwrap();
+        let (head, tail, _) = read_ends(&path, 6).unwrap();
+        assert_eq!((head.as_str(), tail.as_str()), ("head\nm", "\ntail\n"));
+        let (head, tail, _) = read_ends(&path, 64).unwrap();
+        assert_eq!(head, tail);
+    }
+
+    #[test]
+    fn claude_keeps_its_state_where_its_own_variable_says() {
+        let home = Path::new("/sample-home");
+        assert_eq!(
+            claude_config(Some(PathBuf::from("/sample-config")), home),
+            Some(PathBuf::from("/sample-config"))
+        );
+        assert_eq!(
+            claude_config(Some(PathBuf::new()), home),
+            Some(PathBuf::from("/sample-home/.claude"))
+        );
+        assert_eq!(claude_config(None, Path::new("sample-home")), None);
     }
 }
