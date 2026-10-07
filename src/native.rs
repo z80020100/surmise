@@ -1251,7 +1251,13 @@ fn to_rows<'a>(
             if name.is_empty() || name.chars().any(char::is_control) {
                 return None;
             }
-            let score = fuzzy::score(term, name)?;
+            let score = fuzzy::score(term, name).max(
+                found
+                    .insert
+                    .as_deref()
+                    .filter(|insert| fuzzy::starts_with_folded(insert, term))
+                    .and_then(|insert| fuzzy::score(term, insert)),
+            )?;
             Some(Candidate {
                 display: name.clone(),
                 insert: found.insert.clone().unwrap_or_else(|| name.clone()),
@@ -3858,6 +3864,50 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         let rows = candidates(reader, &s, "renamed");
         assert_eq!(rows.len(), 1);
         assert_eq!(rows[0].insert, SESSION_ONE);
+    }
+
+    #[test]
+    fn claude_sessions_match_id_prefixes_and_the_full_id() {
+        let cwd = Path::new("/sample/work");
+        let (f, dir) = claude_home(cwd);
+        let id = "abf00000-0000-4000-8000-000000000001";
+        claude_session(&dir, id, &[prompt("Sample session")], 0);
+        claude_session(&dir, SESSION_TWO, &[prompt("Other session")], 0);
+        let s = claude_sources(cwd, f.path());
+        let reader = reader("claude", "claude", "session").unwrap();
+        for end in [1, 2, 3, 8, 9, 13, id.len()] {
+            let term = &id[..end];
+            let rows = candidates(reader, &s, term);
+            assert_eq!(rows.len(), 1, "{term}");
+            assert_eq!(rows[0].display, "Sample session");
+            assert_eq!(rows[0].insert, id);
+            assert_eq!(rows[0].label, "abf00000");
+        }
+        let rows = candidates(reader, &s, "ABF");
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].insert, id);
+        assert!(candidates(reader, &s, "fff").is_empty());
+    }
+
+    #[test]
+    fn claude_session_ids_match_only_prefixes_while_titles_match_fuzzily() {
+        let cwd = Path::new("/sample/work");
+        let (f, dir) = claude_home(cwd);
+        let ids = [
+            "abf00000-0000-4000-8000-000000000001",
+            "0abf0000-0000-4000-8000-000000000002",
+            "a0b0f000-0000-4000-8000-000000000003",
+        ];
+        for id in ids {
+            claude_session(&dir, id, &[prompt("Sample session")], 0);
+        }
+        let s = claude_sources(cwd, f.path());
+        let reader = reader("claude", "claude", "session").unwrap();
+        let rows = candidates(reader, &s, "abf");
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].insert, ids[0]);
+        assert!(candidates(reader, &s, "000000000001").is_empty());
+        assert_eq!(candidates(reader, &s, "smss").len(), ids.len());
     }
 
     #[test]
