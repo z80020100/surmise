@@ -27,6 +27,7 @@
 
 use crate::candidates::{Candidate, DEFAULT_PRIORITY, Kind, SCAN_LIMIT};
 use crate::fuzzy;
+use rusqlite::{Connection, OpenFlags, params};
 use serde_json::{Map, Value};
 use std::borrow::Cow;
 use std::collections::hash_map::Entry;
@@ -76,7 +77,7 @@ struct Reader {
 
 /// One name a reader found. `label` is what the row says of itself where
 /// the reader's own label would say less. A script's body is the case.
-/// `insert` is what goes on the line where the name is not. A Claude
+/// `insert` is what goes on the line where the name is not. A
 /// session shows its title and goes in by its id.
 #[derive(Clone)]
 struct Found {
@@ -245,6 +246,13 @@ static READERS: &[Reader] = &[
         arg: "session",
         label: "session",
         read: claude_sessions,
+    },
+    Reader {
+        command: "codex",
+        owners: &["resume"],
+        arg: "SESSION_ID",
+        label: "session",
+        read: codex_sessions,
     },
 ];
 
@@ -1160,6 +1168,8 @@ struct Sources<'a> {
     /// Where Claude Code keeps its sessions. `None` means there is nowhere
     /// to look and [`claude_config`] says when.
     claude_config: Option<&'a Path>,
+    /// Where Codex keeps its sessions. `$CODEX_HOME` takes precedence over home.
+    codex_home: Option<&'a Path>,
 }
 
 const SYSTEM_SSH_CONFIG: &str = "/etc/ssh/ssh_config";
@@ -1216,6 +1226,7 @@ fn read(reader: &Reader, cwd: &Path, line: &[&str]) -> Vec<Found> {
     );
     let path = std::env::var_os("PATH").unwrap_or_default();
     let claude_config = claude_config(var("CLAUDE_CONFIG_DIR"), &home);
+    let codex_home = codex_home(var("CODEX_HOME"), &home);
     let sources = Sources {
         cwd,
         line,
@@ -1225,6 +1236,7 @@ fn read(reader: &Reader, cwd: &Path, line: &[&str]) -> Vec<Found> {
         path: &path,
         usr_local: Path::new(USR_LOCAL),
         claude_config: claude_config.as_deref(),
+        codex_home: codex_home.as_deref(),
     };
     (reader.read)(&sources)
 }
@@ -2098,6 +2110,146 @@ fn claude_config(dir: Option<PathBuf>, home: &Path) -> Option<PathBuf> {
         .or_else(|| home.is_absolute().then(|| home.join(".claude")))
 }
 
+fn codex_home(dir: Option<PathBuf>, home: &Path) -> Option<PathBuf> {
+    match dir.filter(|dir| !dir.as_os_str().is_empty()) {
+        Some(dir) => dir.is_dir().then_some(dir)?.canonicalize().ok(),
+        None => home.is_absolute().then(|| home.join(".codex")),
+    }
+}
+
+/// The directory and source filters Codex's resume picker uses. The spec's
+/// walker keeps an option's value from being mistaken for another option.
+fn codex_session_scope(sources: &Sources) -> Option<(PathBuf, bool, bool)> {
+    let spec = crate::spec::load("codex", &[]).ok()?;
+    let mut command = crate::shellparse::Command {
+        start: 0,
+        end: 0,
+        assignments: Vec::new(),
+        words: Vec::new(),
+        terminator: None,
+    };
+    let mut cwd = sources.cwd.to_path_buf();
+    for word in sources.line.iter().chain(std::iter::once(&"")) {
+        command.words.push(crate::shellparse::Token {
+            start: 0,
+            end: 0,
+            inner_text: word.to_string(),
+        });
+        let walk = crate::argwalk::walk(&command, &spec, |_| None);
+        if walk.awaits_option_value
+            && walk
+                .current_arg
+                .as_ref()
+                .is_some_and(|arg| arg.name == ["DIR"])
+            && (matches!(walk.search_lead.as_str(), "-C" | "--cd=")
+                || walk
+                    .passed_options
+                    .last()
+                    .is_some_and(|opt| opt.name.iter().any(|name| name == "--cd")))
+            && !walk.search_term.is_empty()
+        {
+            cwd = sources.cwd.join(&walk.search_term);
+        } else if walk.offers_options
+            && !walk.end_of_options
+            && walk.options.contains_key("-C")
+            && let Some(dir) = word.strip_prefix("-C").filter(|dir| !dir.is_empty())
+        {
+            cwd = sources.cwd.join(dir);
+        }
+    }
+    let walk = crate::argwalk::walk(&command, &spec, |_| None);
+    let has = |name| {
+        walk.passed_options
+            .iter()
+            .any(|opt| opt.name.iter().any(|n| n == name))
+    };
+    if has("--remote") {
+        return None;
+    }
+    Some((
+        cwd.canonicalize().unwrap_or(cwd),
+        has("--all"),
+        has("--include-non-interactive"),
+    ))
+}
+
+/// Local sessions in Codex's state database, newest first. Reading creates
+/// no database and a locked writer never holds the menu open.
+fn codex_sessions(sources: &Sources) -> Vec<Found> {
+    let Some(home) = sources.codex_home else {
+        return Vec::new();
+    };
+    let Some((cwd, all, non_interactive)) = codex_session_scope(sources) else {
+        return Vec::new();
+    };
+    let Some(cwd) = cwd.to_str() else {
+        return Vec::new();
+    };
+    let db = home.join("state_5.sqlite");
+    if open_regular(&db).is_none() {
+        return Vec::new();
+    }
+    let Ok(conn) = Connection::open_with_flags(db, OpenFlags::SQLITE_OPEN_READ_ONLY) else {
+        return Vec::new();
+    };
+    if conn.busy_timeout(std::time::Duration::ZERO).is_err() {
+        return Vec::new();
+    }
+    let name = if conn.prepare("SELECT name FROM threads LIMIT 0").is_ok() {
+        "name"
+    } else {
+        "NULL"
+    };
+    let sql = format!(
+        "SELECT id, title, {name} FROM threads
+         WHERE archived = 0 AND (?1 OR cwd = ?2)
+           AND (source IN ('cli', 'vscode') OR (?3 AND source IN ('exec', 'app-server')))
+         ORDER BY updated_at DESC, id DESC"
+    );
+    let Ok(mut statement) = conn.prepare(&sql) else {
+        return Vec::new();
+    };
+    let Ok(rows) = statement.query_map(params![all, cwd, non_interactive], |row| {
+        Ok((
+            row.get::<_, String>(0)?,
+            row.get::<_, String>(1)?,
+            row.get::<_, Option<String>>(2)?,
+        ))
+    }) else {
+        return Vec::new();
+    };
+    let mut names = HashMap::new();
+    if let Some((_, tail, _)) = read_ends(&home.join("session_index.jsonl"), READ_LIMIT) {
+        for line in tail.lines() {
+            if let Ok(record) = serde_json::from_str::<Value>(line)
+                && let (Some(id), Some(name)) =
+                    (record["id"].as_str(), record["thread_name"].as_str())
+                && !name.trim().is_empty()
+            {
+                names.insert(id.to_string(), name.to_string());
+            }
+        }
+    }
+    rows.flatten()
+        .filter_map(|(id, title, name)| {
+            if !is_uuid(&id) {
+                return None;
+            }
+            let title = name
+                .filter(|name| !name.trim().is_empty())
+                .or_else(|| names.remove(&id))
+                .unwrap_or(title);
+            let title = title.replace(char::is_control, " ");
+            let title = title.split_whitespace().collect::<Vec<_>>().join(" ");
+            Some(Found {
+                name: if title.is_empty() { id.clone() } else { title },
+                label: Some(Cow::Owned(id[..8].to_string())),
+                insert: Some(id),
+            })
+        })
+        .collect()
+}
+
 /// The sessions Claude Code keeps for the line's directory, the newest
 /// first. Each shows the title Claude's own picker shows and goes in by its
 /// id. `--resume` also takes a title. Several sessions can share one and
@@ -2333,6 +2485,7 @@ mod tests {
             path: OsStr::new(""),
             usr_local: nowhere(),
             claude_config: None,
+            codex_home: None,
         }
     }
 
@@ -3771,6 +3924,183 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
             "entrypoint": "cli",
             "message": {"role": "user", "content": text},
         })
+    }
+
+    fn codex_fixture() -> Fixture {
+        let f = Fixture::new(&[]);
+        let db = Connection::open(f.path().join("state_5.sqlite")).unwrap();
+        db.execute_batch(
+            "CREATE TABLE threads (
+                id TEXT PRIMARY KEY, title TEXT, name TEXT, cwd TEXT,
+                source TEXT, archived INTEGER, updated_at INTEGER
+             );
+             INSERT INTO threads VALUES
+             ('abf00000-0000-4000-8000-000000000001', 'Sample original title', 'Sample renamed', '/sample/work', 'cli', 0, 30),
+             ('0abf0000-0000-4000-8000-000000000002', 'Other session', NULL, '/sample/work', 'vscode', 0, 20),
+             ('a0b0f000-0000-4000-8000-000000000003', 'Elsewhere session', NULL, '/sample/elsewhere', 'cli', 0, 40),
+             ('00000000-0000-4000-8000-000000000004', 'Sample exec', NULL, '/sample/work', 'exec', 0, 50),
+             ('00000000-0000-4000-8000-000000000005', 'Sample app server', NULL, '/sample/work', 'app-server', 0, 60),
+             ('00000000-0000-4000-8000-000000000006', 'Archived session', NULL, '/sample/work', 'cli', 1, 70),
+             ('00000000-0000-4000-8000-000000000007', 'Child session', NULL, '/sample/work', 'subagent', 0, 80),
+             ('invalid-id', 'Invalid session', NULL, '/sample/work', 'cli', 0, 90);",
+        ).unwrap();
+        f
+    }
+
+    fn codex_sources<'a>(home: &'a Path, line: &'a [&'a str]) -> Sources<'a> {
+        Sources {
+            codex_home: Some(home),
+            line,
+            ..sources(Path::new("/sample/work"), nowhere(), nowhere())
+        }
+    }
+
+    #[test]
+    fn codex_sessions_show_titles_newest_first_and_insert_full_ids() {
+        let f = codex_fixture();
+        std::fs::write(f.path().join("session_index.jsonl"), concat!(
+            "{\"id\":\"0abf0000-0000-4000-8000-000000000002\",\"thread_name\":\"Sample old name\"}\n",
+            "broken record\n",
+            "{\"id\":\"0abf0000-0000-4000-8000-000000000002\",\"thread_name\":\"Sample\\nlatest name\"}\n",
+            "{\"id\":\"abf00000-0000-4000-8000-000000000001\",\"thread_name\":\"Sample stale index\"}\n"
+        )).unwrap();
+        let s = codex_sources(f.path(), &["codex", "resume"]);
+        let reader = reader("codex", "resume", "SESSION_ID").unwrap();
+        let rows = candidates(reader, &s, "");
+        assert_eq!(
+            rows.iter()
+                .map(|r| (r.display.as_str(), r.label.as_ref()))
+                .collect::<Vec<_>>(),
+            [
+                ("Sample renamed", "abf00000"),
+                ("Sample latest name", "0abf0000")
+            ]
+        );
+        let id = "abf00000-0000-4000-8000-000000000001";
+        for term in ["a", "ab", "abf", "ABF", &id[..9], id, "smrn"] {
+            let rows = candidates(reader, &s, term);
+            assert!(rows.iter().any(|row| row.insert == id), "{term}");
+        }
+        assert_eq!(candidates(reader, &s, "abf").len(), 1);
+        assert!(candidates(reader, &s, "000000000001").is_empty());
+        assert!(candidates(reader, &s, "fff").is_empty());
+    }
+
+    #[test]
+    fn codex_sessions_follow_directory_and_source_options() {
+        let f = codex_fixture();
+        for (line, titles) in [
+            (
+                vec!["codex", "resume"],
+                vec!["Sample renamed", "Other session"],
+            ),
+            (
+                vec!["codex", "resume", "--all"],
+                vec!["Elsewhere session", "Sample renamed", "Other session"],
+            ),
+            (
+                vec!["codex", "resume", "--include-non-interactive"],
+                vec![
+                    "Sample app server",
+                    "Sample exec",
+                    "Sample renamed",
+                    "Other session",
+                ],
+            ),
+            (
+                vec!["codex", "-C", "/sample/elsewhere", "resume"],
+                vec!["Elsewhere session"],
+            ),
+            (
+                vec!["codex", "resume", "--cd=/sample/elsewhere"],
+                vec!["Elsewhere session"],
+            ),
+            (
+                vec!["codex", "resume", "-C/sample/elsewhere"],
+                vec!["Elsewhere session"],
+            ),
+            (
+                vec!["codex", "resume", "--config", "--all"],
+                vec!["Sample renamed", "Other session"],
+            ),
+            (
+                vec!["codex", "resume", "--config", "--remote"],
+                vec!["Sample renamed", "Other session"],
+            ),
+            (
+                vec!["codex", "resume", "--config", "--cd=/sample/elsewhere"],
+                vec!["Sample renamed", "Other session"],
+            ),
+            (
+                vec!["codex", "resume", "--remote", "ws://example.invalid"],
+                vec![],
+            ),
+        ] {
+            let s = codex_sources(f.path(), &line);
+            assert_eq!(
+                codex_sessions(&s)
+                    .iter()
+                    .map(|row| row.name.as_str())
+                    .collect::<Vec<_>>(),
+                titles,
+                "{line:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn codex_sessions_accept_legacy_titles_and_empty_titles() {
+        let f = codex_fixture();
+        let db = Connection::open(f.path().join("state_5.sqlite")).unwrap();
+        db.execute_batch(
+            "ALTER TABLE threads DROP COLUMN name;
+            UPDATE threads SET title = '' WHERE source = 'cli';",
+        )
+        .unwrap();
+        let rows = codex_sessions(&codex_sources(f.path(), &["codex", "resume"]));
+        assert_eq!(rows.len(), 2);
+        assert_eq!(rows[0].name, rows[0].insert.as_deref().unwrap());
+        assert_eq!(rows[1].name, "Other session");
+    }
+
+    #[test]
+    fn codex_sessions_leave_missing_corrupt_and_locked_databases_quiet() {
+        let f = Fixture::new(&[]);
+        let s = codex_sources(f.path(), &["codex", "resume"]);
+        assert!(codex_sessions(&s).is_empty());
+        assert!(!f.path().join("state_5.sqlite").exists());
+        std::fs::write(f.path().join("state_5.sqlite"), "not a database").unwrap();
+        assert!(codex_sessions(&s).is_empty());
+        let f = codex_fixture();
+        let db = Connection::open(f.path().join("state_5.sqlite")).unwrap();
+        db.execute_batch("BEGIN EXCLUSIVE").unwrap();
+        soon(move || {
+            assert!(codex_sessions(&codex_sources(f.path(), &["codex", "resume"])).is_empty());
+            db.execute_batch("ROLLBACK").unwrap();
+        });
+        let f = Fixture::new(&[]);
+        f.fifo("state_5.sqlite");
+        soon(move || {
+            assert!(codex_sessions(&codex_sources(f.path(), &["codex", "resume"])).is_empty())
+        });
+    }
+
+    #[test]
+    fn codex_home_uses_the_override_or_an_absolute_home() {
+        let f = Fixture::new(&[]);
+        assert_eq!(
+            codex_home(Some(f.path().to_path_buf()), nowhere()),
+            Some(f.path().canonicalize().unwrap())
+        );
+        assert_eq!(
+            codex_home(Some(PathBuf::new()), Path::new("/sample")),
+            Some(PathBuf::from("/sample/.codex"))
+        );
+        assert_eq!(codex_home(None, Path::new("relative")), None);
+        assert_eq!(
+            codex_home(Some(nowhere().to_path_buf()), Path::new("/sample")),
+            None
+        );
     }
 
     /// A Claude Code configuration directory and the directory in it that
