@@ -358,6 +358,68 @@ fn a_directory_only_the_history_knows_about_does_not_get_in() {
 }
 
 #[test]
+fn codex_resume_finds_id_prefixes_and_titles_and_takes_the_full_id() {
+    let f = Fixture::new(&[".codex"]);
+    let db = rusqlite::Connection::open(f.path().join(".codex/state_5.sqlite")).unwrap();
+    db.execute_batch(
+        "CREATE TABLE threads (
+            id TEXT PRIMARY KEY, title TEXT, cwd TEXT,
+            source TEXT, archived INTEGER, updated_at INTEGER
+         );",
+    )
+    .unwrap();
+    let id = "abf00000-0000-4000-8000-000000000001";
+    for (id, title) in [
+        (id, "Sample session"),
+        ("0abf0000-0000-4000-8000-000000000002", "Other session"),
+        ("a0b0f000-0000-4000-8000-000000000003", "Extra session"),
+    ] {
+        db.execute(
+            "INSERT INTO threads VALUES (?1, ?2, ?3, 'cli', 0, 1)",
+            rusqlite::params![
+                id,
+                title,
+                f.path().canonicalize().unwrap().to_str().unwrap()
+            ],
+        )
+        .unwrap();
+    }
+    for mode in ["fuzzy", "prefix"] {
+        config(f.path(), &format!("match = \"{mode}\"\n"));
+        for term in ["abf", "ABF", id, "Sample"] {
+            let mut t = opened(f.path(), &format!("codex resume {term}"));
+            let rows = names(&t);
+            assert!(
+                rows.iter().any(|row| row.contains("Sample session")),
+                "{mode} {term}: {rows:?}"
+            );
+            assert!(
+                !rows
+                    .iter()
+                    .any(|row| row.contains("Other session") || row.contains("Extra session")),
+                "{mode} {term}: {rows:?}"
+            );
+            t.send("\r");
+            t.pump(SETTLE);
+            assert!(
+                shown(&t).contains(&format!("codex resume {id}")),
+                "{:?}",
+                t.lines()
+            );
+            t.send("\x1b");
+            assert_eq!(t.status(WAIT), Some(pick::ACCEPTED));
+        }
+    }
+    config(f.path(), "match = \"fuzzy\"\n");
+    let t = opened(f.path(), "codex resume smss");
+    assert!(
+        names(&t).iter().any(|row| row.contains("Sample session")),
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
 fn a_bare_cd_puts_a_folder_glyph_on_every_row() {
     let f = fixture();
     let t = opened(f.path(), "cd ");
