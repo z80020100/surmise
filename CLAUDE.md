@@ -688,10 +688,26 @@ command name resolves through the shell's alias table first, so an alias for
 `docker` opens the menu under the name it expands to.
 
 A program named by its path, such as `./build.sh` or `bin/tool`, has no
-specification of its own. Tab on one offers the files and folders beside the
-line, which is what the corpus's own `dotslash` specification says such a
-program takes. A space does not open that menu. The set the widget checks a
-first word against names commands and never a path.
+specification of its own. Tab while that path is still the word being typed
+offers what it could name: the folders under the directory it names and the
+files there this user may run. Any other file is no command and a shell's own
+completion leaves out one with no execute bit as well. Hidden names wait for a
+typed dot and `../` waits behind the names. `cd`'s menu does both the same
+way. A path that already names a folder or a file this user may run leads
+with the row that runs the line. Enter there does what it does with no menu. A
+shell that sets `AUTO_CD` goes into the folder and any other shell says that a
+folder does not run. Taking a folder opens what is inside it and taking a
+program adds a space. A directory of 400 names or more leaves Tab to the
+shell's own completion. One walk reads 400 names and the program meant could
+be among the rest.
+
+Behind the program Tab offers the files and folders beside the line. The
+corpus's own `dotslash` specification says such a program takes those.
+That specification writes its argument as mandatory. A program needs no word
+and the row that runs the line leads that menu as well. Two presses of Enter
+therefore take a program and run it. A folder runs nothing and takes nothing.
+`src/ ` therefore offers no rows. A space opens neither menu. The set the
+widget checks a first word against names commands and never a path.
 
 `git` reaches this menu for whatever Git's own leaves. That menu reads three
 things and no more: the subcommand word, a branch after `switch` or
@@ -937,12 +953,13 @@ the row and a subcommand is one Down away. A specification that leaves out an
 argument the command needs offers the row too early and one that leaves out
 `isOptional` never offers it. `docker attach` is the first and `jest` is the
 second. The committed data leaves `isOptional` out of many commands that run
-with no argument at all and surmise corrects 50 of them. `ls`, `vim`, `python`
+with no argument at all and surmise corrects 51 of them. `ls`, `vim`, `python`
 and `df` are four. `pass`, `tmux` and the JetBrains launchers have subcommands
 as well and run bare all the same. `make` builds the makefile's first target.
-Every other one of the 50 opens an editor, a browser, a session or a prompt of
-its own or prints what is there. `make specs` would overwrite a correction
-made in `specs/` and surmise therefore marks every argument of those 50
+`dotslash` is a program named by its path that a person picked to run. Every
+other one of the 51 opens an editor, a browser, a session or a prompt of its
+own or prints what is there. `make specs` would overwrite a correction made in
+`specs/` and surmise therefore marks every argument of those 51
 optional by name when it loads the specification. It also says that none of
 them wants a subcommand. Any other command that builds, tests or deploys when
 it runs bare keeps what the data says. `jest` is one and Enter on a bare
