@@ -77,10 +77,10 @@ _surmise_take() {
 }
 
 # A first argument says the key was not a completion request. zle hands a
-# widget none of its own and only `surmise-space` passes one.
+# widget none of its own and only `surmise-space` and `surmise-slash` pass one.
 surmise-complete() {
   emulate -L zsh
-  local from_space=$1 result ret unseen=$RBUFFER
+  local from_typing=$1 result ret unseen=$RBUFFER
   # Filled here as well as on the space key below, so whichever one runs
   # first pays the one fork `_surmise_fill_specs` costs and the other only
   # ever reads the array it left behind.
@@ -119,10 +119,10 @@ surmise-complete() {
     # the completion and leave the running to the person.
     3) _surmise_take "$result"; _surmise_redraw; [[ -n $unseen ]] || zle accept-line ;;
     # 2 is PASS: nothing surmise completes. Tab hands the key back to whatever
-    # held it. A space is already typed and completing it is not what was
-    # asked for. Any other status is a surmise that never ran and the same
-    # answer is the right one for that too.
-    2|*) [[ -n $from_space ]] || zle $_surmise_fallback ;;
+    # held it. A space or a slash is already typed and completing it is not
+    # what was asked for. Any other status is a surmise that never ran and
+    # the same answer is the right one for that too.
+    2|*) [[ -n $from_typing ]] || zle $_surmise_fallback ;;
   esac
 }
 
@@ -203,4 +203,34 @@ bindkey ' ' surmise-space
 # Incremental search ends on any widget but its own. A space stays text there.
 if [[ $(bindkey -M isearch ' ') == *undefined-key ]]; then
   bindkey -M isearch ' ' self-insert
+fi
+
+# Open on a slash that ends the line's one word. That word is a program named
+# by its path and the menu lists what the path could name. A word further along
+# is an argument and its own command's menu answers a Tab there.
+if [[ -z $_surmise_slash ]]; then
+  typeset -g _surmise_slash=${${(z)$(bindkey '/')}[-1]}
+  case $_surmise_slash in
+    ''|undefined-key|surmise-slash) _surmise_slash=self-insert ;;
+  esac
+fi
+
+surmise-slash() {
+  zle $_surmise_slash
+  emulate -L zsh
+  [[ -z $RBUFFER ]] || return
+  # The same keys the space key leaves alone.
+  (( PENDING + KEYS_QUEUED_COUNT )) && return
+  local -a words
+  words=(${(z)LBUFFER})
+  (( $#words == 1 )) || return
+  surmise-complete from-slash
+}
+
+zle -N surmise-slash
+bindkey '/' surmise-slash
+
+# A slash stays text in incremental search the way a space does.
+if [[ $(bindkey -M isearch '/') == *undefined-key ]]; then
+  bindkey -M isearch '/' self-insert
 fi

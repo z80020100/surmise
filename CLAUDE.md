@@ -51,7 +51,8 @@ nothing at all. And a bash variable cannot hold a NUL, so the widget reads the
 answer with `mapfile`, which is why 4.4 is the floor. macOS ships bash 3.2 and
 `brew install bash` is where a newer one comes from. A space in bash also
 opens the menu with keys still queued behind it. zsh opens none there and
-"Use" below says why.
+"Use" below says why. A `/` opens the menu in zsh alone. "Other commands"
+below says where.
 
 One shell can still hold an older copy. The `eval` above runs once and the
 function it defines lives as long as that shell does, so a session open
@@ -150,7 +151,8 @@ Tab asks surmise about the line you already have and falls through to the
 shell's own completion when surmise has nothing to offer. The paragraphs
 under the table say what narrows that. A bare `cd ` also opens surmise on its
 own, and so does a space after any other command surmise has a specification
-for; "Other commands" below says what that opens and what it costs. A menu
+for; "Other commands" below says what that opens and what it costs. In zsh a
+`/` that ends the line's only word opens surmise as well. A menu
 of directories opens below the line. The mark on the first
 name sits under the cursor and the menu follows the cursor along the line. The
 menu is one width whatever it holds. Near the right edge it keeps that width
@@ -396,14 +398,15 @@ Emptying the line leaves the menu as well and keeps the empty line. So does
 taking back the space that opened the menu. The line then goes back as the
 shell had it before that space.
 
-A space opens nothing in zsh while keys are still queued behind it. Those keys
-came in one write rather than from a person answering a menu. A program that
-restores a session types its command and Enter that way. The terminal has
-already turned that Enter into a newline and the menu would read the newline
-as Ctrl-J. The shell takes the whole line and runs it.
+A space or a `/` opens nothing in zsh while keys are still queued behind it.
+Those keys came in one write rather than from a person answering a menu. A
+program that restores a session types its command and Enter that way. The
+terminal has already turned that Enter into a newline and the menu would read
+the newline as Ctrl-J. The shell takes the whole line and runs it.
 
 `bindkey ' ' $_surmise_space` after the `eval` gives the space key back and
-keeps the Tab route.
+keeps the Tab route. `bindkey '/' $_surmise_slash` gives the slash key back
+the same way.
 
 zsh's own Ctrl-R search keeps a space typed into it. The widget binds the
 space to `self-insert` in the `isearch` keymap for that where nothing is bound
@@ -706,6 +709,14 @@ folder does not run. Taking a folder opens what is inside it and taking a
 program adds a space. A directory of 400 names or more leaves Tab to the
 shell's own completion. One walk reads 400 names and the program meant could
 be among the rest.
+
+In zsh a `/` that ends the line's only word opens this menu with no Tab. The
+rest of the name goes into the menu. A folder or a program already named leads
+with the row that runs the line. Enter there does what it does with no menu. A
+path that names nothing opens nothing and the `/` stays as typed. So does a
+directory of 400 names or more. A path further along the line is an argument
+and Tab still asks for it. A `/` typed into either search does what a space
+does there. The bash widget binds no `/`.
 
 Behind the program Tab offers the files and folders beside the line. The
 corpus's own `dotslash` specification says such a program takes those.
@@ -1640,8 +1651,8 @@ reaches them. `SURMISE_BIN` points the widget at the build's own binary and
 it.
 
 That `.zshrc` prints a marker once `surmise-space` is bound and every `zsh`
-test asserts it. Five of them claim that no menu opened and a widget that
-never loaded would satisfy all five. It also sets a `chpwd` hook, because the
+test asserts it. Many of them claim that no menu opened and a widget that
+never loaded would satisfy every one. It also sets a `chpwd` hook, because the
 claim that Enter *ran* the line needs something the shell says on a directory
 change rather than on an accepted line.
 

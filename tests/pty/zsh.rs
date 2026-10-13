@@ -22,7 +22,7 @@ const MOVED: &str = "MOVED";
 
 /// What the `.zshrc` prints once the widget is really bound.
 ///
-/// Five of the tests below assert that no menu opened. A widget that never
+/// Many of the tests below assert that no menu opened. A widget that never
 /// loaded would satisfy every one of them. This is what stops that.
 const LOADED: &str = "LOADED";
 
@@ -1347,6 +1347,120 @@ fn a_space_typed_into_ctrl_r_search_stays_in_the_search() {
         t.lines()
             .iter()
             .any(|row| row.contains("bck-i-search: a s")),
+        "{:?}",
+        t.lines()
+    );
+}
+
+/// A program in the home that says it ran and a file beside it that may not
+/// run.
+fn with_program(f: &Fixture) {
+    use std::os::unix::fs::PermissionsExt;
+    let tool = f.path().join("sample-tool");
+    std::fs::write(&tool, "#!/bin/sh\necho TOOL-RAN\n").unwrap();
+    std::fs::set_permissions(&tool, std::fs::Permissions::from_mode(0o755)).unwrap();
+    std::fs::write(f.path().join("sample-notes.txt"), "").unwrap();
+}
+
+#[test]
+fn a_slash_that_ends_the_first_word_opens_the_program_menu() {
+    let f = home("", "");
+    with_program(&f);
+    let mut t = ready(f.path());
+    t.send("./");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    let rows: String = t.panel().iter().map(|row| row.text.as_str()).collect();
+    assert!(rows.contains("sample-tool"), "{rows:?}");
+    assert!(rows.contains("work/"), "{rows:?}");
+    assert!(!rows.contains("sample-notes.txt"), "{rows:?}");
+}
+
+#[test]
+fn two_enters_take_a_program_from_the_slash_menu_and_run_it() {
+    let f = home("", "");
+    with_program(&f);
+    let mut t = ready(f.path());
+    t.send("./");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    typed(&mut t, "sample-t");
+    typed(&mut t, "\r");
+    // The screen drops the trailing space. The files behind the program show it.
+    assert!(line(&t).starts_with("❯ ./sample-tool"), "{:?}", t.lines());
+    let rows: String = t.panel().iter().map(|row| row.text.as_str()).collect();
+    assert!(rows.contains("sample-notes.txt"), "{rows:?}");
+    assert!(t.panel()[1].text.contains('↵'), "{:?}", t.lines());
+    t.send("\r");
+    assert!(t.wait_line("TOOL-RAN", WAIT), "{:?}", t.lines());
+}
+
+#[test]
+fn a_slash_further_along_the_line_only_inserts_a_slash() {
+    // The path is an argument here. Its own command's menu answers a Tab.
+    let f = home("", "");
+    let mut t = ready(f.path());
+    typed(&mut t, "zzzz ./");
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+    assert_eq!(line(&t), "❯ zzzz ./", "{:?}", t.lines());
+}
+
+#[test]
+fn enter_on_a_folder_from_the_slash_menu_goes_into_it_under_autocd() {
+    // The row that runs the line leads and `AUTO_CD` reads `work/` as a `cd`.
+    let f = home("setopt autocd", "");
+    let mut t = ready(f.path());
+    t.send("work/");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    assert!(t.panel()[1].text.contains('↵'), "{:?}", t.lines());
+    t.send("\r");
+    assert!(
+        t.wait_line(&format!("{MOVED}:work"), WAIT),
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
+fn a_slash_on_a_path_that_names_nothing_only_inserts_a_slash() {
+    let f = home("", "");
+    let mut t = ready(f.path());
+    typed(&mut t, "sample-missing/");
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+    assert_eq!(line(&t), "❯ sample-missing/", "{:?}", t.lines());
+}
+
+#[test]
+fn a_program_sent_whole_with_its_enter_runs() {
+    // Keys queued behind the slash keep the menu shut as they do behind a space.
+    let f = home("", "");
+    with_program(&f);
+    let mut t = ready(f.path());
+    t.send("./sample-tool\r");
+    assert!(t.wait_line("TOOL-RAN", WAIT), "{:?}", t.lines());
+}
+
+#[test]
+fn giving_the_slash_key_back_leaves_a_path_plain() {
+    let f = home("", "bindkey '/' $_surmise_slash");
+    let mut t = ready(f.path());
+    typed(&mut t, "./");
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+    assert_eq!(line(&t), "❯ ./", "{:?}", t.lines());
+}
+
+#[test]
+fn a_slash_typed_into_ctrl_r_search_stays_in_the_search() {
+    let f = home("print -s 'zzzz sample-a/sample-b'", "");
+    let mut t = ready(f.path());
+    t.send("\x12");
+    t.pump(SETTLE);
+    typed(&mut t, "a/s");
+    assert!(
+        t.lines()
+            .iter()
+            .any(|row| row.contains("bck-i-search: a/s")),
         "{:?}",
         t.lines()
     );
