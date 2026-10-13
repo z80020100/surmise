@@ -1423,6 +1423,25 @@ fn enter_on_a_folder_from_the_slash_menu_goes_into_it_under_autocd() {
 }
 
 #[test]
+fn a_folder_taken_under_a_bare_tilde_is_the_home_directorys_own() {
+    // Starting in `deep` tells home's `work` from a `~` folder beside the line.
+    let f = home("cd \"$HOME/deep\"\nsetopt autocd", "");
+    let mut t = ready(f.path());
+    t.send("~/");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    typed(&mut t, "wo");
+    typed(&mut t, "\r");
+    assert!(line(&t).starts_with("❯ ~/work/"), "{:?}", t.lines());
+    t.send("\r");
+    assert!(
+        t.wait_line(&format!("{MOVED}:work"), WAIT),
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
 fn a_slash_on_a_path_that_names_nothing_only_inserts_a_slash() {
     let f = home("", "");
     let mut t = ready(f.path());

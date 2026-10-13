@@ -601,6 +601,13 @@ impl App {
                 return shellword::quote_within(s);
             }
         }
+        // A `~/` typed bare named home for the listing and stays an expansion.
+        if kind == Some(Kind::Path)
+            && s.starts_with("~/")
+            && self.arg().is_some_and(|q| q.arg.starts_with("~/"))
+        {
+            return quote_insert(s);
+        }
         quote_kind(kind, s)
     }
 
@@ -926,6 +933,28 @@ mod tests {
             item.label = "branch".into();
         }
         a
+    }
+
+    fn paths(line: &str, names: &[&str]) -> App {
+        let mut a = staged(line, names);
+        for item in &mut a.items {
+            item.kind = candidates::Kind::Path;
+        }
+        a
+    }
+
+    #[test]
+    fn a_path_row_keeps_a_tilde_typed_bare_an_expansion() {
+        let mut a = paths("ls ~/wo", &["~/work/", "~/my docs/"]);
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "ls ~/work/");
+        let mut a = paths("ls ~/my", &["~/my docs/"]);
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "ls ~/'my docs/'");
+        // Inside quotes the tilde is the name of a directory in the way.
+        let mut a = paths("ls '~/wo", &["~/work/"]);
+        assert!(a.accept());
+        assert_eq!(a.line.text(), "ls '~/work/'");
     }
 
     fn files(line: &str, names: &[&str]) -> App {

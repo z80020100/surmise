@@ -997,7 +997,9 @@ does, through the one directory walk a menu already keeps for its own life;
 the same history weight `cd` weighs its own rows by, and a file row carries
 none, the way `cd` never offers one to weigh in the first place. Both offer
 `../` the way `cd`'s own menu does. It waits behind the names when nothing is
-typed and taking it opens the directory above. `help` offers
+typed and taking it opens the directory above. A `~/` typed bare lists the
+home directory and stays an expansion on the line. `ls ~/wo` therefore takes
+`~/work/` rather than a folder named `~`. `help` offers
 the sibling subcommands of the argument's own enclosing node, so `fnm help `
 offers `fnm`'s own subcommands rather than `help`'s, which has none of its
 own.
