@@ -199,3 +199,8 @@ surmise-space() {
 
 zle -N surmise-space
 bindkey ' ' surmise-space
+
+# Incremental search ends on any widget but its own. A space stays text there.
+if [[ $(bindkey -M isearch ' ') == *undefined-key ]]; then
+  bindkey -M isearch ' ' self-insert
+fi

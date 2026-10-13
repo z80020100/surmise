@@ -405,6 +405,12 @@ as Ctrl-J. The shell takes the whole line and runs it.
 `bindkey ' ' $_surmise_space` after the `eval` gives the space key back and
 keeps the Tab route.
 
+zsh's own Ctrl-R search keeps a space typed into it. The widget binds the
+space to `self-insert` in the `isearch` keymap for that where nothing is bound
+there yet. The search `/` starts in vi command mode drops the space. That
+search reads the keymap the widget binds the space in and keeps only a key
+bound to insert itself.
+
 `SURMISE_BIN` names the binary. It defaults to the `surmise` on the PATH.
 That is the one that printed the widget when `init` was run from there.
 

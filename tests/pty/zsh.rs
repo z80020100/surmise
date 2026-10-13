@@ -1337,6 +1337,22 @@ fn giving_the_space_key_back_leaves_docker_plain_too() {
 }
 
 #[test]
+fn a_space_typed_into_ctrl_r_search_stays_in_the_search() {
+    let f = home("print -s 'zzzz sample-a sample-b'", "");
+    let mut t = ready(f.path());
+    t.send("\x12");
+    t.pump(SETTLE);
+    typed(&mut t, "a s");
+    assert!(
+        t.lines()
+            .iter()
+            .any(|row| row.contains("bck-i-search: a s")),
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
 fn the_specs_array_answers_a_second_trigger_in_the_same_session() {
     // Filled once, on the first trigger of the session, and read rather
     // than rebuilt on every later one. `cd`'s own bare space is the first
