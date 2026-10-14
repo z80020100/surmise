@@ -51,7 +51,8 @@ nothing at all. And a bash variable cannot hold a NUL, so the widget reads the
 answer with `mapfile`, which is why 4.4 is the floor. macOS ships bash 3.2 and
 `brew install bash` is where a newer one comes from. A space in bash also
 opens the menu with keys still queued behind it. zsh opens none there and
-"Use" below says why.
+"Use" below says why. A `/` opens the menu in zsh alone. "Other commands"
+below says where.
 
 One shell can still hold an older copy. The `eval` above runs once and the
 function it defines lives as long as that shell does, so a session open
@@ -150,7 +151,8 @@ Tab asks surmise about the line you already have and falls through to the
 shell's own completion when surmise has nothing to offer. The paragraphs
 under the table say what narrows that. A bare `cd ` also opens surmise on its
 own, and so does a space after any other command surmise has a specification
-for; "Other commands" below says what that opens and what it costs. A menu
+for; "Other commands" below says what that opens and what it costs. In zsh a
+`/` that ends the line's only word opens surmise as well. A menu
 of directories opens below the line. The mark on the first
 name sits under the cursor and the menu follows the cursor along the line. The
 menu is one width whatever it holds. Near the right edge it keeps that width
@@ -396,14 +398,21 @@ Emptying the line leaves the menu as well and keeps the empty line. So does
 taking back the space that opened the menu. The line then goes back as the
 shell had it before that space.
 
-A space opens nothing in zsh while keys are still queued behind it. Those keys
-came in one write rather than from a person answering a menu. A program that
-restores a session types its command and Enter that way. The terminal has
-already turned that Enter into a newline and the menu would read the newline
-as Ctrl-J. The shell takes the whole line and runs it.
+A space or a `/` opens nothing in zsh while keys are still queued behind it.
+Those keys came in one write rather than from a person answering a menu. A
+program that restores a session types its command and Enter that way. The
+terminal has already turned that Enter into a newline and the menu would read
+the newline as Ctrl-J. The shell takes the whole line and runs it.
 
 `bindkey ' ' $_surmise_space` after the `eval` gives the space key back and
-keeps the Tab route.
+keeps the Tab route. `bindkey '/' $_surmise_slash` gives the slash key back
+the same way.
+
+zsh's own Ctrl-R search keeps a space typed into it. The widget binds the
+space to `self-insert` in the `isearch` keymap for that where nothing is bound
+there yet. The search `/` starts in vi command mode drops the space. That
+search reads the keymap the widget binds the space in and keeps only a key
+bound to insert itself.
 
 `SURMISE_BIN` names the binary. It defaults to the `surmise` on the PATH.
 That is the one that printed the widget when `init` was run from there.
@@ -688,10 +697,34 @@ command name resolves through the shell's alias table first, so an alias for
 `docker` opens the menu under the name it expands to.
 
 A program named by its path, such as `./build.sh` or `bin/tool`, has no
-specification of its own. Tab on one offers the files and folders beside the
-line, which is what the corpus's own `dotslash` specification says such a
-program takes. A space does not open that menu. The set the widget checks a
-first word against names commands and never a path.
+specification of its own. Tab while that path is still the word being typed
+offers what it could name: the folders under the directory it names and the
+files there this user may run. Any other file is no command and a shell's own
+completion leaves out one with no execute bit as well. Hidden names wait for a
+typed dot and `../` waits behind the names. `cd`'s menu does both the same
+way. A path that already names a folder or a file this user may run leads
+with the row that runs the line. Enter there does what it does with no menu. A
+shell that sets `AUTO_CD` goes into the folder and any other shell says that a
+folder does not run. Taking a folder opens what is inside it and taking a
+program adds a space. A directory of 400 names or more leaves Tab to the
+shell's own completion. One walk reads 400 names and the program meant could
+be among the rest.
+
+In zsh a `/` that ends the line's only word opens this menu with no Tab. The
+rest of the name goes into the menu. A folder or a program already named leads
+with the row that runs the line. Enter there does what it does with no menu. A
+path that names nothing opens nothing and the `/` stays as typed. So does a
+directory of 400 names or more. A path further along the line is an argument
+and Tab still asks for it. A `/` typed into either search does what a space
+does there. The bash widget binds no `/`.
+
+Behind the program Tab offers the files and folders beside the line. The
+corpus's own `dotslash` specification says such a program takes those.
+That specification writes its argument as mandatory. A program needs no word
+and the row that runs the line leads that menu as well. Two presses of Enter
+therefore take a program and run it. A folder runs nothing and takes nothing.
+`src/ ` therefore offers no rows. A space opens neither menu. The set the
+widget checks a first word against names commands and never a path.
 
 `git` reaches this menu for whatever Git's own leaves. That menu reads three
 things and no more: the subcommand word, a branch after `switch` or
@@ -937,12 +970,13 @@ the row and a subcommand is one Down away. A specification that leaves out an
 argument the command needs offers the row too early and one that leaves out
 `isOptional` never offers it. `docker attach` is the first and `jest` is the
 second. The committed data leaves `isOptional` out of many commands that run
-with no argument at all and surmise corrects 50 of them. `ls`, `vim`, `python`
+with no argument at all and surmise corrects 51 of them. `ls`, `vim`, `python`
 and `df` are four. `pass`, `tmux` and the JetBrains launchers have subcommands
 as well and run bare all the same. `make` builds the makefile's first target.
-Every other one of the 50 opens an editor, a browser, a session or a prompt of
-its own or prints what is there. `make specs` would overwrite a correction
-made in `specs/` and surmise therefore marks every argument of those 50
+`dotslash` is a program named by its path that a person picked to run. Every
+other one of the 51 opens an editor, a browser, a session or a prompt of its
+own or prints what is there. `make specs` would overwrite a correction made in
+`specs/` and surmise therefore marks every argument of those 51
 optional by name when it loads the specification. It also says that none of
 them wants a subcommand. Any other command that builds, tests or deploys when
 it runs bare keeps what the data says. `jest` is one and Enter on a bare
@@ -963,7 +997,9 @@ does, through the one directory walk a menu already keeps for its own life;
 the same history weight `cd` weighs its own rows by, and a file row carries
 none, the way `cd` never offers one to weigh in the first place. Both offer
 `../` the way `cd`'s own menu does. It waits behind the names when nothing is
-typed and taking it opens the directory above. `help` offers
+typed and taking it opens the directory above. A `~/` typed bare lists the
+home directory and stays an expansion on the line. `ls ~/wo` therefore takes
+`~/work/` rather than a folder named `~`. `help` offers
 the sibling subcommands of the argument's own enclosing node, so `fnm help `
 offers `fnm`'s own subcommands rather than `help`'s, which has none of its
 own.
@@ -1617,8 +1653,8 @@ reaches them. `SURMISE_BIN` points the widget at the build's own binary and
 it.
 
 That `.zshrc` prints a marker once `surmise-space` is bound and every `zsh`
-test asserts it. Five of them claim that no menu opened and a widget that
-never loaded would satisfy all five. It also sets a `chpwd` hook, because the
+test asserts it. Many of them claim that no menu opened and a widget that
+never loaded would satisfy every one. It also sets a `chpwd` hook, because the
 claim that Enter *ran* the line needs something the shell says on a directory
 change rather than on an accepted line.
 

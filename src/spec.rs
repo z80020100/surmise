@@ -381,7 +381,8 @@ pub fn load_configured(name: &str) -> Result<Subcommand, SpecError> {
 
 /// Commands that run with no word at all although the committed data gives
 /// them a mandatory argument or subcommands to want. `make` builds the
-/// makefile's first target. Every other one opens an editor, a browser, a
+/// makefile's first target. `dotslash` is a program named by its path and the
+/// person picked it to run. Every other one opens an editor, a browser, a
 /// session or a prompt of its own or prints what is there. `make specs`
 /// overwrites `specs/` and the correction therefore lives here.
 pub(crate) const RUNS_BARE: &[&str] = &[
@@ -392,6 +393,7 @@ pub(crate) const RUNS_BARE: &[&str] = &[
     "code-insiders",
     "deno",
     "df",
+    "dotslash",
     "dust",
     "emacs",
     "exa",

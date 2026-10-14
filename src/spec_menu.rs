@@ -6,8 +6,8 @@
 
 use crate::argwalk::{self, Walk};
 use crate::candidates::{
-    Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, PARENT, Query, Scan, UsedAfter, in_name_order,
-    priority_of, rank, resolved_in, run_row, split, tier,
+    Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, PARENT, Query, SCAN_LIMIT, Scan, UsedAfter,
+    in_name_order, priority_of, rank, resolved_in, run_row, split, tier,
 };
 use crate::fuzzy::{self, Match};
 use crate::histfile;
@@ -20,7 +20,7 @@ use serde_json::Value;
 use std::borrow::Cow;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 /// How many times [`Completions::complete`] retries a walk that asked for a
@@ -68,13 +68,14 @@ pub(crate) fn parse(left: &str, tail: &str, aliases: &HashMap<String, String>) -
         return None;
     }
     let command = command_at_cursor(left, aliases)?;
-    // One word is the command name, still being typed. That is the shell's
-    // own completion to offer, not an argument to walk.
-    if command.words.len() < 2 {
-        return None;
-    }
     let raw = shellparse::command_at(left, left.len());
     let raw_name = raw.as_ref().and_then(|cmd| cmd.words.first());
+    // One word is the command name, still being typed. That is the shell's
+    // own completion to offer, not an argument to walk. A name with a `/` in
+    // it is a path instead and [`program_rows`] answers it.
+    if command.words.len() < 2 && !raw_name.is_some_and(|w| w.inner_text.contains('/')) {
+        return None;
+    }
     // Only what `cd`'s own menu declined, never what it claims.
     if raw_name.is_some_and(|w| w.inner_text == "cd") {
         return None;
@@ -159,10 +160,19 @@ impl Completions {
     ) -> Vec<Candidate> {
         self.lead.clear();
         self.matching = None;
-        let name = target.command.words[0].inner_text.as_str();
+        let mut name = target.command.words[0].inner_text.as_str();
         // A path to a program names no specification of its own. The corpus
         // keeps one for that case and it takes files and folders.
-        let name = if name.contains('/') { "dotslash" } else { name };
+        if name.contains('/') {
+            if target.command.words.len() == 1 {
+                return program_rows(name, cwd, history, scan);
+            }
+            // A folder runs nothing and takes nothing either.
+            if resolved_in(name, cwd).is_dir() {
+                return Vec::new();
+            }
+            name = "dotslash";
+        }
         let Some(root) = self.spec_for(name) else {
             return Vec::new();
         };
@@ -920,11 +930,7 @@ fn path_rows(
     show_folders: &str,
 ) -> Vec<Candidate> {
     let (prefix, term) = split(raw_term);
-    let dir = if prefix.is_empty() {
-        cwd.to_path_buf()
-    } else {
-        resolved_in(prefix, cwd)
-    };
+    let dir = listed_dir(prefix, cwd);
     let mut out = Vec::new();
     for (name, is_dir) in scan.entries(&dir, term.starts_with('.')) {
         let is_dir = *is_dir;
@@ -977,6 +983,45 @@ fn path_rows(
         });
     }
     out
+}
+
+/// The directory a path argument lists: the one its `prefix` names, or the
+/// line's own where it names none.
+fn listed_dir(prefix: &str, cwd: &Path) -> PathBuf {
+    if prefix.is_empty() {
+        cwd.to_path_buf()
+    } else {
+        resolved_in(prefix, cwd)
+    }
+}
+
+/// Rows for a path to a program while it is still the word being typed: the
+/// folders under the directory it names and the files there this user may
+/// run. A shell's own completion offers the same two. A file this user may
+/// not run is no command. A word that already names a folder or a program
+/// gets the row that runs the line. Enter there does what it does with no
+/// menu. A shell that sets `AUTO_CD` goes into the folder.
+fn program_rows(term: &str, cwd: &Path, history: &History, scan: &mut Scan) -> Vec<Candidate> {
+    let (prefix, name) = split(term);
+    // The shell's own completion reads all of a directory the scan limit cuts short.
+    if scan
+        .entries(&listed_dir(prefix, cwd), name.starts_with('.'))
+        .len()
+        >= SCAN_LIMIT
+    {
+        return Vec::new();
+    }
+    let mut rows = path_rows(term, cwd, history, scan, "always");
+    rows.retain(|row| {
+        row.insert.ends_with('/') || crate::path::runnable(&resolved_in(&row.insert, cwd))
+    });
+    in_name_order(&mut rows);
+    rank(&mut rows, term, None, false);
+    let named = resolved_in(term, cwd);
+    if named.is_dir() || crate::path::runnable(&named) {
+        rows.insert(0, run_row(term.to_string()));
+    }
+    rows
 }
 
 /// The score bonus a visited folder earns, folded into the fuzzy score
@@ -2053,6 +2098,74 @@ mod tests {
             let rows = rows_in(f.path(), line);
             assert!(names(&rows).contains(&"sample.txt"), "{line}");
             assert!(names(&rows).contains(&"sample-dir/"), "{line}");
+        }
+        // The program needs no word and the line runs as it stands.
+        assert_eq!(rows_in(f.path(), "./build.sh ")[0].kind, Kind::Run);
+    }
+
+    /// A fixture holding `sample-dir/`, a plain `sample.txt` and two files
+    /// that may run, one of them hidden.
+    fn programs() -> Fixture {
+        use std::os::unix::fs::PermissionsExt;
+        let f = Fixture::new(&[
+            "sample-dir",
+            "sample.txt*",
+            "sample-tool*",
+            ".sample-hidden*",
+        ]);
+        for name in ["sample-tool", ".sample-hidden"] {
+            let runs = std::fs::Permissions::from_mode(0o755);
+            std::fs::set_permissions(f.path().join(name), runs).unwrap();
+        }
+        f
+    }
+
+    #[test]
+    fn a_path_being_typed_as_a_command_offers_folders_and_programs() {
+        let f = programs();
+        assert!(parse("sample", "", &HashMap::new()).is_none());
+        let rows = rows_in(f.path(), "./");
+        assert_eq!(
+            names_of(&rows),
+            ["./", "./sample-dir/", "./sample-tool", "./../"]
+        );
+        let rows = rows_in(f.path(), "./.");
+        assert!(
+            names_of(&rows).contains(&"./.sample-hidden"),
+            "{:?}",
+            names_of(&rows)
+        );
+        let rows = rows_in(f.path(), "sample-dir/");
+        assert_eq!(names_of(&rows), ["sample-dir/", "sample-dir/../"]);
+    }
+
+    #[test]
+    fn a_path_that_names_a_folder_or_a_program_leads_with_the_row_that_runs_it() {
+        let f = programs();
+        for line in ["./sample-tool", "./sample-dir/", "./sample-dir", "./"] {
+            assert_eq!(rows_in(f.path(), line)[0].kind, Kind::Run, "{line}");
+        }
+        for line in ["./sample.txt", "./sample"] {
+            let rows = rows_in(f.path(), line);
+            assert!(rows.iter().all(|r| r.kind != Kind::Run), "{line}");
+        }
+    }
+
+    #[test]
+    fn a_directory_at_the_scan_limit_is_left_to_the_shell() {
+        let names: Vec<String> = (0..SCAN_LIMIT).map(|i| format!("sample-{i}")).collect();
+        let names: Vec<&str> = names.iter().map(String::as_str).collect();
+        let f = Fixture::new(&names[1..]);
+        assert!(!rows_in(f.path(), "./sample-1").is_empty());
+        std::fs::create_dir(f.path().join(names[0])).unwrap();
+        assert!(rows_in(f.path(), "./sample-1").is_empty());
+    }
+
+    #[test]
+    fn a_folder_named_as_a_command_takes_nothing() {
+        let f = programs();
+        for line in ["sample-dir/ ", "./sample-dir/ ", "./sample-dir/ -x "] {
+            assert!(rows_in(f.path(), line).is_empty(), "{line}");
         }
     }
 
