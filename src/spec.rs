@@ -373,8 +373,7 @@ pub fn load(name: &str, spec_dirs: &[PathBuf]) -> Result<Subcommand, SpecError> 
 
 /// [`load`] over the config this process was started with, so a name in
 /// `disabled_commands` is refused and `spec_dirs` is searched first. This is
-/// the entry point a picker uses; nothing calls it yet, because nothing
-/// completes from a spec until `plans/phase-2-spec-runtime.md` lands.
+/// the entry point a picker uses: `spec_menu` and Git's own menu both call it.
 pub fn load_configured(name: &str) -> Result<Subcommand, SpecError> {
     load_with(name, read_raw_configured)
 }

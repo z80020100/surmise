@@ -1,19 +1,18 @@
 //! The compiled-in spec store, and the loose files `spec_dirs` names on top
-//! of it. `build.rs` compresses every file under `specs/` into one blob and a
-//! sorted table; this module is the byte-level lookup over both. It does not
-//! parse a spec, follow a `versionedSpecPath` pointer, or model anything —
-//! `plans/phase-2-spec-runtime.md` §1 is where that lands, on top of the
-//! bytes this module hands back.
+//! of it. `build.rs` compresses every spec under `specs/` and `extra-specs/`
+//! into one blob and a sorted table; this module is the byte-level lookup
+//! over both. It does not parse a spec, follow a `versionedSpecPath` pointer,
+//! or model anything — `crate::spec` does that, on top of the bytes this
+//! module hands back.
 //!
 //! `get` and `commands` take `spec_dirs` as a parameter rather than reading
 //! `Config` themselves. Reading it themselves would need a `static` to hold
 //! it, and a `static` set once cannot answer two tests that want different
 //! directories in the same test binary — exactly the case `spec_dirs`
-//! exists for. A parameter has no shared state, so nothing races. The
-//! process-wide entry points below still exist, for whatever later phase
-//! wires this into `App` for a real picker session, and cache what they read
-//! behind a `OnceLock` because that caller is one process per menu and reads
-//! the config only once regardless.
+//! exists for. A parameter has no shared state, so nothing races. A picker
+//! session and `surmise specs names` call the process-wide entry points
+//! below. They cache what they read behind a `OnceLock` because each caller
+//! is one process and reads the config only once regardless.
 
 use flate2::read::DeflateDecoder;
 use std::io::Read;
@@ -206,7 +205,7 @@ mod tests {
         assert!(value.is_object());
     }
 
-    /// The phase-1 exit criterion, at the byte level: every one of the 1481
+    /// The phase-1 exit criterion, at the byte level: every one of the 1486
     /// committed specs decompresses to exactly the length `build.rs` recorded
     /// for it and parses as JSON. The data is local and fixed, so this costs
     /// nothing beyond the run time it takes.
