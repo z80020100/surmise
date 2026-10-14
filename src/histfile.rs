@@ -171,9 +171,45 @@ fn tail_entries(path: &Path) -> Vec<String> {
         // teaches the wrong pair.
         lines.remove(0);
     }
-    let mut entries = join_continuations(&lines);
+    // fish writes a format of its own and a line of it names the command.
+    let mut entries = if lines.iter().any(|line| line.starts_with(FISH_ENTRY)) {
+        fish_entries(&lines)
+    } else {
+        join_continuations(&lines)
+    };
     let keep = entries.len().saturating_sub(ENTRY_LIMIT);
     entries.split_off(keep)
+}
+
+/// What a fish history entry opens with. The lines indented under it say when
+/// the command ran and which paths it named.
+const FISH_ENTRY: &str = "- cmd: ";
+
+/// The commands a fish history holds. fish writes a newline in one as `\n`
+/// and a backslash as `\\`.
+fn fish_entries(lines: &[&str]) -> Vec<String> {
+    lines
+        .iter()
+        .filter_map(|line| line.strip_prefix(FISH_ENTRY))
+        .map(|escaped| {
+            let mut out = String::with_capacity(escaped.len());
+            let mut chars = escaped.chars();
+            while let Some(c) = chars.next() {
+                match (c, chars.clone().next()) {
+                    ('\\', Some('n')) => {
+                        out.push('\n');
+                        chars.next();
+                    }
+                    ('\\', Some('\\')) => {
+                        out.push('\\');
+                        chars.next();
+                    }
+                    _ => out.push(c),
+                }
+            }
+            out
+        })
+        .collect()
 }
 
 /// `lines` with a trailing backslash read as zsh reads it: the entry
@@ -260,6 +296,16 @@ mod tests {
         assert_eq!(counts.count("npm", "run"), 1);
         // Each entry is kept the way it was typed for the list Ctrl-R swaps in.
         assert_eq!(counts.lines(), ["git status", "npm run build"]);
+    }
+
+    #[test]
+    fn a_fish_history_reads_its_commands_and_nothing_under_them() {
+        let (path, _f) = histfile(
+            b"- cmd: git status\n  when: 1700000000\n- cmd: echo a\\\\b\n  when: 1700000001\n  paths:\n    - sample\n",
+        );
+        let counts = read(&path, &HashMap::new());
+        assert_eq!(counts.count("git", "status"), 1);
+        assert_eq!(counts.lines(), ["git status", "echo a\\b"]);
     }
 
     #[test]
