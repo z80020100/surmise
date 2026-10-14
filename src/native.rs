@@ -24,6 +24,9 @@
 //! the other list nor the words in front of the one being typed. `brew
 //! upgrade` and `brew services` keep lines that must not run. `brew outdated`
 //! can reach a network and `brew services list` takes about half a second.
+//! `brew uninstall` and its neighbours keep `brew list -1`. That line sees none
+//! of the words in front of the one being typed either and lists the casks
+//! where a subcommand takes a formula alone.
 
 use crate::candidates::{Candidate, DEFAULT_PRIORITY, Kind, SCAN_LIMIT};
 use crate::fuzzy;
@@ -230,7 +233,36 @@ static READERS: &[Reader] = &[
         owners: &["upgrade"],
         arg: "outdated_formula|outdated_cask",
         label: "installed",
-        read: brew_installed,
+        read: |sources| brew_installed(sources, BrewReads::CoreFormulaFirst),
+    },
+    Reader {
+        command: "brew",
+        owners: &["reinstall", "pin", "unpin"],
+        arg: "formula",
+        label: "installed",
+        read: |sources| brew_installed(sources, BrewReads::CoreFormulaFirst),
+    },
+    Reader {
+        command: "brew",
+        owners: &["uninstall", "list", "ls", "link", "unlink"],
+        arg: "formula",
+        label: "installed",
+        read: |sources| brew_installed(sources, BrewReads::InstalledFormulaFirst),
+    },
+    Reader {
+        command: "brew",
+        owners: &["postinstall", "--prefix"],
+        arg: "formula",
+        label: "installed",
+        read: |sources| brew_installed(sources, BrewReads::FormulaOnly),
+    },
+    // `brew cask uninstall`'s argument carries no name.
+    Reader {
+        command: "brew",
+        owners: &["uninstall"],
+        arg: "",
+        label: "installed cask",
+        read: |sources| brew_installed(sources, BrewReads::CaskOnly),
     },
     // `brew services`'s own subcommands. Their argument carries no name.
     Reader {
@@ -492,16 +524,6 @@ static SCRIPTS: &[Script] = &[
         line: &["tmux", "lsb"],
         label: "buffer",
         parse: named_lines,
-    },
-    Script {
-        line: &["brew", "list", "-1"],
-        label: "installed",
-        parse: plain_lines,
-    },
-    Script {
-        line: &["brew", "list", "-1", "--cask"],
-        label: "installed cask",
-        parse: plain_lines,
     },
     Script {
         line: &["brew", "tap"],
@@ -883,7 +905,7 @@ fn config_keys(out: &str) -> Vec<Found> {
     unlabelled(names)
 }
 
-/// One name per line, as `brew list -1` and `rustc --print target-list`
+/// One name per line, as `brew tap` and `rustc --print target-list`
 /// print them.
 fn plain_lines(out: &str) -> Vec<Found> {
     out.lines()
@@ -1988,30 +2010,50 @@ fn lowercased(line: &[&str]) -> HashSet<String> {
     line.iter().map(|word| word.to_lowercase()).collect()
 }
 
-/// The installed formulae and casks a `brew upgrade` can name, less the ones
-/// already on the line.
+/// How a `brew` subcommand reads a name it is given.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum BrewReads {
+    /// As the formula where one of that name is installed and as the cask
+    /// otherwise. `brew uninstall` reads a name so.
+    InstalledFormulaFirst,
+    /// As the formula wherever `homebrew/core` holds one of that name.
+    /// `brew upgrade` reads a name so.
+    CoreFormulaFirst,
+    /// As a formula and never as a cask.
+    FormulaOnly,
+    /// As a cask and never as a formula.
+    CaskOnly,
+}
+
+/// The installed formulae and casks a `brew` subcommand can name, less the
+/// ones already on the line.
 ///
 /// The specification keeps `brew outdated -q` for `brew upgrade`.
 /// `brew outdated` can update Homebrew before it answers and that reaches a
 /// network. Homebrew tells an out-of-date formula or cask by its version and
 /// keeps the latest versions in a file it does not document. The ones already
 /// up to date are therefore rows as well. `brew upgrade` given a name that is
-/// up to date says so and leaves that formula or cask as it is. A formula is a
-/// directory in the `Cellar` that holds a version of it and a cask is a
-/// directory in the `Caskroom`. A cask named for an installed formula gets no
-/// row and the formula keeps its own. A cask named for a formula in
-/// `homebrew/core`, for one of its aliases or for the old name of a renamed one
-/// gets no row either. `brew upgrade` reads such a name as the formula whether
-/// or not the formula is installed. Those names come from the lists
-/// [`brew_names`] reads. Without them or under `HOMEBREW_NO_INSTALL_FROM_API`
-/// only an installed formula rules a cask out. `--cask` and `--formula` work as
-/// they do for [`brew_names`] and `--cask` therefore gives each of those casks
-/// a row.
-fn brew_installed(sources: &Sources) -> Vec<Found> {
+/// up to date says so and leaves that formula or cask as it is. The other
+/// subcommands keep `brew list -1` or `brew list -1 --cask`. Neither line sees
+/// the words in front of the one being typed and the first lists the casks for
+/// a subcommand that takes a formula alone. A formula is a directory in the
+/// `Cellar` that holds a version of it and a cask is a directory in the
+/// `Caskroom`. A cask named for an installed formula gets no row and the
+/// formula keeps its own. Under [`BrewReads::CoreFormulaFirst`] a cask named
+/// for a formula in `homebrew/core`, for one of its aliases or for the old name
+/// of a renamed one gets no row either. Such a subcommand reads that name as
+/// the formula whether or not the formula is installed. Those names come from
+/// the lists [`brew_names`] reads. Without them or under
+/// `HOMEBREW_NO_INSTALL_FROM_API` only an installed formula rules a cask out.
+/// `--cask` and `--formula` work as they do for [`brew_names`] and `--cask`
+/// therefore gives each of those casks a row.
+fn brew_installed(sources: &Sources, reads: BrewReads) -> Vec<Found> {
     let Some(homebrew) = find_homebrew(sources) else {
         return Vec::new();
     };
     let (no_formulae, no_casks) = kinds_ruled_out(sources.line);
+    let no_formulae = no_formulae || reads == BrewReads::CaskOnly;
+    let no_casks = no_casks || reads == BrewReads::FormulaOnly;
     let formulae = if no_formulae {
         Vec::new()
     } else {
@@ -2024,7 +2066,11 @@ fn brew_installed(sources: &Sources) -> Vec<Found> {
     let casks = if no_casks {
         Vec::new()
     } else {
-        let core = core_formula_names(sources, no_formulae);
+        let core = if reads == BrewReads::CoreFormulaFirst {
+            core_formula_names(sources, no_formulae)
+        } else {
+            HashSet::new()
+        };
         subdirs(&homebrew.prefix.join("Caskroom"))
             .into_iter()
             .filter(|name| !core.contains(name))
@@ -3565,8 +3611,6 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         for owner in ["install", "abv", "edit", "home"] {
             assert!(reader("brew", owner, "formula").is_some(), "{owner}");
         }
-        // `brew uninstall` names what is installed and a line answers it.
-        assert!(reader("brew", "uninstall", "formula").is_none());
     }
 
     /// A Homebrew prefix holding `entries` and a `bin/brew` that runs.
@@ -3604,7 +3648,7 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         ]);
         std::os::unix::fs::symlink("sample-tool", f.path().join("Cellar/sample-link")).unwrap();
         let path = f.path().join("bin").into_os_string();
-        let found = brew_installed(&prefix_sources(&path, &[]));
+        let found = brew_installed(&prefix_sources(&path, &[]), BrewReads::CoreFormulaFirst);
         assert_eq!(
             found_names(&found),
             ["sample-other", "sample-tool", "sample-app"]
@@ -3612,13 +3656,13 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         assert_eq!(found[0].label.as_deref(), Some("installed"));
         assert_eq!(found[2].label.as_deref(), Some("installed cask"));
         let line = ["brew", "upgrade", "Sample-Other"];
-        let found = brew_installed(&prefix_sources(&path, &line));
+        let found = brew_installed(&prefix_sources(&path, &line), BrewReads::CoreFormulaFirst);
         assert_eq!(found_names(&found), ["sample-tool", "sample-app"]);
         let line = ["brew", "upgrade", "--cask"];
-        let found = brew_installed(&prefix_sources(&path, &line));
+        let found = brew_installed(&prefix_sources(&path, &line), BrewReads::CoreFormulaFirst);
         assert_eq!(found_names(&found), ["sample-app", "sample-tool"]);
         let line = ["brew", "upgrade", "--formula"];
-        let found = brew_installed(&prefix_sources(&path, &line));
+        let found = brew_installed(&prefix_sources(&path, &line), BrewReads::CoreFormulaFirst);
         assert_eq!(found_names(&found), ["sample-other", "sample-tool"]);
     }
 
@@ -3638,16 +3682,59 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
                 homebrew_cache: Some(cache.path()),
                 ..prefix_sources(&path, line)
             };
-            brew_installed(&s)
+            brew_installed(&s, BrewReads::CoreFormulaFirst)
         };
         assert_eq!(found_names(&found(&[])), ["sample-app"]);
         // `--cask` reaches the cask and so does a line read without the lists.
         let all = ["sample-alias", "sample-app", "sample-core"];
         assert_eq!(found_names(&found(&["brew", "upgrade", "--cask"])), all);
         assert_eq!(
-            found_names(&brew_installed(&prefix_sources(&path, &[]))),
+            found_names(&brew_installed(
+                &prefix_sources(&path, &[]),
+                BrewReads::CoreFormulaFirst
+            )),
             all
         );
+    }
+
+    #[test]
+    fn brew_reads_a_name_the_way_each_subcommand_does() {
+        let f = homebrew_prefix_fixture(&[
+            "Cellar/sample-tool/1.0",
+            "Caskroom/sample-app/1.0",
+            "Caskroom/sample-core/1.0",
+            "Caskroom/sample-tool/1.0",
+        ]);
+        let cache = homebrew("sample-core\nsample-tool", "");
+        let path = f.path().join("bin").into_os_string();
+        let found = |owner: &str, arg: &str, line: &'static [&'static str]| {
+            let s = Sources {
+                homebrew_cache: Some(cache.path()),
+                ..prefix_sources(&path, line)
+            };
+            let reader = reader("brew", owner, arg).expect(owner);
+            (reader.read)(&s)
+                .into_iter()
+                .map(|found| found.name)
+                .collect::<Vec<_>>()
+        };
+        for owner in ["uninstall", "list", "ls", "link", "unlink"] {
+            let all = ["sample-tool", "sample-app", "sample-core"];
+            assert_eq!(found(owner, "formula", &[]), all, "{owner}");
+        }
+        for owner in ["reinstall", "pin", "unpin"] {
+            let all = ["sample-tool", "sample-app"];
+            assert_eq!(found(owner, "formula", &[]), all, "{owner}");
+        }
+        for owner in ["postinstall", "--prefix"] {
+            assert_eq!(found(owner, "formula", &[]), ["sample-tool"], "{owner}");
+        }
+        // `brew cask uninstall`.
+        let all = ["sample-app", "sample-core", "sample-tool"];
+        assert_eq!(found("uninstall", "", &[]), all);
+        let line = &["brew", "uninstall", "sample-app"];
+        let left = ["sample-tool", "sample-core"];
+        assert_eq!(found("uninstall", "formula", line), left);
     }
 
     #[test]
@@ -3684,7 +3771,7 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
     #[test]
     fn no_homebrew_prefix_gives_no_installed_names_or_services() {
         let s = sources(nowhere(), nowhere(), nowhere());
-        assert!(brew_installed(&s).is_empty());
+        assert!(brew_installed(&s, BrewReads::CoreFormulaFirst).is_empty());
         assert!(brew_services(&s).is_empty());
     }
 
@@ -3869,7 +3956,7 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         give_brew_sh(&f.path().join("repo"));
         std::os::unix::fs::symlink(&brew, f.path().join("prefix/bin/brew")).unwrap();
         let path = f.path().join("prefix/bin").into_os_string();
-        let found = brew_installed(&prefix_sources(&path, &[]));
+        let found = brew_installed(&prefix_sources(&path, &[]), BrewReads::CoreFormulaFirst);
         assert_eq!(found_names(&found), ["sample-tool", "sample-app"]);
         let found = brew_services(&prefix_sources(&path, &[]));
         assert_eq!(found_names(&found), ["sample-tool"]);

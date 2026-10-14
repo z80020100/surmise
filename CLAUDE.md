@@ -1149,6 +1149,19 @@ rules a cask out. `--cask` and `--formula` work the way they do for
 `brew install` and `--cask` therefore gives each of those casks a row. A name
 already on the line is left out whatever case it is typed in.
 
+`brew uninstall `, `list `, `link `, `unlink `, `reinstall `, `pin `,
+`unpin `, `postinstall ` and `--prefix ` offer what is installed as well. The
+specification keeps `brew list -1` for them. That line sees none of the words
+in front of the one being typed. It therefore offered a name already on the
+line again and offered the casks behind `--formula`. `postinstall` and
+`--prefix` take a formula alone and the line offered them the casks as well.
+They now offer the formulae alone. `uninstall`, `list`, `link` and `unlink`
+read a name as the formula where one of that name is installed and as the
+cask otherwise. There only an installed formula rules a cask out. `reinstall`,
+`pin` and `unpin` read a name the way `brew upgrade` does. `brew cask
+uninstall ` offers the casks alone. Homebrew no longer has `brew cask` and the
+specification still holds it.
+
 `brew services start `, `stop `, `restart ` and `run ` offer the installed
 formulae that run as a service. The specification pipes `brew services list`
 through a shell and that takes about half a second. Homebrew writes a launchd
@@ -1161,7 +1174,7 @@ itself some other way is not found. A name already on the line is left out.
 No row says whether a service is running. Only `launchctl` or `systemctl` can
 say that.
 
-The upgrade and services readers find Homebrew where `brew` itself does. The
+The readers of what is installed find Homebrew where `brew` itself does. The
 `brew` they look at is the first on `PATH` that this user may run. The prefix
 is the directory above the physical path of the `PATH` entry that holds that
 `brew`. A link at the `brew` file itself is not followed for the prefix.
@@ -1173,7 +1186,7 @@ holds what the link names. A `/usr/local/bin/brew` that links into the same
 repository moves the prefix to `/usr/local` unless the prefix's own `Cellar` is
 a link. After that a `Cellar` is chosen. The one in the repository comes first
 and the one under the prefix is the fallback. The `Caskroom` and `opt` are
-under the prefix. Neither reader runs a program.
+under the prefix. None of them runs a program.
 
 The `brew` found gives no rows where its entry on `PATH` is exactly `.` or
 empty. zsh runs it by its bare name and it cannot find itself. An empty or
@@ -1227,7 +1240,7 @@ once per menu in the directory the menu opened in, under the budget and the
 cap Git's own queries keep. A line that fails or runs past either answers
 nothing. A `git -C` on the line does not move it.
 
-The table holds 59 lines today. Twelve are Git's own read-only lines: the
+The table holds 57 lines today. Twelve are Git's own read-only lines: the
 commits `log` and `rev-list` print, the local, remote and every branch, the
 remotes, the changed files, the stashes, the tags, the aliases and the
 configuration's keys. A commit row, a remote row and an alias row say what the
@@ -1237,8 +1250,8 @@ fifteen name its containers, images, services, nodes, plugins, contexts,
 networks, stacks, secrets and volumes. A container row says what it runs and
 how it stands. `tmux`'s five name its sessions, windows, panes, clients and
 buffers. A window goes by its index. tmux writes its flags straight after a
-window's name and a name can end in one. `brew`'s three name the installed
-formulae and casks and the taps. `rustc`'s one names the targets it builds for
+window's name and a name can end in one. `brew`'s one names the taps Homebrew
+reads formulae and casks from. `rustc`'s one names the targets it builds for
 and `cargo`'s two name the workspace's packages and the manifest's features.
 `podman`'s five name its containers, volumes and networks the way `docker`'s
 do. `k3d`'s three name its clusters, nodes and registries. `kind`'s two name
@@ -1251,11 +1264,13 @@ locations and the bonds. `defaults` names its domains and `launchctl` its
 services. Two lines more are read two ways, by the name of the argument that
 runs them. `arduino-cli board list` names a board for an FQBN and a port for a
 port. `networksetup -listallhardwareports` names a port such as `Wi-Fi` or the
-device under it such as `en0`. Those lines fill 701 arguments across 27
+device under it such as `en0`. Those lines fill 690 arguments across 27
 commands.
 
 `git diff --cached --name-only` is left out. It names paths from the top of
 the repository and a line typed in a subdirectory would get the wrong file.
+`brew list -1` is left out and so is `brew list -1 --cask`. Neither sees the
+words in front of the one being typed and the readers above do.
 `brew formulae` and `brew casks` print past the 64 KiB cap and are left out as
 well. So is `cargo metadata` without `--no-deps`. It can fetch an index to
 resolve the dependencies. `brew outdated` is left out for the same reason. It
