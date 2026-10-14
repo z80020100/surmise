@@ -1162,6 +1162,11 @@ cask otherwise. There only an installed formula rules a cask out. `reinstall`,
 uninstall ` offers the casks alone. Homebrew no longer has `brew cask` and the
 specification still holds it.
 
+`brew cleanup ` offers the rows `brew uninstall ` does. The specification keeps
+the line that names the services for it. `brew cleanup` takes a formula or a
+cask and cleans the formula and the cask of one name both. One row stands for
+the two.
+
 `brew services start `, `stop `, `restart ` and `run ` offer the installed
 formulae that run as a service. The specification pipes `brew services list`
 through a shell and that takes about half a second. Homebrew writes a launchd
@@ -1285,8 +1290,8 @@ machine unless a person pointed it somewhere else.
 
 An argument that needs anything else — another native reader, a line that
 asks a server, anything else `specs/dynamic.txt` names — still offers no rows
-rather than guessing at one. The readers answer 785 of the 4854 arguments that
-file lists and the other 4069 show nothing.
+rather than guessing at one. The readers answer 786 of the 4854 arguments that
+file lists and the other 4068 show nothing.
 
 A space opens the menu here too, the way a bare `cd ` or `git ` already did:
 `docker ` and `docker container ` both reach it, because the widget checks

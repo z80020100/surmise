@@ -26,7 +26,8 @@
 //! can reach a network and `brew services list` takes about half a second.
 //! `brew uninstall` and its neighbours keep `brew list -1`. That line sees none
 //! of the words in front of the one being typed either and lists the casks
-//! where a subcommand takes a formula alone.
+//! where a subcommand takes a formula alone. `brew cleanup` keeps the line that
+//! names the services and takes a formula or a cask.
 
 use crate::candidates::{Candidate, DEFAULT_PRIORITY, Kind, SCAN_LIMIT};
 use crate::fuzzy;
@@ -263,6 +264,14 @@ static READERS: &[Reader] = &[
         arg: "",
         label: "installed cask",
         read: |sources| brew_installed(sources, BrewReads::CaskOnly),
+    },
+    // `brew cleanup` cleans both kinds a name holds. Its argument carries no name.
+    Reader {
+        command: "brew",
+        owners: &["cleanup"],
+        arg: "",
+        label: "installed",
+        read: |sources| brew_installed(sources, BrewReads::InstalledFormulaFirst),
     },
     // `brew services`'s own subcommands. Their argument carries no name.
     Reader {
@@ -3732,6 +3741,9 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         // `brew cask uninstall`.
         let all = ["sample-app", "sample-core", "sample-tool"];
         assert_eq!(found("uninstall", "", &[]), all);
+        // `brew cleanup`.
+        let all = ["sample-tool", "sample-app", "sample-core"];
+        assert_eq!(found("cleanup", "", &[]), all);
         let line = &["brew", "uninstall", "sample-app"];
         let left = ["sample-tool", "sample-core"];
         assert_eq!(found("uninstall", "formula", line), left);
