@@ -1902,8 +1902,9 @@ const BREW_NAMES_LIMIT: u64 = 1024 * 1024;
 /// `api/formula_aliases.txt` beside them holds `alias|formula` lines. An
 /// alias row sorts among the formulae and says the formula it stands for.
 /// Without one a person who typed `python` whole would get the nearest
-/// formula in its place. A name two lists hold is the formula's. The formula
-/// is what `brew install` takes. `--cask` keeps the casks alone and
+/// formula in its place. A name two lists hold is the formula's and a cask of
+/// that name gets no row even where the line already names the formula. The
+/// formula is what `brew install` takes. `--cask` keeps the casks alone and
 /// `--formula` the formulae and their aliases. Homebrew reads a name in any
 /// case and an alias on the line puts the formula it stands for there too.
 /// Homebrew unlinks a list before it writes it again and can leave one absent
@@ -1936,7 +1937,17 @@ fn brew_names(sources: &Sources) -> Vec<Found> {
         .map(|(_, formula)| formula.clone())
         .collect();
     taken.extend(stood_for);
-    let mut formulae: Vec<(String, Cow<'static, str>)> = list("formula_names.txt", no_formulae)
+    let formula_names = list("formula_names.txt", no_formulae);
+    let read_as_formulae: HashSet<&str> = formula_names
+        .iter()
+        .chain(aliases.iter().map(|(alias, _)| alias))
+        .map(String::as_str)
+        .collect();
+    let casks: Vec<String> = list("cask_names.txt", no_casks)
+        .into_iter()
+        .filter(|name| !taken.contains(name) && !read_as_formulae.contains(name.as_str()))
+        .collect();
+    let mut formulae: Vec<(String, Cow<'static, str>)> = formula_names
         .into_iter()
         .filter(|name| !taken.contains(name))
         .map(|name| (name, Cow::Borrowed("formula")))
@@ -1948,10 +1959,7 @@ fn brew_names(sources: &Sources) -> Vec<Found> {
         )
         .collect();
     formulae.sort_by(|a, b| a.0.cmp(&b.0));
-    let casks = list("cask_names.txt", no_casks)
-        .into_iter()
-        .filter(|name| !taken.contains(name))
-        .map(|name| (name, Cow::Borrowed("cask")));
+    let casks = casks.into_iter().map(|name| (name, Cow::Borrowed("cask")));
     let mut seen = HashSet::new();
     formulae
         .into_iter()
@@ -3491,6 +3499,27 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
             let found = brew_names(&brew_sources(f.path(), &line));
             assert_eq!(found_names(&found), ["sample-top", "sample-app"], "{typed}");
         }
+    }
+
+    #[test]
+    fn a_cask_named_for_a_formula_on_the_line_gets_no_row() {
+        let f = aliased();
+        std::fs::write(
+            f.path().join("api/cask_names.txt"),
+            "sample-app\nsample-tool\nsample-tool2\nsample-tool@2",
+        )
+        .unwrap();
+        for typed in ["sample-tool@2", "Sample-Tool", "sample-tool2"] {
+            let line = ["brew", "install", typed];
+            let found = brew_names(&brew_sources(f.path(), &line));
+            assert_eq!(found_names(&found), ["sample-top", "sample-app"], "{typed}");
+        }
+        let line = ["brew", "install", "--cask", "sample-tool"];
+        let found = brew_names(&brew_sources(f.path(), &line));
+        assert_eq!(
+            found_names(&found),
+            ["sample-app", "sample-tool2", "sample-tool@2"]
+        );
     }
 
     #[test]
