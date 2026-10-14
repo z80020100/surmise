@@ -1189,15 +1189,31 @@ and goes in by the session's id. `--resume` takes a title as well. Several
 sessions can share one and Claude then opens its picker rather than resume
 any of them. The title a person gave with `/rename` or `-n` leads. The one
 Claude wrote itself follows and the first prompt is the fallback. The label is
-the first eight characters of the id. The sessions are in `projects` under
-`$CLAUDE_CONFIG_DIR` or `~/.claude`. Claude names the directory for the line's
-directory and turns every character but an ASCII letter or digit into `-`.
+the first eight characters of the id. What was typed reaches a row through its
+title or through its id. The title matches the way any other row does. The id
+matches only where it leads with what was typed. Case plays no part there.
+The sessions are in `projects` under `$CLAUDE_CONFIG_DIR` or `~/.claude`.
+Claude names the directory for the line's directory and turns every character
+but an ASCII letter or digit into `-`.
 Past 200 characters it cuts the name and adds a hash of the whole path. The
 reader reads the first and the last 64 KiB of each file and Claude's picker
 reads the same. A session `claude -p` or the SDK started is not in that picker
 and gets no row here either. A session from another worktree of the same
 repository gets no row. Claude's picker finds those by running Git and this
 reader runs nothing.
+
+`codex resume ` offers the sessions Codex keeps for the line's directory, the
+newest first. Each row is made the way a `claude` row is and matches the same
+two ways. The reader finds them in `state_5.sqlite` under `$CODEX_HOME` or
+`~/.codex`. It opens that database read-only and never waits for a
+lock. A row shows the name a person gave the session where the database holds
+one. The last 64 KiB of `session_index.jsonl` beside it is the next place to
+look and the title Codex wrote itself is the fallback. `-C` and `--cd` name
+another directory and `--all` reaches every directory. An archived session
+gets no row. A session `codex exec` or the app server started gets one only
+behind `--include-non-interactive` and a subagent's never does. `--remote`
+gives no rows. Those sessions are on the server it names and this reader reads
+only the database on this machine.
 
 Each of the file readers above reads its files once for each word of the line
 rather than once for each key. An empty answer is read again at the next key.
@@ -1379,6 +1395,7 @@ delete` and the options that skip permission checks are marked dangerous. A
 line that holds one gets no row that runs it. The argument of `claude
 --resume` is named `session` and marked `dyn` by hand. `--help` calls it
 `value` and the reader in "Other commands" above needs a name of its own.
+`codex resume`'s `SESSION_ID` is marked `dyn` by hand as well.
 
 The `rtk` specification defines RTK's own commands and options. Proxy command
 nodes use `loadSpec` to read the target command's specification. A target needs
@@ -1395,11 +1412,11 @@ Every file under `specs/` except the top-level `index.json`, and every file
 under `extra-specs/`, compresses on its own into one blob, so
 `spec_store::get` decompresses the one spec a menu needs and leaves the rest
 of the corpus alone. `flate2` with the `rust_backend` feature does both ends
-and neither of them reaches for a C library. The blob is 9 148 798 bytes.
+and neither of them reaches for a C library. The blob is 9 148 819 bytes.
 
 The binary carries that weight now. `spec_menu` reaches
 `spec_store::get_configured` for any command besides `cd`, so a linker keeps
-the corpus rather than dropping it and a release build measures 13 641 312
+the corpus rather than dropping it and a release build measures 13 720 224
 bytes.
 
 ## Configuration
