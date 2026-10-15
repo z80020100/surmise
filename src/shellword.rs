@@ -3,7 +3,10 @@
 //! The picker hands a line back to the shell. A directory name that holds a
 //! space or a quote therefore has to survive the shell's own word splitting.
 //! `quote` puts such a name in single quotes and `unquote` takes a person's
-//! own quoting back off.
+//! own quoting back off. `expand` reads the value a line gives a variable the
+//! way the shell would.
+
+use std::ffi::OsString;
 
 /// Characters a shell leaves alone in the middle of a word. `=` is not one of
 /// them: `MAGIC_EQUAL_SUBST` expands what follows an `=` anywhere in the word
@@ -59,9 +62,83 @@ pub fn unquote(s: &str) -> String {
     body.replace(r"'\''", "'")
 }
 
+/// Whether `s` can name a shell variable.
+pub fn is_name(s: &str) -> bool {
+    !s.starts_with(|c: char| c.is_ascii_digit()) && !s.is_empty() && s.chars().all(is_name_char)
+}
+
+fn is_name_char(c: char) -> bool {
+    c.is_ascii_alphanumeric() || c == '_'
+}
+
+/// What `value`, written on the right of an assignment, holds once the shell
+/// expands it. `var` gives what a variable holds. `None` is a value only
+/// running something could tell, such as a `$(…)`. It is also a variable
+/// `var` does not hold, because the shell can hold one it does not export.
+///
+/// A `~` that leads the value or follows a `:` is `$HOME`. zsh reads it so in
+/// an assignment and so does bash. `~name` is another user's home and gives
+/// `None`. So does every `$` that names no variable.
+pub fn expand(value: &str, var: impl Fn(&str) -> Option<OsString>) -> Option<OsString> {
+    let mut out = OsString::new();
+    let mut chars = value.chars().peekable();
+    let mut in_double_quotes = false;
+    let mut tilde_may_start = true;
+    while let Some(c) = chars.next() {
+        let tilde_starts = std::mem::replace(&mut tilde_may_start, false) && !in_double_quotes;
+        match c {
+            '\'' if !in_double_quotes => {
+                for c in chars.by_ref().take_while(|&c| c != '\'') {
+                    out.push(c.encode_utf8(&mut [0; 4]));
+                }
+            }
+            '"' => in_double_quotes = !in_double_quotes,
+            '\\' => match chars.next() {
+                Some(c) if !in_double_quotes || crate::shellparse::escapes_in_double_quotes(c) => {
+                    out.push(c.encode_utf8(&mut [0; 4]));
+                }
+                Some(c) => {
+                    out.push("\\");
+                    out.push(c.encode_utf8(&mut [0; 4]));
+                }
+                None => {}
+            },
+            '`' => return None,
+            '$' => {
+                let name: String = if chars.next_if_eq(&'{').is_some() {
+                    let mut name = String::new();
+                    loop {
+                        match chars.next()? {
+                            '}' => break name,
+                            c => name.push(c),
+                        }
+                    }
+                } else {
+                    std::iter::from_fn(|| chars.next_if(|&c| is_name_char(c))).collect()
+                };
+                if !is_name(&name) {
+                    return None;
+                }
+                out.push(var(&name)?);
+            }
+            '~' if tilde_starts => match chars.peek() {
+                None | Some('/' | ':') => out.push(var("HOME")?),
+                Some(_) => return None,
+            },
+            ':' if !in_double_quotes => {
+                out.push(":");
+                tilde_may_start = true;
+            }
+            c => out.push(c.encode_utf8(&mut [0; 4])),
+        }
+    }
+    Some(out)
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{quote, quote_within, unquote};
+    use super::{expand, quote, quote_within, unquote};
+    use std::ffi::OsString;
 
     #[test]
     fn a_plain_name_needs_no_quotes() {
@@ -184,6 +261,76 @@ mod tests {
             "back\\slash",
         ] {
             assert_eq!(unquote(&quote(name)), name, "round trip failed: {name:?}");
+        }
+    }
+
+    /// What `value` expands to with `HOME` at `/home/sample` and `SAMPLE_DIR`
+    /// at `/sample`. `None` is a value only running something could tell.
+    fn expanded(value: &str) -> Option<String> {
+        let var = |name: &str| match name {
+            "HOME" => Some(OsString::from("/home/sample")),
+            "SAMPLE_DIR" => Some(OsString::from("/sample")),
+            _ => None,
+        };
+        expand(value, var).map(|value| value.into_string().unwrap())
+    }
+
+    #[test]
+    fn a_plain_value_stays_as_written() {
+        assert_eq!(expanded("/sample/bin").as_deref(), Some("/sample/bin"));
+        assert_eq!(expanded("").as_deref(), Some(""));
+        assert_eq!(expanded("a*b").as_deref(), Some("a*b"));
+    }
+
+    #[test]
+    fn quotes_and_escapes_come_off() {
+        assert_eq!(expanded("'/sample dir'").as_deref(), Some("/sample dir"));
+        assert_eq!(expanded("\"/sample dir\"").as_deref(), Some("/sample dir"));
+        assert_eq!(expanded(r"/sample\ dir").as_deref(), Some("/sample dir"));
+        assert_eq!(expanded(r#""a\b\$c""#).as_deref(), Some(r"a\b$c"));
+    }
+
+    #[test]
+    fn a_variable_reads_what_it_holds() {
+        assert_eq!(expanded("$SAMPLE_DIR/bin").as_deref(), Some("/sample/bin"));
+        assert_eq!(expanded("${SAMPLE_DIR}bin").as_deref(), Some("/samplebin"));
+        assert_eq!(
+            expanded("\"$HOME/a b\"").as_deref(),
+            Some("/home/sample/a b")
+        );
+        assert_eq!(expanded("'$HOME'").as_deref(), Some("$HOME"));
+        assert_eq!(expanded(r"\$HOME").as_deref(), Some("$HOME"));
+    }
+
+    #[test]
+    fn a_tilde_reads_home_where_the_shell_expands_one() {
+        assert_eq!(expanded("~").as_deref(), Some("/home/sample"));
+        assert_eq!(
+            expanded("~/a:~/b").as_deref(),
+            Some("/home/sample/a:/home/sample/b")
+        );
+        assert_eq!(expanded("a:~").as_deref(), Some("a:/home/sample"));
+        assert_eq!(expanded("x~/y").as_deref(), Some("x~/y"));
+        assert_eq!(expanded("\"~/a\"").as_deref(), Some("~/a"));
+        assert_eq!(expanded("'~'/a").as_deref(), Some("~/a"));
+    }
+
+    #[test]
+    fn what_only_running_something_could_tell_gives_none() {
+        for value in [
+            "$(sample)",
+            "`sample`",
+            "$SAMPLE_UNSET",
+            "${SAMPLE_DIR:-/x}",
+            "${SAMPLE_DIR",
+            "$1",
+            "$$",
+            "$'a'",
+            "a$",
+            "~sample",
+            "~+",
+        ] {
+            assert_eq!(expanded(value), None, "{value:?}");
         }
     }
 }

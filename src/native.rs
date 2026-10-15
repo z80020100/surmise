@@ -36,7 +36,7 @@ use serde_json::{Map, Value};
 use std::borrow::Cow;
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
-use std::ffi::OsStr;
+use std::ffi::{OsStr, OsString};
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 use std::os::unix::fs::OpenOptionsExt;
@@ -723,14 +723,19 @@ static SCRIPTS: &[Script] = &[
 /// line two ways each run it. A line that failed stays an empty answer.
 ///
 /// Under `reads` a reader keeps one answer. Some readers leave out a name
-/// the line already holds. A reader therefore reads its files again once
-/// the words in front of the one being typed change. An empty answer is not
-/// kept and the next key reads again.
+/// the line already holds and a variable the line sets can move the files.
+/// A reader therefore reads its files again once the variables or the words
+/// in front of the one being typed change. An empty answer is not kept and
+/// the next key reads again.
 #[derive(Default)]
 pub(crate) struct Runs {
     lines: HashMap<*const Script, Vec<Found>>,
-    reads: HashMap<(*const Reader, Vec<String>), Vec<Found>>,
+    reads: HashMap<ReadKey, Vec<Found>>,
 }
+
+/// A reader with the variables and the words a line holds in front of the
+/// word being typed.
+type ReadKey = (*const Reader, Vec<String>, Vec<String>);
 
 /// The lines the corpus reads two ways, each way under the names of the
 /// arguments that read it that way. [`script_rows`] asks this before
@@ -1206,27 +1211,43 @@ struct Sources<'a> {
 const SYSTEM_SSH_CONFIG: &str = "/etc/ssh/ssh_config";
 const USR_LOCAL: &str = "/usr/local";
 
+/// What a line holds in front of the word being typed.
+#[derive(Clone, Copy)]
+pub(crate) struct Line<'a> {
+    /// The variables the line sets in front of its command, each written
+    /// `NAME=value` the way the line writes it.
+    pub assignments: &'a [&'a str],
+    /// The command's own words.
+    pub words: &'a [&'a str],
+}
+
 /// The rows a native reader offers for one `dyn` argument, or none where the
 /// table has no reader for it. `command` is the first name of the
 /// specification the walk ended in, `owner` is the name of the node it
-/// ended on and `arg` is the argument's own first name. `line` is every word
-/// in front of the one being typed. `runs` keeps a non-empty answer until
-/// `line` changes.
+/// ended on and `arg` is the argument's own first name. `runs` keeps a
+/// non-empty answer until `line` changes.
 pub(crate) fn rows(
     command: &str,
     owner: &str,
     arg: &str,
     term: &str,
     cwd: &Path,
-    line: &[&str],
+    line: Line,
     runs: &mut Runs,
 ) -> Vec<Candidate> {
     let Some(reader) = reader(command, owner, arg) else {
         return Vec::new();
     };
+    let owned = |words: &[&str]| {
+        words
+            .iter()
+            .map(|word| word.to_string())
+            .collect::<Vec<_>>()
+    };
     let key = (
         std::ptr::from_ref(reader),
-        line.iter().map(|word| word.to_string()).collect::<Vec<_>>(),
+        owned(line.assignments),
+        owned(line.words),
     );
     runs.reads.retain(|kept, _| kept.0 != key.0 || *kept == key);
     let found = match runs.reads.entry(key) {
@@ -1234,7 +1255,7 @@ pub(crate) fn rows(
         // An empty answer is often a file caught while it is rewritten.
         // Keeping it would keep it for the whole word.
         Entry::Vacant(slot) => {
-            let found = read(reader, cwd, line);
+            let found = read(reader, cwd, line).unwrap_or_default();
             if found.is_empty() {
                 return Vec::new();
             }
@@ -1245,22 +1266,30 @@ pub(crate) fn rows(
 }
 
 /// What `reader` finds for `line` in `cwd`. The environment is read here and
-/// nowhere below it.
-fn read(reader: &Reader, cwd: &Path, line: &[&str]) -> Vec<Found> {
-    let var = |name: &str| std::env::var_os(name).map(PathBuf::from);
-    let home = var("HOME").unwrap_or_default();
+/// nowhere below it. A variable the line sets in front of its command stands
+/// over the one surmise was started with. `None` is a variable a reader takes
+/// that the line sets to a value only running something could tell.
+fn read(reader: &Reader, cwd: &Path, line: Line) -> Option<Vec<Found>> {
+    let set = assigned(line.assignments, |name| std::env::var_os(name));
+    // The outer `None` is a value only running something could tell.
+    let var = |name: &str| match set.get(name) {
+        Some(value) => value.clone().map(Some),
+        None => Some(std::env::var_os(name)),
+    };
+    let path_var = |name: &str| var(name).map(|value| value.map(PathBuf::from));
+    let home = path_var("HOME")?.unwrap_or_default();
     let homebrew_cache = homebrew_cache(
-        std::env::var_os("HOMEBREW_NO_INSTALL_FROM_API").is_some_and(|value| !value.is_empty()),
-        var("HOMEBREW_CACHE"),
-        var("XDG_CACHE_HOME"),
+        var("HOMEBREW_NO_INSTALL_FROM_API")?.is_some_and(|value| !value.is_empty()),
+        path_var("HOMEBREW_CACHE")?,
+        path_var("XDG_CACHE_HOME")?,
         &home,
     );
-    let path = std::env::var_os("PATH").unwrap_or_default();
-    let claude_config = claude_config(var("CLAUDE_CONFIG_DIR"), &home);
-    let codex_home = codex_home(var("CODEX_HOME"), &home);
+    let path = var("PATH")?.unwrap_or_default();
+    let claude_config = claude_config(path_var("CLAUDE_CONFIG_DIR")?, &home);
+    let codex_home = codex_home(path_var("CODEX_HOME")?, &home);
     let sources = Sources {
         cwd,
-        line,
+        line: line.words,
         home: &home,
         ssh_config: Path::new(SYSTEM_SSH_CONFIG),
         homebrew_cache: homebrew_cache.as_deref(),
@@ -1269,7 +1298,46 @@ fn read(reader: &Reader, cwd: &Path, line: &[&str]) -> Vec<Found> {
         claude_config: claude_config.as_deref(),
         codex_home: codex_home.as_deref(),
     };
-    (reader.read)(&sources)
+    Some((reader.read)(&sources))
+}
+
+/// What each variable `assignments` sets holds, by name. Each one is written
+/// `NAME=value` or `NAME+=value` the way the line writes it and a later one
+/// reads what an earlier one set. `env` is what the shell exports. `None` is
+/// a value only running something could tell.
+fn assigned(
+    assignments: &[&str],
+    env: impl Fn(&str) -> Option<OsString>,
+) -> HashMap<String, Option<OsString>> {
+    let mut set: HashMap<String, Option<OsString>> = HashMap::new();
+    for assignment in assignments {
+        let Some((name, value)) = assignment.split_once('=') else {
+            continue;
+        };
+        let (name, appends) = match name.strip_suffix('+') {
+            Some(name) => (name, true),
+            None => (name, false),
+        };
+        // `a[1]=` sets an array element and a quoted name assigns nothing.
+        if !crate::shellword::is_name(name) {
+            continue;
+        }
+        let holds = |name: &str| match set.get(name) {
+            Some(value) => value.clone(),
+            None => env(name),
+        };
+        let value = crate::shellword::expand(value, holds);
+        let value = if appends {
+            holds(name).zip(value).map(|(mut before, value)| {
+                before.push(value);
+                before
+            })
+        } else {
+            value
+        };
+        set.insert(name.to_string(), value);
+    }
+    set
 }
 
 fn reader(command: &str, owner: &str, arg: &str) -> Option<&'static Reader> {
@@ -2197,6 +2265,7 @@ fn codex_session_scope(sources: &Sources) -> Option<(PathBuf, bool, bool)> {
             start: 0,
             end: 0,
             inner_text: word.to_string(),
+            raw: word.to_string(),
         });
         let walk = crate::argwalk::walk(&command, &spec, |_| None);
         if walk.awaits_option_value
@@ -2555,6 +2624,12 @@ mod tests {
     fn candidates(reader: &Reader, sources: &Sources, term: &str) -> Vec<Candidate> {
         to_rows((reader.read)(sources).iter(), reader.label, term)
     }
+
+    /// A line with nothing in front of the word being typed.
+    const EMPTY_LINE: Line = Line {
+        assignments: &[],
+        words: &[],
+    };
 
     /// A path that cannot exist, for a source a test does not use.
     fn nowhere() -> &'static Path {
@@ -3149,7 +3224,7 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
             "PROJECT",
             "",
             &f.path().join("apps/sample"),
-            &[],
+            EMPTY_LINE,
             &mut Runs::default(),
         );
         let names: Vec<&str> = rows.iter().map(|r| r.insert.as_str()).collect();
@@ -3185,7 +3260,7 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
                 "owner",
                 "",
                 nowhere(),
-                &[],
+                EMPTY_LINE,
                 &mut Runs::default()
             )
             .is_empty()
@@ -3376,7 +3451,7 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
             "script",
             "",
             f.path(),
-            &[],
+            EMPTY_LINE,
             &mut Runs::default(),
         );
         let names: Vec<&str> = rows.iter().map(|r| r.display.as_str()).collect();
@@ -3405,7 +3480,7 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
             "script",
             "",
             f.path(),
-            &[],
+            EMPTY_LINE,
             &mut Runs::default(),
         );
         assert_eq!(script[0].label, "sample-tool build");
@@ -3415,7 +3490,7 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
             "workspace",
             "",
             f.path(),
-            &[],
+            EMPTY_LINE,
             &mut Runs::default(),
         );
         assert_eq!(workspace[0].label, "workspace");
@@ -3998,7 +4073,11 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
     fn a_reader_keeps_one_answer_for_the_words_in_front_of_the_one_typed() {
         let f = Fixture::new(&[]);
         let mut runs = Runs::default();
-        let mut ask = |line: &[&str]| -> Vec<String> {
+        let mut ask = |words: &[&str]| -> Vec<String> {
+            let line = Line {
+                assignments: &[],
+                words,
+            };
             rows("make", "make", "target", "", f.path(), line, &mut runs)
                 .into_iter()
                 .map(|r| r.insert)
@@ -4016,6 +4095,70 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         std::fs::write(&makefile, "sample-last:\n").unwrap();
         assert_eq!(ask(&["make"]), ["sample-last"]);
         assert_eq!(runs.reads.len(), 1);
+    }
+
+    #[test]
+    fn a_variable_the_line_sets_moves_what_a_reader_reads() {
+        let a = ssh_home(Some("Host sample-a-host\n"), None);
+        let b = ssh_home(Some("Host sample-b-host\n"), None);
+        let mut runs = Runs::default();
+        let mut ask = |assignment: &str| -> Vec<String> {
+            let line = Line {
+                assignments: &[assignment],
+                words: &["ssh"],
+            };
+            rows(
+                "ssh",
+                "ssh",
+                "user@hostname",
+                "",
+                nowhere(),
+                line,
+                &mut runs,
+            )
+            .into_iter()
+            .map(|r| r.insert)
+            .collect()
+        };
+        let home_a = format!("HOME='{}'", a.path().display());
+        let hosts = ask(&home_a);
+        assert!(hosts.contains(&"sample-a-host".to_string()), "{hosts:?}");
+        let hosts = ask(&format!("HOME='{}'", b.path().display()));
+        assert!(hosts.contains(&"sample-b-host".to_string()), "{hosts:?}");
+        assert!(!hosts.contains(&"sample-a-host".to_string()), "{hosts:?}");
+        // Not the rows of the home surmise was started in.
+        assert!(ask("HOME=$(sample)").is_empty());
+    }
+
+    #[test]
+    fn a_later_assignment_reads_an_earlier_one() {
+        let env = |name: &str| (name == "PATH").then(|| OsString::from("/usr/bin"));
+        let set = assigned(
+            &[
+                "SAMPLE_DIR=/sample",
+                "PATH=$SAMPLE_DIR/bin:$PATH",
+                "PATH+=:/c",
+                "SAMPLE_LIST+=:/b",
+                "SAMPLE_BAD=$(sample)",
+                "SAMPLE_AFTER=$SAMPLE_BAD/x",
+                "a[1]=sample",
+            ],
+            env,
+        );
+        let value = |name: &str| {
+            set.get(name)
+                .cloned()
+                .map(|value| value.map(OsString::into_string))
+        };
+        assert_eq!(
+            value("PATH"),
+            Some(Some(Ok("/sample/bin:/usr/bin:/c".into())))
+        );
+        // The shell can hold a variable it does not export.
+        assert_eq!(value("SAMPLE_LIST"), Some(None));
+        assert_eq!(value("SAMPLE_BAD"), Some(None));
+        assert_eq!(value("SAMPLE_AFTER"), Some(None));
+        assert_eq!(set.len(), 5);
     }
 
     #[test]

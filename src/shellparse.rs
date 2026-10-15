@@ -48,6 +48,9 @@ pub struct Token {
     pub end: usize,
     /// The word with its quoting and escaping removed.
     pub inner_text: String,
+    /// The word as written, its quoting and escaping included. A word an
+    /// alias put on the line is written the way the alias's value writes it.
+    pub raw: String,
 }
 
 /// What ends one command and starts the next. [`Operator::Pipe`] and
@@ -123,7 +126,7 @@ impl<'a> Scanner<'a> {
 
 /// A backslash escape inside `"…"`. Anywhere else in a double-quoted word the
 /// backslash is a literal character of its own.
-fn escapes_in_double_quotes(c: char) -> bool {
+pub(crate) fn escapes_in_double_quotes(c: char) -> bool {
     matches!(c, '$' | '`' | '"' | '\\' | '\n')
 }
 
@@ -262,6 +265,7 @@ fn finish_command(
             start: end,
             end,
             inner_text: String::new(),
+            raw: String::new(),
         });
     }
     let (assignments, words) = split_assignments(tokens);
@@ -291,6 +295,7 @@ pub fn parse(buffer: &str) -> Parse {
                         start,
                         end: sc.pos,
                         inner_text: text,
+                        raw: buffer[start..sc.pos].to_string(),
                     });
                 }
                 sc.bump();
@@ -329,6 +334,7 @@ pub fn parse(buffer: &str) -> Parse {
                         start,
                         end: sc.pos,
                         inner_text: text,
+                        raw: buffer[start..sc.pos].to_string(),
                     });
                 }
                 let end = sc.pos;
@@ -377,6 +383,7 @@ pub fn parse(buffer: &str) -> Parse {
             start,
             end: sc.pos,
             inner_text: text,
+            raw: buffer[start..sc.pos].to_string(),
         });
     }
     commands.push(finish_command(buffer, cmd_start, sc.pos, tokens, None));
