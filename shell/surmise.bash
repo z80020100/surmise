@@ -4,7 +4,7 @@
 #   eval "$(surmise init bash)"
 #
 # bash 4.4 or later. Put the line in ~/.bashrc after anything else that binds
-# Tab or Space, and after `set -o vi` where that is set. surmise binds in the
+# Tab, Space or /, and after `set -o vi` where that is set. surmise binds in the
 # current keymap.
 #
 # CLAUDE.md holds the keymap and what SURMISE_BIN does.
@@ -71,9 +71,9 @@ if ((BASH_VERSINFO[0] > 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 4)));
   }
 
   # A first argument says the key was not a completion request. Only
-  # `_surmise_space` passes one.
+  # `_surmise_space` and `_surmise_slash` pass one.
   _surmise_complete() {
-    local from_space=${1-} tty
+    local from_typing=${1-} tty
     local left=${READLINE_LINE:0:READLINE_POINT} right=${READLINE_LINE:READLINE_POINT}
     _surmise_fill_specs
     # A tag, the text right of the cursor, $HISTFILE and the alias table go on
@@ -105,9 +105,9 @@ if ((BASH_VERSINFO[0] > 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 4)));
       fi
       ;;
     # 2 is PASS: nothing surmise completes. Tab hands the key back to what
-    # held it. A space is already typed and completing it is not what was
-    # asked for.
-    2) if [[ -n $from_space ]]; then _surmise_then; else _surmise_then "$_surmise_fallback"; fi ;;
+    # held it. A space or a slash is already typed and completing it is not
+    # what was asked for. readline never saw the key drawn ahead of it.
+    2) if [[ -n $from_typing ]]; then _surmise_then redraw-current-line; else _surmise_then "$_surmise_fallback"; fi ;;
     *) _surmise_then redraw-current-line ;;
     esac
   }
@@ -135,9 +135,26 @@ if ((BASH_VERSINFO[0] > 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 4)));
     _surmise_complete from-space
   }
 
+  # Open on a slash that ends the line's one word. That word is a program
+  # named by its path and the menu lists what the path could name.
+  _surmise_slash() {
+    READLINE_LINE="${READLINE_LINE:0:READLINE_POINT}/${READLINE_LINE:READLINE_POINT}"
+    ((READLINE_POINT++))
+    _surmise_then
+    [[ -z ${READLINE_LINE:READLINE_POINT} ]] || return 0
+    read -t 0 && return 0
+    local -a words
+    read -ra words <<<"$READLINE_LINE"
+    ((${#words[@]} == 1)) || return 0
+    printf '/' >"$(tty)"
+    _surmise_complete from-slash
+  }
+
   bind -x '"\C-x\C-_\C-a": _surmise_complete'
   bind -x '"\C-x\C-_\C-s": _surmise_space'
+  bind -x '"\C-x\C-_\C-d": _surmise_slash'
   _surmise_then
   bind '"\t": "\C-x\C-_\C-a\C-x\C-_\C-b\C-x\C-_\C-c"'
   bind '" ": "\C-x\C-_\C-s\C-x\C-_\C-b\C-x\C-_\C-c"'
+  bind '"/": "\C-x\C-_\C-d\C-x\C-_\C-b\C-x\C-_\C-c"'
 fi

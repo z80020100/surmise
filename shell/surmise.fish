@@ -3,8 +3,9 @@
 #   surmise init fish | source
 #
 # fish 4.0 or later. Put the line in ~/.config/fish/config.fish after anything
-# else that binds Tab or Space. surmise binds in the default mode and in vi's
-# insert mode.
+# else that binds Tab, Space or / and after fish_vi_key_bindings where that is
+# called. surmise binds in the default mode and in vi's insert mode. vi's normal
+# mode is the default mode and keeps its own /.
 #
 # CLAUDE.md holds the keymap and what SURMISE_BIN does.
 
@@ -47,9 +48,9 @@ function _surmise_history_file
 end
 
 # A first argument says the key was not a completion request. Only
-# `_surmise_space` passes one.
+# `_surmise_space` and `_surmise_slash` pass one.
 function _surmise_complete
-    set -l from_space $argv[1]
+    set -l from_typing $argv[1]
     set -l line (commandline -b | string collect)
     set -l point (commandline -C)
     set -l left (string sub -l $point -- $line)
@@ -61,9 +62,10 @@ function _surmise_complete
     set -l histfile (_surmise_history_file)
     set -l tty (tty)
     # The answer is the text left of the cursor, a NUL and the text right of
-    # it. surmise counts the keys queued behind a space. fish cannot.
+    # it. surmise counts the keys queued behind a space or a slash. fish
+    # cannot.
     set -l out (printf '%s\0' $_surmise_tag "$right" "$histfile" |
-        env SURMISE_TTY=$tty SURMISE_TYPED=$from_space $SURMISE_BIN --pick "$left" | string split0)
+        env SURMISE_TTY=$tty SURMISE_TYPED=$from_typing $SURMISE_BIN --pick "$left" | string split0)
     set -l ret $pipestatus[2]
     switch $ret
         case 0 3
@@ -78,9 +80,9 @@ function _surmise_complete
             end
         case 2
             # PASS: nothing surmise completes. Tab hands the key back to
-            # fish. A space is already typed and completing it is not what was
-            # asked for. fish never saw the space drawn ahead of it.
-            if test -n "$from_space"
+            # fish. A space or a slash is already typed and completing it is
+            # not what was asked for. fish never saw the key drawn ahead of it.
+            if test -n "$from_typing"
                 commandline -f repaint
             else
                 commandline -f complete
@@ -94,6 +96,8 @@ end
 # command surmise has a specification for. The space and any abbreviation it
 # expands are fish's own and already on the line.
 function _surmise_space
+    # A space typed into the pager's search field is part of the search.
+    commandline --search-field >/dev/null; and return
     set -l line (commandline -b | string collect)
     test (commandline -C) -eq (string length -- "$line"); or return
     _surmise_fill_specs
@@ -106,7 +110,25 @@ function _surmise_space
     _surmise_complete from-space
 end
 
+# Open on a slash that ends the line's one word. That word is a program named
+# by its path and the menu lists what the path could name.
+function _surmise_slash
+    # A slash typed into the pager's search field is part of the search.
+    commandline --search-field >/dev/null; and return
+    set -l line (commandline -b | string collect)
+    test (commandline -C) -eq (string length -- "$line"); or return
+    set -l words (string split -n ' ' -- $line)
+    test (count $words) -eq 1; or return
+    set -l tty (tty)
+    printf / >$tty
+    _surmise_complete from-slash
+end
+
 for mode in default insert
     bind -M $mode \t _surmise_complete
     bind -M $mode ' ' self-insert expand-abbr _surmise_space
 end
+# vi's normal mode is the default mode and its own `/` searches the history.
+contains -- "$fish_key_bindings" '' fish_default_key_bindings
+and bind -M default / self-insert _surmise_slash
+bind -M insert / self-insert _surmise_slash
