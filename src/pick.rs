@@ -76,6 +76,15 @@ fn seeded(
     (!app.items.is_empty()).then_some(app)
 }
 
+/// Whether a key that types itself onto the line asked for this menu. The
+/// fish widget says so in `SURMISE_TYPED`. Keys queued behind such a key
+/// came in one write and the menu then stays shut. fish has no way to count
+/// them and surmise counts them here. The zsh and bash widgets count them
+/// before they ever run surmise and set nothing.
+fn opened_by_typing() -> bool {
+    std::env::var_os("SURMISE_TYPED").is_some_and(|v| !v.is_empty())
+}
+
 /// What the widget put on stdin: `RBUFFER`, `$HISTFILE` and the shell's
 /// alias table.
 #[derive(Default)]
@@ -196,6 +205,10 @@ pub fn run(seed: &str) -> io::Result<u8> {
     // `tty::claim` below replaces stdin outright and there is no reading it
     // back afterwards.
     let input = read_input()?;
+    // Before the rows: a key typed while surmise finds them reaches the menu.
+    if opened_by_typing() && tty::queued()? {
+        return Ok(PASS);
+    }
     let takes_cursor = input.cursor;
 
     // The file is read once. `enabled = false` keeps surmise out of the way

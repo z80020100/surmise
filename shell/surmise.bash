@@ -120,6 +120,8 @@ if ((BASH_VERSINFO[0] > 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 4)));
     ((READLINE_POINT++))
     _surmise_then
     [[ -z ${READLINE_LINE:READLINE_POINT} ]] || return 0
+    # Keys queued behind the space came in one write. CLAUDE.md says why.
+    read -t 0 && return 0
     _surmise_fill_specs
     local -a words
     read -ra words <<<"$READLINE_LINE"

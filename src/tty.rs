@@ -50,12 +50,8 @@ pub fn stdin_is_terminal() -> bool {
     unsafe { libc::isatty(libc::STDIN_FILENO) == 1 }
 }
 
-/// Resolve the terminal and put it on stdin. The event reader then has a
-/// pollable descriptor. The returned handle writes to the same device.
-///
-/// This replaces the process's own stdin and is therefore not a call to make
-/// from two threads.
-pub fn claim() -> io::Result<File> {
+/// The terminal, resolved and opened by its name.
+fn open() -> io::Result<File> {
     // `SURMISE_TTY` is the seam a test drives surmise through. It names a pty
     // the test opened itself. Otherwise the descriptors are asked in turn with
     // stdout last, because it is the command substitution's pipe.
@@ -66,8 +62,16 @@ pub fn claim() -> io::Result<File> {
         .or_else(|| name_of(libc::STDERR_FILENO))
         .or_else(|| name_of(libc::STDOUT_FILENO))
         .unwrap_or_else(|| "/dev/tty".to_string());
+    OpenOptions::new().read(true).write(true).open(&path)
+}
 
-    let dev = OpenOptions::new().read(true).write(true).open(&path)?;
+/// Resolve the terminal and put it on stdin. The event reader then has a
+/// pollable descriptor. The returned handle writes to the same device.
+///
+/// This replaces the process's own stdin and is therefore not a call to make
+/// from two threads.
+pub fn claim() -> io::Result<File> {
+    let dev = open()?;
     // SAFETY: `dev` owns the descriptor for the whole call.
     if unsafe { libc::dup2(dev.as_raw_fd(), libc::STDIN_FILENO) } < 0 {
         return Err(io::Error::last_os_error());
@@ -107,6 +111,23 @@ pub fn column(term: &File) -> io::Result<Option<usize>> {
         return Err(io::Error::last_os_error());
     }
     Ok(pos.ok().map(|(col, _)| usize::from(col)))
+}
+
+/// Whether keys wait on the terminal that nothing has read yet. Nothing is
+/// read here and the keys stay where they are. A terminal in canonical mode
+/// holds a line back until it ends.
+pub fn queued() -> io::Result<bool> {
+    let dev = open()?;
+    let mut fd = libc::pollfd {
+        fd: dev.as_raw_fd(),
+        events: libc::POLLIN,
+        revents: 0,
+    };
+    // SAFETY: the one entry is live for the call and the count says one.
+    match unsafe { libc::poll(&mut fd, 1, 0) } {
+        n if n < 0 => Err(io::Error::last_os_error()),
+        n => Ok(n > 0 && fd.revents & libc::POLLIN != 0),
+    }
 }
 
 /// The terminal is surmise's for as long as this value lives. A panic or an
