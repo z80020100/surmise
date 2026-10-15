@@ -1255,7 +1255,11 @@ and runs its own copy of a line on that table. Nothing a specification
 carries runs. A line the table does not hold offers no rows. Each line runs
 once per menu in the directory the menu opened in, under the budget and the
 cap Git's own queries keep. A line that fails or runs past either answers
-nothing. A `git -C` on the line does not move it.
+nothing. A `git -C` on the line does not move it. A variable the line sets in
+front of its command reaches it the way it reaches the file readers above.
+`GIT_DIR=/tmp/sample-repo/.git git merge ` offers the branches of that
+repository. The program can read any variable. A value only running
+something could tell therefore leaves the line unrun.
 
 The table holds 57 lines today. Twelve are Git's own read-only lines: the
 commits `log` and `rev-list` print, the local, remote and every branch, the
