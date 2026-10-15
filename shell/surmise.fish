@@ -92,16 +92,22 @@ function _surmise_complete
     end
 end
 
-# Open on a space that ends the line, when the line's first word names a
-# command surmise has a specification for. The space and any abbreviation it
-# expands are fish's own and already on the line.
+# Open on a space that ends the line, when the line's first word past any
+# assignment in front of it names a command surmise has a specification for.
+# The space and any abbreviation it expands are fish's own and already on the
+# line.
 function _surmise_space
     # A space typed into the pager's search field is part of the search.
     commandline --search-field >/dev/null; and return
     set -l line (commandline -b | string collect)
     test (commandline -C) -eq (string length -- "$line"); or return
     _surmise_fill_specs
-    set -l words (string split -n ' ' -- $line)
+    # fish's own tokenizer keeps a quoted space inside its word.
+    printf %s $line | read --tokenize --list --local words
+    # `FOO=bar` sets a variable for the command behind it and names no command.
+    while string match -qr -- '^[][A-Za-z0-9_]+\+?=' "$words[1]"
+        set -e words[1]
+    end
     contains -- "$words[1]" $_surmise_specs; or return
     # fish draws the line once this returns. surmise asks the terminal where
     # the cursor is and the space has to be on the screen already.

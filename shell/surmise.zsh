@@ -160,13 +160,13 @@ _surmise_fill_specs() {
   done
 }
 
-# Open on a space that ends the line, when the line's first word names a
-# command surmise has a specification for. The word is read the way the
-# shell itself would read it before running anything, so `$aliases` is
-# checked ahead of `_surmise_specs` and only the alias value's own first
-# word counts: `alias g=git` opens the menu on a bare `g ` and an alias that
-# expands to several words is read for the one it starts with rather than
-# for the rest of them.
+# Open on a space that ends the line, when the line's first word past any
+# assignment in front of it names a command surmise has a specification for.
+# The word is read the way the shell itself would read it before running
+# anything, so `$aliases` is checked ahead of `_surmise_specs` and only the
+# alias value's own first word past its assignments counts: `alias g=git`
+# opens the menu on a bare `g ` and an alias that expands to several words is
+# read for the one it starts with rather than for the rest of them.
 #
 # Nothing here asks what comes after that word. `docker container ` opens
 # the same way `docker ` does, because a space anywhere on the line ends up
@@ -191,8 +191,13 @@ surmise-space() {
   # whether the split left one word or several.
   local -a words
   words=(${(z)LBUFFER})
+  # `FOO=bar` sets a variable for the command behind it and names no command.
+  setopt extendedglob
+  local assignment='[][A-Za-z0-9_]##(|+)=*'
+  while [[ $words[1] == $~assignment ]]; do shift words; done
   local word=${aliases[$words[1]]:-$words[1]}
   words=(${(z)word})
+  while [[ $words[1] == $~assignment ]]; do shift words; done
   (( $+_surmise_specs[$words[1]] )) || return
   surmise-complete from-space
 }
