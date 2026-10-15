@@ -51,11 +51,17 @@ fn fish() -> PathBuf {
 /// nothing, so the first row is the line. An autosuggestion would draw the
 /// rest of a word Tab never put there and is off.
 fn home() -> Fixture {
+    home_after("")
+}
+
+/// The same home with `before` run ahead of the widget.
+fn home_after(before: &str) -> Fixture {
     let f = Fixture::new(&["work", "deep", ".config/fish"]);
     let rc = format!(
         "function fish_prompt; echo -n '{PROMPT} '; end\n\
          function fish_greeting; end\n\
          set -g fish_autosuggestion_enabled 0\n\
+         {before}\
          $SURMISE_BIN init fish | source\n\
          set -q _surmise_tag; and echo {LOADED}\n"
     );
@@ -181,6 +187,87 @@ fn a_space_typed_into_the_search_field_stays_in_the_search() {
     );
     assert!(
         t.lines().iter().any(|row| row == "search: cd work"),
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
+fn a_slash_that_ends_the_first_word_opens_the_program_menu() {
+    let f = home();
+    crate::zsh::with_program(&f);
+    let mut t = ready(f.path());
+    t.send("./");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    let rows: String = t.panel().iter().map(|row| row.text.as_str()).collect();
+    assert!(rows.contains("sample-tool"), "{rows:?}");
+    assert!(rows.contains("work/"), "{rows:?}");
+    assert!(!rows.contains("sample-notes.txt"), "{rows:?}");
+}
+
+#[test]
+fn a_slash_further_along_the_line_only_inserts_a_slash() {
+    let f = home();
+    let mut t = ready(f.path());
+    t.send("zzzz ./");
+    let row = format!("{PROMPT} zzzz ./");
+    assert!(t.wait_row(&row, WAIT), "{:?}", t.lines());
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+}
+
+#[test]
+fn a_slash_on_a_path_that_names_nothing_only_inserts_a_slash() {
+    let f = home();
+    let mut t = ready(f.path());
+    t.send("sample-missing/");
+    let row = format!("{PROMPT} sample-missing/");
+    assert!(t.wait_row(&row, WAIT), "{:?}", t.lines());
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+}
+
+#[test]
+fn a_program_sent_whole_with_its_enter_runs() {
+    // A menu would have taken `work/` where the write sent `w`.
+    let f = home();
+    crate::zsh::with_program(&f);
+    let mut t = ready(f.path());
+    t.send("./sample-tool w\r");
+    assert!(t.wait_line("TOOL-RAN", WAIT), "{:?}", t.lines());
+    let row = format!("{PROMPT} ./sample-tool w");
+    assert!(t.wait_row(&row, WAIT), "{:?}", t.lines());
+}
+
+#[test]
+fn a_slash_typed_into_the_search_field_stays_in_the_search() {
+    let f = home();
+    let mut t = ready(f.path());
+    typed(&mut t, "./work");
+    t.send("\x12");
+    t.pump(SETTLE);
+    typed(&mut t, "/");
+    // The search draws on a ground of its own. A frame is surmise's alone.
+    assert!(
+        !t.lines().join("\n").contains('─'),
+        "a menu opened: {:?}",
+        t.lines()
+    );
+    assert!(
+        t.lines().iter().any(|row| row == "search: ./work/"),
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
+fn vi_normal_mode_keeps_its_own_slash() {
+    // vi's normal mode is fish's `default` mode and its `/` searches the history.
+    let f = home_after("fish_vi_key_bindings\n");
+    let mut t = ready(f.path());
+    typed(&mut t, "\x1b");
+    typed(&mut t, "/");
+    assert!(
+        t.lines().iter().any(|row| row.starts_with("search:")),
         "{:?}",
         t.lines()
     );

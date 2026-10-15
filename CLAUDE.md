@@ -35,7 +35,7 @@ it. The two cannot fall out of step, because they are one artifact. The
 `make shell` gate reads the same bytes the command emits.
 
 In bash 4.4 or later the line goes in `~/.bashrc`, after anything else that
-binds Tab or Space and after `set -o vi` where that is set:
+binds Tab, Space or `/` and after `set -o vi` where that is set:
 
 ```sh
 eval "$(surmise init bash)"
@@ -44,16 +44,16 @@ eval "$(surmise init bash)"
 The menu is the same one and the keys inside it are the same keys. Three
 things differ around it. bash has no hook for a change of directory and the
 widget records one at the next prompt instead, from `PROMPT_COMMAND`. A
-function readline runs cannot call one of readline's own, so Tab and Space are
-each a macro of three keys: the first runs surmise and the other two are bound
-on the spot to what has to follow, a redraw, the old Tab, the line running or
-nothing at all. And a bash variable cannot hold a NUL, so the widget reads the
-answer with `mapfile`, which is why 4.4 is the floor. macOS ships bash 3.2 and
-`brew install bash` is where a newer one comes from. A `/` opens the menu in
-zsh alone. "Other commands" below says where.
+function readline runs cannot call one of readline's own, so Tab, Space and
+`/` are each a macro of three keys: the first runs surmise and the other two
+are bound on the spot to what has to follow, a redraw, the old Tab, the line
+running or nothing at all. And a bash variable cannot hold a NUL, so the
+widget reads the answer with `mapfile`, which is why 4.4 is the floor. macOS
+ships bash 3.2 and `brew install bash` is where a newer one comes from.
 
 In fish 4.0 or later the line goes in `~/.config/fish/config.fish`, after
-anything else that binds Tab or Space:
+anything else that binds Tab, Space or `/` and after `fish_vi_key_bindings`
+where that is called:
 
 ```sh
 surmise init fish | source
@@ -62,11 +62,12 @@ surmise init fish | source
 fish keeps its own history in a format of its own and the reader takes either.
 fish holds no alias table of the shape the record carries and the widget sends
 none. A space there is fish's own first and expands an abbreviation the way it
-always did. surmise looks at the line behind it. fish 3 cannot mix its own
-input functions and shell commands in one binding and the space binding needs
-both. That is why 4.0 is the floor and an older fish loads no widget. Ubuntu
-24.04 ships 3.7 and the fish project's own `ppa:fish-shell/release-4` is where
-a newer one comes from.
+always did. surmise looks at the line behind it. vi's normal mode is fish's
+default mode and keeps its own `/`, the history search. fish 3 cannot mix its
+own input functions and shell commands in one binding and the space binding
+needs both. That is why 4.0 is the floor and an older fish loads no widget.
+Ubuntu 24.04 ships 3.7 and the fish project's own `ppa:fish-shell/release-4`
+is where a newer one comes from.
 
 One shell can still hold an older copy. The `eval` above runs once and the
 function it defines lives as long as that shell does, so a session open
@@ -165,8 +166,8 @@ Tab asks surmise about the line you already have and falls through to the
 shell's own completion when surmise has nothing to offer. The paragraphs
 under the table say what narrows that. A bare `cd ` also opens surmise on its
 own, and so does a space after any other command surmise has a specification
-for; "Other commands" below says what that opens and what it costs. In zsh a
-`/` that ends the line's only word opens surmise as well. A menu
+for; "Other commands" below says what that opens and what it costs. A `/`
+that ends the line's only word opens surmise as well. A menu
 of directories opens below the line. The mark on the first
 name sits under the cursor and the menu follows the cursor along the line. The
 menu is one width whatever it holds. Near the right edge it keeps that width
@@ -412,15 +413,14 @@ Emptying the line leaves the menu as well and keeps the empty line. So does
 taking back the space that opened the menu. The line then goes back as the
 shell had it before that space.
 
-A space opens nothing while keys are still queued behind it and in zsh a `/`
-opens nothing there either. Those keys came in one write rather than from a
-person answering a menu. A program that restores a session types its command
-and Enter that way. In zsh the terminal has already turned that Enter into a
-newline and the menu would read the newline as Ctrl-J. In bash and fish the
-menu would read Enter and take the row under the highlight. The shell takes
-the whole line and runs it. zsh and bash count those keys before they run
-surmise. fish has nothing that counts them and surmise counts them itself
-before it looks for rows.
+A space or a `/` opens nothing while keys are still queued behind it. Those
+keys came in one write rather than from a person answering a menu. A program
+that restores a session types its command and Enter that way. In zsh the
+terminal has already turned that Enter into a newline and the menu would read
+the newline as Ctrl-J. In bash and fish the menu would read Enter and take the
+row under the highlight. The shell takes the whole line and runs it. zsh and
+bash count those keys before they run surmise. fish has nothing that counts
+them and surmise counts them itself before it looks for rows.
 
 `bindkey ' ' $_surmise_space` after the `eval` gives the space key back and
 keeps the Tab route. `bindkey '/' $_surmise_slash` gives the slash key back
@@ -430,7 +430,8 @@ zsh's own Ctrl-R search keeps a space typed into it. The widget binds the
 space to `self-insert` in the `isearch` keymap for that where nothing is bound
 there yet. The search `/` starts in vi command mode drops the space. That
 search reads the keymap the widget binds the space in and keeps only a key
-bound to insert itself.
+bound to insert itself. The history search in bash and the one in fish keep a
+space typed into them as well.
 
 `SURMISE_BIN` names the binary. It defaults to the `surmise` on the PATH.
 That is the one that printed the widget when `init` was run from there.
@@ -728,13 +729,13 @@ program adds a space. A directory of 400 names or more leaves Tab to the
 shell's own completion. One walk reads 400 names and the program meant could
 be among the rest.
 
-In zsh a `/` that ends the line's only word opens this menu with no Tab. The
+A `/` that ends the line's only word opens this menu with no Tab. The
 rest of the name goes into the menu. A folder or a program already named leads
 with the row that runs the line. Enter there does what it does with no menu. A
 path that names nothing opens nothing and the `/` stays as typed. So does a
 directory of 400 names or more. A path further along the line is an argument
-and Tab still asks for it. A `/` typed into either search does what a space
-does there. The bash widget binds no `/`.
+and Tab still asks for it. A `/` typed into a search does what a space does
+there.
 
 Behind the program Tab offers the files and folders beside the line. The
 corpus's own `dotslash` specification says such a program takes those.

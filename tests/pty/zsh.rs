@@ -1354,7 +1354,7 @@ fn a_space_typed_into_ctrl_r_search_stays_in_the_search() {
 
 /// A program in the home that says it ran and a file beside it that may not
 /// run.
-fn with_program(f: &Fixture) {
+pub(crate) fn with_program(f: &Fixture) {
     use std::os::unix::fs::PermissionsExt;
     let tool = f.path().join("sample-tool");
     std::fs::write(&tool, "#!/bin/sh\necho TOOL-RAN\n").unwrap();

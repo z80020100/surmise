@@ -158,6 +158,61 @@ fn a_space_surmise_has_nothing_for_leaves_the_line_as_typed() {
 }
 
 #[test]
+fn a_slash_that_ends_the_first_word_opens_the_program_menu() {
+    let f = home();
+    crate::zsh::with_program(&f);
+    let mut t = ready(f.path());
+    t.send("./");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    let rows: String = t.panel().iter().map(|row| row.text.as_str()).collect();
+    assert!(rows.contains("sample-tool"), "{rows:?}");
+    assert!(rows.contains("work/"), "{rows:?}");
+    assert!(!rows.contains("sample-notes.txt"), "{rows:?}");
+}
+
+#[test]
+fn a_slash_further_along_the_line_only_inserts_a_slash() {
+    let f = home();
+    let mut t = ready(f.path());
+    t.send("zzzz ./");
+    let row = format!("{PROMPT} zzzz ./");
+    assert!(t.wait_row(&row, WAIT), "{:?}", t.lines());
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+}
+
+#[test]
+fn a_slash_on_a_path_that_names_nothing_only_inserts_a_slash() {
+    let f = home();
+    let mut t = ready(f.path());
+    t.send("sample-missing/");
+    let row = format!("{PROMPT} sample-missing/");
+    assert!(t.wait_row(&row, WAIT), "{:?}", t.lines());
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+}
+
+#[test]
+fn a_program_sent_whole_with_its_enter_runs() {
+    // A menu would have taken `work/` where the write sent `w`.
+    let f = home();
+    crate::zsh::with_program(&f);
+    let mut t = ready(f.path());
+    t.send("./sample-tool w\r");
+    assert!(t.wait_line("TOOL-RAN", WAIT), "{:?}", t.lines());
+}
+
+#[test]
+fn a_slash_typed_into_ctrl_r_search_stays_in_the_search() {
+    let f = home();
+    std::fs::write(f.path().join(".bash_history"), "zzzz sample-a/sample-b\n").unwrap();
+    let mut t = ready(f.path());
+    t.send("\x12");
+    t.pump(SETTLE);
+    typed(&mut t, "a/s");
+    assert!(screen(&t).contains("`a/s'"), "{:?}", t.lines());
+}
+
+#[test]
 fn the_prompt_hook_records_a_change_of_directory() {
     let f = home();
     let out = Command::new(bash())
