@@ -29,7 +29,7 @@
 //! where a subcommand takes a formula alone. `brew cleanup` keeps the line that
 //! names the services and takes a formula or a cask.
 
-use crate::candidates::{Candidate, DEFAULT_PRIORITY, Kind, SCAN_LIMIT};
+use crate::candidates::{CURRENT_BRANCH, Candidate, DEFAULT_PRIORITY, Kind, SCAN_LIMIT};
 use crate::fuzzy;
 use rusqlite::{Connection, OpenFlags, params};
 use serde_json::{Map, Value};
@@ -867,19 +867,21 @@ fn oneline(out: &str) -> Vec<Found> {
         .collect()
 }
 
-/// `git branch`'s own list. The mark in front of the current branch and of
-/// one checked out in another worktree comes off. A detached `HEAD` names
-/// no branch and a symbolic remote `HEAD` points at a branch the list
-/// already holds. A remote branch loses its `remotes/` and keeps its
-/// remote's name.
+/// `git branch`'s own list. The current branch says so the way it does in
+/// Git's own menu and the mark of one checked out in another worktree comes
+/// off. A detached `HEAD` names no branch and a symbolic remote `HEAD`
+/// points at a branch the list already holds. A remote branch loses its
+/// `remotes/` and keeps its remote's name.
 fn branches(out: &str) -> Vec<Found> {
-    let names = out
-        .lines()
-        .map(|line| line.get(2..).unwrap_or("").trim())
-        .filter(|name| !name.is_empty() && !name.starts_with('(') && !name.contains(" -> "))
-        .map(|name| name.strip_prefix("remotes/").unwrap_or(name).to_string())
-        .collect();
-    unlabelled(names)
+    out.lines()
+        .map(|line| (line.starts_with('*'), line.get(2..).unwrap_or("").trim()))
+        .filter(|(_, name)| !name.is_empty() && !name.starts_with('(') && !name.contains(" -> "))
+        .map(|(current, name)| Found {
+            name: name.strip_prefix("remotes/").unwrap_or(name).to_string(),
+            label: current.then_some(Cow::Borrowed(CURRENT_BRANCH)),
+            insert: None,
+        })
+        .collect()
 }
 
 /// `origin\turl (fetch)` and the same remote again for `(push)`. One row
@@ -3062,10 +3064,13 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         let log = oneline("abc1234 Sample subject\ndef5678 Another\n");
         assert_eq!(log[0].name, "abc1234");
         assert_eq!(log[0].label.as_deref(), Some("Sample subject"));
+        let branch = branches(
+            "* sample-main\n+ sample-tree\n  sample-topic\n  (HEAD detached at abc1234)\n  remotes/origin/HEAD -> origin/sample-main\n  remotes/origin/sample-topic\n",
+        );
+        let labels: Vec<Option<&str>> = branch.iter().map(|f| f.label.as_deref()).collect();
+        assert_eq!(labels, [Some(CURRENT_BRANCH), None, None, None]);
         assert_eq!(
-            names(branches(
-                "* sample-main\n+ sample-tree\n  sample-topic\n  (HEAD detached at abc1234)\n  remotes/origin/HEAD -> origin/sample-main\n  remotes/origin/sample-topic\n"
-            )),
+            names(branch),
             [
                 "sample-main",
                 "sample-tree",
@@ -3073,6 +3078,10 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
                 "origin/sample-topic"
             ]
         );
+        // A detached `HEAD` is the one the mark is on and it names no branch.
+        let detached = branches("* (HEAD detached at abc1234)\n  sample-main\n");
+        assert_eq!(detached.len(), 1);
+        assert_eq!(detached[0].label, None);
         let remote = remotes(
             "origin\thttps://example.invalid/sample.git (fetch)\norigin\thttps://example.invalid/sample.git (push)\n",
         );

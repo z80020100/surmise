@@ -1268,7 +1268,8 @@ The table holds 57 lines today. Twelve are Git's own read-only lines: the
 commits `log` and `rev-list` print, the local, remote and every branch, the
 remotes, the changed files, the stashes, the tags, the aliases and the
 configuration's keys. A commit row, a remote row and an alias row say what the
-commit says, where the remote fetches from and what the alias stands for. A
+commit says, where the remote fetches from and what the alias stands for. The
+branch the repository is on wears the mark it wears in Git's own menu. A
 configuration row names its key alone. A value can hold a token. `docker`'s
 fifteen name its containers, images, services, nodes, plugins, contexts,
 networks, stacks, secrets and volumes. A container row says what it runs and

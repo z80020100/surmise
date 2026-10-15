@@ -351,7 +351,8 @@ pub fn of(set: Set, c: &Candidate, chosen: bool) -> (&'static str, &'static str)
         Kind::File | Kind::Path if set == Set::Nerd && c.label == FILE => {
             file_look(&c.display).map_or(plain, |(glyph, role)| (glyph, role.fg()))
         }
-        Kind::Branch if c.label == CURRENT_BRANCH => (current_glyph(set), kind_fg(Kind::Branch)),
+        // A specification's own branch row is a value and keeps a value's colour.
+        Kind::Branch | Kind::Path if c.label == CURRENT_BRANCH => (current_glyph(set), plain.1),
         _ => plain,
     };
     (glyph, if chosen { fg_chosen } else { fg })
@@ -539,6 +540,13 @@ mod tests {
             // The name says nothing about where the repository stands and the
             // colour is not what would.
             assert_eq!(current.1, other.1);
+            // A specification's own branch row changes its shape and not its colour.
+            let value = of(set, &row(Kind::Path, "main", CURRENT_BRANCH), false);
+            assert_eq!(value.0, current.0);
+            assert_eq!(
+                value.1,
+                of(set, &row(Kind::Path, "work", "branch"), false).1
+            );
         }
     }
 
