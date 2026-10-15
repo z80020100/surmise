@@ -1141,6 +1141,7 @@ fn enclosing_node<'a>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::candidates::CURRENT_BRANCH;
     use crate::fixture::Fixture;
 
     fn target(line: &str) -> Target {
@@ -1618,6 +1619,10 @@ mod tests {
         let names = names(&rows);
         assert!(names.contains(&"sample-topic"), "{names:?}");
         assert!(names.contains(&"sample-main"), "{names:?}");
+        // The branch the repository is on says so the way Git's own menu does.
+        let label = |name: &str| &rows.iter().find(|r| r.insert == name).unwrap().label;
+        assert_eq!(label("sample-main"), CURRENT_BRANCH);
+        assert_eq!(label("sample-topic"), "branch");
     }
 
     #[test]
