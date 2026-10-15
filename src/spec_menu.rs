@@ -1661,6 +1661,94 @@ mod tests {
         assert!(names(&rows).contains(&"sample-crate"), "{:?}", names(&rows));
     }
 
+    /// A package named `name` in `dir` with a binary of its own name and the
+    /// files under it, each a target cargo finds by its place.
+    fn sample_package(dir: &Path, name: &str, files: &[&str]) {
+        std::fs::create_dir_all(dir.join("src")).unwrap();
+        std::fs::write(
+            dir.join("Cargo.toml"),
+            format!("[package]\nname = \"{name}\"\nversion = \"0.1.0\"\nedition = \"2021\"\n"),
+        )
+        .unwrap();
+        for file in ["src/main.rs"].iter().chain(files) {
+            let path = dir.join(file);
+            std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+            std::fs::write(path, "fn main() {}\n").unwrap();
+        }
+    }
+
+    #[test]
+    fn cargo_names_the_targets_of_each_kind_its_metadata_describes() {
+        let f = Fixture::new(&[]);
+        sample_package(
+            f.path(),
+            "sample-crate",
+            &[
+                "src/bin/sample-tool.rs",
+                "examples/sample-demo.rs",
+                "tests/sample-check.rs",
+                "benches/sample-speed.rs",
+            ],
+        );
+        for (line, want) in [
+            (
+                "cargo run --bin ",
+                ["sample-crate", "sample-tool"].as_slice(),
+            ),
+            ("cargo run --example ", &["sample-demo"]),
+            ("cargo test --test ", &["sample-check"]),
+            ("cargo bench --bench ", &["sample-speed"]),
+        ] {
+            let rows = rows_in(f.path(), line);
+            let mut found: Vec<&str> = names(&rows)
+                .into_iter()
+                .filter(|name| name.starts_with("sample-"))
+                .collect();
+            found.sort_unstable();
+            assert_eq!(found, want, "{line}");
+        }
+        // `cargo install` names a crate it has not fetched yet. A manifest the
+        // line names may be another workspace's.
+        for line in [
+            "cargo install --bin ",
+            "cargo run --manifest-path Cargo.toml --bin ",
+        ] {
+            assert!(
+                !names(&rows_in(f.path(), line)).contains(&"sample-tool"),
+                "{line}"
+            );
+        }
+    }
+
+    #[test]
+    fn cargo_names_the_targets_of_the_packages_the_line_selects() {
+        let f = Fixture::new(&[]);
+        let workspace = "[workspace]\nmembers = [\"sample-a\", \"sample-b\"]\nresolver = \"2\"\n";
+        std::fs::write(f.path().join("Cargo.toml"), workspace).unwrap();
+        sample_package(&f.path().join("sample-a"), "sample-a", &[]);
+        sample_package(&f.path().join("sample-b"), "sample-b", &[]);
+        let bins = |cwd: &Path, line: &str| {
+            let rows = rows_in(cwd, line);
+            let mut found: Vec<String> = names(&rows)
+                .into_iter()
+                .filter(|name| name.starts_with("sample-"))
+                .map(str::to_string)
+                .collect();
+            found.sort_unstable();
+            found
+        };
+        let member = f.path().join("sample-a");
+        assert_eq!(bins(f.path(), "cargo run --bin "), ["sample-a", "sample-b"]);
+        assert_eq!(bins(&member, "cargo run --bin "), ["sample-a"]);
+        assert_eq!(
+            bins(&member, "cargo run -p sample-b --bin "),
+            ["sample-a", "sample-b"]
+        );
+        let defaults = format!("{workspace}default-members = [\"sample-b\"]\n");
+        std::fs::write(f.path().join("Cargo.toml"), defaults).unwrap();
+        assert_eq!(bins(f.path(), "cargo run --bin "), ["sample-b"]);
+    }
+
     fn past(f: &Fixture, text: &str) -> Completions {
         let path = f.path().join("histfile");
         std::fs::write(&path, text).unwrap();

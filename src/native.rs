@@ -27,7 +27,9 @@
 //! `brew uninstall` and its neighbours keep `brew list -1`. That line sees none
 //! of the words in front of the one being typed either and lists the casks
 //! where a subcommand takes a formula alone. `brew cleanup` keeps the line that
-//! names the services and takes a formula or a cask.
+//! names the services and takes a formula or a cask. `cargo run --bin` keeps no
+//! line. Its reader runs the line [`SCRIPTS`] holds for `cargo`'s packages and
+//! reads which of them the line's directory selects.
 
 use crate::candidates::{Candidate, DEFAULT_PRIORITY, Kind, SCAN_LIMIT};
 use crate::fuzzy;
@@ -295,7 +297,44 @@ static READERS: &[Reader] = &[
         label: "session",
         read: codex_sessions,
     },
+    // `cargo install` names the targets of a crate it has not fetched yet.
+    Reader {
+        command: "cargo",
+        owners: CARGO_BUILDS,
+        arg: "bin",
+        label: "binary",
+        read: |sources| cargo_targets(sources, "bin"),
+    },
+    Reader {
+        command: "cargo",
+        owners: CARGO_BUILDS,
+        arg: "example",
+        label: "example",
+        read: |sources| cargo_targets(sources, "example"),
+    },
+    Reader {
+        command: "cargo",
+        owners: CARGO_TESTS,
+        arg: "test",
+        label: "test",
+        read: |sources| cargo_targets(sources, "test"),
+    },
+    Reader {
+        command: "cargo",
+        owners: CARGO_TESTS,
+        arg: "bench",
+        label: "benchmark",
+        read: |sources| cargo_targets(sources, "bench"),
+    },
 ];
+
+/// The `cargo` subcommands that take `--bin` and `--example`.
+const CARGO_BUILDS: &[&str] = &[
+    "bench", "build", "check", "doc", "fix", "run", "rustc", "rustdoc", "test",
+];
+
+/// The ones that take `--test` and `--bench` as well.
+const CARGO_TESTS: &[&str] = &["bench", "build", "check", "fix", "rustc", "rustdoc", "test"];
 
 /// A reader for every argument whose generator runs one command line.
 struct Script {
@@ -545,7 +584,7 @@ static SCRIPTS: &[Script] = &[
         parse: plain_lines,
     },
     Script {
-        line: &["cargo", "metadata", "--format-version", "1", "--no-deps"],
+        line: CARGO_METADATA,
         label: "package",
         parse: cargo_packages,
     },
@@ -828,28 +867,31 @@ fn same_line(words: &[Value], line: &[&str]) -> bool {
             .all(|(word, want)| word.as_str() == Some(*want))
 }
 
-/// What `entry`'s line prints in `cwd` within the budget Git's own queries
-/// keep. A line that fails, runs past that or prints past its cap answers
-/// nothing and prints nothing at the prompt. It runs with the variables
-/// `assignments` set over the environment as the line's own command would.
-/// A value only running something could tell leaves it unrun. The program
-/// can read any variable.
+/// What `entry`'s line offers in `cwd`. [`output`] says when that is
+/// nothing.
 fn run(entry: &Script, cwd: &Path, assignments: &[&str]) -> Vec<Found> {
-    let [program, args @ ..] = entry.line else {
-        return Vec::new();
+    output(entry.line, cwd, assignments).map_or_else(Vec::new, |out| (entry.parse)(&out))
+}
+
+/// What `line` prints in `cwd` within the budget Git's own queries keep. A
+/// line that fails, runs past that or prints past its cap prints nothing at
+/// the prompt and gives `None`. It runs with the variables `assignments` set
+/// over the environment as the line's own command would. A value only
+/// running something could tell leaves it unrun. The program can read any
+/// variable.
+fn output(line: &[&str], cwd: &Path, assignments: &[&str]) -> Option<String> {
+    let [program, args @ ..] = line else {
+        return None;
     };
-    let Some(set) = assigned(assignments, |name| std::env::var_os(name))
+    let set = assigned(assignments, |name| std::env::var_os(name))
         .into_iter()
         .map(|(name, value)| Some((name, value?)))
-        .collect::<Option<Vec<_>>>()
-    else {
-        return Vec::new();
-    };
+        .collect::<Option<Vec<_>>>()?;
     let mut command = Command::new(program);
     command.args(args).current_dir(cwd).envs(set);
     match crate::git::read_output(&mut command, crate::git::timeout()) {
-        Some((status, out)) if status.success() => (entry.parse)(&out),
-        _ => Vec::new(),
+        Some((status, out)) if status.success() => Some(out),
+        _ => None,
     }
 }
 
@@ -1183,6 +1225,84 @@ fn cargo_features(out: &str) -> Vec<Found> {
     unlabelled(names)
 }
 
+/// The line both `cargo` readers run.
+const CARGO_METADATA: &[&str] = &["cargo", "metadata", "--format-version", "1", "--no-deps"];
+
+/// The targets of `kind` in the packages the line selects, in the order the
+/// metadata lists them. A line that names its own manifest is answered by a
+/// workspace this line's directory may not be in and gets none.
+fn cargo_targets(sources: &Sources, kind: &str) -> Vec<Found> {
+    let names_manifest =
+        |word: &&str| *word == "--manifest-path" || word.starts_with("--manifest-path=");
+    if sources.line.iter().any(names_manifest) {
+        return Vec::new();
+    }
+    let Some(metadata) = output(CARGO_METADATA, sources.cwd, sources.assignments)
+        .and_then(|out| serde_json::from_str::<Value>(&out).ok())
+    else {
+        return Vec::new();
+    };
+    let selected = cargo_selected(&metadata, sources);
+    let targets = metadata["packages"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter(|package| {
+            selected
+                .as_ref()
+                .is_none_or(|ids| ids.contains(package["id"].as_str().unwrap_or("")))
+        })
+        .flat_map(|package| package["targets"].as_array().into_iter().flatten());
+    let mut seen = HashSet::new();
+    let mut names = Vec::new();
+    for target in targets {
+        if target["kind"]
+            .as_array()
+            .is_some_and(|kinds| kinds.iter().any(|k| k == kind))
+        {
+            push_unique(target["name"].as_str().unwrap_or(""), &mut seen, &mut names);
+        }
+    }
+    unlabelled(names)
+}
+
+/// The ids of the packages a `cargo` line selects the way cargo itself does,
+/// or `None` for every package in the workspace. The manifest nearest the
+/// line's directory selects the package it defines. At the workspace's root
+/// it selects the default members instead and a root that defines no package
+/// selects every member. A line that names packages with `-p` or
+/// `--workspace` gets every package in the workspace.
+fn cargo_selected<'a>(metadata: &'a Value, sources: &Sources) -> Option<HashSet<&'a str>> {
+    let names_packages = |word: &&str| {
+        matches!(*word, "--workspace" | "--all" | "--package")
+            || word.starts_with("--package=")
+            || word.starts_with("-p")
+    };
+    if sources.line.iter().any(names_packages) {
+        return None;
+    }
+    let manifest = sources
+        .cwd
+        .ancestors()
+        .map(|dir| dir.join("Cargo.toml"))
+        .find(|path| path.is_file())
+        .and_then(|path| path.canonicalize().ok())?;
+    let is_manifest = |path: &str| Path::new(path).canonicalize().is_ok_and(|p| p == manifest);
+    let root = metadata["workspace_root"].as_str().unwrap_or("");
+    if is_manifest(&format!("{root}/Cargo.toml"))
+        && let Some(defaults) = metadata["workspace_default_members"].as_array()
+    {
+        return Some(defaults.iter().filter_map(Value::as_str).collect());
+    }
+    metadata["packages"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .find(|package| is_manifest(package["manifest_path"].as_str().unwrap_or("")))
+        .and_then(|package| package["id"].as_str())
+        .map(|id| HashSet::from([id]))
+}
+
 fn name_only(name: &str) -> Found {
     Found {
         name: name.to_string(),
@@ -1209,6 +1329,9 @@ struct Sources<'a> {
     /// Every word on the line in front of the one being typed. A reader for
     /// an argument that takes several words leaves out a name already there.
     line: &'a [&'a str],
+    /// The variables the line sets in front of its command. A reader that
+    /// runs a line runs it with them.
+    assignments: &'a [&'a str],
     /// `$HOME`, or an empty path when the environment says nothing.
     home: &'a Path,
     /// The system-wide SSH configuration.
@@ -1304,6 +1427,7 @@ fn read(reader: &Reader, cwd: &Path, line: Line) -> Option<Vec<Found>> {
     let sources = Sources {
         cwd,
         line: line.words,
+        assignments: line.assignments,
         home: &home,
         ssh_config: Path::new(SYSTEM_SSH_CONFIG),
         homebrew_cache: homebrew_cache.as_deref(),
@@ -2625,6 +2749,7 @@ mod tests {
         Sources {
             cwd,
             line: &[],
+            assignments: &[],
             home,
             ssh_config,
             homebrew_cache: None,
