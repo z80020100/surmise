@@ -144,6 +144,16 @@ fn enter_on_the_row_that_runs_the_line_runs_it() {
 }
 
 #[test]
+fn a_space_surmise_has_nothing_for_leaves_the_line_as_typed() {
+    // `z` has a specification and nothing in it.
+    let f = home();
+    let mut t = ready(f.path());
+    typed(&mut t, "z ");
+    typed(&mut t, "sample");
+    assert_eq!(prompt_row(&t), format!("{PROMPT} z sample"));
+}
+
+#[test]
 fn a_change_of_directory_is_recorded() {
     let f = home();
     let out = Command::new(fish())

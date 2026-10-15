@@ -79,8 +79,12 @@ function _surmise_complete
         case 2
             # PASS: nothing surmise completes. Tab hands the key back to
             # fish. A space is already typed and completing it is not what was
-            # asked for.
-            test -n "$from_space"; or commandline -f complete
+            # asked for. fish never saw the space drawn ahead of it.
+            if test -n "$from_space"
+                commandline -f repaint
+            else
+                commandline -f complete
+            end
         case '*'
             commandline -f repaint
     end
