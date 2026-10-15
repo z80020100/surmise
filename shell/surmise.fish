@@ -61,9 +61,9 @@ function _surmise_complete
     set -l histfile (_surmise_history_file)
     set -l tty (tty)
     # The answer is the text left of the cursor, a NUL and the text right of
-    # it.
+    # it. surmise counts the keys queued behind a space. fish cannot.
     set -l out (printf '%s\0' $_surmise_tag "$right" "$histfile" |
-        env SURMISE_TTY=$tty $SURMISE_BIN --pick "$left" | string split0)
+        env SURMISE_TTY=$tty SURMISE_TYPED=$from_space $SURMISE_BIN --pick "$left" | string split0)
     set -l ret $pipestatus[2]
     switch $ret
         case 0 3
@@ -79,8 +79,12 @@ function _surmise_complete
         case 2
             # PASS: nothing surmise completes. Tab hands the key back to
             # fish. A space is already typed and completing it is not what was
-            # asked for.
-            test -n "$from_space"; or commandline -f complete
+            # asked for. fish never saw the space drawn ahead of it.
+            if test -n "$from_space"
+                commandline -f repaint
+            else
+                commandline -f complete
+            end
         case '*'
             commandline -f repaint
     end

@@ -41,7 +41,7 @@ binds Tab or Space and after `set -o vi` where that is set:
 eval "$(surmise init bash)"
 ```
 
-The menu is the same one and the keys inside it are the same keys. Four
+The menu is the same one and the keys inside it are the same keys. Three
 things differ around it. bash has no hook for a change of directory and the
 widget records one at the next prompt instead, from `PROMPT_COMMAND`. A
 function readline runs cannot call one of readline's own, so Tab and Space are
@@ -49,10 +49,8 @@ each a macro of three keys: the first runs surmise and the other two are bound
 on the spot to what has to follow, a redraw, the old Tab, the line running or
 nothing at all. And a bash variable cannot hold a NUL, so the widget reads the
 answer with `mapfile`, which is why 4.4 is the floor. macOS ships bash 3.2 and
-`brew install bash` is where a newer one comes from. A space in bash also
-opens the menu with keys still queued behind it. zsh opens none there and
-"Use" below says why. A `/` opens the menu in zsh alone. "Other commands"
-below says where.
+`brew install bash` is where a newer one comes from. A `/` opens the menu in
+zsh alone. "Other commands" below says where.
 
 In fish 4.0 or later the line goes in `~/.config/fish/config.fish`, after
 anything else that binds Tab or Space:
@@ -414,11 +412,15 @@ Emptying the line leaves the menu as well and keeps the empty line. So does
 taking back the space that opened the menu. The line then goes back as the
 shell had it before that space.
 
-A space or a `/` opens nothing in zsh while keys are still queued behind it.
-Those keys came in one write rather than from a person answering a menu. A
-program that restores a session types its command and Enter that way. The
-terminal has already turned that Enter into a newline and the menu would read
-the newline as Ctrl-J. The shell takes the whole line and runs it.
+A space opens nothing while keys are still queued behind it and in zsh a `/`
+opens nothing there either. Those keys came in one write rather than from a
+person answering a menu. A program that restores a session types its command
+and Enter that way. In zsh the terminal has already turned that Enter into a
+newline and the menu would read the newline as Ctrl-J. In bash and fish the
+menu would read Enter and take the row under the highlight. The shell takes
+the whole line and runs it. zsh and bash count those keys before they run
+surmise. fish has nothing that counts them and surmise counts them itself
+before it looks for rows.
 
 `bindkey ' ' $_surmise_space` after the `eval` gives the space key back and
 keeps the Tab route. `bindkey '/' $_surmise_slash` gives the slash key back

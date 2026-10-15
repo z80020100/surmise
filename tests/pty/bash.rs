@@ -137,6 +137,16 @@ fn enter_on_the_row_that_runs_the_line_runs_it() {
 }
 
 #[test]
+fn a_line_sent_whole_with_its_enter_runs() {
+    // A program that restores a session types its command and Enter in one
+    // write. The menu a space opened would take `--version` as a row.
+    let f = home();
+    let mut t = ready(f.path());
+    t.send("git --version\r");
+    assert!(t.wait_line("git version", WAIT), "{:?}", t.lines());
+}
+
+#[test]
 fn the_prompt_hook_records_a_change_of_directory() {
     let f = home();
     let out = Command::new(bash())
