@@ -1754,6 +1754,41 @@ mod tests {
         assert_eq!(bins(f.path(), "cargo run --bin "), ["sample-b"]);
     }
 
+    #[test]
+    fn compose_names_the_services_its_file_defines() {
+        let f = Fixture::new(&[]);
+        let file = "services:\n  sample-web:\n    image: sample\n  sample-db:\n    image: sample\n";
+        std::fs::write(f.path().join("compose.yaml"), file).unwrap();
+        std::fs::write(f.path().join("other.yml"), "services:\n  sample-other:\n").unwrap();
+        let services = |line: &str| {
+            let rows = rows_in(f.path(), line);
+            names(&rows)
+                .into_iter()
+                .filter(|name| name.starts_with("sample-"))
+                .map(str::to_string)
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(services("docker compose up "), ["sample-web", "sample-db"]);
+        assert_eq!(
+            services("docker-compose logs -f "),
+            ["sample-web", "sample-db"]
+        );
+        assert_eq!(
+            services("docker-compose logs -f sample-web "),
+            ["sample-db"]
+        );
+        // A service already on the line is not offered again.
+        assert_eq!(services("docker compose up sample-web "), ["sample-db"]);
+        assert_eq!(
+            services("docker compose -f other.yml up "),
+            ["sample-other"]
+        );
+        assert_eq!(
+            services("COMPOSE_FILE=other.yml docker compose up "),
+            ["sample-other"]
+        );
+    }
+
     fn past(f: &Fixture, text: &str) -> Completions {
         let path = f.path().join("histfile");
         std::fs::write(&path, text).unwrap();
