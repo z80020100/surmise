@@ -1332,7 +1332,8 @@ kept for one menu — and answers every later key from what that load found.
 
 The corpus is frozen at the May 2025 release `specs/` was read from. A
 command that has grown a subcommand since gets no row for it until the corpus
-is regenerated.
+is regenerated. `surmise --version` names that release beside the build's own
+version.
 
 ## Build, test and lint
 
