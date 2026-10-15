@@ -271,6 +271,12 @@ impl Completions {
                     .iter()
                     .map(|w| w.inner_text.as_str())
                     .collect();
+                let assignments: Vec<&str> = target
+                    .command
+                    .assignments
+                    .iter()
+                    .map(|a| a.raw.as_str())
+                    .collect();
                 let cx = Context {
                     cwd,
                     history,
@@ -278,7 +284,11 @@ impl Completions {
                     runs: &mut self.runs,
                     verbose: self.verbose,
                 };
-                let mut rows = build_rows(&walk, enclosing.as_ref(), &line, cx);
+                let line = native::Line {
+                    assignments: &assignments,
+                    words: &line,
+                };
+                let mut rows = build_rows(&walk, enclosing.as_ref(), line, cx);
                 if has_template(&walk, "history") {
                     self.past_rows(&walk, &mut rows);
                 }
@@ -576,9 +586,14 @@ struct Context<'a> {
 
 /// The rows one walk offers, unranked. `enclosing` is the node a `help`
 /// template's rows come from; every other caller passes `None`. `line` is
-/// every word in front of the one being typed.
+/// what the line holds in front of the word being typed.
 /// `walk_resolving` ranks what this returns against [`Walk::search_term`].
-fn build_rows(walk: &Walk, enclosing: Option<&Walk>, line: &[&str], cx: Context) -> Vec<Candidate> {
+fn build_rows(
+    walk: &Walk,
+    enclosing: Option<&Walk>,
+    line: native::Line,
+    cx: Context,
+) -> Vec<Candidate> {
     let Context {
         cwd,
         history,
@@ -725,7 +740,10 @@ fn build_rows(walk: &Walk, enclosing: Option<&Walk>, line: &[&str], cx: Context)
             && let Some(owner) = walk.node.name.first()
         {
             let name = arg.name.first().map_or("", String::as_str);
-            let line = &line[walk.root_index..];
+            let line = native::Line {
+                words: &line.words[walk.root_index..],
+                ..line
+            };
             found.extend(native::rows(command, owner, name, term, cwd, line, runs));
         }
         rows.extend(values(listed, found, arg.suggestions.len()));
@@ -1567,6 +1585,20 @@ mod tests {
             rows.iter().find(|r| r.kind != Kind::Run).unwrap().kind,
             Kind::Command
         );
+    }
+
+    #[test]
+    fn a_variable_set_on_the_line_or_by_an_alias_reaches_a_reader() {
+        let f = Fixture::new(&[".ssh"]);
+        std::fs::write(f.path().join(".ssh/config"), "Host sample-host\n").unwrap();
+        let home = format!("HOME='{}'", f.path().display());
+        let aliases = HashMap::from([("sample-ssh".to_string(), format!("{home} ssh"))]);
+        let by_alias = parse("sample-ssh ", "", &aliases).unwrap();
+        for target in [target(&format!("{home} ssh ")), by_alias] {
+            let rows = complete(&mut Completions::default(), &target);
+            let names = names(&rows);
+            assert!(names.contains(&"sample-host"), "{names:?}");
+        }
     }
 
     #[test]

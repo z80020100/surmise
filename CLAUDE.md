@@ -1236,6 +1236,18 @@ only the database on this machine.
 Each of the file readers above reads its files once for each word of the line
 rather than once for each key. An empty answer is read again at the next key.
 
+A variable the line sets in front of its command is the one these readers
+read. `HOME=/tmp/sample-home ssh ` offers the hosts under that home. An alias
+whose value sets one works the same way. The readers read seven variables:
+`HOME`, `PATH`, `HOMEBREW_CACHE`, `HOMEBREW_NO_INSTALL_FROM_API`,
+`XDG_CACHE_HOME`, `CLAUDE_CONFIG_DIR` and `CODEX_HOME`. A value reads the way
+zsh reads it. The quotes come off and a `$NAME` gives what that variable
+holds. A `~` that leads the value or follows a `:` gives the home. A value
+only running something could tell gives the reader no rows. A `$(…)` is one.
+So does a value that reads a variable surmise was not started with. The shell
+can hold one and not export it. Rows from the environment surmise was started
+with would name another place.
+
 A generator that kept its command line is the larger half. One line is
 shared by many arguments. `git`'s branch list is behind 20 of them and one
 reader answers all 20. surmise keeps a table of the lines it has a reader for
