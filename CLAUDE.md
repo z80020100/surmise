@@ -1251,18 +1251,33 @@ of every package in the workspace. A line that names a manifest with
 yet. The line runs with every variable the line sets, the way a line on the
 table does.
 
+`docker compose up ` offers the services the compose files define and so does
+every other subcommand that takes a service. `docker-compose` offers the same
+rows. The reader reads the files compose itself would read and runs nothing. A
+`-f` in front of the subcommand names them and `COMPOSE_FILE` names them next,
+separated by `:`. Otherwise compose looks in the line's directory and then in
+the ones above it. The first directory that holds `compose.yaml`,
+`compose.yml`, `docker-compose.yml` or `docker-compose.yaml` gives the first of
+those names. The first override beside it, such as `compose.override.yml`,
+follows. A `-f` behind the subcommand is that subcommand's own, such as
+`logs -f`. The rows are the keys of the top-level `services` mapping. A file
+an `include` names is not read and neither is the `.env` file that can set
+`COMPOSE_FILE`. Each file is read up to the same 64 KiB. A name already on the
+line is left out.
+
 Each of the file readers above reads its files once for each word of the line
 rather than once for each key. So does the `cargo` reader with its line. An
 empty answer is read again at the next key.
 
 A variable the line sets in front of its command is the one these readers
 read. `HOME=/tmp/sample-home ssh ` offers the hosts under that home. An alias
-whose value sets one works the same way. The readers read seven variables:
+whose value sets one works the same way. The readers read eight variables:
 `HOME`, `PATH`, `HOMEBREW_CACHE`, `HOMEBREW_NO_INSTALL_FROM_API`,
-`XDG_CACHE_HOME`, `CLAUDE_CONFIG_DIR` and `CODEX_HOME`. A value reads the way
-zsh reads it. The quotes come off and a `$NAME` gives what that variable
-holds. A `~` that leads the value or follows a `:` gives the home. A value
-only running something could tell gives the reader no rows. A `$(…)` is one.
+`XDG_CACHE_HOME`, `CLAUDE_CONFIG_DIR`, `CODEX_HOME` and `COMPOSE_FILE`. A
+value reads the way zsh reads it. The quotes come off and a `$NAME` gives what
+that variable holds. A `~` that leads the value or follows a `:` gives the
+home. A value only running something could tell gives the reader no rows. A
+`$(…)` is one.
 So does a value that reads a variable surmise was not started with. The shell
 can hold one and not export it. Rows from the environment surmise was started
 with would name another place.
@@ -1326,8 +1341,8 @@ machine unless a person pointed it somewhere else.
 
 An argument that needs anything else — another native reader, a line that
 asks a server, anything else `specs/dynamic.txt` names — still offers no rows
-rather than guessing at one. The readers answer 818 of the 4854 arguments that
-file lists and the other 4036 show nothing.
+rather than guessing at one. The readers answer 839 of the 4854 arguments that
+file lists and the other 4015 show nothing.
 
 A space opens the menu here too, the way a bare `cd ` or `git ` already did:
 `docker ` and `docker container ` both reach it, because the widget checks

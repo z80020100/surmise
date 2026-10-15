@@ -29,7 +29,8 @@
 //! where a subcommand takes a formula alone. `brew cleanup` keeps the line that
 //! names the services and takes a formula or a cask. `cargo run --bin` keeps no
 //! line. Its reader runs the line [`SCRIPTS`] holds for `cargo`'s packages and
-//! reads which of them the line's directory selects.
+//! reads which of them the line's directory selects. `docker compose up` keeps
+//! a line only code could build and its reader reads the compose files instead.
 
 use crate::candidates::{CURRENT_BRANCH, Candidate, DEFAULT_PRIORITY, Kind, SCAN_LIMIT};
 use crate::fuzzy;
@@ -118,6 +119,21 @@ static READERS: &[Reader] = &[
         arg: "user@hostname",
         label: "host",
         read: |sources| unlabelled(ssh_hosts(sources)),
+    },
+    // `docker compose` reaches the same specification through its `loadSpec`.
+    Reader {
+        command: "docker-compose",
+        owners: &[],
+        arg: "service",
+        label: "service",
+        read: compose_services,
+    },
+    Reader {
+        command: "docker-compose",
+        owners: &[],
+        arg: "services",
+        label: "service",
+        read: compose_services,
     },
     Reader {
         command: "npm",
@@ -1351,6 +1367,8 @@ struct Sources<'a> {
     claude_config: Option<&'a Path>,
     /// Where Codex keeps its sessions. `$CODEX_HOME` takes precedence over home.
     codex_home: Option<&'a Path>,
+    /// `$COMPOSE_FILE`, the compose files a line reads where it names none.
+    compose_file: Option<&'a OsStr>,
 }
 
 const SYSTEM_SSH_CONFIG: &str = "/etc/ssh/ssh_config";
@@ -1426,6 +1444,7 @@ fn read(reader: &Reader, cwd: &Path, line: Line) -> Option<Vec<Found>> {
     let path = var("PATH")?.unwrap_or_default();
     let claude_config = claude_config(path_var("CLAUDE_CONFIG_DIR")?, &home);
     let codex_home = codex_home(path_var("CODEX_HOME")?, &home);
+    let compose_file = var("COMPOSE_FILE")?;
     let sources = Sources {
         cwd,
         line: line.words,
@@ -1437,6 +1456,7 @@ fn read(reader: &Reader, cwd: &Path, line: Line) -> Option<Vec<Found>> {
         usr_local: Path::new(USR_LOCAL),
         claude_config: claude_config.as_deref(),
         codex_home: codex_home.as_deref(),
+        compose_file: compose_file.as_deref(),
     };
     Some((reader.read)(&sources))
 }
@@ -1841,6 +1861,155 @@ fn rush_projects(sources: &Sources) -> Vec<Found> {
             })
         })
         .collect()
+}
+
+/// The names compose tries in a directory, in compose's own order.
+const COMPOSE_NAMES: [&str; 4] = [
+    "compose.yaml",
+    "compose.yml",
+    "docker-compose.yml",
+    "docker-compose.yaml",
+];
+
+/// The overrides compose tries beside the file it found, in the same order.
+const COMPOSE_OVERRIDES: [&str; 4] = [
+    "compose.override.yml",
+    "compose.override.yaml",
+    "docker-compose.override.yml",
+    "docker-compose.override.yaml",
+];
+
+/// The options in front of a compose subcommand that take the next word as
+/// their value, besides `-f` and `--file`.
+const COMPOSE_OPTIONS_WITH_VALUES: [&str; 9] = [
+    "--ansi",
+    "--env-file",
+    "--parallel",
+    "--profile",
+    "--progress",
+    "--project-directory",
+    "-p",
+    "--project-name",
+    "--workdir",
+];
+
+/// The services the compose files of the line define, in the order the files
+/// give them. A name already on the line is left out.
+fn compose_services(sources: &Sources) -> Vec<Found> {
+    let mut seen = HashSet::new();
+    let mut names = Vec::new();
+    for path in compose_files(sources) {
+        let Some((bytes, _)) = read_capped(&path, READ_LIMIT) else {
+            continue;
+        };
+        for name in service_names(&String::from_utf8_lossy(&bytes)) {
+            if !sources.line.contains(&name) {
+                push_unique(name, &mut seen, &mut names);
+            }
+        }
+    }
+    unlabelled(names)
+}
+
+/// The files compose reads for the line, found the way compose finds them.
+/// A `-f` in front of the subcommand names them and `COMPOSE_FILE` names them
+/// next. Otherwise the first directory at or above the line's that holds one
+/// of [`COMPOSE_NAMES`] gives the first of them and the first of
+/// [`COMPOSE_OVERRIDES`] beside it. A `-f` behind the subcommand is the
+/// subcommand's own, such as `logs -f`. Standard input names no file.
+fn compose_files(sources: &Sources) -> Vec<PathBuf> {
+    let mut named = Vec::new();
+    let mut words = sources.line.iter().skip(1);
+    while let Some(&word) = words.next() {
+        if let Some(file) = word.strip_prefix("--file=") {
+            named.push(file);
+        } else if matches!(word, "-f" | "--file") {
+            named.extend(words.next().copied());
+        } else if COMPOSE_OPTIONS_WITH_VALUES.contains(&word) {
+            words.next();
+        } else if !word.starts_with('-') {
+            break;
+        }
+    }
+    if named.is_empty()
+        && let Some(list) = sources.compose_file.and_then(OsStr::to_str)
+    {
+        named = list.split(':').filter(|file| !file.is_empty()).collect();
+    }
+    if !named.is_empty() {
+        return named
+            .into_iter()
+            .filter(|file| *file != "-")
+            .map(|file| sources.cwd.join(file))
+            .collect();
+    }
+    sources
+        .cwd
+        .ancestors()
+        .find_map(|dir| {
+            let first = |names: &[&str]| names.iter().map(|n| dir.join(n)).find(|p| p.is_file());
+            let found = first(&COMPOSE_NAMES)?;
+            Some(
+                std::iter::once(found)
+                    .chain(first(&COMPOSE_OVERRIDES))
+                    .collect(),
+            )
+        })
+        .unwrap_or_default()
+}
+
+/// The keys of a compose file's top-level `services` mapping in block style.
+/// A flow-style mapping names none here. Neither does a key compose refuses
+/// as a service name, such as the merge key `<<`.
+fn service_names(text: &str) -> Vec<&str> {
+    let mut names = Vec::new();
+    let mut in_services = false;
+    let mut indent = None;
+    for line in text.lines().map(str::trim_end) {
+        let body = line.trim_start_matches(' ');
+        if body.is_empty() || body.starts_with('#') {
+            continue;
+        }
+        let depth = line.len() - body.len();
+        if depth == 0 {
+            in_services = yaml_key(body).is_some_and(|(key, rest)| {
+                key == "services" && (rest.is_empty() || rest.starts_with(['#', '&']))
+            });
+            indent = None;
+        } else if in_services
+            && *indent.get_or_insert(depth) == depth
+            && let Some((key, _)) = yaml_key(body)
+            && !key.is_empty()
+            && key
+                .bytes()
+                .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b'-'))
+        {
+            names.push(key);
+        }
+    }
+    names
+}
+
+/// The key of a block mapping's line and what follows its colon, or `None`
+/// for a line that holds no key.
+fn yaml_key(body: &str) -> Option<(&str, &str)> {
+    let (key, rest) = match body.chars().next()? {
+        quote @ ('"' | '\'') => {
+            let end = body[1..].find(quote)? + 1;
+            (
+                &body[1..end],
+                body[end + 1..].trim_start().strip_prefix(':')?,
+            )
+        }
+        _ => {
+            let colon = body
+                .match_indices(':')
+                .map(|(at, _)| at)
+                .find(|&at| body[at + 1..].is_empty() || body[at + 1..].starts_with(' '))?;
+            (body[..colon].trim_end(), &body[colon + 1..])
+        }
+    };
+    Some((key, rest.trim_start()))
 }
 
 /// `text` without its `//` and `/* */` comments, the way Rush reads its own
@@ -2759,6 +2928,7 @@ mod tests {
             usr_local: nowhere(),
             claude_config: None,
             codex_home: None,
+            compose_file: None,
         }
     }
 
@@ -2998,6 +3168,102 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         }
         for child in node.subcommands.values() {
             dynamic_owners(child, arg, out);
+        }
+    }
+
+    #[test]
+    fn a_compose_file_names_the_keys_of_its_services_mapping() {
+        let text = "\
+# sample
+x-common: &common
+  image: sample
+services: # the services
+  web:
+    <<: *common
+    command: |
+      run:
+        sample
+  'db':
+    image: sample
+  \"cache\" :
+  <<: *other
+  worker: &worker
+volumes:
+  data:
+";
+        assert_eq!(service_names(text), ["web", "db", "cache", "worker"]);
+        assert!(service_names("services: {web: {image: sample}}\n").is_empty());
+        let crlf = "services:\r\n    web:\r\n      image: sample\r\n";
+        assert_eq!(service_names(crlf), ["web"]);
+    }
+
+    #[test]
+    fn compose_reads_the_files_compose_itself_would_read() {
+        let f = Fixture::new(&["project/sub"]);
+        let project = f.path().join("project");
+        for name in [
+            "docker-compose.yml",
+            "compose.yaml",
+            "compose.override.yaml",
+            "compose.override.yml",
+        ] {
+            std::fs::write(project.join(name), "").unwrap();
+        }
+        let sub = project.join("sub");
+        let files = |line: &[&str], compose_file: Option<&str>| {
+            compose_files(&Sources {
+                line,
+                compose_file: compose_file.map(OsStr::new),
+                ..sources(&sub, nowhere(), nowhere())
+            })
+        };
+        let found = [
+            project.join("compose.yaml"),
+            project.join("compose.override.yml"),
+        ];
+        assert_eq!(files(&["compose"], None), found);
+        // `logs -f` follows the output and names no file.
+        assert_eq!(
+            files(&["compose", "-p", "sample", "logs", "-f", "web"], None),
+            found
+        );
+        assert_eq!(
+            files(
+                &[
+                    "compose",
+                    "--profile",
+                    "x",
+                    "-f",
+                    "a.yml",
+                    "--file=b.yml",
+                    "up"
+                ],
+                None
+            ),
+            [sub.join("a.yml"), sub.join("b.yml")]
+        );
+        assert_eq!(
+            files(&["docker-compose"], Some("a.yml:/sample/b.yml")),
+            [sub.join("a.yml"), PathBuf::from("/sample/b.yml")]
+        );
+        assert!(files(&["compose", "-f", "-"], None).is_empty());
+        let outside = Fixture::new(&[]);
+        assert!(compose_files(&sources(outside.path(), nowhere(), nowhere())).is_empty());
+    }
+
+    #[test]
+    fn every_compose_option_that_takes_a_value_is_read_with_it() {
+        // An option missing here would let its value pass for the subcommand
+        // and a `-f` behind it would then name a file.
+        let spec = crate::spec::load("docker-compose", &[]).expect("docker-compose");
+        for option in spec.options.values().filter(|o| !o.args.is_empty()) {
+            for name in &option.name {
+                assert!(
+                    COMPOSE_OPTIONS_WITH_VALUES.contains(&name.as_str())
+                        || matches!(name.as_str(), "-f" | "--file"),
+                    "{name}"
+                );
+            }
         }
     }
 
