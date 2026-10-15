@@ -106,8 +106,8 @@ if ((BASH_VERSINFO[0] > 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 4)));
       ;;
     # 2 is PASS: nothing surmise completes. Tab hands the key back to what
     # held it. A space is already typed and completing it is not what was
-    # asked for.
-    2) if [[ -n $from_space ]]; then _surmise_then; else _surmise_then "$_surmise_fallback"; fi ;;
+    # asked for. readline never saw the space drawn ahead of it.
+    2) if [[ -n $from_space ]]; then _surmise_then redraw-current-line; else _surmise_then "$_surmise_fallback"; fi ;;
     *) _surmise_then redraw-current-line ;;
     esac
   }

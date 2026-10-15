@@ -147,6 +147,17 @@ fn a_line_sent_whole_with_its_enter_runs() {
 }
 
 #[test]
+fn a_space_surmise_has_nothing_for_leaves_the_line_as_typed() {
+    // `z` has a specification and nothing in it.
+    let f = home();
+    let mut t = ready(f.path());
+    typed(&mut t, "z ");
+    t.send("sample");
+    let row = format!("{PROMPT} z sample");
+    assert!(t.wait_row(&row, WAIT), "{:?}", t.lines());
+}
+
+#[test]
 fn the_prompt_hook_records_a_change_of_directory() {
     let f = home();
     let out = Command::new(bash())

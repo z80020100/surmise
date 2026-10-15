@@ -226,6 +226,15 @@ impl Term {
         self.wait_for(limit, |t| t.lines().iter().any(|l| l.contains(text)))
     }
 
+    /// Wait for a screen row that reads `row` and nothing else. `false` when
+    /// none ever does.
+    ///
+    /// A row that holds `row` and more is still on its way. A shell that drew
+    /// a key twice ahead of its own repaint is one.
+    pub fn wait_row(&mut self, row: &str, limit: Duration) -> bool {
+        self.wait_for(limit, |t| t.lines().iter().any(|l| l == row))
+    }
+
     /// The exit status, once the program has one. `None` while it is still
     /// running at the deadline.
     ///
