@@ -165,6 +165,28 @@ fn a_space_surmise_has_nothing_for_leaves_the_line_as_typed() {
 }
 
 #[test]
+fn a_space_typed_into_the_search_field_stays_in_the_search() {
+    // The search starts from the line and `cd work` would open a menu.
+    let f = home();
+    let mut t = ready(f.path());
+    typed(&mut t, "cd work");
+    t.send("\x12");
+    t.pump(SETTLE);
+    typed(&mut t, " ");
+    // The search draws on a ground of its own. A frame is surmise's alone.
+    assert!(
+        !t.lines().join("\n").contains('─'),
+        "a menu opened: {:?}",
+        t.lines()
+    );
+    assert!(
+        t.lines().iter().any(|row| row == "search: cd work"),
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
 fn a_change_of_directory_is_recorded() {
     let f = home();
     let out = Command::new(fish())

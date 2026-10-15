@@ -94,6 +94,8 @@ end
 # command surmise has a specification for. The space and any abbreviation it
 # expands are fish's own and already on the line.
 function _surmise_space
+    # A space typed into the pager's search field is part of the search.
+    commandline --search-field >/dev/null; and return
     set -l line (commandline -b | string collect)
     test (commandline -C) -eq (string length -- "$line"); or return
     _surmise_fill_specs
