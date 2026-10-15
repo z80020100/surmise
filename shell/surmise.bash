@@ -112,9 +112,10 @@ if ((BASH_VERSINFO[0] > 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 4)));
     esac
   }
 
-  # Open on a space that ends the line, when the line's first word names a
-  # command surmise has a specification for. An alias reaches the name it
-  # expands to and only the first word of that value counts.
+  # Open on a space that ends the line, when the line's first word past any
+  # assignment in front of it names a command surmise has a specification
+  # for. An alias reaches the name it expands to and only the first word of
+  # that value past its assignments counts.
   _surmise_space() {
     READLINE_LINE="${READLINE_LINE:0:READLINE_POINT} ${READLINE_LINE:READLINE_POINT}"
     ((READLINE_POINT++))
@@ -125,10 +126,14 @@ if ((BASH_VERSINFO[0] > 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 4)));
     _surmise_fill_specs
     local -a words
     read -ra words <<<"$READLINE_LINE"
+    # `FOO=bar` sets a variable for the command behind it and names no command.
+    while [[ ${words[0]-} == +([][A-Za-z0-9_])?(+)=* ]]; do words=("${words[@]:1}"); done
     local word=${words[0]-}
     [[ -n $word ]] || return 0
     read -ra words <<<"${BASH_ALIASES[$word]:-$word}"
-    [[ -n ${_surmise_specs[${words[0]-}]-} ]] || return 0
+    while [[ ${words[0]-} == +([][A-Za-z0-9_])?(+)=* ]]; do words=("${words[@]:1}"); done
+    word=${words[0]-}
+    [[ -n $word && -n ${_surmise_specs[$word]-} ]] || return 0
     # readline draws the space once this returns. surmise asks the terminal
     # where the cursor is and the space has to be on the screen already.
     printf ' ' >"$(tty)"

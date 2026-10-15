@@ -171,6 +171,22 @@ fn a_space_surmise_has_nothing_for_leaves_the_line_as_typed() {
 }
 
 #[test]
+fn a_space_behind_an_assignment_opens_the_menu() {
+    let f = home();
+    let mut t = ready(f.path());
+    t.send("SAMPLE_VAR=sample docker ");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+}
+
+#[test]
+fn a_quoted_space_stays_inside_its_assignment() {
+    let f = home();
+    let mut t = ready(f.path());
+    t.send("SAMPLE_VAR='sample value' docker ");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+}
+
+#[test]
 fn a_space_typed_into_the_search_field_stays_in_the_search() {
     // The search starts from the line and `cd work` would open a menu.
     let f = home();

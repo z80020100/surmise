@@ -46,9 +46,15 @@ fn bash() -> PathBuf {
 /// A home holding a `.bashrc` that installs the widget the way `CLAUDE.md`
 /// says to.
 fn home() -> Fixture {
+    home_after("")
+}
+
+/// The same home with `before` run ahead of the widget.
+fn home_after(before: &str) -> Fixture {
     let f = Fixture::new(&["work", "deep"]);
     let rc = format!(
         "PS1='{PROMPT} '\n\
+         {before}\
          eval \"$($SURMISE_BIN init bash)\"\n\
          [[ -n $_surmise_tag ]] && echo {LOADED}\n"
     );
@@ -155,6 +161,34 @@ fn a_space_surmise_has_nothing_for_leaves_the_line_as_typed() {
     t.send("sample");
     let row = format!("{PROMPT} z sample");
     assert!(t.wait_row(&row, WAIT), "{:?}", t.lines());
+}
+
+#[test]
+fn a_space_behind_an_assignment_opens_the_menu() {
+    let f = home();
+    let mut t = ready(f.path());
+    t.send("SAMPLE_VAR=sample docker ");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+}
+
+#[test]
+fn an_alias_that_sets_a_variable_opens_on_its_command() {
+    let f = home_after("alias d='SAMPLE_VAR=sample docker'\n");
+    let mut t = ready(f.path());
+    t.send("d ");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+}
+
+#[test]
+fn an_alias_that_only_sets_a_variable_opens_nothing() {
+    // An empty key would make bash print an error that names the array in any language.
+    let f = home_after("alias e='SAMPLE_VAR=sample'\n");
+    let mut t = ready(f.path());
+    typed(&mut t, "e ");
+    t.send("sample");
+    let row = format!("{PROMPT} e sample");
+    assert!(t.wait_row(&row, WAIT), "{:?}", t.lines());
+    assert!(!screen(&t).contains("_surmise_specs"), "{:?}", t.lines());
 }
 
 #[test]

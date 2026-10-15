@@ -1315,7 +1315,11 @@ file lists and the other 4068 show nothing.
 A space opens the menu here too, the way a bare `cd ` or `git ` already did:
 `docker ` and `docker container ` both reach it, because the widget checks
 the line's first word rather than the whole line and an alias resolves
-before that check does. The set that word is checked against is `surmise
+before that check does. A word such as `FOO=bar` in front of the command
+sets a variable and the widget reads past it. `FOO=bar docker ` therefore
+opens the same menu and so does an alias whose value starts with such a
+word. bash splits a value at a quoted space and `FOO='a b' docker ` opens
+nothing there. The set the command's name is checked against is `surmise
 specs names`'s own output, a zsh array the widget fills once from the first
 space or Tab a shell asks of it — one fork, about 12 ms, spent on whichever
 of the two comes first — and reads for every one after that, a hash lookup

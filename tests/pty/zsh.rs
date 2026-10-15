@@ -1324,6 +1324,22 @@ fn a_multi_word_alias_opens_on_its_own_first_word_alone() {
 }
 
 #[test]
+fn a_space_behind_an_assignment_opens_the_menu() {
+    let f = home("", "");
+    let mut t = ready(f.path());
+    t.send("SAMPLE_VAR=sample docker ");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+}
+
+#[test]
+fn an_alias_that_sets_a_variable_opens_on_its_command() {
+    let f = home("alias d='SAMPLE_VAR=sample docker'", "");
+    let mut t = ready(f.path());
+    t.send("d ");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+}
+
+#[test]
 fn giving_the_space_key_back_leaves_docker_plain_too() {
     // `bindkey ' ' $_surmise_space` is what CLAUDE.md names for keeping
     // the Tab route while handing the space key itself back. The docker
