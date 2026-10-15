@@ -718,9 +718,10 @@ static SCRIPTS: &[Script] = &[
 /// maps key on an entry's address. A `const` table can give one entry two
 /// addresses and the tables are therefore `static`.
 ///
-/// Under `lines` a line runs once however many keys follow. Git's own
-/// readers and the directory scan do the same. Two entries that read one
-/// line two ways each run it. A line that failed stays an empty answer.
+/// Under `lines` a line runs once for the variables the line sets however
+/// many keys follow. Git's own readers and the directory scan do the same.
+/// Two entries that read one line two ways each run it. A line that failed
+/// stays an empty answer.
 ///
 /// Under `reads` a reader keeps one answer. Some readers leave out a name
 /// the line already holds and a variable the line sets can move the files.
@@ -729,7 +730,7 @@ static SCRIPTS: &[Script] = &[
 /// the next key reads again.
 #[derive(Default)]
 pub(crate) struct Runs {
-    lines: HashMap<*const Script, Vec<Found>>,
+    lines: HashMap<(*const Script, Vec<String>), Vec<Found>>,
     reads: HashMap<ReadKey, Vec<Found>>,
 }
 
@@ -783,12 +784,15 @@ static BY_ARGUMENT: &[(&[&str], Script)] = &[
 /// The rows the command line `script` offers, where [`SCRIPTS`] has a reader
 /// for it. `script` is a generator's own field. Only the list form names
 /// its words without a shell between them and only that form is matched.
-/// `arg` is the name of the argument the generator sits on.
+/// `arg` is the name of the argument the generator sits on. `assignments`
+/// are the variables the line sets in front of its command, each written
+/// `NAME=value` the way the line writes it.
 pub(crate) fn script_rows(
     script: &Value,
     arg: &str,
     term: &str,
     cwd: &Path,
+    assignments: &[&str],
     runs: &mut Runs,
 ) -> Vec<Candidate> {
     let Some(words) = script.as_array() else {
@@ -802,11 +806,17 @@ pub(crate) fn script_rows(
     let Some(entry) = entry else {
         return Vec::new();
     };
+    let key = (std::ptr::from_ref(entry), owned(assignments));
     let found = runs
         .lines
-        .entry(std::ptr::from_ref(entry))
-        .or_insert_with(|| run(entry, cwd));
+        .entry(key)
+        .or_insert_with(|| run(entry, cwd, assignments));
     to_rows(found.iter(), entry.label, term)
+}
+
+/// `words` as a key a menu can keep.
+fn owned(words: &[&str]) -> Vec<String> {
+    words.iter().map(|word| word.to_string()).collect()
 }
 
 /// Whether a generator's `words` are `line` word for word.
@@ -820,13 +830,23 @@ fn same_line(words: &[Value], line: &[&str]) -> bool {
 
 /// What `entry`'s line prints in `cwd` within the budget Git's own queries
 /// keep. A line that fails, runs past that or prints past its cap answers
-/// nothing and prints nothing at the prompt.
-fn run(entry: &Script, cwd: &Path) -> Vec<Found> {
+/// nothing and prints nothing at the prompt. It runs with the variables
+/// `assignments` set over the environment as the line's own command would.
+/// A value only running something could tell leaves it unrun. The program
+/// can read any variable.
+fn run(entry: &Script, cwd: &Path, assignments: &[&str]) -> Vec<Found> {
     let [program, args @ ..] = entry.line else {
         return Vec::new();
     };
+    let Some(set) = assigned(assignments, |name| std::env::var_os(name))
+        .into_iter()
+        .map(|(name, value)| Some((name, value?)))
+        .collect::<Option<Vec<_>>>()
+    else {
+        return Vec::new();
+    };
     let mut command = Command::new(program);
-    command.args(args).current_dir(cwd);
+    command.args(args).current_dir(cwd).envs(set);
     match crate::git::read_output(&mut command, crate::git::timeout()) {
         Some((status, out)) if status.success() => (entry.parse)(&out),
         _ => Vec::new(),
@@ -1237,12 +1257,6 @@ pub(crate) fn rows(
 ) -> Vec<Candidate> {
     let Some(reader) = reader(command, owner, arg) else {
         return Vec::new();
-    };
-    let owned = |words: &[&str]| {
-        words
-            .iter()
-            .map(|word| word.to_string())
-            .collect::<Vec<_>>()
     };
     let key = (
         std::ptr::from_ref(reader),
@@ -2985,12 +2999,12 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
         let mut runs = Runs::default();
         let line = serde_json::json!(["sh", "-c", "touch sample"]);
         let f = Fixture::new(&[]);
-        assert!(script_rows(&line, "", "", f.path(), &mut runs).is_empty());
+        assert!(script_rows(&line, "", "", f.path(), &[], &mut runs).is_empty());
         assert!(!f.path().join("sample").exists());
         assert!(runs.lines.is_empty());
         // Only the list form names its words without a shell between them.
         let text = serde_json::json!("git --no-optional-locks log --oneline");
-        assert!(script_rows(&text, "", "", f.path(), &mut runs).is_empty());
+        assert!(script_rows(&text, "", "", f.path(), &[], &mut runs).is_empty());
     }
 
     #[test]
@@ -3005,16 +3019,41 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
             "--sort=-committerdate"
         ]);
         let mut runs = Runs::default();
-        let rows = script_rows(&line, "", "", f.path(), &mut runs);
+        let rows = script_rows(&line, "", "", f.path(), &[], &mut runs);
         let mut names: Vec<&str> = rows.iter().map(|r| r.insert.as_str()).collect();
         names.sort_unstable();
         assert_eq!(names, ["sample-main", "sample-topic"]);
         // A branch made now is the next menu's to find.
         f.git(&["branch", "sample-later", "sample-main"]);
-        assert_eq!(script_rows(&line, "", "", f.path(), &mut runs).len(), 2);
+        assert_eq!(
+            script_rows(&line, "", "", f.path(), &[], &mut runs).len(),
+            2
+        );
         // Outside a repository Git fails and the line answers nothing.
         let outside = Fixture::new(&[]);
-        assert!(script_rows(&line, "", "", outside.path(), &mut Runs::default()).is_empty());
+        assert!(script_rows(&line, "", "", outside.path(), &[], &mut Runs::default()).is_empty());
+    }
+
+    #[test]
+    fn a_line_runs_with_the_variables_the_line_sets() {
+        let f = Fixture::new(&[]);
+        f.init_git(&["sample-topic"]);
+        let line = serde_json::json!([
+            "git",
+            "--no-optional-locks",
+            "branch",
+            "--no-color",
+            "--sort=-committerdate"
+        ]);
+        let outside = Fixture::new(&[]);
+        let git_dir = format!("GIT_DIR='{}'", f.path().join(".git").display());
+        let mut runs = Runs::default();
+        let rows = script_rows(&line, "", "", outside.path(), &[&git_dir], &mut runs);
+        assert_eq!(rows.len(), 2);
+        // Without the variable the line runs again and finds no repository.
+        assert!(script_rows(&line, "", "", outside.path(), &[], &mut runs).is_empty());
+        let unknown = ["GIT_DIR=$(sample)"];
+        assert!(script_rows(&line, "", "", outside.path(), &unknown, &mut runs).is_empty());
     }
 
     #[test]

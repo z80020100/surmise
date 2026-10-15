@@ -728,7 +728,14 @@ fn build_rows(
             // Any other line offers nothing and never runs.
             if let Some(script) = &generator.script {
                 let name = arg.name.first().map_or("", String::as_str);
-                found.extend(native::script_rows(script, name, term, cwd, runs));
+                found.extend(native::script_rows(
+                    script,
+                    name,
+                    term,
+                    cwd,
+                    line.assignments,
+                    runs,
+                ));
             }
         }
         // An argument the conversion could not keep the code for. `native`
