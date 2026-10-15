@@ -23,6 +23,7 @@ committed specification.
   surmise doctor                     what stands between this shell and a menu
   surmise --pick LINE                the picker that widget calls, result on stdout
   surmise --record SOURCE TARGET     record a successful directory change
+  surmise --version                  this build and the corpus its specifications came from
   surmise settings path              the config path, whether it exists yet or not
   surmise settings show              every key and the value the picker would use
   surmise settings set KEY VALUE     write one value into the config file
@@ -77,6 +78,8 @@ enum Mode<'a> {
     Doctor,
     /// The usage.
     Help,
+    /// This build's version and the corpus's.
+    Version,
     /// An argument this build does not know.
     Unknown(&'a str),
 }
@@ -126,6 +129,10 @@ fn mode(args: &[String]) -> Mode<'_> {
             Some(extra) => Mode::Unknown(extra),
             None => Mode::Doctor,
         },
+        Some("--version") => match args.get(1) {
+            Some(extra) => Mode::Unknown(extra),
+            None => Mode::Version,
+        },
         // Without an argument there is no line to complete. The usage is the
         // whole of what this build can say on its own.
         None | Some("--help" | "-h") => Mode::Help,
@@ -137,6 +144,17 @@ fn mode(args: &[String]) -> Mode<'_> {
 /// `surmise --help | head` is an ordinary thing to type.
 fn usage(mut out: impl Write) {
     let _ = out.write_all(USAGE.as_bytes());
+}
+
+/// The crate's own version and the release of the corpus its specifications
+/// were converted from. Either one alone leaves a report about a missing
+/// subcommand half answered.
+fn version() -> String {
+    format!(
+        "surmise {} (specs from corpus {})\n",
+        env!("CARGO_PKG_VERSION"),
+        spec_store::corpus_version()
+    )
 }
 
 /// A complaint, the usage behind it, and the failure status. Every refusal
@@ -338,6 +356,11 @@ fn main() -> ExitCode {
             usage(io::stdout());
             ExitCode::SUCCESS
         }
+        // A closed pipe is no failure here for the reason `usage` gives.
+        Mode::Version => {
+            let _ = io::stdout().write_all(version().as_bytes());
+            ExitCode::SUCCESS
+        }
         // An argument reaches the terminal here. A directory name reaches it
         // in the frame and both go through the same filter.
         Mode::Unknown(arg) => refuse(&format!("unexpected argument: {}", ui::printable(arg))),
@@ -360,6 +383,22 @@ mod tests {
             mode(&args(&["doctor", "extra"])),
             Mode::Unknown("extra")
         ));
+    }
+
+    #[test]
+    fn version_takes_no_word_of_its_own() {
+        assert!(matches!(mode(&args(&["--version"])), Mode::Version));
+        assert!(matches!(
+            mode(&args(&["--version", "extra"])),
+            Mode::Unknown("extra")
+        ));
+    }
+
+    #[test]
+    fn the_version_names_the_build_and_the_corpus() {
+        let said = version();
+        assert!(said.starts_with(concat!("surmise ", env!("CARGO_PKG_VERSION"), " ")));
+        assert!(said.contains(spec_store::corpus_version()), "{said:?}");
     }
 
     #[test]
