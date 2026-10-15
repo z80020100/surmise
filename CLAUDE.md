@@ -1236,8 +1236,24 @@ behind `--include-non-interactive` and a subagent's never does. `--remote`
 gives no rows. Those sessions are on the server it names and this reader reads
 only the database on this machine.
 
+`cargo run --bin ` offers the binaries of the packages the line selects.
+`--example`, `--test` and `--bench` offer the examples, the tests and the
+benchmarks the same way. Nine subcommands take the first two and seven take
+all four. The corpus keeps no line for them. The reader runs the
+`cargo metadata --no-deps` line the table below holds for `cargo`'s packages.
+It selects the packages the way cargo does, by the manifest nearest the line's
+directory. That manifest selects the package it defines. At the root of a
+workspace it selects the default members and a root that defines no package
+selects every member. A line that holds `-p` or `--workspace` gets the targets
+of every package in the workspace. A line that names a manifest with
+`--manifest-path` gets none. That manifest can be in another workspace.
+`cargo install --bin ` gets none either. It names a crate that is not fetched
+yet. The line runs with every variable the line sets, the way a line on the
+table does.
+
 Each of the file readers above reads its files once for each word of the line
-rather than once for each key. An empty answer is read again at the next key.
+rather than once for each key. So does the `cargo` reader with its line. An
+empty answer is read again at the next key.
 
 A variable the line sets in front of its command is the one these readers
 read. `HOME=/tmp/sample-home ssh ` offers the hosts under that home. An alias
@@ -1310,8 +1326,8 @@ machine unless a person pointed it somewhere else.
 
 An argument that needs anything else — another native reader, a line that
 asks a server, anything else `specs/dynamic.txt` names — still offers no rows
-rather than guessing at one. The readers answer 786 of the 4854 arguments that
-file lists and the other 4068 show nothing.
+rather than guessing at one. The readers answer 818 of the 4854 arguments that
+file lists and the other 4036 show nothing.
 
 A space opens the menu here too, the way a bare `cd ` or `git ` already did:
 `docker ` and `docker container ` both reach it, because the widget checks
