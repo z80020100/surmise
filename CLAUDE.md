@@ -316,7 +316,11 @@ Symbolic links to the same directory share that record. No command text is store
 
 Each visit adds one to the weight. Existing weight halves every 30 days.
 Records unused for more than 180 days no longer affect sorting.
-The next write removes those records. History only reorders directories the
+The next write removes those records. A directory also carries the weight of
+every recorded directory beneath it. A change to `work/sample` therefore lifts
+`work/` as well as `sample/` inside it. The directory the menu opened in and
+every directory above it keep their own weight alone. `cd ../` would otherwise
+lead with the directory it was typed in. History only reorders directories the
 menu already found. It does not add destinations or expand the scan limit.
 The parent and home rows do not use history weights.
 

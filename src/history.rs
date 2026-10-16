@@ -4,7 +4,7 @@
 //! reads once and keeps the resulting weights for the whole menu session.
 
 use rusqlite::{Connection, OpenFlags, OptionalExtension, TransactionBehavior, params};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::ffi::OsString;
 use std::fs::{DirBuilder, OpenOptions};
 use std::io;
@@ -132,7 +132,10 @@ fn record_at(db: &Path, source: &Path, target: &Path, at: i64) -> Result<()> {
 
 /// The preferences of the directory where the picker opened.
 #[derive(Default)]
-pub struct History(HashMap<PathBuf, f64>);
+pub struct History {
+    source: PathBuf,
+    weights: BTreeMap<PathBuf, f64>,
+}
 
 impl History {
     pub fn load(source: &Path) -> Self {
@@ -160,7 +163,7 @@ impl History {
                 ))
             },
         )?;
-        let mut weights = HashMap::new();
+        let mut weights = BTreeMap::new();
         for row in rows {
             let (target, weight, last) = row?;
             let weight = decay(weight, last, at);
@@ -168,18 +171,31 @@ impl History {
                 weights.insert(PathBuf::from(OsString::from_vec(target)), weight);
             }
         }
-        Ok(Self(weights))
+        Ok(Self { source, weights })
     }
 
+    /// What `target` weighs: its own visits and those of every directory
+    /// beneath it. A menu reaches a deep directory one level at a time and
+    /// each level on the way is a row a person picks. The directory the menu
+    /// opened in and every directory above it keep their own visits alone.
+    /// Every visit from here lies beneath one of them and none of them is
+    /// the way down to it.
     pub(crate) fn weight(&self, target: &Path) -> f64 {
-        if self.0.is_empty() {
+        if self.weights.is_empty() {
             return 0.0;
         }
-        target
-            .canonicalize()
-            .ok()
-            .and_then(|p| self.0.get(&p).copied())
-            .unwrap_or(0.0)
+        let Ok(target) = target.canonicalize() else {
+            return 0.0;
+        };
+        if self.source.starts_with(&target) {
+            return self.weights.get(&target).copied().unwrap_or(0.0);
+        }
+        // A path sorts by component and everything beneath it follows it in one run.
+        self.weights
+            .range::<PathBuf, _>(&target..)
+            .take_while(|(path, _)| path.starts_with(&target))
+            // `sum` starts at -0.0 and `total_cmp` sorts that below a row that weighs nothing.
+            .fold(0.0, |total, (_, weight)| total + weight)
     }
 }
 
@@ -286,7 +302,12 @@ mod tests {
         let db = f.path().join("history.sqlite3");
         record_at(&db, f.path(), &f.path().join("alpha"), AT).unwrap();
         let later = AT + RETENTION + 1;
-        assert!(History::read(&db, f.path(), later).unwrap().0.is_empty());
+        assert!(
+            History::read(&db, f.path(), later)
+                .unwrap()
+                .weights
+                .is_empty()
+        );
         record_at(&db, f.path(), &f.path().join("beta"), later).unwrap();
         assert_eq!(count(&db), 1);
     }
@@ -377,6 +398,43 @@ mod tests {
         assert_eq!(app.items[1].display, "beta/");
         let fresh = History::read(&db, f.path(), AT).unwrap();
         assert_eq!(names(&fresh, f.path(), "")[0], "alpha/");
+    }
+
+    #[test]
+    fn a_directory_carries_the_visits_beneath_it() {
+        let f = Fixture::new(&["alpha", "zul", "zulu/alpha", "zulu/middle/leaf"]);
+        let db = f.path().join("history.sqlite3");
+        let zulu = f.path().join("zulu");
+        let leaf = zulu.join("middle/leaf");
+        record_at(&db, f.path(), &leaf, AT).unwrap();
+        record_at(&db, f.path(), &leaf, AT).unwrap();
+        record_at(&db, f.path(), &zulu, AT).unwrap();
+        let h = History::read(&db, f.path(), AT).unwrap();
+        weighs(&h, &zulu, 3.0);
+        weighs(&h, &zulu.join("middle"), 2.0);
+        weighs(&h, &leaf, 2.0);
+        weighs(&h, &zulu.join("alpha"), 0.0);
+        // `zul` shares letters with `zulu` and no component.
+        weighs(&h, &f.path().join("zul"), 0.0);
+        assert_eq!(names(&h, f.path(), "")[0], "zulu/");
+        assert_eq!(names(&h, f.path(), "zulu/")[0], "middle/");
+    }
+
+    #[test]
+    fn the_way_back_up_keeps_its_own_visits() {
+        let f = Fixture::new(&["level/child", "sibling"]);
+        let db = f.path().join("history.sqlite3");
+        let level = f.path().join("level");
+        record_at(&db, &level, &level.join("child"), AT).unwrap();
+        record_at(&db, &level, &level.join("child"), AT).unwrap();
+        record_at(&db, &level, &f.path().join("sibling"), AT).unwrap();
+        let up = f.path().join("up");
+        std::os::unix::fs::symlink(f.path(), &up).unwrap();
+        let h = History::read(&db, &level, AT).unwrap();
+        weighs(&h, &level, 0.0);
+        weighs(&h, f.path(), 0.0);
+        weighs(&h, &up, 0.0);
+        assert_eq!(names(&h, &level, "../")[0], "sibling/");
     }
 
     #[test]
