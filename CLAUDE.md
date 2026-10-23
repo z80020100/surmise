@@ -291,8 +291,10 @@ history of successful directory changes comes first. The closer text match
 follows. A name leading with what you typed in the same case breaks a tie
 after that and the alphabetical order breaks the rest. `cd d` offers `dist/`
 ahead of `Docs/` and `cd D` offers them the other way round.
-Each source directory has preferences of its own. The menu reads those
-preferences once when it opens and keeps them while you type.
+Each source directory has preferences of its own. An argument that starts
+with `~` or `/` is the exception. It names the same directory from every
+source and ranks by the preferences of all of them together. The menu reads
+those preferences once when it opens and keeps them while you type.
 
 The names themselves are read the same way. Each directory the argument
 reaches is walked once and the menu answers every later key from what that

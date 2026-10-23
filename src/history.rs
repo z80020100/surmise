@@ -1,4 +1,5 @@
-//! Successful directory changes. Each source directory has preferences of its own.
+//! Successful directory changes. Each source directory has preferences of its
+//! own and an absolute argument reads the preferences of every source.
 //!
 //! SQLite keeps concurrent shells from losing each other's updates. The picker
 //! reads once and keeps the resulting weights for the whole menu session.
@@ -134,7 +135,10 @@ fn record_at(db: &Path, source: &Path, target: &Path, at: i64) -> Result<()> {
 #[derive(Default)]
 pub struct History {
     source: PathBuf,
-    weights: BTreeMap<PathBuf, f64>,
+    /// The visits from `source`.
+    here: BTreeMap<PathBuf, f64>,
+    /// The visits from every source added up for each target.
+    everywhere: BTreeMap<PathBuf, f64>,
 }
 
 impl History {
@@ -150,48 +154,63 @@ impl History {
         let conn = Connection::open_with_flags(db, OpenFlags::SQLITE_OPEN_READ_ONLY)?;
         conn.busy_timeout(Duration::ZERO)?;
         let mut stmt = conn.prepare(
-            "SELECT target, weight, last_used FROM visits_v1
-             WHERE source = ?1 AND last_used >= ?2",
+            "SELECT source, target, weight, last_used FROM visits_v1
+             WHERE last_used >= ?1",
         )?;
-        let rows = stmt.query_map(
-            params![source.as_os_str().as_bytes(), at.saturating_sub(RETENTION)],
-            |row| {
-                Ok((
-                    row.get::<_, Vec<u8>>(0)?,
-                    row.get::<_, f64>(1)?,
-                    row.get::<_, i64>(2)?,
-                ))
-            },
-        )?;
-        let mut weights = BTreeMap::new();
+        let rows = stmt.query_map(params![at.saturating_sub(RETENTION)], |row| {
+            Ok((
+                row.get::<_, Vec<u8>>(0)?,
+                row.get::<_, Vec<u8>>(1)?,
+                row.get::<_, f64>(2)?,
+                row.get::<_, i64>(3)?,
+            ))
+        })?;
+        let mut here = BTreeMap::new();
+        let mut everywhere = BTreeMap::new();
         for row in rows {
-            let (target, weight, last) = row?;
+            let (from, target, weight, last) = row?;
             let weight = decay(weight, last, at);
             if weight.is_finite() && weight >= FLOOR {
-                weights.insert(PathBuf::from(OsString::from_vec(target)), weight);
+                let target = PathBuf::from(OsString::from_vec(target));
+                if from == source.as_os_str().as_bytes() {
+                    here.insert(target.clone(), weight);
+                }
+                *everywhere.entry(target).or_insert(0.0) += weight;
             }
         }
-        Ok(Self { source, weights })
+        Ok(Self {
+            source,
+            here,
+            everywhere,
+        })
     }
 
-    /// What `target` weighs: its own visits and those of every directory
-    /// beneath it. A menu reaches a deep directory one level at a time and
-    /// each level on the way is a row a person picks. The directory the menu
-    /// opened in and every directory above it keep their own visits alone.
-    /// Every visit from here lies beneath one of them and none of them is
-    /// the way down to it.
-    pub(crate) fn weight(&self, target: &Path) -> f64 {
-        if self.weights.is_empty() {
+    /// What `target` weighs when the argument reached it through `prefix`:
+    /// its own visits and those of every directory beneath it. A relative
+    /// prefix names another directory from each source and counts the visits
+    /// from here. An absolute one names the same directory from every source
+    /// and counts the visits from all of them. A menu reaches a deep
+    /// directory one level at a time and each level on the way is a row a
+    /// person picks. The directory the menu opened in and every directory
+    /// above it keep their own visits alone. Every visit from here lies
+    /// beneath one of them and none of them is the way down to it.
+    pub(crate) fn weight(&self, prefix: &str, target: &Path) -> f64 {
+        let weights = if crate::path::expand(prefix).is_absolute() {
+            &self.everywhere
+        } else {
+            &self.here
+        };
+        if weights.is_empty() {
             return 0.0;
         }
         let Ok(target) = target.canonicalize() else {
             return 0.0;
         };
         if self.source.starts_with(&target) {
-            return self.weights.get(&target).copied().unwrap_or(0.0);
+            return weights.get(&target).copied().unwrap_or(0.0);
         }
         // A path sorts by component and everything beneath it follows it in one run.
-        self.weights
+        weights
             .range::<PathBuf, _>(&target..)
             .take_while(|(path, _)| path.starts_with(&target))
             // `sum` starts at -0.0 and `total_cmp` sorts that below a row that weighs nothing.
@@ -219,7 +238,7 @@ mod tests {
     /// `powf` returns these weights exactly on every platform this builds for.
     /// It does not promise to and the room here is what covers the difference.
     fn weighs(history: &History, target: &Path, want: f64) {
-        let got = history.weight(target);
+        let got = history.weight("", target);
         assert!((got - want).abs() < 1e-9, "{got} is not {want}");
     }
 
@@ -305,7 +324,7 @@ mod tests {
         assert!(
             History::read(&db, f.path(), later)
                 .unwrap()
-                .weights
+                .everywhere
                 .is_empty()
         );
         record_at(&db, f.path(), &f.path().join("beta"), later).unwrap();
@@ -435,6 +454,43 @@ mod tests {
         weighs(&h, f.path(), 0.0);
         weighs(&h, &up, 0.0);
         assert_eq!(names(&h, &level, "../")[0], "sibling/");
+        assert_eq!(
+            names(&h, &level, &format!("{}/", f.path().display()))[0],
+            "sibling/"
+        );
+    }
+
+    #[test]
+    fn an_absolute_argument_counts_the_visits_from_every_source() {
+        let f = Fixture::new(&["place/alpha", "place/beta", "here", "elsewhere"]);
+        let db = f.path().join("history.sqlite3");
+        let place = f.path().join("place");
+        let here = f.path().join("here");
+        let elsewhere = f.path().join("elsewhere");
+        record_at(&db, &here, &place.join("alpha"), AT).unwrap();
+        record_at(&db, &elsewhere, &place.join("beta"), AT).unwrap();
+        record_at(&db, &elsewhere, &place.join("beta"), AT).unwrap();
+        let h = History::read(&db, &here, AT).unwrap();
+        assert_eq!(names(&h, &here, "../place/"), ["alpha/", "beta/"]);
+        assert_eq!(
+            names(&h, &here, &format!("{}/", place.display())),
+            ["beta/", "alpha/"]
+        );
+        let mut app = App::over(&here, "ls ");
+        app.seed_history(
+            h,
+            crate::histfile::Counts::default(),
+            crate::candidates::Sort::Recent,
+        );
+        app.line.insert(&format!("{}/", place.display()));
+        app.refresh();
+        let rows: Vec<_> = app
+            .items
+            .iter()
+            .filter(|c| c.kind == Kind::Path)
+            .map(|c| c.display.as_str())
+            .collect();
+        assert_eq!(rows[..2], ["beta/", "alpha/"]);
     }
 
     #[test]

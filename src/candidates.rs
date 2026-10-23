@@ -649,7 +649,7 @@ pub(crate) fn generate_in(
         .into_iter()
         .map(|c| {
             let weight = if c.kind == Kind::Dir {
-                history.weight(&dir.join(&c.display))
+                history.weight(prefix, &dir.join(&c.display))
             } else {
                 0.0
             };

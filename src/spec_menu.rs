@@ -969,7 +969,7 @@ fn path_rows(
         // File rows never touch history; `cd`'s own weighting is a folder
         // idea and this keeps it one.
         if is_dir {
-            score += history_bonus(history, &dir.join(name));
+            score += history_bonus(history, prefix, &dir.join(name));
         }
         let sep = if is_dir { "/" } else { "" };
         out.push(Candidate {
@@ -1056,8 +1056,8 @@ fn program_rows(term: &str, cwd: &Path, history: &History, scan: &mut Scan) -> V
 /// ahead of the fuzzy score outright; the scale here does the same in
 /// practice, since one recent visit already outweighs any difference two
 /// fuzzy scores would otherwise carry.
-fn history_bonus(history: &History, target: &Path) -> i32 {
-    (history.weight(target) * 1000.0) as i32
+fn history_bonus(history: &History, prefix: &str, target: &Path) -> i32 {
+    (history.weight(prefix, target) * 1000.0) as i32
 }
 
 /// `help`'s own rows: the subcommands of the node one word back from the
