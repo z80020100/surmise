@@ -293,8 +293,9 @@ after that and the alphabetical order breaks the rest. `cd d` offers `dist/`
 ahead of `Docs/` and `cd D` offers them the other way round.
 Each source directory has preferences of its own. An argument that starts
 with `~` or `/` is the exception. It names the same directory from every
-source and ranks by the preferences of all of them together. The menu reads
-those preferences once when it opens and keeps them while you type.
+source and ranks by the preferences of all of them together. The rows under
+it therefore rank the same wherever the menu opened. The menu reads those
+preferences once when it opens and keeps them while you type.
 
 The names themselves are read the same way. Each directory the argument
 reaches is walked once and the menu answers every later key from what that
@@ -320,10 +321,13 @@ Each visit adds one to the weight. Existing weight halves every 30 days.
 Records unused for more than 180 days no longer affect sorting.
 The next write removes those records. A directory also carries the weight of
 every recorded directory beneath it. A change to `work/sample` therefore lifts
-`work/` as well as `sample/` inside it. The directory the menu opened in and
-every directory above it keep their own weight alone. `cd ../` would otherwise
-lead with the directory it was typed in. History only reorders directories the
-menu already found. It does not add destinations or expand the scan limit.
+`work/` as well as `sample/` inside it. Under a relative argument the directory
+the menu opened in and every directory above it keep their own weight alone.
+`cd ../` would otherwise lead with the directory it was typed in. Under an
+absolute argument a link back to the directory it lists or above it keeps its
+own weight alone. A link to `/` would otherwise carry every record. History
+only reorders directories the menu already found. It does not add
+destinations or expand the scan limit.
 The parent and home rows do not use history weights.
 
 SQLite serializes writes from concurrent shells. A write waits up to 50 ms
