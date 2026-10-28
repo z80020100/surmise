@@ -189,13 +189,19 @@ impl History {
     /// its own visits and those of every directory beneath it. A relative
     /// prefix names another directory from each source and counts the visits
     /// from here. An absolute one names the same directory from every source
-    /// and counts the visits from all of them. A menu reaches a deep
+    /// and counts the visits from all of them. The rows under it therefore
+    /// rank the same wherever the menu opened. A menu reaches a deep
     /// directory one level at a time and each level on the way is a row a
-    /// person picks. The directory the menu opened in and every directory
-    /// above it keep their own visits alone. Every visit from here lies
-    /// beneath one of them and none of them is the way down to it.
+    /// person picks. A row that leads back up keeps its own visits alone.
+    /// Under a relative prefix those rows are the directory the menu opened
+    /// in and every directory above it. Every visit from here lies beneath
+    /// one of them and none of them is the way down to it. Under an absolute
+    /// prefix they are the links back to the listed directory or above it. A
+    /// link to `/` is one.
     pub(crate) fn weight(&self, prefix: &str, target: &Path) -> f64 {
-        let weights = if crate::path::expand(prefix).is_absolute() {
+        let listed = crate::path::expand(prefix);
+        let absolute = listed.is_absolute();
+        let weights = if absolute {
             &self.everywhere
         } else {
             &self.here
@@ -206,7 +212,16 @@ impl History {
         let Ok(target) = target.canonicalize() else {
             return 0.0;
         };
-        if self.source.starts_with(&target) {
+        let leads_back_up = if absolute {
+            // A row physically beneath the listed directory cannot lead above it.
+            !target.starts_with(&listed)
+                && listed
+                    .canonicalize()
+                    .is_ok_and(|physical| physical.starts_with(&target))
+        } else {
+            self.source.starts_with(&target)
+        };
+        if leads_back_up {
             return weights.get(&target).copied().unwrap_or(0.0);
         }
         // A path sorts by component and everything beneath it follows it in one run.
@@ -454,10 +469,42 @@ mod tests {
         weighs(&h, f.path(), 0.0);
         weighs(&h, &up, 0.0);
         assert_eq!(names(&h, &level, "../")[0], "sibling/");
-        assert_eq!(
-            names(&h, &level, &format!("{}/", f.path().display()))[0],
-            "sibling/"
-        );
+    }
+
+    #[test]
+    fn an_absolute_argument_ranks_the_same_from_every_directory() {
+        let f = Fixture::new(&["level/child", "sibling", "elsewhere"]);
+        let db = f.path().join("history.sqlite3");
+        let level = f.path().join("level");
+        let elsewhere = f.path().join("elsewhere");
+        record_at(&db, &level, &level.join("child"), AT).unwrap();
+        record_at(&db, &elsewhere, &level.join("child"), AT).unwrap();
+        record_at(&db, &elsewhere, &f.path().join("sibling"), AT).unwrap();
+        let arg = format!("{}/", f.path().display());
+        for cwd in [
+            f.path().to_path_buf(),
+            elsewhere.clone(),
+            level.clone(),
+            level.join("child"),
+        ] {
+            let h = History::read(&db, &cwd, AT).unwrap();
+            assert_eq!(names(&h, &cwd, &arg), ["level/", "sibling/", "elsewhere/"]);
+        }
+    }
+
+    #[test]
+    fn a_link_back_up_keeps_its_own_visits_under_an_absolute_argument() {
+        let f = Fixture::new(&["place/alpha", "elsewhere"]);
+        let db = f.path().join("history.sqlite3");
+        let place = f.path().join("place");
+        let elsewhere = f.path().join("elsewhere");
+        std::os::unix::fs::symlink(f.path(), place.join("up")).unwrap();
+        record_at(&db, &elsewhere, &place.join("alpha"), AT).unwrap();
+        record_at(&db, &elsewhere, &place.join("alpha"), AT).unwrap();
+        record_at(&db, &place, &elsewhere, AT).unwrap();
+        let h = History::read(&db, &elsewhere, AT).unwrap();
+        let arg = format!("{}/", place.display());
+        assert_eq!(names(&h, &elsewhere, &arg), ["alpha/", "up/"]);
     }
 
     #[test]
