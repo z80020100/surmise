@@ -138,6 +138,9 @@ pub struct Walk<'a> {
     /// The argument the final word would fill, if any is pending: an
     /// option's own, or the current node's.
     pub current_arg: Option<Arg>,
+    /// The option [`Walk::current_arg`] belongs to. `None` where that
+    /// argument is the node's own or there is none.
+    pub current_option: Option<&'a Opt>,
     /// Every option the walk consumed, one entry per use. A menu drops one
     /// already at its `is_repeatable` cap rather than offering it again.
     pub passed_options: Vec<&'a Opt>,
@@ -668,6 +671,7 @@ pub fn walk<'a>(
         offers_args: current_arg.is_some(),
         awaits_option_value: !stray && state.option_arg.is_some_and(|(_, _, filled)| !filled),
         current_arg,
+        current_option: state.option_arg.filter(|_| !stray).map(|(opt, _, _)| opt),
         needs_word,
         offers_subcommands: !stray && !state.entered_subcommand_args && !forced,
         offers_options: !stray && !forced && state.can_consume_options(),
@@ -1286,6 +1290,21 @@ mod tests {
         assert!(!filled.awaits_option_value);
         let bare = walk(&command("pm2 "), &pm2, |_| None);
         assert!(!bare.awaits_option_value);
+    }
+
+    #[test]
+    fn an_option_argument_names_the_option_it_belongs_to() {
+        let git = spec::load("git", &[]).unwrap();
+        let branch = git.subcommands.get("branch").unwrap();
+        let delete = branch.options.get("-D").unwrap();
+        // A variadic argument goes on belonging to its option past its first word.
+        for line in ["git branch -D ", "git branch -D sample "] {
+            let walk = walk(&command(line), &git, |_| None);
+            assert!(std::ptr::eq(walk.current_option.unwrap(), delete.as_ref()));
+        }
+        let add = walk(&command("git add "), &git, |_| None);
+        assert!(add.current_arg.is_some());
+        assert!(add.current_option.is_none());
     }
 
     #[test]

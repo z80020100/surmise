@@ -745,13 +745,20 @@ fn build_rows(
         if arg.dynamic
             && let Some(command) = walk.root.name.first()
             && let Some(owner) = walk.node.name.first()
+            && let Some(reader) = native::reader(
+                command,
+                owner,
+                walk.current_option
+                    .and_then(|opt| opt.name.first())
+                    .map(String::as_str),
+                arg.name.first().map_or("", String::as_str),
+            )
         {
-            let name = arg.name.first().map_or("", String::as_str);
             let line = native::Line {
                 words: &line.words[walk.root_index..],
                 ..line
             };
-            found.extend(native::rows(command, owner, name, term, cwd, line, runs));
+            found.extend(native::rows(reader, term, cwd, line, runs));
         }
         rows.extend(values(listed, found, arg.suggestions.len()));
         // What a template lists follows both. Any file or folder is a
@@ -1623,6 +1630,23 @@ mod tests {
         let label = |name: &str| &rows.iter().find(|r| r.insert == name).unwrap().label;
         assert_eq!(label("sample-main"), CURRENT_BRANCH);
         assert_eq!(label("sample-topic"), "branch");
+    }
+
+    #[test]
+    fn a_branch_deletion_reads_the_branches_its_lost_line_would_have_listed() {
+        let f = Fixture::new(&[]);
+        f.init_git(&["sample-topic"]);
+        // `--delete` is `-d` under its long name.
+        for line in ["git branch -D ", "git branch --delete "] {
+            let rows = rows_in(f.path(), line);
+            let names = names(&rows);
+            assert!(names.contains(&"sample-topic"), "{line} {names:?}");
+            assert!(!names.contains(&"sample-main"), "{line} {names:?}");
+        }
+        // `-m` keeps its own line and the reader for `-D` adds nothing to it.
+        let rows = rows_in(f.path(), "git branch -m ");
+        let topic = rows.iter().filter(|r| r.insert == "sample-topic").count();
+        assert_eq!(topic, 1);
     }
 
     #[test]

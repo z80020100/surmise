@@ -31,6 +31,8 @@
 //! line. Its reader runs the line [`SCRIPTS`] holds for `cargo`'s packages and
 //! reads which of them the line's directory selects. `docker compose up` keeps
 //! a line only code could build and its reader reads the compose files instead.
+//! `git branch -d` keeps no line. Its reader runs one of the lines [`SCRIPTS`]
+//! holds for the branches and leaves out what Git would refuse.
 
 use crate::candidates::{CURRENT_BRANCH, Candidate, DEFAULT_PRIORITY, Kind, SCAN_LIMIT};
 use crate::fuzzy;
@@ -51,28 +53,34 @@ use std::time::SystemTime;
 ///
 /// `specs/dynamic.txt` keys an argument by its command, the subcommands and
 /// options that reach the argument's owner, and the argument's index.
-/// [`crate::argwalk::Walk`] carries neither the owning option nor the index,
-/// so the key here is what it does carry: the specification the walk ended
-/// in, the name of the node it ended on and the argument's own name.
-/// Nothing is lost for any reader below. `make`'s `target` is one argument
-/// name in four places in `make.json` — the bare one and the ones behind
-/// `-j`, `-B` and `-e` — and all four want the same rows, which is why the
-/// four `dynamic.txt` keys collapse to one entry here. `npm`'s `workspace`
-/// is the argument of `-w` under 25 subcommands and one entry with no
-/// owner answers all of them.
+/// [`crate::argwalk::Walk`] does not carry the index. The key here is
+/// therefore what it does carry: the specification the walk ended in, the
+/// name of the node it ended on, the option the argument belongs to and the
+/// argument's own name. Nothing is lost for any reader below. `make`'s
+/// `target` is one argument name in four places in `make.json` — the bare one
+/// and the ones behind `-j`, `-B` and `-e` — and all four want the same rows,
+/// which is why the four `dynamic.txt` keys collapse to one entry here.
+/// `npm`'s `workspace` is the argument of `-w` under 25 subcommands and one
+/// entry with no owner answers all of them. `git branch` leaves the arguments
+/// of six of its options unnamed. `-d` and `-D` lost their branch list and the
+/// other four kept a line [`SCRIPTS`] runs. The option is what tells them
+/// apart.
 ///
 /// Another reader is one more entry in [`READERS`] and one more function.
-/// A command that gives one argument name two different meanings under
-/// one owner is the case this key cannot tell apart. Answering it means
-/// teaching `argwalk` to carry the path and the index rather than changing
-/// anything here.
-struct Reader {
+/// Two arguments of one option or one node that share a name are the case
+/// this key cannot tell apart. `git branch -m` names neither of its two.
+/// Answering it means teaching `argwalk` to carry the index as well.
+pub(crate) struct Reader {
     /// The command whose specification holds the argument.
     command: &'static str,
     /// The subcommands the argument hangs off, by their own first names.
     /// Empty where every node of the specification means the same thing by
     /// that argument's name.
     owners: &'static [&'static str],
+    /// The options the argument belongs to, by their own first names. Empty
+    /// where the node's own argument and every option's of that name mean
+    /// the same thing.
+    options: &'static [&'static str],
     /// The argument's first name, as the specification spells it. Empty for
     /// an argument the specification leaves unnamed.
     arg: &'static str,
@@ -109,6 +117,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "make",
         owners: &["make"],
+        options: &[],
         arg: "target",
         label: "target",
         read: |sources| unlabelled(make_targets(sources)),
@@ -116,6 +125,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "ssh",
         owners: &["ssh"],
+        options: &[],
         arg: "user@hostname",
         label: "host",
         read: |sources| unlabelled(ssh_hosts(sources)),
@@ -124,6 +134,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "docker-compose",
         owners: &[],
+        options: &[],
         arg: "service",
         label: "service",
         read: compose_services,
@@ -131,6 +142,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "docker-compose",
         owners: &[],
+        options: &[],
         arg: "services",
         label: "service",
         read: compose_services,
@@ -138,6 +150,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "npm",
         owners: &["run"],
+        options: &[],
         arg: "script",
         label: "script",
         read: npm_scripts,
@@ -148,6 +161,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "npm",
         owners: &["uninstall", "r", "un", "remove", "unlink", "explore"],
+        options: &[],
         arg: "package",
         label: "dependency",
         read: npm_dependencies,
@@ -155,6 +169,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "npm",
         owners: &[],
+        options: &[],
         arg: "workspace",
         label: "workspace",
         read: npm_workspaces,
@@ -164,6 +179,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "pnpm",
         owners: &["pnpm", "run"],
+        options: &[],
         arg: "Scripts",
         label: "script",
         read: npm_scripts,
@@ -171,6 +187,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "pnpm",
         owners: &["update", "remove", "link", "unlink", "rebuild"],
+        options: &[],
         arg: "Package",
         label: "dependency",
         read: npm_dependencies,
@@ -178,6 +195,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "yarn",
         owners: &["run"],
+        options: &[],
         arg: "script",
         label: "script",
         read: npm_scripts,
@@ -185,6 +203,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "yarn",
         owners: &["upgrade"],
+        options: &[],
         arg: "package",
         label: "dependency",
         read: npm_dependencies,
@@ -192,6 +211,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "bun",
         owners: &["run"],
+        options: &[],
         arg: "script",
         label: "script",
         read: npm_scripts,
@@ -200,6 +220,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "bun",
         owners: &["bun"],
+        options: &[],
         arg: "file",
         label: "script",
         read: npm_scripts,
@@ -207,6 +228,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "nr",
         owners: &["nr"],
+        options: &[],
         arg: "script",
         label: "script",
         read: npm_scripts,
@@ -214,6 +236,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "rushx",
         owners: &["rushx"],
+        options: &[],
         arg: "Scripts",
         label: "script",
         read: npm_scripts,
@@ -222,6 +245,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "yarn",
         owners: &["yarn"],
+        options: &[],
         arg: "",
         label: "script",
         read: npm_scripts,
@@ -229,6 +253,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "yarn",
         owners: &["remove"],
+        options: &[],
         arg: "",
         label: "dependency",
         read: npm_dependencies,
@@ -236,6 +261,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "rush",
         owners: &["install", "build", "rebuild"],
+        options: &[],
         arg: "PROJECT",
         label: "project",
         read: rush_projects,
@@ -243,6 +269,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "brew",
         owners: &["install", "abv", "edit", "home"],
+        options: &[],
         arg: "formula",
         label: "formula",
         read: brew_names,
@@ -250,6 +277,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "brew",
         owners: &["upgrade"],
+        options: &[],
         arg: "outdated_formula|outdated_cask",
         label: "installed",
         read: |sources| brew_installed(sources, BrewReads::CoreFormulaFirst),
@@ -257,6 +285,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "brew",
         owners: &["reinstall", "pin", "unpin"],
+        options: &[],
         arg: "formula",
         label: "installed",
         read: |sources| brew_installed(sources, BrewReads::CoreFormulaFirst),
@@ -264,6 +293,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "brew",
         owners: &["uninstall", "list", "ls", "link", "unlink"],
+        options: &[],
         arg: "formula",
         label: "installed",
         read: |sources| brew_installed(sources, BrewReads::InstalledFormulaFirst),
@@ -271,6 +301,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "brew",
         owners: &["postinstall", "--prefix"],
+        options: &[],
         arg: "formula",
         label: "installed",
         read: |sources| brew_installed(sources, BrewReads::FormulaOnly),
@@ -279,6 +310,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "brew",
         owners: &["uninstall"],
+        options: &[],
         arg: "",
         label: "installed cask",
         read: |sources| brew_installed(sources, BrewReads::CaskOnly),
@@ -287,6 +319,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "brew",
         owners: &["cleanup"],
+        options: &[],
         arg: "",
         label: "installed",
         read: |sources| brew_installed(sources, BrewReads::InstalledFormulaFirst),
@@ -295,6 +328,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "brew",
         owners: &["start", "stop", "restart", "run"],
+        options: &[],
         arg: "",
         label: "service",
         read: brew_services,
@@ -302,6 +336,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "claude",
         owners: &["claude"],
+        options: &[],
         arg: "session",
         label: "session",
         read: claude_sessions,
@@ -309,6 +344,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "codex",
         owners: &["resume"],
+        options: &[],
         arg: "SESSION_ID",
         label: "session",
         read: codex_sessions,
@@ -317,6 +353,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "cargo",
         owners: CARGO_BUILDS,
+        options: &[],
         arg: "bin",
         label: "binary",
         read: |sources| cargo_targets(sources, "bin"),
@@ -324,6 +361,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "cargo",
         owners: CARGO_BUILDS,
+        options: &[],
         arg: "example",
         label: "example",
         read: |sources| cargo_targets(sources, "example"),
@@ -331,6 +369,7 @@ static READERS: &[Reader] = &[
     Reader {
         command: "cargo",
         owners: CARGO_TESTS,
+        options: &[],
         arg: "test",
         label: "test",
         read: |sources| cargo_targets(sources, "test"),
@@ -338,9 +377,18 @@ static READERS: &[Reader] = &[
     Reader {
         command: "cargo",
         owners: CARGO_TESTS,
+        options: &[],
         arg: "bench",
         label: "benchmark",
         read: |sources| cargo_targets(sources, "bench"),
+    },
+    Reader {
+        command: "git",
+        owners: &["branch"],
+        options: &["-d", "-D"],
+        arg: "",
+        label: "branch",
+        read: deletable_branches,
     },
 ];
 
@@ -383,13 +431,7 @@ static SCRIPTS: &[Script] = &[
         parse: oneline,
     },
     Script {
-        line: &[
-            "git",
-            "--no-optional-locks",
-            "branch",
-            "--no-color",
-            "--sort=-committerdate",
-        ],
+        line: LOCAL_BRANCHES,
         label: "branch",
         parse: branches,
     },
@@ -406,14 +448,7 @@ static SCRIPTS: &[Script] = &[
         parse: branches,
     },
     Script {
-        line: &[
-            "git",
-            "--no-optional-locks",
-            "branch",
-            "-r",
-            "--no-color",
-            "--sort=-committerdate",
-        ],
+        line: REMOTE_BRANCHES,
         label: "branch",
         parse: branches,
     },
@@ -942,6 +977,51 @@ fn branches(out: &str) -> Vec<Found> {
         .collect()
 }
 
+const LOCAL_BRANCHES: &[&str] = &[
+    "git",
+    "--no-optional-locks",
+    "branch",
+    "--no-color",
+    "--sort=-committerdate",
+];
+
+const REMOTE_BRANCHES: &[&str] = &[
+    "git",
+    "--no-optional-locks",
+    "branch",
+    "-r",
+    "--no-color",
+    "--sort=-committerdate",
+];
+
+/// The branches `git branch -d` and `-D` can delete. They are the local ones.
+/// A line that holds `-r` or `--remotes` gets the remote-tracking ones
+/// instead. Git refuses the branch the repository is on and one checked out
+/// in another worktree. Neither gets a row and nor does a name already on the
+/// line.
+fn deletable_branches(sources: &Sources) -> Vec<Found> {
+    let remote = sources
+        .line
+        .iter()
+        .any(|word| matches!(*word, "-r" | "--remotes"));
+    let line = if remote {
+        REMOTE_BRANCHES
+    } else {
+        LOCAL_BRANCHES
+    };
+    let Some(out) = output(line, sources.cwd, sources.assignments) else {
+        return Vec::new();
+    };
+    let not_checked_out: Vec<&str> = out
+        .lines()
+        .filter(|line| !line.starts_with(['*', '+']))
+        .collect();
+    branches(&not_checked_out.join("\n"))
+        .into_iter()
+        .filter(|branch| !sources.line.contains(&branch.name.as_str()))
+        .collect()
+}
+
 /// `origin\turl (fetch)` and the same remote again for `(push)`. One row
 /// per remote, with the address it fetches from.
 fn remotes(out: &str) -> Vec<Found> {
@@ -1384,23 +1464,15 @@ pub(crate) struct Line<'a> {
     pub words: &'a [&'a str],
 }
 
-/// The rows a native reader offers for one `dyn` argument, or none where the
-/// table has no reader for it. `command` is the first name of the
-/// specification the walk ended in, `owner` is the name of the node it
-/// ended on and `arg` is the argument's own first name. `runs` keeps a
-/// non-empty answer until `line` changes.
+/// The rows `reader` offers for one `dyn` argument. `runs` keeps a non-empty
+/// answer until `line` changes.
 pub(crate) fn rows(
-    command: &str,
-    owner: &str,
-    arg: &str,
+    reader: &'static Reader,
     term: &str,
     cwd: &Path,
     line: Line,
     runs: &mut Runs,
 ) -> Vec<Candidate> {
-    let Some(reader) = reader(command, owner, arg) else {
-        return Vec::new();
-    };
     let key = (
         std::ptr::from_ref(reader),
         owned(line.assignments),
@@ -1500,9 +1572,22 @@ fn assigned(
     set
 }
 
-fn reader(command: &str, owner: &str, arg: &str) -> Option<&'static Reader> {
+/// The reader for one `dyn` argument, or `None` where the table has none.
+/// `command` is the first name of the specification the walk ended in,
+/// `owner` is the name of the node it ended on, `option` is the first name
+/// of the option the argument belongs to and `arg` is the argument's own
+/// first name.
+pub(crate) fn reader(
+    command: &str,
+    owner: &str,
+    option: Option<&str>,
+    arg: &str,
+) -> Option<&'static Reader> {
     READERS.iter().find(|r| {
-        r.command == command && r.arg == arg && (r.owners.is_empty() || r.owners.contains(&owner))
+        r.command == command
+            && r.arg == arg
+            && (r.owners.is_empty() || r.owners.contains(&owner))
+            && (r.options.is_empty() || option.is_some_and(|option| r.options.contains(&option)))
     })
 }
 
@@ -2910,7 +2995,7 @@ fn opens_with_tag(text: &str) -> bool {
 mod tests {
     use super::*;
     use crate::fixture::{Fixture, soon};
-    use crate::spec::Subcommand;
+    use crate::spec::{Arg, Subcommand};
     use std::os::unix::fs::PermissionsExt;
 
     /// Every host name below is invented. A test that read the real
@@ -3136,35 +3221,48 @@ sample-host,10.0.0.1 ssh-ed25519 AAAASAMPLE
 
     #[test]
     fn the_table_answers_for_its_own_arguments_and_for_nothing_else() {
-        assert!(reader("make", "make", "target").is_some());
-        assert!(reader("ssh", "ssh", "user@hostname").is_some());
-        assert!(reader("npm", "run", "script").is_some());
-        assert!(reader("npm", "r", "package").is_some());
+        assert!(reader("make", "make", None, "target").is_some());
+        assert!(reader("ssh", "ssh", None, "user@hostname").is_some());
+        assert!(reader("npm", "run", None, "script").is_some());
+        assert!(reader("npm", "r", None, "package").is_some());
         // An entry with no owner answers under every node of its command.
-        assert!(reader("npm", "audit", "workspace").is_some());
-        assert!(reader("make", "make", "no-such-argument").is_none());
-        assert!(reader("chown", "chown", "owner").is_none());
+        assert!(reader("npm", "audit", None, "workspace").is_some());
+        assert!(reader("make", "make", None, "no-such-argument").is_none());
+        assert!(reader("chown", "chown", None, "owner").is_none());
         // `install`'s own `package` searches the registry.
-        assert!(reader("npm", "install", "package").is_none());
+        assert!(reader("npm", "install", None, "package").is_none());
         // The same pair under another command's specification is not this.
-        assert!(reader("cargo", "run", "script").is_none());
+        assert!(reader("cargo", "run", None, "script").is_none());
+        // An entry with options answers for their arguments alone.
+        assert!(reader("git", "branch", Some("-D"), "").is_some());
+        assert!(reader("git", "branch", Some("-m"), "").is_none());
+        assert!(reader("git", "branch", None, "").is_none());
     }
 
     /// Every argument one entry of [`READERS`] can reach, by the name of the
-    /// node it hangs off. An option's own argument hangs off the node the
-    /// option sits on. `spec_menu` hands the table that same node.
-    fn dynamic_owners<'a>(node: &'a Subcommand, arg: &str, out: &mut Vec<&'a str>) {
-        let own = node.args.iter();
-        let options = node
-            .options
-            .values()
-            .chain(node.persistent_options.values());
-        if own
-            .chain(options.flat_map(|opt| opt.args.iter()))
-            .any(|a| a.dynamic && a.name.first().map_or("", String::as_str) == arg)
-            && let Some(name) = node.name.first()
-        {
-            out.push(name);
+    /// node it hangs off and the option it belongs to. An option's own
+    /// argument hangs off the node the option sits on. `spec_menu` hands the
+    /// table that same node.
+    fn dynamic_owners<'a>(
+        node: &'a Subcommand,
+        arg: &str,
+        out: &mut Vec<(&'a str, Option<&'a str>)>,
+    ) {
+        let reaches = |args: &[Arg]| {
+            args.iter()
+                .any(|a| a.dynamic && a.name.first().map_or("", String::as_str) == arg)
+        };
+        if let Some(name) = node.name.first() {
+            if reaches(&node.args) {
+                out.push((name, None));
+            }
+            let options = node
+                .options
+                .values()
+                .chain(node.persistent_options.values());
+            for opt in options.filter(|opt| reaches(&opt.args)) {
+                out.push((name, opt.name.first().map(String::as_str)));
+            }
         }
         for child in node.subcommands.values() {
             dynamic_owners(child, arg, out);
@@ -3279,8 +3377,17 @@ volumes:
             assert!(!owners.is_empty(), "{} {}", reader.command, reader.arg);
             for owner in reader.owners {
                 assert!(
-                    owners.contains(owner),
+                    owners.iter().any(|(node, _)| node == owner),
                     "{} {owner} {}",
+                    reader.command,
+                    reader.arg
+                );
+            }
+            for option in reader.options {
+                assert!(
+                    owners.iter().any(|(node, opt)| *opt == Some(*option)
+                        && (reader.owners.is_empty() || reader.owners.contains(node))),
+                    "{} {option} {}",
                     reader.command,
                     reader.arg
                 );
@@ -3447,6 +3554,50 @@ volumes:
         assert!(script_rows(&line, "", "", outside.path(), &[], &mut runs).is_empty());
         let unknown = ["GIT_DIR=$(sample)"];
         assert!(script_rows(&line, "", "", outside.path(), &unknown, &mut runs).is_empty());
+    }
+
+    #[test]
+    fn a_branch_deletion_offers_only_what_git_would_delete() {
+        let f = Fixture::new(&[]);
+        f.init_git(&["sample-elsewhere", "sample-spare", "sample-topic"]);
+        f.git(&[
+            "worktree",
+            "add",
+            "--quiet",
+            "elsewhere",
+            "sample-elsewhere",
+        ]);
+        f.git(&[
+            "update-ref",
+            "refs/remotes/origin/sample-remote",
+            "sample-main",
+        ]);
+        let names = |line: &[&str]| {
+            let found = deletable_branches(&Sources {
+                line,
+                ..sources(f.path(), nowhere(), nowhere())
+            });
+            let mut names: Vec<String> = found.into_iter().map(|found| found.name).collect();
+            names.sort_unstable();
+            names
+        };
+        // Git refuses the current branch and the one another worktree holds.
+        assert_eq!(
+            names(&["git", "branch", "-D"]),
+            ["sample-spare", "sample-topic"]
+        );
+        assert_eq!(
+            names(&["git", "branch", "-d", "sample-topic"]),
+            ["sample-spare"]
+        );
+        for remotes in ["-r", "--remotes"] {
+            assert_eq!(
+                names(&["git", "branch", remotes, "-d"]),
+                ["origin/sample-remote"]
+            );
+        }
+        let outside = Fixture::new(&[]);
+        assert!(deletable_branches(&sources(outside.path(), nowhere(), nowhere())).is_empty());
     }
 
     #[test]
@@ -3658,9 +3809,7 @@ volumes:
         )
         .unwrap();
         let rows = rows(
-            "rush",
-            "build",
-            "PROJECT",
+            reader("rush", "build", None, "PROJECT").unwrap(),
             "",
             &f.path().join("apps/sample"),
             EMPTY_LINE,
@@ -3673,37 +3822,21 @@ volumes:
 
     #[test]
     fn pnpm_yarn_and_bun_read_the_same_package_json_npm_does() {
-        assert!(reader("pnpm", "run", "Scripts").is_some());
-        assert!(reader("pnpm", "pnpm", "Scripts").is_some());
-        assert!(reader("pnpm", "remove", "Package").is_some());
-        assert!(reader("yarn", "run", "script").is_some());
-        assert!(reader("yarn", "upgrade", "package").is_some());
-        assert!(reader("bun", "run", "script").is_some());
+        assert!(reader("pnpm", "run", None, "Scripts").is_some());
+        assert!(reader("pnpm", "pnpm", None, "Scripts").is_some());
+        assert!(reader("pnpm", "remove", None, "Package").is_some());
+        assert!(reader("yarn", "run", None, "script").is_some());
+        assert!(reader("yarn", "upgrade", None, "package").is_some());
+        assert!(reader("bun", "run", None, "script").is_some());
         // A bare `bun`, `nr`, `rushx` and `yarn` run a script too.
-        assert!(reader("bun", "bun", "file").is_some());
-        assert!(reader("nr", "nr", "script").is_some());
-        assert!(reader("rushx", "rushx", "Scripts").is_some());
-        assert!(reader("yarn", "yarn", "").is_some());
-        assert!(reader("yarn", "remove", "").is_some());
+        assert!(reader("bun", "bun", None, "file").is_some());
+        assert!(reader("nr", "nr", None, "script").is_some());
+        assert!(reader("rushx", "rushx", None, "Scripts").is_some());
+        assert!(reader("yarn", "yarn", None, "").is_some());
+        assert!(reader("yarn", "remove", None, "").is_some());
         // `add` and `install` search the registry.
-        assert!(reader("pnpm", "add", "package").is_none());
-        assert!(reader("yarn", "add", "package").is_none());
-    }
-
-    #[test]
-    fn an_argument_with_no_reader_gives_no_rows() {
-        assert!(
-            rows(
-                "chown",
-                "chown",
-                "owner",
-                "",
-                nowhere(),
-                EMPTY_LINE,
-                &mut Runs::default()
-            )
-            .is_empty()
-        );
+        assert!(reader("pnpm", "add", None, "package").is_none());
+        assert!(reader("yarn", "add", None, "package").is_none());
     }
 
     /// A project directory holding `package` as its `package.json`. Every
@@ -3885,9 +4018,7 @@ volumes:
             r#"{"scripts": {"sample-build": "sample-tool build", "sample\u001b-bad": "sample-tool"}}"#,
         );
         let rows = rows(
-            "npm",
-            "run",
-            "script",
+            reader("npm", "run", None, "script").unwrap(),
             "",
             f.path(),
             EMPTY_LINE,
@@ -3914,9 +4045,7 @@ volumes:
             r#"{"scripts": {"sample-build": "sample-tool build"}, "workspaces": ["tools/sample-cli"]}"#,
         );
         let script = rows(
-            "npm",
-            "run",
-            "script",
+            reader("npm", "run", None, "script").unwrap(),
             "",
             f.path(),
             EMPTY_LINE,
@@ -3924,9 +4053,7 @@ volumes:
         );
         assert_eq!(script[0].label, "sample-tool build");
         let workspace = rows(
-            "npm",
-            "run",
-            "workspace",
+            reader("npm", "run", None, "workspace").unwrap(),
             "",
             f.path(),
             EMPTY_LINE,
@@ -3939,7 +4066,7 @@ volumes:
     fn a_host_row_carries_the_name_it_would_insert_and_its_label() {
         let f = ssh_home(Some("Host sample-host\n"), None);
         let s = sources(nowhere(), f.path(), nowhere());
-        let reader = reader("ssh", "ssh", "user@hostname").expect("ssh has a reader");
+        let reader = reader("ssh", "ssh", None, "user@hostname").expect("ssh has a reader");
         let rows = candidates(reader, &s, "sam");
         assert_eq!(rows.len(), 1);
         assert_eq!(rows[0].display, "sample-host");
@@ -3952,7 +4079,7 @@ volumes:
     fn a_term_that_matches_nothing_gives_no_rows() {
         let f = ssh_home(Some("Host sample-host\n"), None);
         let s = sources(nowhere(), f.path(), nowhere());
-        let reader = reader("ssh", "ssh", "user@hostname").expect("ssh has a reader");
+        let reader = reader("ssh", "ssh", None, "user@hostname").expect("ssh has a reader");
         assert!(candidates(reader, &s, "zzzz").is_empty());
     }
 
@@ -4132,7 +4259,7 @@ volumes:
     #[test]
     fn brew_answers_the_subcommands_that_name_any_formula_or_cask() {
         for owner in ["install", "abv", "edit", "home"] {
-            assert!(reader("brew", owner, "formula").is_some(), "{owner}");
+            assert!(reader("brew", owner, None, "formula").is_some(), "{owner}");
         }
     }
 
@@ -4235,7 +4362,7 @@ volumes:
                 homebrew_cache: Some(cache.path()),
                 ..prefix_sources(&path, line)
             };
-            let reader = reader("brew", owner, arg).expect(owner);
+            let reader = reader("brew", owner, None, arg).expect(owner);
             (reader.read)(&s)
                 .into_iter()
                 .map(|found| found.name)
@@ -4517,10 +4644,16 @@ volumes:
                 assignments: &[],
                 words,
             };
-            rows("make", "make", "target", "", f.path(), line, &mut runs)
-                .into_iter()
-                .map(|r| r.insert)
-                .collect()
+            rows(
+                reader("make", "make", None, "target").unwrap(),
+                "",
+                f.path(),
+                line,
+                &mut runs,
+            )
+            .into_iter()
+            .map(|r| r.insert)
+            .collect()
         };
         // An empty answer is not kept.
         assert!(ask(&["make"]).is_empty());
@@ -4547,9 +4680,7 @@ volumes:
                 words: &["ssh"],
             };
             rows(
-                "ssh",
-                "ssh",
-                "user@hostname",
+                reader("ssh", "ssh", None, "user@hostname").unwrap(),
                 "",
                 nowhere(),
                 line,
@@ -4675,7 +4806,7 @@ volumes:
             "{\"id\":\"abf00000-0000-4000-8000-000000000001\",\"thread_name\":\"Sample stale index\"}\n"
         )).unwrap();
         let s = codex_sources(f.path(), &["codex", "resume"]);
-        let reader = reader("codex", "resume", "SESSION_ID").unwrap();
+        let reader = reader("codex", "resume", None, "SESSION_ID").unwrap();
         let rows = candidates(reader, &s, "");
         assert_eq!(
             rows.iter()
@@ -4886,7 +5017,7 @@ volumes:
         );
         claude_session(&dir, SESSION_THREE, &[prompt("sample  only\tprompt")], 20);
         let s = claude_sources(cwd, f.path());
-        let reader = reader("claude", "claude", "session").unwrap();
+        let reader = reader("claude", "claude", None, "session").unwrap();
         let rows = candidates(reader, &s, "");
         let shown: Vec<(&str, &str, &str)> = rows
             .iter()
@@ -4914,7 +5045,7 @@ volumes:
         claude_session(&dir, id, &[prompt("Sample session")], 0);
         claude_session(&dir, SESSION_TWO, &[prompt("Other session")], 0);
         let s = claude_sources(cwd, f.path());
-        let reader = reader("claude", "claude", "session").unwrap();
+        let reader = reader("claude", "claude", None, "session").unwrap();
         for end in [1, 2, 3, 8, 9, 13, id.len()] {
             let term = &id[..end];
             let rows = candidates(reader, &s, term);
@@ -4942,7 +5073,7 @@ volumes:
             claude_session(&dir, id, &[prompt("Sample session")], 0);
         }
         let s = claude_sources(cwd, f.path());
-        let reader = reader("claude", "claude", "session").unwrap();
+        let reader = reader("claude", "claude", None, "session").unwrap();
         let rows = candidates(reader, &s, "abf");
         assert_eq!(rows.len(), 1);
         assert_eq!(rows[0].insert, ids[0]);

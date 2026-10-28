@@ -1275,9 +1275,16 @@ an `include` names is not read and neither is the `.env` file that can set
 `COMPOSE_FILE`. Each file is read up to the same 64 KiB. A name already on the
 line is left out.
 
+`git branch -d ` and `git branch -D ` offer the branches Git would delete. The
+corpus built that list in code and keeps no line for it. The reader runs the
+line the table below holds for the local branches. A line that holds `-r` or
+`--remotes` gets the remote-tracking branches instead. Git refuses the branch
+the repository is on and a branch another worktree has checked out. Neither
+gets a row. A name already on the line is left out as well.
+
 Each of the file readers above reads its files once for each word of the line
-rather than once for each key. So does the `cargo` reader with its line. An
-empty answer is read again at the next key.
+rather than once for each key. So do the `cargo` and `git branch` readers with
+their lines. An empty answer is read again at the next key.
 
 A variable the line sets in front of its command is the one these readers
 read. `HOME=/tmp/sample-home ssh ` offers the hosts under that home. An alias
@@ -1351,8 +1358,8 @@ machine unless a person pointed it somewhere else.
 
 An argument that needs anything else — another native reader, a line that
 asks a server, anything else `specs/dynamic.txt` names — still offers no rows
-rather than guessing at one. The readers answer 839 of the 4854 arguments that
-file lists and the other 4015 show nothing.
+rather than guessing at one. The readers answer 841 of the 4854 arguments that
+file lists and the other 4013 show nothing.
 
 A space opens the menu here too, the way a bare `cd ` or `git ` already did:
 `docker ` and `docker container ` both reach it, because the widget checks
