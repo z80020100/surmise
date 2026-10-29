@@ -1067,6 +1067,7 @@ fn a_directory_row_goes_stale_once_the_cursor_leaves_its_word() {
     );
     t.send("\x05\x1b[B\r");
     assert_eq!(t.status(WAIT), Some(pick::RUN), "{:?}", t.lines());
+    assert!(t.wait_bare(WAIT), "the menu stayed: {:?}", t.lines());
     assert!(!shown(&t).contains("alpha"), "{:?}", t.lines());
 }
 
