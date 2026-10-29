@@ -779,9 +779,12 @@ Behind the program Tab offers the files and folders beside the line. The
 corpus's own `dotslash` specification says such a program takes those.
 That specification writes its argument as mandatory. A program needs no word
 and the row that runs the line leads that menu as well. Two presses of Enter
-therefore take a program and run it. A folder runs nothing and takes nothing.
-`src/ ` therefore offers no rows. A space opens neither menu. The set the
-widget checks a first word against names commands and never a path.
+therefore take a program and run it. Taking a program from the menu opens
+that list with no Tab. Its rows name what is beside the line and not what is
+beside the program. A path the program is handed is read from where the line
+runs. A folder runs nothing and takes nothing. `src/ ` therefore offers no
+rows. A space opens neither menu. The set the widget checks a first word
+against names commands and never a path.
 
 `git` reaches this menu for whatever Git's own leaves. That menu reads three
 things and no more: the subcommand word, a branch after `switch` or
