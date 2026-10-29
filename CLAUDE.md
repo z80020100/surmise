@@ -41,15 +41,17 @@ binds Tab, Space or `/` and after `set -o vi` where that is set:
 eval "$(surmise init bash)"
 ```
 
-The menu is the same one and the keys inside it are the same keys. Three
+The menu is the same one and the keys inside it are the same keys. Four
 things differ around it. bash has no hook for a change of directory and the
 widget records one at the next prompt instead, from `PROMPT_COMMAND`. A
 function readline runs cannot call one of readline's own, so Tab, Space and
 `/` are each a macro of three keys: the first runs surmise and the other two
 are bound on the spot to what has to follow, a redraw, the old Tab, the line
 running or nothing at all. And a bash variable cannot hold a NUL, so the
-widget reads the answer with `mapfile`, which is why 4.4 is the floor. macOS
-ships bash 3.2 and `brew install bash` is where a newer one comes from.
+widget reads the answer with `mapfile`, which is why 4.4 is the floor. A
+folder name typed under `autocd` opens nothing. "Other commands" below says
+what it opens in zsh. macOS ships bash 3.2 and `brew install bash` is where a
+newer one comes from.
 
 In fish 4.0 or later the line goes in `~/.config/fish/config.fish`, after
 anything else that binds Tab, Space or `/` and after `fish_vi_key_bindings`
@@ -167,8 +169,9 @@ shell's own completion when surmise has nothing to offer. The paragraphs
 under the table say what narrows that. A bare `cd ` also opens surmise on its
 own, and so does a space after any other command surmise has a specification
 for; "Other commands" below says what that opens and what it costs. A `/`
-that ends the line's only word opens surmise as well. A menu
-of directories opens below the line. The mark on the first
+that ends the line's only word opens surmise as well. In a zsh that sets
+`AUTO_CD` so does a typed character that leaves that word naming a folder. A
+menu of directories opens below the line. The mark on the first
 name sits under the cursor and the menu follows the cursor along the line. The
 menu is one width whatever it holds. Near the right edge it keeps that width
 and gives the alignment up. A terminal too narrow for that width is the one
@@ -423,7 +426,8 @@ Emptying the line leaves the menu as well and keeps the empty line. So does
 taking back the space that opened the menu. The line then goes back as the
 shell had it before that space.
 
-A space or a `/` opens nothing while keys are still queued behind it. Those
+A space, a `/` or a folder name opens nothing while keys are still queued
+behind it. Those
 keys came in one write rather than from a person answering a menu. A program
 that restores a session types its command and Enter that way. In zsh the
 terminal has already turned that Enter into a newline and the menu would read
@@ -434,7 +438,8 @@ them and surmise counts them itself before it looks for rows.
 
 `bindkey ' ' $_surmise_space` after the `eval` gives the space key back and
 keeps the Tab route. `bindkey '/' $_surmise_slash` gives the slash key back
-the same way.
+the same way. `add-zle-hook-widget -d line-pre-redraw surmise-folder` keeps a
+folder name from opening the menu and leaves `AUTO_CD` as it was.
 
 zsh's own Ctrl-R search keeps a space typed into it. The widget binds the
 space to `self-insert` in the `isearch` keymap for that where nothing is bound
@@ -747,13 +752,39 @@ directory of 400 names or more. A path further along the line is an argument
 and Tab still asks for it. A `/` typed into a search does what a space does
 there.
 
+In a zsh that sets `AUTO_CD` a folder needs no `/` either. A typed character
+that leaves the line's only word naming a folder beside the line opens this
+menu on what that folder holds. That is the list a `/` typed behind the name
+would open. The line keeps the name as typed. A folder named whole is one a
+person goes on into and a list of the name itself would only repeat it.
+`AUTO_CD` makes the word a `cd` and Enter on the row that runs the line goes
+into the folder. Tab adds the `/` and as much as the names inside share. A
+folder that holds nothing gives Tab nothing to add. A `/` typed there goes on
+as it always did. The word stays a path for as long as that menu is open. A
+word that names no folder whole lists the folders it reaches. A file beside
+the line gets no row. A name with no `/` in it runs from `PATH` and never from
+here. Once no row is left the menu closes and the line goes back to the shell.
+A command such as `bindkey` typed on past a `bin` folder therefore leaves the
+menu as soon as no folder matches. A word that names a command opens nothing.
+The command runs ahead of `AUTO_CD`. A word with a `/` in it is the slash
+key's. A shell without `AUTO_CD` opens nothing either and neither does a paste
+or a line out of the history. Tab pressed at the prompt on a folder name is
+still the shell's own. The widget reads the line after each key rather than
+binding the keys. Binding them would cost a fork for each key when the shell
+starts. The search `/` starts in vi command mode keeps only a key bound to
+insert itself and would drop every letter as well. bash and fish have no such
+trigger.
+
 Behind the program Tab offers the files and folders beside the line. The
 corpus's own `dotslash` specification says such a program takes those.
 That specification writes its argument as mandatory. A program needs no word
 and the row that runs the line leads that menu as well. Two presses of Enter
-therefore take a program and run it. A folder runs nothing and takes nothing.
-`src/ ` therefore offers no rows. A space opens neither menu. The set the
-widget checks a first word against names commands and never a path.
+therefore take a program and run it. Taking a program from the menu opens
+that list with no Tab. Its rows name what is beside the line and not what is
+beside the program. A path the program is handed is read from where the line
+runs. A folder runs nothing and takes nothing. `src/ ` therefore offers no
+rows. A space opens neither menu. The set the widget checks a first word
+against names commands and never a path.
 
 `git` reaches this menu for whatever Git's own leaves. That menu reads three
 things and no more: the subcommand word, a branch after `switch` or

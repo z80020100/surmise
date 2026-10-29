@@ -39,6 +39,9 @@ pub struct App {
     /// `$HISTFILE`, from the stdin record. Ctrl-R reads it the first time
     /// the key asks for past command lines.
     pub histfile: String,
+    /// Whether the widget opened this menu on a folder the shell goes into by
+    /// name. The line's one word is then a path even with no `/` in it.
+    pub one_word_is_a_path: bool,
     /// Whether the list is the past command lines Ctrl-R swaps in.
     history_mode: bool,
     /// `history_mode = "show"`. Past lines follow every menu's own rows.
@@ -249,6 +252,7 @@ impl App {
             whole_word: false,
             matching: Match::default(),
             histfile: String::new(),
+            one_word_is_a_path: false,
             history_mode: false,
             history_shown: false,
             past: Vec::new(),
@@ -341,6 +345,7 @@ impl App {
                 left,
                 self.line.right_of_cursor(),
                 &self.aliases,
+                self.one_word_is_a_path,
             )?)
         };
         reader.word_mut().start += base;

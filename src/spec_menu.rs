@@ -63,7 +63,15 @@ pub(crate) struct Target {
 /// claims a line that starts with an alias for it. Refusing on the expanded
 /// name would therefore hold this provider off a line nobody else is going
 /// to answer, and `alias c=cd` would open on nothing at all.
-pub(crate) fn parse(left: &str, tail: &str, aliases: &HashMap<String, String>) -> Option<Target> {
+///
+/// `one_word_is_a_path` says the menu opened on a folder the shell goes into
+/// by name. A word with no `/` in it is then a path as well.
+pub(crate) fn parse(
+    left: &str,
+    tail: &str,
+    aliases: &HashMap<String, String>,
+    one_word_is_a_path: bool,
+) -> Option<Target> {
     if !shellparse::ends_word(tail) {
         return None;
     }
@@ -73,7 +81,10 @@ pub(crate) fn parse(left: &str, tail: &str, aliases: &HashMap<String, String>) -
     // One word is the command name, still being typed. That is the shell's
     // own completion to offer, not an argument to walk. A name with a `/` in
     // it is a path instead and [`program_rows`] answers it.
-    if command.words.len() < 2 && !raw_name.is_some_and(|w| w.inner_text.contains('/')) {
+    if command.words.len() < 2
+        && !one_word_is_a_path
+        && !raw_name.is_some_and(|w| w.inner_text.contains('/'))
+    {
         return None;
     }
     // Only what `cd`'s own menu declined, never what it claims.
@@ -161,12 +172,13 @@ impl Completions {
         self.lead.clear();
         self.matching = None;
         let mut name = target.command.words[0].inner_text.as_str();
+        // `parse` lets one word through only as a path still being typed.
+        if target.command.words.len() == 1 {
+            return program_rows(name, cwd, history, scan);
+        }
         // A path to a program names no specification of its own. The corpus
         // keeps one for that case and it takes files and folders.
         if name.contains('/') {
-            if target.command.words.len() == 1 {
-                return program_rows(name, cwd, history, scan);
-            }
             // A folder runs nothing and takes nothing either.
             if resolved_in(name, cwd).is_dir() {
                 return Vec::new();
@@ -1033,8 +1045,20 @@ fn listed_dir(prefix: &str, cwd: &Path) -> PathBuf {
 /// not run is no command. A word that already names a folder or a program
 /// gets the row that runs the line. Enter there does what it does with no
 /// menu. A shell that sets `AUTO_CD` goes into the folder.
+///
+/// A word with no `/` in it runs from `PATH` rather than from here. Only a
+/// folder here is a command under such a name and `AUTO_CD` is what makes it
+/// one. A folder it names whole is one to go on into and the rows are what it
+/// holds, the list a `/` typed behind it would open.
 fn program_rows(term: &str, cwd: &Path, history: &History, scan: &mut Scan) -> Vec<Candidate> {
-    let (prefix, name) = split(term);
+    let named = resolved_in(term, cwd);
+    let names_a_folder = named.is_dir();
+    let listed = if term.contains('/') || !names_a_folder {
+        term.to_string()
+    } else {
+        format!("{term}/")
+    };
+    let (prefix, name) = split(&listed);
     // The shell's own completion reads all of a directory the scan limit cuts short.
     if scan
         .entries(&listed_dir(prefix, cwd), name.starts_with('.'))
@@ -1043,14 +1067,12 @@ fn program_rows(term: &str, cwd: &Path, history: &History, scan: &mut Scan) -> V
     {
         return Vec::new();
     }
-    let mut rows = path_rows(term, cwd, history, scan, "always");
-    rows.retain(|row| {
-        row.insert.ends_with('/') || crate::path::runnable(&resolved_in(&row.insert, cwd))
-    });
+    let runs = |path: &Path| listed.contains('/') && crate::path::runnable(path);
+    let mut rows = path_rows(&listed, cwd, history, scan, "always");
+    rows.retain(|row| row.insert.ends_with('/') || runs(&resolved_in(&row.insert, cwd)));
     in_name_order(&mut rows);
-    rank(&mut rows, term, None, false);
-    let named = resolved_in(term, cwd);
-    if named.is_dir() || crate::path::runnable(&named) {
+    rank(&mut rows, &listed, None, false);
+    if names_a_folder || runs(&named) {
         rows.insert(0, run_row(term.to_string()));
     }
     rows
@@ -1152,7 +1174,7 @@ mod tests {
     use crate::fixture::Fixture;
 
     fn target(line: &str) -> Target {
-        parse(line, "", &HashMap::new()).expect("a command this provider should answer for")
+        parse(line, "", &HashMap::new(), false).expect("a command this provider should answer for")
     }
 
     #[test]
@@ -1162,8 +1184,8 @@ mod tests {
         // Git's own reader is narrower than `specs/git.json` and
         // `App::reader` is what holds this provider to the lines it
         // declined, so nothing here has to hold it off `git` by name.
-        assert!(parse("cd ", "", &HashMap::new()).is_none());
-        assert!(parse("git blame ", "", &HashMap::new()).is_some());
+        assert!(parse("cd ", "", &HashMap::new(), false).is_none());
+        assert!(parse("git blame ", "", &HashMap::new(), false).is_some());
     }
 
     /// A reading of `$HISTFILE` that saw `first second` `n` times and
@@ -1608,7 +1630,7 @@ mod tests {
         std::fs::write(f.path().join(".ssh/config"), "Host sample-host\n").unwrap();
         let home = format!("HOME='{}'", f.path().display());
         let aliases = HashMap::from([("sample-ssh".to_string(), format!("{home} ssh"))]);
-        let by_alias = parse("sample-ssh ", "", &aliases).unwrap();
+        let by_alias = parse("sample-ssh ", "", &aliases, false).unwrap();
         for target in [target(&format!("{home} ssh ")), by_alias] {
             let rows = complete(&mut Completions::default(), &target);
             let names = names(&rows);
@@ -2314,7 +2336,7 @@ mod tests {
     #[test]
     fn a_path_being_typed_as_a_command_offers_folders_and_programs() {
         let f = programs();
-        assert!(parse("sample", "", &HashMap::new()).is_none());
+        assert!(parse("sample", "", &HashMap::new(), false).is_none());
         let rows = rows_in(f.path(), "./");
         assert_eq!(
             names_of(&rows),
@@ -2340,6 +2362,40 @@ mod tests {
             let rows = rows_in(f.path(), line);
             assert!(rows.iter().all(|r| r.kind != Kind::Run), "{line}");
         }
+    }
+
+    #[test]
+    fn a_word_with_no_slash_is_a_path_only_where_the_shell_goes_into_folders() {
+        use std::os::unix::fs::PermissionsExt;
+        let f = programs();
+        std::fs::create_dir(f.path().join("sample-dir/sample-child")).unwrap();
+        std::fs::write(f.path().join("sample-dir/sample-note.txt"), "").unwrap();
+        let inner = f.path().join("sample-dir/sample-inner");
+        std::fs::write(&inner, "").unwrap();
+        std::fs::set_permissions(&inner, std::fs::Permissions::from_mode(0o755)).unwrap();
+        let rows = |line: &str| {
+            let target = parse(line, "", &HashMap::new(), true).expect("a path under AUTO_CD");
+            Completions::default().complete(
+                &target,
+                f.path(),
+                &History::default(),
+                &mut Scan::default(),
+            )
+        };
+        // A folder named whole lists what it holds and the line runs as typed.
+        assert_eq!(
+            names_of(&rows("sample-dir")),
+            [
+                "sample-dir",
+                "sample-dir/sample-child/",
+                "sample-dir/sample-inner",
+                "sample-dir/../"
+            ]
+        );
+        assert_eq!(rows("sample-dir")[0].kind, Kind::Run);
+        // A file here does not run by a name with no `/` in it.
+        assert_eq!(names_of(&rows("sample")), ["sample-dir/"]);
+        assert!(rows("sample-tool").is_empty());
     }
 
     #[test]

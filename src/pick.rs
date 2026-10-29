@@ -59,12 +59,14 @@ fn seeded(
     seed: &str,
     cwd: &Path,
     aliases: HashMap<String, String>,
+    one_word_is_a_path: bool,
     history: History,
     cmd_history: histfile::Counts,
     config: &Config,
 ) -> Option<App> {
     let mut app = App::new(cwd.to_path_buf());
     app.aliases = aliases;
+    app.one_word_is_a_path = one_word_is_a_path;
     app.matching = config.matching;
     if config.verbose_names {
         app.prefer_verbose_names();
@@ -83,6 +85,13 @@ fn seeded(
 /// before they ever run surmise and set nothing.
 fn opened_by_typing() -> bool {
     std::env::var_os("SURMISE_TYPED").is_some_and(|v| !v.is_empty())
+}
+
+/// Whether the widget opened this menu on a line whose one word names a
+/// folder the shell goes into by name. The zsh widget says so in
+/// `SURMISE_AUTO_CD` where `AUTO_CD` is set.
+fn opened_on_a_folder() -> bool {
+    std::env::var_os("SURMISE_AUTO_CD").is_some_and(|v| !v.is_empty())
 }
 
 /// What the widget put on stdin: `RBUFFER`, `$HISTFILE` and the shell's
@@ -239,8 +248,10 @@ pub fn run(seed: &str) -> io::Result<u8> {
     // here: the cursor sits at the end of what the widget handed over and
     // `RBUFFER`, read above, is what would sit to its right.
     let inner = &seed[crate::shellparse::innermost(seed)..];
+    let one_word_is_a_path = opened_on_a_folder();
     let completes_git = crate::git::parse(inner).is_some();
-    let completes_spec = crate::spec_menu::parse(inner, "", &input.aliases).is_some();
+    let completes_spec =
+        crate::spec_menu::parse(inner, "", &input.aliases, one_word_is_a_path).is_some();
     // Both are true of a line Git's own menu claims, since the spec menu
     // reads a `git` line as well and `App::reader` is what holds it to the
     // ones Git's own declined. Nothing but these two menus and a
@@ -262,7 +273,15 @@ pub fn run(seed: &str) -> io::Result<u8> {
         histfile::Counts::default()
     };
     // Nothing to offer. Give the key back without touching the terminal.
-    let Some(mut app) = seeded(seed, &cwd, input.aliases, history, cmd_history, &config) else {
+    let Some(mut app) = seeded(
+        seed,
+        &cwd,
+        input.aliases,
+        one_word_is_a_path,
+        history,
+        cmd_history,
+        &config,
+    ) else {
         return Ok(PASS);
     };
     app.rbuffer = input.rbuffer;
@@ -455,9 +474,10 @@ pub fn run(seed: &str) -> io::Result<u8> {
         // menu. That menu leads with the row that runs the line wherever the
         // line runs as it stands. The press that ran `git status` still runs
         // it.
+        // A typed folder name's run ends the same way once no folder matches.
         // A list Ctrl-R swapped in can be empty and the same key brings the
         // other one back.
-        if completing_git && !app.menu_open() && !app.in_history_mode() {
+        if (completing_git || one_word_is_a_path) && !app.menu_open() && !app.in_history_mode() {
             break ACCEPTED;
         }
     };
@@ -500,6 +520,7 @@ mod tests {
             seed,
             cwd,
             aliases,
+            false,
             History::default(),
             histfile::Counts::default(),
             &Config::default(),
@@ -597,6 +618,29 @@ mod tests {
                 .expect("a picker")
                 .runs_the_line()
         );
+    }
+
+    #[test]
+    fn a_typed_folder_name_opens_on_what_it_holds_and_tab_goes_into_it() {
+        let f = Fixture::new(&["work/sample-child", "work/sample-other"]);
+        let mut app = seeded(
+            "work",
+            f.path(),
+            HashMap::new(),
+            true,
+            History::default(),
+            histfile::Counts::default(),
+            &Config::default(),
+        )
+        .expect("a picker");
+        assert!(app.runs_the_line());
+        assert!(
+            app.items
+                .iter()
+                .any(|row| row.insert == "work/sample-child/")
+        );
+        assert!(app.accept_common());
+        assert_eq!(app.line.text(), "work/sample-");
     }
 
     #[test]
