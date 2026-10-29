@@ -77,7 +77,8 @@ _surmise_take() {
 }
 
 # A first argument says the key was not a completion request. zle hands a
-# widget none of its own and only `surmise-space` and `surmise-slash` pass one.
+# widget none of its own and only `surmise-space`, `surmise-slash` and
+# `surmise-folder` pass one.
 surmise-complete() {
   emulate -L zsh
   local from_typing=$1 result ret unseen=$RBUFFER
@@ -119,9 +120,9 @@ surmise-complete() {
     # the completion and leave the running to the person.
     3) _surmise_take "$result"; _surmise_redraw; [[ -n $unseen ]] || zle accept-line ;;
     # 2 is PASS: nothing surmise completes. Tab hands the key back to whatever
-    # held it. A space or a slash is already typed and completing it is not
-    # what was asked for. Any other status is a surmise that never ran and
-    # the same answer is the right one for that too.
+    # held it. A space, a slash or a folder name is already typed and
+    # completing it is not what was asked for. Any other status is a surmise
+    # that never ran and the same answer is the right one for that too.
     2|*) [[ -n $from_typing ]] || zle $_surmise_fallback ;;
   esac
 }
@@ -239,3 +240,33 @@ bindkey '/' surmise-slash
 if [[ $(bindkey -M isearch '/') == *undefined-key ]]; then
   bindkey -M isearch '/' self-insert
 fi
+
+# Open on a typed character that leaves the line's one word naming a folder.
+# AUTO_CD makes that word a `cd`. A command of that name runs instead and
+# opens nothing.
+#
+# The trigger hangs off the redraw rather than off the keys. Binding every key
+# a name can end in costs a fork for each at load. vi's `/` search keeps only
+# a key bound to `self-insert` and would drop every letter as well. zsh runs
+# this hook after a key's widget and for no other redraw.
+surmise-folder() {
+  # `emulate` would reset the option this reads.
+  [[ -o autocd ]] || return
+  emulate -L zsh
+  # A paste or a line out of the history is no typed character.
+  [[ $LASTWIDGET == self-insert && -z $RBUFFER ]] || return
+  # The same keys the space key leaves alone.
+  (( PENDING + KEYS_QUEUED_COUNT )) && return
+  local -a words
+  words=(${(z)LBUFFER})
+  (( $#words == 1 )) || return
+  local word=${(Q)words[1]}
+  # A name with a `/` in it is the slash key's.
+  [[ $word != */* && -d $word ]] && ! whence -- $word >/dev/null || return
+  local -x SURMISE_AUTO_CD=1
+  surmise-complete from-folder
+}
+
+zle -N surmise-folder
+autoload -Uz add-zle-hook-widget
+add-zle-hook-widget line-pre-redraw surmise-folder

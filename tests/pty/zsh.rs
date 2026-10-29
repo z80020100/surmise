@@ -1502,6 +1502,107 @@ fn a_slash_typed_into_ctrl_r_search_stays_in_the_search() {
 }
 
 #[test]
+fn a_folder_name_typed_under_autocd_opens_the_menu_and_enter_goes_into_it() {
+    let f = home("setopt autocd", "");
+    std::fs::create_dir(f.path().join("work/sample-child")).unwrap();
+    let mut t = ready(f.path());
+    t.send("work");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    assert!(t.panel()[1].text.contains('↵'), "{:?}", t.lines());
+    // What the folder holds follows, the list a `/` would open.
+    let rows: String = t.panel().iter().map(|row| row.text.as_str()).collect();
+    assert!(rows.contains("sample-child/"), "{rows:?}");
+    assert_eq!(line(&t), "❯ work", "{:?}", t.lines());
+    t.send("\r");
+    assert!(
+        t.wait_line(&format!("{MOVED}:work"), WAIT),
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
+fn a_folder_name_opens_nothing_without_autocd_or_where_a_command_has_it() {
+    let f = home("", "");
+    let mut t = ready(f.path());
+    typed(&mut t, "work");
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+    assert_eq!(line(&t), "❯ work", "{:?}", t.lines());
+
+    // `echo` runs as a command before `AUTO_CD` is asked.
+    let f = home("setopt autocd", "");
+    std::fs::create_dir(f.path().join("echo")).unwrap();
+    let mut t = ready(f.path());
+    typed(&mut t, "echo");
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+    assert_eq!(line(&t), "❯ echo", "{:?}", t.lines());
+}
+
+#[test]
+fn escape_keeps_a_typed_folder_name_and_the_menu_stays_shut() {
+    // TRAPALRM redraws the line every second with no key behind it.
+    let f = home(
+        "setopt autocd\nTMOUT=1\nTRAPALRM() { zle reset-prompt }",
+        "",
+    );
+    let mut t = ready(f.path());
+    t.send("work");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    t.send("\x1b");
+    closed(&mut t);
+    t.pump(Duration::from_millis(1500));
+    assert!(t.panel().is_empty(), "the menu came back: {:?}", t.lines());
+    assert_eq!(line(&t), "❯ work", "{:?}", t.lines());
+}
+
+#[test]
+fn a_typed_folder_name_that_grows_into_no_folder_goes_back_to_the_shell() {
+    let f = home("setopt autocd\nprint -s 'echo sample-history'", "");
+    let mut t = ready(f.path());
+    t.send("work");
+    assert!(t.wait_panel(WAIT), "no menu: {:?}", t.lines());
+    t.pump(SETTLE);
+    t.send("x");
+    closed(&mut t);
+    assert_eq!(line(&t), "❯ workx", "{:?}", t.lines());
+    // Up is the shell's history again rather than a key the menu holds.
+    typed(&mut t, "\x1b[A");
+    assert_eq!(line(&t), "❯ echo sample-history", "{:?}", t.lines());
+}
+
+#[test]
+fn taking_the_folder_hook_out_leaves_autocd_plain() {
+    let f = home(
+        "setopt autocd",
+        "add-zle-hook-widget -d line-pre-redraw surmise-folder",
+    );
+    let mut t = ready(f.path());
+    typed(&mut t, "work");
+    assert!(t.panel().is_empty(), "a menu opened: {:?}", t.lines());
+    t.send("\r");
+    assert!(
+        t.wait_line(&format!("{MOVED}:work"), WAIT),
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
+fn a_folder_name_sent_whole_with_its_enter_goes_into_it() {
+    // Keys queued behind the name keep the menu shut as they do behind a space.
+    let f = home("setopt autocd", "");
+    let mut t = ready(f.path());
+    t.send("work\r");
+    assert!(
+        t.wait_line(&format!("{MOVED}:work"), WAIT),
+        "{:?}",
+        t.lines()
+    );
+}
+
+#[test]
 fn the_specs_array_answers_a_second_trigger_in_the_same_session() {
     // Filled once, on the first trigger of the session, and read rather
     // than rebuilt on every later one. `cd`'s own bare space is the first
