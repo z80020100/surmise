@@ -79,9 +79,21 @@ _surmise_take() {
 # A first argument says the key was not a completion request. zle hands a
 # widget none of its own and only `surmise-space`, `surmise-slash` and
 # `surmise-folder` pass one.
+#
+# Tab hands the key back to whatever held it where surmise has nothing. A
+# space, a slash or a folder name is already typed and completing it is not
+# what was asked for. The widget it hands back to runs under the person's own
+# options rather than surmise's. zsh offers a folder name at the prompt only
+# while AUTO_CD is set and `emulate` would unset it. `$#` rather than `$1`
+# because NO_UNSET may be one of those options.
 surmise-complete() {
+  _surmise_pick || (( $# )) || zle $_surmise_fallback
+}
+
+# Run the picker on the line. Fails where the key belongs to the shell.
+_surmise_pick() {
   emulate -L zsh
-  local from_typing=$1 result ret unseen=$RBUFFER
+  local result ret unseen=$RBUFFER
   # Filled here as well as on the space key below, so whichever one runs
   # first pays the one fork `_surmise_fill_specs` costs and the other only
   # ever reads the array it left behind.
@@ -119,12 +131,11 @@ surmise-complete() {
     # alone and running the rest of it unseen is not what Enter offered. Take
     # the completion and leave the running to the person.
     3) _surmise_take "$result"; _surmise_redraw; [[ -n $unseen ]] || zle accept-line ;;
-    # 2 is PASS: nothing surmise completes. Tab hands the key back to whatever
-    # held it. A space, a slash or a folder name is already typed and
-    # completing it is not what was asked for. Any other status is a surmise
+    # 2 is PASS: nothing surmise completes. Any other status is a surmise
     # that never ran and the same answer is the right one for that too.
-    2|*) [[ -n $from_typing ]] || zle $_surmise_fallback ;;
+    *) return 1 ;;
   esac
+  return 0
 }
 
 zle -N surmise-complete
