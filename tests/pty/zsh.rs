@@ -1638,6 +1638,28 @@ fn tab_on_a_line_surmise_passes_on_reaches_the_shells_own_completion() {
 }
 
 #[test]
+fn tab_on_a_folder_name_under_autocd_reaches_the_shells_own_completion() {
+    // zsh's `_autocd` offers folders at the prompt only while AUTO_CD is set.
+    // `dee` names no folder whole and the folder hook leaves it alone.
+    let f = home("setopt autocd", "");
+    let mut t = ready(f.path());
+    typed(&mut t, "dee");
+    typed(&mut t, "\t");
+    assert!(line(&t).starts_with("❯ deep/"), "{:?}", t.lines());
+}
+
+#[test]
+fn tab_surmise_passes_on_still_completes_under_nounset() {
+    // The fallback runs under the person's own options and NO_UNSET turns a
+    // read of an argument Tab never passes into an error.
+    let f = home("", "setopt nounset");
+    let mut t = ready(f.path());
+    typed(&mut t, "zzzz .zsh");
+    typed(&mut t, "\t");
+    assert!(line(&t).starts_with("❯ zzzz .zshrc"), "{:?}", t.lines());
+}
+
+#[test]
 fn vi_command_mode_still_edits_after_the_menu() {
     let f = home("bindkey -v", "");
     let mut t = opened(f.path());
