@@ -56,6 +56,10 @@ pub enum Kind {
     /// The argument as it stands. This row grows nothing and runs the line
     /// instead.
     Run,
+    /// The argument as it stands on a line its specification calls
+    /// dangerous. This row grows nothing and leaves the menu with the line
+    /// unrun.
+    Leave,
     /// A whole command line from the shell's history, in the list Ctrl-R
     /// swaps in.
     Past,
@@ -305,13 +309,25 @@ pub(crate) fn run_row(insert: String) -> Candidate {
     }
 }
 
+/// [`run_row`] for a line its specification calls dangerous. Enter there
+/// hands the line back unrun and the press after that runs it at the shell's
+/// own prompt. Two presses of Enter therefore never run such a line and the
+/// second does not take whatever row the menu offers next.
+pub(crate) fn leave_row(insert: String) -> Candidate {
+    Candidate {
+        label: Cow::Borrowed("leave the menu without running"),
+        kind: Kind::Leave,
+        ..run_row(insert)
+    }
+}
+
 /// The kind Tab reads the menu by when `highlighted` is the kind under the
 /// highlight. That is the highlighted row's own. The row that runs the line
 /// grows nothing and Tab looks past it to the first row a flat reader named.
 /// `cd`'s own menu names none and reads its children under that row the way
 /// it always has.
 pub(crate) fn tab_kind(items: &[Candidate], highlighted: Kind) -> Kind {
-    if highlighted != Kind::Run {
+    if !matches!(highlighted, Kind::Run | Kind::Leave) {
         return highlighted;
     }
     items
@@ -490,6 +506,7 @@ fn group_rank(kind: Kind, values_lead: bool) -> u8 {
         | Kind::Parent
         | Kind::Special
         | Kind::Run
+        | Kind::Leave
         | Kind::Past => 1 + u8::from(values_lead),
     }
 }

@@ -7,7 +7,7 @@
 use crate::argwalk::{self, Walk};
 use crate::candidates::{
     Candidate, DEFAULT_PRIORITY, FILE, FOLDER, Kind, PARENT, Query, SCAN_LIMIT, Scan, UsedAfter,
-    in_name_order, priority_of, rank, resolved_in, run_row, split, tier,
+    in_name_order, leave_row, priority_of, rank, resolved_in, run_row, split, tier,
 };
 use crate::fuzzy::{self, Match};
 use crate::histfile;
@@ -322,12 +322,11 @@ impl Completions {
                 // own menu puts its row there. A line that already names a
                 // path is the one most often meant and a score would leave
                 // that to chance.
-                if !dangerous(&walk) {
-                    if let Some(arg) = whole_path(&walk, cwd) {
-                        rows.insert(0, run_row(arg));
-                    } else if runs_as_it_stands(target, &walk, &rows) {
-                        rows.insert(0, run_row(String::new()));
-                    }
+                let whole = whole_path(&walk, cwd)
+                    .or_else(|| runs_as_it_stands(target, &walk, &rows).then(String::new));
+                if let Some(arg) = whole {
+                    let row = if dangerous(&walk) { leave_row } else { run_row };
+                    rows.insert(0, row(arg));
                 }
                 return rows;
             }
@@ -875,10 +874,10 @@ fn reads_paths(generator: &Generator) -> Option<&str> {
 }
 
 /// Whether the line holds something its specification calls dangerous: an
-/// option on it or the subcommand the walk ended on. Such a line gets no row
-/// that runs it. Two presses of Enter would otherwise run `rm -r sample` or
-/// `git switch -f sample` the moment the word was taken. Esc and then Enter
-/// still runs it, the way it runs any line the menu is not open on.
+/// option on it or the subcommand the walk ended on. Such a line gets
+/// [`leave_row`] in place of the row that runs it. Two presses of Enter would
+/// otherwise run `rm -r sample` or `git switch -f sample` the moment the word
+/// was taken.
 fn dangerous(walk: &Walk) -> bool {
     walk.node.is_dangerous == Some(true)
         || walk
@@ -2284,11 +2283,12 @@ mod tests {
     }
 
     #[test]
-    fn a_line_holding_a_dangerous_option_gets_no_row_that_runs_it() {
+    fn a_line_holding_a_dangerous_option_leads_with_the_row_that_leaves_the_menu() {
         // `rm -r` is dangerous in its specification and `rm` alone is not.
         let f = Fixture::new(&["sample"]);
         assert_eq!(rows_in(f.path(), "rm sample")[0].kind, Kind::Run);
         let rows = rows_in(f.path(), "rm -r sample");
+        assert_eq!(rows[0].kind, Kind::Leave);
         assert!(
             rows.iter().all(|r| r.kind != Kind::Run),
             "{:?}",
@@ -2297,8 +2297,17 @@ mod tests {
         // A row that runs the line as it stands goes the same way.
         assert_eq!(rows_in(f.path(), "npm audit fix ")[0].kind, Kind::Run);
         let rows = rows_in(f.path(), "npm audit fix -f ");
+        assert_eq!(rows[0].kind, Kind::Leave);
         assert!(
             rows.iter().all(|r| r.kind != Kind::Run),
+            "{:?}",
+            names(&rows)
+        );
+        // A line that still needs a word gets neither.
+        let rows = rows_in(f.path(), "rm -r ");
+        assert!(
+            rows.iter()
+                .all(|r| !matches!(r.kind, Kind::Run | Kind::Leave)),
             "{:?}",
             names(&rows)
         );
