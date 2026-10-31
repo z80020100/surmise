@@ -420,8 +420,10 @@ impl App {
         if matching == Match::Prefix {
             let typed = self.typed();
             rows.retain(|c| {
-                matches!(c.kind, Kind::Run | Kind::Parent | Kind::Special)
-                    || starts_with_folded(c.display.trim_end_matches('/'), &typed)
+                matches!(
+                    c.kind,
+                    Kind::Run | Kind::Leave | Kind::Parent | Kind::Special
+                ) || starts_with_folded(c.display.trim_end_matches('/'), &typed)
                     || starts_with_folded(&c.insert, &typed)
             });
         }
@@ -573,6 +575,13 @@ impl App {
         self.highlighted().is_none_or(|pick| pick.kind == Kind::Run)
     }
 
+    /// Whether Enter hands the line back unrun. The row that leaves the menu
+    /// says so and a line its specification calls dangerous leads with it.
+    pub fn leaves_the_menu(&self) -> bool {
+        self.highlighted()
+            .is_some_and(|pick| pick.kind == Kind::Leave)
+    }
+
     /// Put `s` on the line in place of the argument and draw the menu again
     /// for what the line now says.
     ///
@@ -628,7 +637,7 @@ impl App {
         // The line runs as it stands and nothing was typed to name again. An
         // empty word quoted would hand the command an argument of its own.
         // An unquoted `~/` already names home. Keep its expansion unchanged.
-        if pick.kind == Kind::Run
+        if matches!(pick.kind, Kind::Run | Kind::Leave)
             && (pick.insert.is_empty() || (pick.insert == "~/" && q.arg.starts_with("~/")))
         {
             return true;
@@ -684,7 +693,7 @@ impl App {
                 Some(selected.kind),
             ));
         }
-        if selected.kind == Kind::Run && candidates::split(&arg).1 == ".." {
+        if matches!(selected.kind, Kind::Run | Kind::Leave) && candidates::split(&arg).1 == ".." {
             return None;
         }
         // A match is a subsequence and need not lead with what was typed. Only

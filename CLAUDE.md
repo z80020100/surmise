@@ -1014,8 +1014,11 @@ else. A line that still needs a word keeps its first row under the highlight:
 A line that holds something its specification calls dangerous gets no row
 that runs it. That is an option on the line or the subcommand the walk ended
 on. Two presses of Enter would otherwise run `rm -r sample` or
-`npm audit fix -f` the moment the word was taken. Enter there takes the
-highlighted row instead and Esc then Enter runs the line. The corpus marks 275
+`npm audit fix -f` the moment the word was taken. A `⎋` in a brighter red
+leads that menu in its place. Enter there leaves the menu and keeps the line
+the way Esc does. The next Enter runs it at the shell's own prompt. Without
+that row the press after a folder took whatever the menu offered next and
+`rm -r sample/` grew a file from inside the folder. The corpus marks 275
 options and 82 subcommands dangerous.
 
 What a command needs is read off the specification. An argument not marked

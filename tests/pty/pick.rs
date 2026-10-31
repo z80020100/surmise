@@ -21,6 +21,9 @@ const HOME_ICON: char = '~';
 /// The glyph on the row that runs the line.
 const RUN_ICON: char = '\u{21b5}';
 
+/// The glyph on the row that leaves the menu on a dangerous line.
+const LEAVE_ICON: char = '\u{238b}';
+
 /// The glyph on a Git subcommand row.
 const CMD_ICON: char = '$';
 
@@ -29,7 +32,7 @@ const FILE_ICON: char = '=';
 
 /// Three glyphs from the set `icons = "nerd"` asks for: a folder, a `.rs`
 /// file and a `.md` file. They are named here rather than imported, the same
-/// way the five above are, because what this file checks is the screen a
+/// way the six above are, because what this file checks is the screen a
 /// person looks at rather than the table that wrote it.
 const NF_DIR: char = '\u{f07b}';
 const NF_RUST: char = '\u{e7a8}';
@@ -984,6 +987,22 @@ fn enter_takes_a_file_and_a_second_enter_runs_the_line_it_made() {
     t.send("\r");
     assert_eq!(t.status(WAIT), Some(pick::RUN));
     assert!(shown(&t).contains("cat one"), "{:?}", t.lines());
+}
+
+#[test]
+fn enter_on_a_dangerous_line_leaves_the_menu_rather_than_take_a_file_inside_the_folder() {
+    // `rm -r` is dangerous and the folder's menu leads with a row that hands the line back.
+    let f = Fixture::new(&["sample/inner", "sample/one*"]);
+    let mut t = opened(f.path(), "rm -r sa");
+    t.send("\r");
+    t.pump(SETTLE);
+    assert!(!t.panel().is_empty(), "the menu closed: {:?}", t.lines());
+    let leave_row = t.panel().get(1).expect("a row").text.clone();
+    assert!(leave_row.contains(LEAVE_ICON), "{leave_row:?}");
+    t.send("\r");
+    assert_eq!(t.status(WAIT), Some(pick::ACCEPTED));
+    assert!(shown(&t).contains("rm -r sample/"), "{:?}", t.lines());
+    assert!(!shown(&t).contains("sample/one"), "{:?}", t.lines());
 }
 
 #[test]

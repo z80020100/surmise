@@ -461,8 +461,8 @@ fn tab_grows(k: Kind, tab_reads: Kind, at: &[usize]) -> bool {
         return false;
     }
     match k {
-        // The row that runs the line grows nothing. Tab skips the home shortcut.
-        Kind::Run | Kind::Special => false,
+        // A row for the argument as it stands grows nothing. Tab skips the home shortcut.
+        Kind::Run | Kind::Leave | Kind::Special => false,
         // Tab takes a highlighted parent row whole and reads the child
         // directories under every other highlight.
         Kind::Parent => tab_reads == Kind::Parent,

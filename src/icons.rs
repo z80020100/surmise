@@ -61,7 +61,7 @@ impl Set {
 }
 
 /// The glyph on a directory row and on the row that goes up, in the text set.
-/// The seven below it are the others.
+/// The nine below it are the others.
 ///
 /// Every one is one cell wide. None of them is a character whose East Asian
 /// width is ambiguous, because a terminal set for CJK draws such a character
@@ -76,6 +76,9 @@ const HOME: &str = "~";
 /// The row that runs the line rather than growing it. An ordinary character,
 /// because the row names an action rather than a thing.
 const RUN: &str = "\u{21b5}";
+/// The row that leaves the menu on a dangerous line. The key symbol for Esc.
+/// Enter there does what Esc does.
+const LEAVE: &str = "\u{238b}";
 /// A subcommand row.
 const CMD: &str = "$";
 /// A branch row.
@@ -92,12 +95,13 @@ const OPTION: &str = "-";
 /// opens with.
 const PAST: &str = "!";
 
-/// The same nine in the nerd set. Each one is named for the glyph a patched
+/// The same ten in the nerd set. Each one is named for the glyph a patched
 /// font carries at that codepoint, because the escape says nothing to a
 /// reader and the name is the only way to check one.
 const NF_DIR: &str = "\u{f07b}"; // nf-fa-folder
 const NF_HOME: &str = "\u{f015}"; // nf-fa-home
 const NF_RUN: &str = "\u{f04b}"; // nf-fa-play
+const NF_LEAVE: &str = "\u{f04d}"; // nf-fa-stop
 const NF_CMD: &str = "\u{f120}"; // nf-fa-terminal
 const NF_BRANCH: &str = "\u{e0a0}"; // nf-pl-branch
 const NF_CURRENT: &str = "\u{f005}"; // nf-fa-star
@@ -110,6 +114,9 @@ const DIR_FG: &str = "\x1b[38;5;75m";
 /// The glyph on the row that runs the line. A colour apart from the folder
 /// blue is what marks that row out now that it carries no name.
 const RUN_FG: &str = "\x1b[38;5;167m";
+/// The glyph on the row that leaves the menu. A brighter red than the row
+/// that runs the line. The line it keeps is a dangerous one.
+const LEAVE_FG: &str = "\x1b[38;5;203m";
 /// The glyph on a subcommand row. A magenta of its own. The folder blue says
 /// a directory and the red above says an action. A subcommand is neither and
 /// it carries a name where the action row does not.
@@ -126,11 +133,12 @@ const FILE_FG: &str = "\x1b[38;5;180m";
 const OPTION_FG: &str = "\x1b[38;5;221m";
 /// The glyph on a past command line.
 const PAST_FG: &str = "\x1b[38;5;146m";
-/// The seven glyphs above on the highlighted row. That row has a ground of its
+/// The eight glyphs above on the highlighted row. That row has a ground of its
 /// own and every colour above is too close to it to read. A lighter tint of
 /// the same hue clears it and still says which sort of row this is.
 const DIR_FG_CHOSEN: &str = "\x1b[38;5;153m";
 const RUN_FG_CHOSEN: &str = "\x1b[38;5;217m";
+const LEAVE_FG_CHOSEN: &str = "\x1b[38;5;224m";
 const CMD_FG_CHOSEN: &str = "\x1b[38;5;218m";
 const BRANCH_FG_CHOSEN: &str = "\x1b[38;5;157m";
 const FILE_FG_CHOSEN: &str = "\x1b[38;5;223m";
@@ -155,7 +163,7 @@ enum Role {
 
 impl Role {
     /// The colour off the highlighted row and the colour on it. Every one
-    /// differs from every other and from the six kind colours above, because
+    /// differs from every other and from the eight kind colours above, because
     /// a file row shares a menu with an option row, a directory row, a
     /// subcommand row and the row that runs the line.
     fn fg(self) -> (&'static str, &'static str) {
@@ -245,7 +253,7 @@ const NAMES: &[(&[&str], &str, Role)] = &[
 
 /// Every kind a row can be. [`glyphs`] walks it and the tests below hold each
 /// one to a look of its own.
-const KINDS: [Kind; 10] = [
+const KINDS: [Kind; 11] = [
     Kind::Command,
     Kind::Branch,
     Kind::File,
@@ -255,6 +263,7 @@ const KINDS: [Kind; 10] = [
     Kind::Parent,
     Kind::Special,
     Kind::Run,
+    Kind::Leave,
     Kind::Past,
 ];
 
@@ -271,6 +280,7 @@ fn kind_glyph(set: Set, k: Kind) -> &'static str {
         (Set::Text, Kind::File | Kind::Path) => PLAIN_FILE,
         (Set::Text, Kind::Option) => OPTION,
         (Set::Text, Kind::Run) => RUN,
+        (Set::Text, Kind::Leave) => LEAVE,
         (Set::Text, Kind::Special) => HOME,
         (Set::Text, Kind::Dir | Kind::Parent) => DIR,
         (Set::Text, Kind::Past) => PAST,
@@ -279,6 +289,7 @@ fn kind_glyph(set: Set, k: Kind) -> &'static str {
         (Set::Nerd, Kind::File | Kind::Path) => NF_PLAIN_FILE,
         (Set::Nerd, Kind::Option) => NF_OPTION,
         (Set::Nerd, Kind::Run) => NF_RUN,
+        (Set::Nerd, Kind::Leave) => NF_LEAVE,
         (Set::Nerd, Kind::Special) => NF_HOME,
         (Set::Nerd, Kind::Dir | Kind::Parent) => NF_DIR,
         (Set::Nerd, Kind::Past) => NF_PAST,
@@ -296,6 +307,7 @@ fn kind_fg(k: Kind) -> (&'static str, &'static str) {
         Kind::File | Kind::Path => (FILE_FG, FILE_FG_CHOSEN),
         Kind::Option => (OPTION_FG, OPTION_FG_CHOSEN),
         Kind::Run => (RUN_FG, RUN_FG_CHOSEN),
+        Kind::Leave => (LEAVE_FG, LEAVE_FG_CHOSEN),
         Kind::Past => (PAST_FG, PAST_FG_CHOSEN),
         // The shortcut reaches a directory and wears a directory's colour.
         Kind::Special | Kind::Dir | Kind::Parent => (DIR_FG, DIR_FG_CHOSEN),
@@ -445,6 +457,7 @@ mod tests {
                 let mut seen = HashSet::new();
                 for kind in [
                     Kind::Run,
+                    Kind::Leave,
                     Kind::Command,
                     Kind::Branch,
                     Kind::File,

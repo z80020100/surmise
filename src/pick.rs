@@ -449,6 +449,11 @@ pub fn run(seed: &str) -> io::Result<u8> {
                                     ACCEPTED
                                 };
                             }
+                            // A dangerous line runs at the shell's own prompt one press later.
+                            if app.leaves_the_menu() {
+                                app.accept();
+                                break ACCEPTED;
+                            }
                             if !app.accept() {
                                 break if completing_git { ACCEPTED } else { RUN };
                             }
