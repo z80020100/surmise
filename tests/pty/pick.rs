@@ -1035,6 +1035,20 @@ fn a_path_argument_a_specification_fills_gets_the_row_that_runs_the_line() {
 }
 
 #[test]
+fn enter_runs_the_new_name_typed_rather_than_a_folder_it_reaches() {
+    // `sml` reaches `sample/` by its letters and Enter still runs the name typed.
+    let f = Fixture::new(&["sample/inner"]);
+    let mut t = opened(f.path(), "mkdir sml");
+    let run_row = t.panel().get(1).expect("a row").text.clone();
+    assert!(run_row.contains(RUN_ICON), "{run_row:?}");
+    t.send("\r");
+    assert_eq!(t.status(WAIT), Some(pick::RUN), "{:?}", t.lines());
+    assert!(t.wait_bare(WAIT), "the menu stayed: {:?}", t.lines());
+    assert!(shown(&t).contains("mkdir sml"), "{:?}", t.lines());
+    assert!(!shown(&t).contains("sample/"), "{:?}", t.lines());
+}
+
+#[test]
 fn the_menu_is_a_closed_box_with_the_row_that_runs_in_it() {
     // The other two `intact` cases open on a bare `cd ` and that line never
     // gets the row. This one does and the glyph and the row's empty name

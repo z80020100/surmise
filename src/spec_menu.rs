@@ -323,6 +323,11 @@ impl Completions {
                 // path is the one most often meant and a score would leave
                 // that to chance.
                 let whole = whole_path(&walk, cwd)
+                    .or_else(|| {
+                        current_token(&target.command, root, &walk, &rows, |name| {
+                            self.specs.get(name).and_then(|found| found.as_deref())
+                        })
+                    })
                     .or_else(|| runs_as_it_stands(target, &walk, &rows).then(String::new));
                 if let Some(arg) = whole {
                     let row = if dangerous(&walk) { leave_row } else { run_row };
@@ -933,6 +938,40 @@ fn whole_path(walk: &Walk, cwd: &Path) -> Option<String> {
             _ => true,
         })
         .then(|| term.to_string())
+}
+
+/// The word in hand as the whole of its argument. `None` unless the
+/// argument's specification asks for that row (`suggestCurrentToken`) and
+/// the line needs no further word once the word fills the argument.
+///
+/// `mkdir` names a folder that is not there yet. Its rows are the folders
+/// that are there, for a path that goes on under one of them. `mkdir sml`
+/// reaches `sample/` by its letters and Enter would otherwise take that
+/// folder in place of the name typed. A list with nothing else in it is no
+/// menu at all and gets no row.
+fn current_token<'a>(
+    command: &Command,
+    root: &'a Subcommand,
+    walk: &Walk,
+    rows: &[Candidate],
+    load_spec: impl Fn(&str) -> Option<&'a Subcommand>,
+) -> Option<String> {
+    let asked = walk
+        .current_arg
+        .as_ref()
+        .is_some_and(|arg| arg.suggest_current_token == Some(true));
+    if !asked || walk.search_term.is_empty() || rows.is_empty() {
+        return None;
+    }
+    // A walk past the finished word says what running the line would still miss.
+    let mut finished = command.clone();
+    finished.words.push(shellparse::Token {
+        start: command.end,
+        end: command.end,
+        inner_text: String::new(),
+        raw: String::new(),
+    });
+    (!argwalk::walk(&finished, root, load_spec).needs_word).then(|| walk.search_term.clone())
 }
 
 /// Whether the line runs as it stands and the menu should lead with the row
@@ -2618,8 +2657,9 @@ mod tests {
     #[test]
     fn a_line_that_still_needs_a_word_gets_no_row_that_runs_it() {
         // `cargo` wants a subcommand, `docker container` one of its own,
-        // `make -C` its directory and `cp` its target. A word being typed is
-        // the menu's to answer rather than a line to run.
+        // `make -C` its directory, `cp` its target and `mkdir -p` its
+        // folder. A word being typed is the menu's to answer rather than a
+        // line to run.
         let f = Fixture::new(&["sample-file*", "assets/inner"]);
         for line in [
             "cargo ",
@@ -2627,6 +2667,7 @@ mod tests {
             "make -C ",
             "cp sample-file ",
             "cargo build --re",
+            "mkdir -p",
         ] {
             let rows = rows_in(f.path(), line);
             assert!(!rows.is_empty(), "{line}");
@@ -2636,6 +2677,20 @@ mod tests {
                 names(&rows)
             );
         }
+    }
+
+    #[test]
+    fn an_argument_that_names_something_new_leads_with_the_word_typed() {
+        // `sml` reaches `sample/` by its letters and the name typed still leads.
+        let f = Fixture::new(&["sample/inner"]);
+        for line in ["mkdir sml", "touch sml", "ssh-keygen -f sml"] {
+            let rows = rows_in(f.path(), line);
+            assert_eq!(rows[0].kind, Kind::Run, "{line}");
+            assert_eq!(rows[0].insert, "sml", "{line}");
+            assert!(names(&rows).contains(&"sample/"), "{line}");
+        }
+        // `zzz` reaches nothing to hold the row under.
+        assert!(rows_in(f.path(), "mkdir zzz").is_empty());
     }
 
     #[test]

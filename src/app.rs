@@ -419,6 +419,7 @@ impl App {
         };
         if matching == Match::Prefix {
             let typed = self.typed();
+            let before = rows.len();
             rows.retain(|c| {
                 matches!(
                     c.kind,
@@ -426,6 +427,14 @@ impl App {
                 ) || starts_with_folded(c.display.trim_end_matches('/'), &typed)
                     || starts_with_folded(&c.insert, &typed)
             });
+            // A row that runs the line over nothing else is no menu at all.
+            if rows.len() < before
+                && rows
+                    .iter()
+                    .all(|c| matches!(c.kind, Kind::Run | Kind::Leave))
+            {
+                rows.clear();
+            }
         }
         rows
     }
@@ -1316,6 +1325,19 @@ mod tests {
         );
         assert!(
             matching_over(f.path(), "cd wk", Match::Prefix)
+                .items
+                .is_empty()
+        );
+    }
+
+    #[test]
+    fn prefix_leaves_no_menu_with_only_the_row_that_runs_the_line() {
+        // `sml` reaches `sample/` only the fuzzy way.
+        let f = Fixture::new(&["sample/inner"]);
+        let fuzzy = matching_over(f.path(), "mkdir sml", Match::Fuzzy);
+        assert_eq!(fuzzy.items[0].kind, candidates::Kind::Run);
+        assert!(
+            matching_over(f.path(), "mkdir sml", Match::Prefix)
                 .items
                 .is_empty()
         );
