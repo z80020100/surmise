@@ -1088,13 +1088,26 @@ is typed already names something on disk. `ls assets/`, `ls assets` and
 line the way it does under `ls`. The row belongs to the
 `filepaths` argument rather than to anything Git's own menu decided, and a
 line that menu still answers never gets one: none of the three things it reads
-is a path a `cd` would take. A name still being typed does not. An empty
+is a path a `cd` would take. A name still being typed gets it only where its
+argument asks for it. The next paragraph says which. An empty
 argument gets it only where the line runs as it stands. A `folders` argument
 refuses a file. That is not what it asked for and the menu never offered it
 either. A link with no target still counts, the same way the scan behind the
 rows still lists it. Nothing else gets the row while a word is being typed. A
 subcommand is a word to go on from rather than an answer and the menu under it
 is what says where.
+
+An argument can also ask for the row on the word as typed. `mkdir` names a
+folder that is not there yet and its specification asks for it. `mkdir sml`
+therefore leads with the row that runs it although `sml` names nothing on
+disk. Without the row `sml` reached `sample/` by its letters and Enter took
+that folder in place of the name typed. The folders stay under the row for a
+path that goes on under one of them and `sample/` is one Down away. Tab looks
+past the row and Right takes nothing from it. The row comes only where the
+line needs no further word once the name fills the argument and only where
+something else is in the list. `mkdir -p` still wants its folder and gets
+none. 82 arguments in the corpus ask for the row. `touch` and `ssh-keygen -f`
+are two more.
 
 Two arguments are answered by a reader of surmise's own. `make ` offers the
 targets of the makefile beside the line and the same argument behind `-j`,
@@ -1650,7 +1663,8 @@ Eight keys and two tables have a reader today.
   `filterStrategy` for the argument in hand, a generator on it or the node
   outranks the setting for that list. 235 places in the corpus name `fuzzy`
   and one names `prefix`. The row that runs the line and the parent and home
-  rows stay whichever is set.
+  rows stay whichever is set. A list that `prefix` cuts down to the row that
+  runs the line alone opens no menu at all.
 - `sort` names what orders the rows a match leaves level. `"recent"` is the
   default and lets the directory history and `$HISTFILE` lead.
   `"alphabetical"` leaves it to the name. The directory history is then not
