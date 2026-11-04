@@ -3,7 +3,7 @@
 //! and `include!`, so the binary carries `specs/` and this script is the only
 //! thing that reads the directory itself. `extra-specs/` rides in the same
 //! blob. It holds the specifications surmise writes for itself and a name it
-//! shares with the corpus fails the build rather than shadow one. `CLAUDE.md`'s "Completion spec
+//! shares with the corpus fails the build rather than shadow one. `README.md`'s "Completion spec
 //! data" section says what `specs/` is and why it is committed rather than
 //! fetched.
 

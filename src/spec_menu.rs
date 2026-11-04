@@ -821,9 +821,9 @@ fn values(listed: Vec<Candidate>, found: Vec<Candidate>, whole: usize) -> Vec<Ca
 }
 
 /// The rows one generator on the current argument offers, by its template.
-/// `inventory-npm.md` §2 and `plans/phase-2-spec-runtime.md` §3 are the
-/// whole of what a template can name; a generator naming none of them, or
-/// naming `history` (phase 5's own reader), offers nothing here.
+/// The corpus names four templates: `filepaths`, `folders`, `help` and
+/// `history`. A generator naming none of them, or naming `history` (which
+/// has a reader of its own), offers nothing here.
 fn generator_rows(
     generator: &Generator,
     term: &str,
@@ -873,8 +873,7 @@ fn reads_paths(generator: &Generator) -> Option<&str> {
                 .unwrap_or("always"),
         );
     }
-    // npm §2 defines `folders` as `filepaths` with `showFolders` forced to
-    // `"only"`.
+    // `folders` is `filepaths` with `showFolders` forced to `"only"`.
     names("folders").then_some("only")
 }
 
@@ -995,9 +994,9 @@ fn runs_as_it_stands(target: &Target, walk: &Walk, rows: &[Candidate]) -> bool {
 /// rather than one per key. `show_folders` is what [`reads_paths`] made of
 /// the two templates.
 ///
-/// npm §2 lists `extensions`, `equals`, `matches`, `filterFolders`,
-/// `rootDirectory`, `editFileSuggestions` and `editFolderSuggestions`
-/// alongside `showFolders`. None of the seven appears once in the 1481
+/// A filesystem template can also name `extensions`, `equals`, `matches`,
+/// `filterFolders`, `rootDirectory`, `editFileSuggestions` and
+/// `editFolderSuggestions` beside `showFolders`. None of the seven appears once in the 1481
 /// committed specs (measured across every generator and every argument), so
 /// none of them is read here; `showFolders` is the one option this reads,
 /// because `folders` is defined as `filepaths` with it forced to `"only"`

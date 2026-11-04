@@ -5,7 +5,7 @@
 //! line a shell widget typed. Everything else here is what `pick` is built
 //! from. `fixture` is the exception and belongs to the tests.
 //!
-//! Every module lives here rather than under the binary. `CLAUDE.md` gives the
+//! Every module lives here rather than under the binary. `README.md` gives the
 //! two reasons.
 
 pub mod app;

@@ -7,7 +7,7 @@
 # Tab, Space or /, and after `set -o vi` where that is set. surmise binds in the
 # current keymap.
 #
-# CLAUDE.md holds the keymap and what SURMISE_BIN does.
+# README.md holds the keymap and what SURMISE_BIN does.
 
 if ((BASH_VERSINFO[0] > 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 4))); then
 
@@ -77,7 +77,7 @@ if ((BASH_VERSINFO[0] > 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 4)));
     local left=${READLINE_LINE:0:READLINE_POINT} right=${READLINE_LINE:READLINE_POINT}
     _surmise_fill_specs
     # A tag, the text right of the cursor, $HISTFILE and the alias table go on
-    # stdin as one record, each field ended with a NUL. CLAUDE.md says why.
+    # stdin as one record, each field ended with a NUL. README.md says why.
     local -a record=("$_surmise_tag" "$right" "${HISTFILE-}")
     local name
     for name in "${!BASH_ALIASES[@]}"; do
@@ -121,7 +121,7 @@ if ((BASH_VERSINFO[0] > 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 4)));
     ((READLINE_POINT++))
     _surmise_then
     [[ -z ${READLINE_LINE:READLINE_POINT} ]] || return 0
-    # Keys queued behind the space came in one write. CLAUDE.md says why.
+    # Keys queued behind the space came in one write. README.md says why.
     read -t 0 && return 0
     _surmise_fill_specs
     local -a words

@@ -7,7 +7,7 @@
 # theirs rather than the other way round. It binds in the current keymap.
 # Put it after `bindkey -e` or `bindkey -v` for that reason.
 #
-# CLAUDE.md holds the keymap and what SURMISE_BIN does.
+# README.md holds the keymap and what SURMISE_BIN does.
 
 typeset -g SURMISE_BIN=${SURMISE_BIN:-surmise}
 

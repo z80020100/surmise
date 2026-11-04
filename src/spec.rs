@@ -1,16 +1,15 @@
 //! The normalized shape of a completion specification, and the loader that
-//! turns `spec_store`'s bytes into it. `CLAUDE.md`'s "Completion spec data"
+//! turns `spec_store`'s bytes into it. `README.md`'s "Completion spec data"
 //! section says what `specs/` is; this module is what reads one file from it.
 //!
 //! **The committed data is the raw shape a spec author wrote.** The corpus's
-//! own loader normalizes that shape when it reads a spec, and
-//! `plans/reference/inventory-npm.md` §1 is that loader read cover to cover.
-//! This module ports its rules:
+//! own loader normalizes that shape when it reads a spec. This module ports
+//! its rules:
 //!
 //! - `name` is always a list. A string becomes a one-element list. The same
 //!   rule is applied here to every name-bearing field ([`Subcommand`], [`Opt`],
 //!   [`Arg`] and [`Suggestion`] all declare `name` as `string | string[]`),
-//!   not only to the subcommand the inventory's own text singles out.
+//!   not only to the subcommand.
 //! - `subcommands` becomes a map from every name and alias to one shared
 //!   node. The loop runs forward and assigns, so a later subcommand whose
 //!   name collides with an earlier one wins. [`Stats::subcommand_collisions`]
@@ -23,9 +22,9 @@
 //!   none.
 //! - `template` on an arg becomes one more entry in `generators`. The
 //!   loader's own `initializeDefault` *removes* the arg's own generators when
-//!   it does this; surmise keeps both, because `gap-analysis.md` §6 item 14
-//!   found nothing in the corpus's own engine that depends on the discard,
-//!   and the data disagrees for [8 arguments](Arg) out of 235 174.
+//!   it does this; surmise keeps both, because nothing in the corpus's own
+//!   engine depends on the discard, and the data disagrees for
+//!   [8 arguments](Arg) out of 235 174.
 //! - A generator whose template names `folders` or `filepaths` gets
 //!   `trigger` and `get_query_term` of `/` unless the spec set them.
 //! - `loadSpec` as a string becomes one [`LoadSpec`] of kind `"global"`. An
@@ -36,7 +35,7 @@
 //! runtime exists to call), a [`Generator`] holds data alone with no
 //! `custom`, `postProcess` or `filterTemplateSuggestions`, and the
 //! versioned-spec machinery is a single-hop pointer rather than a semver
-//! walk. `plans/phase-1-parser.md`'s `spec` section is the fuller account.
+//! walk.
 
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
@@ -101,7 +100,7 @@ pub struct Subcommand {
     pub load_spec: Vec<LoadSpec>,
     /// The bare boolean a subcommand's own `cache` declares. Parsed and never
     /// read anywhere in the corpus's own engine; `Generator.cache` is the one
-    /// anything acts on (`plans/reference/inventory-npm.md` §4).
+    /// anything acts on.
     pub cache: Option<bool>,
     pub description: Option<String>,
     pub icon: Option<String>,
@@ -131,7 +130,7 @@ pub struct Opt {
     pub args: Vec<Arg>,
     pub is_persistent: bool,
     /// `isRequired`. Parsed and never read anywhere in the corpus's own
-    /// engine (`plans/reference/inventory-npm.md` §4).
+    /// engine.
     pub is_required: Option<bool>,
     pub description: Option<String>,
     pub icon: Option<String>,
@@ -180,9 +179,8 @@ pub struct Arg {
     pub filter_strategy: Option<String>,
     pub suggest_current_token: Option<bool>,
     pub is_dangerous: Option<bool>,
-    /// An argument's `debounce`, read by the argument walk's trigger logic
-    /// (`plans/reference/inventory-parser.md` §1.3 and §4.4). This module
-    /// only carries it through; it does not act on it.
+    /// An argument's `debounce`, read by the argument walk's trigger logic.
+    /// This module only carries it through; it does not act on it.
     pub debounce: Option<bool>,
     pub extra: Extra,
 }
@@ -262,7 +260,7 @@ pub struct Generator {
     pub template: Vec<String>,
     /// A command line: a string, a list of arguments, or an object carrying
     /// `command`/`args`/`cwd`/`env`. Left as JSON because interpreting it is
-    /// `plans/phase-2-spec-runtime.md` §4's job, not this module's.
+    /// `native`'s job, not this module's.
     pub script: Option<Value>,
     pub split_on: Option<String>,
     /// Every `trigger` in the committed data is the string form; the
@@ -274,7 +272,7 @@ pub struct Generator {
     pub suggestions: Vec<Suggestion>,
     pub cache: Option<GeneratorCache>,
     /// A generator's `debounce`. Parsed and never read: only an argument's
-    /// `debounce` is (`plans/reference/inventory-parser.md` §1.4).
+    /// `debounce` is.
     pub debounce: Option<Value>,
     pub extra: Extra,
 }
@@ -308,22 +306,18 @@ pub struct Suggestion {
     /// `type` in the data, renamed because `type` is a Rust keyword.
     pub kind: Option<String>,
     pub is_dangerous: Option<bool>,
-    /// Parsed and never read anywhere in the corpus's own engine
-    /// (`plans/reference/inventory-npm.md` §4).
+    /// Parsed and never read anywhere in the corpus's own engine.
     pub deprecated: Option<bool>,
-    /// Parsed and never read: insertion reads `insertValue` alone
-    /// (`plans/reference/inventory-npm.md` §4).
+    /// Parsed and never read: insertion reads `insertValue` alone.
     pub replace_value: Option<String>,
-    /// `_internal`. Parsed and never read
-    /// (`plans/reference/inventory-npm.md` §4).
+    /// `_internal`. Parsed and never read.
     pub internal: Option<Value>,
     pub extra: Extra,
 }
 
 /// `parserDirectives`, already resolved against every ancestor by the time
 /// it reaches a [`Subcommand`]. `alias` is not modelled: it is a function in
-/// every spec that declares one, so it never survives conversion into data
-/// (`plans/phase-1-parser.md`'s `argwalk` section).
+/// every spec that declares one, so it never survives conversion into data.
 #[derive(Debug, Clone, Default)]
 pub struct ParserDirectives {
     pub flags_are_posix_noncompliant: bool,
@@ -342,8 +336,7 @@ pub struct LoadSpec {
 
 /// Counts a normalization pass measured, so a test can assert them against
 /// the converter's own report rather than trust that the walk found
-/// everything. `plans/phase-1-parser.md`'s exit criteria name the corpus
-/// totals this is checked against.
+/// everything.
 #[derive(Debug, Default, Clone, Copy)]
 struct Stats {
     subcommands: usize,
@@ -356,11 +349,10 @@ struct Stats {
 
 /// Loads and normalizes the committed spec named `name`. A file whose only
 /// fields are `name` and `versionedSpecPath` is a pointer; it is followed
-/// once; `plans/phase-2-spec-runtime.md` §1 confirms a pointer never points
-/// at another.
+/// once because no committed pointer points at another.
 ///
-/// This performs no session-level caching. `plans/phase-2-spec-runtime.md`
-/// §1 owns that, on top of the walk this function exists to provide.
+/// This performs no caching. `spec_menu` keeps each load for one menu on top
+/// of the walk this function exists to provide.
 ///
 /// `spec_dirs` is taken as a parameter for the reason `spec_store` gives for
 /// the same choice: a `static` holding the config can be set once, and a
@@ -1065,8 +1057,8 @@ mod tests {
         }
     }
 
-    /// The corpus totals `tools/spec-convert` reported, and the phase-1 exit
-    /// criterion at the struct level: reading raw nodes with `read_raw`
+    /// The corpus totals `tools/spec-convert` reported, checked at the
+    /// struct level: reading raw nodes with `read_raw`
     /// rather than through `load` is what keeps a pointer's own stub (empty
     /// besides `name` and `versionedSpecPath`) from being counted twice,
     /// once under its own key and once under the key that points at it.
@@ -1197,9 +1189,8 @@ mod tests {
         );
     }
 
-    /// The one field in `inventory-npm.md` §1's table with a real example
-    /// in the corpus: `specs/adb.json`'s `-s` option takes a `SERIAL` arg
-    /// with a plain name and no template, so no generator is synthesized.
+    /// `specs/adb.json`'s `-s` option takes a `SERIAL` arg with a plain name
+    /// and no template, so no generator is synthesized.
     #[test]
     fn an_arg_without_a_template_gets_no_synthesized_generator() {
         let spec = load("adb", &[]).expect("adb is a committed spec");
@@ -1594,11 +1585,10 @@ mod tests {
         assert_eq!(hidden.depends_on, vec!["--text".to_string()]);
     }
 
-    /// Phase 0's budget is 10 ms p95 per spec, and `gcloud/compute.json` at
-    /// 6 MB is called out as the worst case in `plans/phase-2-spec-runtime.md`'s
-    /// Risks section. This is not an assertion the gate can fail on: the
-    /// number is reported and phase 0 §2's binary format is the answer if
-    /// it ever needs one.
+    /// The budget is 10 ms p95 per spec and `gcloud/compute.json` at 6 MB is
+    /// the largest spec in the corpus. This is not an assertion the gate can
+    /// fail on: the number is reported and a binary spec format is the answer
+    /// if it ever needs one.
     #[test]
     fn timing_for_git_and_gcloud_compute() {
         let git_start = Instant::now();
