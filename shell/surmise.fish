@@ -7,7 +7,7 @@
 # called. surmise binds in the default mode and in vi's insert mode. vi's normal
 # mode is the default mode and keeps its own /.
 #
-# CLAUDE.md holds the keymap and what SURMISE_BIN does.
+# README.md holds the keymap and what SURMISE_BIN does.
 
 # fish 3 cannot mix input functions and shell commands in the space binding.
 string match -qr '^[0-3]\.' -- $FISH_VERSION; and return
@@ -57,7 +57,7 @@ function _surmise_complete
     set -l right (string sub -s (math $point + 1) -- $line)
     _surmise_fill_specs
     # A tag, the text right of the cursor and the history file go on stdin as
-    # one record, each field ended with a NUL. CLAUDE.md says why. fish keeps
+    # one record, each field ended with a NUL. README.md says why. fish keeps
     # no alias table of the shape the record carries.
     set -l histfile (_surmise_history_file)
     set -l tty (tty)

@@ -8,7 +8,7 @@
 # out of the environment and the command is what puts it there. The bytes
 # `make shell` checks are therefore the bytes that run.
 #
-# CLAUDE.md says what the demo moves and what it leaves where it is.
+# README.md says what the demo moves and what it leaves where it is.
 
 # The person's own history file, which the $HISTFILE tie-break reads. zsh
 # carries no default for it and `-d` drops the /etc file that usually sets
@@ -28,7 +28,7 @@ bindkey -e
 autoload -Uz compinit && compinit -u
 
 # `g` opens git's own specification through the menu every other command
-# reaches rather than through Git's own reader. CLAUDE.md's "Other commands"
+# reaches rather than through Git's own reader. README.md's "Other commands"
 # says why an alias for `git` lands there.
 alias g=git
 alias d=docker

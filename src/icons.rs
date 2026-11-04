@@ -636,8 +636,8 @@ mod tests {
     }
 
     #[test]
-    fn the_file_tables_hold_what_claude_md_says_they_hold() {
-        // `CLAUDE.md` gives a person these three numbers under "Use". A row
+    fn the_file_tables_hold_what_the_readme_says_they_hold() {
+        // `README.md` gives a person these three numbers under "Use". A row
         // added here without a word there leaves the document saying
         // something the build no longer does.
         let keys = |table: &[(&[&str], &str, Role)]| {

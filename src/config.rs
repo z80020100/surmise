@@ -87,9 +87,8 @@ impl Default for Config {
 
 /// The keys this build reads. Every field is optional so a file naming one
 /// key keeps the defaults for the rest, and `extra` catches whatever key the
-/// file names that this build does not read yet. `plans/phase-6-settings-cli.md`
-/// names the rest of the schema; a key with no reader stays out of `Config`
-/// until the phase that reads it lands.
+/// file names that this build does not read yet. A key with no reader stays
+/// out of `Config` until the code that reads it lands.
 #[derive(Deserialize, Default)]
 struct Schema {
     enabled: Option<bool>,

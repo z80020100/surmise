@@ -205,7 +205,7 @@ mod tests {
         assert!(value.is_object());
     }
 
-    /// The phase-1 exit criterion, at the byte level: every one of the 1486
+    /// The byte-level check: every one of the 1486
     /// committed specs decompresses to exactly the length `build.rs` recorded
     /// for it and parses as JSON. The data is local and fixed, so this costs
     /// nothing beyond the run time it takes.

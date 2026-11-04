@@ -1732,9 +1732,9 @@ same two keys do reach is every `git` line that menu declined, since those
 walk the same specification: `git` in `disabled_commands` puts `git blame `
 and `git stash ` back to where they were before either menu answered them.
 
-`plans/phase-6-settings-cli.md` names the rest of the schema. A key with no
-reader stays out of this build, because a config key that does nothing is a
-promise the binary does not keep. Each one lands with the phase that reads it.
+A key with no reader stays out of this build, because a config key that does
+nothing is a promise the binary does not keep. Each one lands with the code
+that reads it.
 
 Hand-writing one file for `spec_dirs` is easy: the shape is the same JSON
 `specs/` already holds. Converting somebody else's published spec is not,
