@@ -12,14 +12,15 @@ platform is not.
 
 ## Prerequisites
 
-- Rust 1.98.0. `rust-toolchain.toml` pins it and rustup installs it on demand
+- Rust 1.91.0 or later to install. A clone builds with the 1.98.0 that
+  `rust-toolchain.toml` pins and rustup installs on demand
 - Target platforms: macOS and Linux. CI builds and checks both. Nothing else
   has been built and nothing else is claimed
 
 ## Install
 
 ```sh
-cargo install --git https://github.com/z80020100/surmise
+cargo install --locked surmise
 ```
 
 Then in `~/.zshrc`, after zsh-autosuggestions and zsh-syntax-highlighting and
@@ -1909,9 +1910,12 @@ Every cargo command in the Makefile passes `--locked`. `Cargo.lock` is tracked
 and a command that quietly re-resolves it would build something other than what
 the lockfile describes. `cargo install` ignores the lockfile without that flag.
 
-`publish = false` is set on purpose. This is scaffolding rather than a release.
-Note also that `cargo package` collects every file git does not ignore. Add an
-`exclude` list before you take that line out.
+`include` in `Cargo.toml` names what a published package carries. Without it
+`cargo package` collects every file git does not ignore. A file added outside
+the listed paths stays out of the package until somebody names it there.
+The package is 8.4 MiB compressed and `specs/` is nearly all of it.
+crates.io refuses a package over 10 MB. A regenerated corpus that grows past
+that margin cannot be published.
 
 ## The pre-commit hook
 
